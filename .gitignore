@@ -1,0 +1,87 @@
+# Local environment variables and credentials
+.env
+.env.*
+!.env.example
+!.env.*.example
+
+# Python bytecode, environments, and tooling caches
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+env/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.pyre/
+.pytype/
+.tox/
+.nox/
+.ipynb_checkpoints/
+
+# Test coverage
+.coverage
+.coverage.*
+htmlcov/
+coverage/
+coverage.xml
+
+# Build and package output
+build/
+dist/
+*.egg-info/
+*.egg
+*.so
+
+# Frontend dependencies and generated output
+node_modules/
+.next/
+.nuxt/
+.output/
+.svelte-kit/
+.angular/
+.parcel-cache/
+.turbo/
+.vite/
+*.tsbuildinfo
+
+# Local database files and Docker database volumes
+*.db
+*.db-journal
+*.db-shm
+*.db-wal
+*.sqlite
+*.sqlite3
+*.sqlite*-journal
+*.sqlite*-shm
+*.sqlite*-wal
+pgdata/
+postgres-data/
+
+# Datasets, model artifacts, and vector indexes
+data/
+datasets/
+checkpoints/
+*.pt
+*.pth
+*.ckpt
+*.onnx
+*.faiss
+
+# Logs and temporary files
+logs/
+*.log
+*.tmp
+*.swp
+*.swo
+*~
+
+# Operating system metadata
+.DS_Store
+Thumbs.db
+Desktop.ini
+
+# Local IDE settings and workspace state
+.idea/
+.vscode/*
+!.vscode/settings.json

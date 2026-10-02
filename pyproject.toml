@@ -1,0 +1,16 @@
+[build-system]
+requires = ["setuptools>=61"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+include = ["BackEnd*"]
+namespaces = false
+
+[project]
+name="sbtc-AIGuru"
+version="0.1"
+
+dependencies = [
+    "crawl4ai",
+    "pyarrow>=25.0.1",
+]
