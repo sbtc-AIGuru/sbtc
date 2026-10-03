@@ -19,6 +19,7 @@ from pagination import (
 )
 from quality import ARTICLE_LAYOUTS, http_article_error
 from utils import SourceRecord
+from verbatim import clean_to_verbatim
 
 
 MAX_BROWSER_RETRIES = 3
@@ -309,7 +310,13 @@ async def crawl_one(
                         record, payload, "http", monotonic() - started, attempts, used_browser
                     )
                 payload["page_count"] = page_count
-            payload.update(text=text, success=True)
+            verbatim_text = clean_to_verbatim(text)
+            if not verbatim_text.strip():
+                payload.update(success=False, error="Empty verbatim text after cleaning")
+                return CrawlOutcome(
+                    record, payload, "http", monotonic() - started, attempts, used_browser
+                )
+            payload.update(text=verbatim_text, success=True)
             return CrawlOutcome(
                 record, payload, "browser" if used_browser else "http",
                 monotonic() - started, attempts, used_browser,
@@ -338,7 +345,12 @@ async def crawl_one(
             else:
                 payload["page_count"] = page_count
         if text is not None:
-            payload.update(text=text, success=True)
+            verbatim_text = clean_to_verbatim(text)
+            if verbatim_text.strip():
+                payload.update(text=verbatim_text, success=True)
+            else:
+                browser_error = "Empty verbatim text after cleaning"
+                text = None
     if text is None:
         error_message = f"HTTP: {http_error}; Browser: {browser_error}" if http_error else browser_error
         payload.update(success=False, error=error_message)

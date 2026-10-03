@@ -125,8 +125,8 @@ def build_run_configs() -> tuple[CrawlerRunConfig, dict[str, CrawlerRunConfig]]:
         ),
         "suckhoedoisong.vn": run_config.clone(
             target_elements=[
-                ".detail__contenent-main > header",
-                ".detail__contenent-main > .detail-content",
+                "h1.detail-title, .detail-title, h1",
+                ".detail-content",
             ],
             markdown_generator=DefaultMarkdownGenerator(),
         ),
@@ -349,6 +349,16 @@ def build_run_configs() -> tuple[CrawlerRunConfig, dict[str, CrawlerRunConfig]]:
         ),
         "health.people.com.cn": run_config.clone(
             target_elements=[".articleCont"],
+            markdown_generator=DefaultMarkdownGenerator(),
+        ),
+        "a-hospital.com": run_config.clone(
+            target_elements=["h1#firstHeading", "#bodyContent"],
+            excluded_selector="#toc, .printfooter, #catlinks",
+            markdown_generator=DefaultMarkdownGenerator(),
+        ),
+        "zhongyibaodian.net": run_config.clone(
+            target_elements=["h1#firstHeading", "#bodyContent"],
+            excluded_selector="#toc, .printfooter, #catlinks",
             markdown_generator=DefaultMarkdownGenerator(),
         ),
     }
