@@ -32,6 +32,28 @@ BROWSER_DISCONNECT_MESSAGES = (
     "BrowserContext.new_page: Connection closed",
     "Target page, context or browser has been closed",
 )
+BROWSER_ONLY_DOMAINS = {
+    "bachmai.gov.vn",
+}
+BOILERPLATE_PATTERNS = (
+    re.compile(r"copyright\s*©.*(?:all\s+rights\s+reserved|版权所有)", re.IGNORECASE),
+    re.compile(r"^(?:出错提示|页面不存在|404\s+not\s+found|403\s+forbidden)", re.IGNORECASE),
+    re.compile(r"抱歉[，,]\s*您(?:访问|查看)的页面(?:不存在|已删除)", re.IGNORECASE),
+    re.compile(r"^(?:bài\s+viết|trang)\s+(?:không\s+tồn\s+tại|đã\s+bị\s+xóa)", re.IGNORECASE),
+    re.compile(r"(?:performing security verification|security service to protect against malicious bots|attention required! \| cloudflare)", re.IGNORECASE),
+)
+
+
+def is_boilerplate_text(text: str) -> bool:
+    """Determine whether cleaned text is empty, too short, or merely a boilerplate disclaimer/error."""
+    stripped = text.strip()
+    if len(stripped) < 40:
+        return True
+    if len(stripped) < 250:
+        for pat in BOILERPLATE_PATTERNS:
+            if pat.search(stripped):
+                return True
+    return False
 
 
 @dataclass(frozen=True)
@@ -73,10 +95,16 @@ def is_browser_disconnected(error: str) -> bool:
 
 def page_error(text: str) -> str | None:
     """Recognize short browser challenge or application error pages."""
-    if len(text) > 500:
+    if len(text) > 600:
         return None
     content = text.lstrip("# \n").lower()
-    if content.startswith(("checking your browser", "this will only take a few seconds")):
+    if (
+        content.startswith(("checking your browser", "this will only take a few seconds", "just a moment"))
+        or "performing security verification" in content
+        or "security service to protect against malicious bots" in content
+        or "attention required! | cloudflare" in content
+        or "verify you are human" in content
+    ):
         return "Browser verification page instead of article content"
     if content.startswith("application error:"):
         return "Website application error instead of article content"
@@ -97,11 +125,16 @@ def homepage_redirect_error(url: str, result: object) -> str | None:
 
 
 def http_fetch_url(record: SourceRecord) -> str:
-    """Avoid CNKang's slower HTTP-to-HTTPS redirect while preserving the source URL."""
-    if record.url.startswith("http://") and urlsplit(record.url).hostname in {
-        "cnkang.com", "www.cnkang.com"
-    }:
-        return "https://" + record.url[len("http://") :]
+    """Avoid slower HTTP-to-HTTPS redirects while preserving the source URL."""
+    if record.url.startswith("http://"):
+        host = (urlsplit(record.url).hostname or "").removeprefix("www.")
+        if (
+            host in {"cnkang.com", "familydoctor.com.cn", "120ask.com", "zhongyibaodian.net"}
+            or host.endswith(".39.net")
+            or host.endswith(".familydoctor.com.cn")
+            or host.endswith(".120ask.com")
+        ):
+            return "https://" + record.url[len("http://") :]
     return record.url
 
 
@@ -290,7 +323,10 @@ async def crawl_one(
 
     attempts = 0
     http_error = ""
-    try_http = fetch_mode == "http" or (fetch_mode == "auto" and domain in ARTICLE_LAYOUTS)
+    try_http = fetch_mode == "http" or (
+        fetch_mode == "auto"
+        and domain not in BROWSER_ONLY_DOMAINS
+    )
     if try_http and http is not None:
         text, http_error, count, result = await _fetch_with_strategy(
             http, http_semaphore, record, http_fetch_url(record), domain, config, "http"
@@ -305,14 +341,14 @@ async def crawl_one(
                 )
                 attempts += count
                 if text is None:
-                    payload.update(success=False, error=pagination_error)
+                    payload.update(success=False, text="", error=pagination_error)
                     return CrawlOutcome(
                         record, payload, "http", monotonic() - started, attempts, used_browser
                     )
                 payload["page_count"] = page_count
             verbatim_text = clean_to_verbatim(text)
-            if not verbatim_text.strip():
-                payload.update(success=False, error="Empty verbatim text after cleaning")
+            if is_boilerplate_text(verbatim_text):
+                payload.update(success=False, text="", error="Empty or boilerplate text after cleaning")
                 return CrawlOutcome(
                     record, payload, "http", monotonic() - started, attempts, used_browser
                 )
@@ -323,11 +359,11 @@ async def crawl_one(
                 "Wujue numbered page required Chromium" if used_browser else "",
             )
         if fetch_mode == "http":
-            payload.update(success=False, error=http_error)
+            payload.update(success=False, text="", error=http_error)
             return CrawlOutcome(record, payload, "http", monotonic() - started, attempts, False)
 
     if browser is None:
-        payload.update(success=False, error=http_error or "Browser is unavailable")
+        payload.update(success=False, text="", error=http_error or "Browser is unavailable")
         return CrawlOutcome(record, payload, "none", monotonic() - started, attempts, try_http)
     text, browser_error, count, result = await _fetch_with_strategy(
         browser, browser_semaphore, record, record.url, domain, config, "browser"
@@ -346,14 +382,14 @@ async def crawl_one(
                 payload["page_count"] = page_count
         if text is not None:
             verbatim_text = clean_to_verbatim(text)
-            if verbatim_text.strip():
+            if not is_boilerplate_text(verbatim_text):
                 payload.update(text=verbatim_text, success=True)
             else:
-                browser_error = "Empty verbatim text after cleaning"
+                browser_error = "Empty or boilerplate text after cleaning"
                 text = None
     if text is None:
         error_message = f"HTTP: {http_error}; Browser: {browser_error}" if http_error else browser_error
-        payload.update(success=False, error=error_message)
+        payload.update(success=False, text="", error=error_message)
     return CrawlOutcome(
         record, payload, "browser", monotonic() - started, attempts, try_http, http_error
     )

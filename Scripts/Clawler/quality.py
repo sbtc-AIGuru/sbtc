@@ -5,13 +5,14 @@ from __future__ import annotations
 from bs4 import BeautifulSoup, Tag
 
 from pagination import remove_wujue_pager
+from verbatim import clean_to_verbatim
 
 
 ARTICLE_LAYOUTS: dict[str, tuple[tuple[str, tuple[str, ...]], ...]] = {
     "120ask.com": (("#d_askH1", ("#d_msCon", ".b_answerbox .b_answerli .b_anscont_cont")),),
     "cnkang.com": (
         (".detail h1.detaila", (".detail .detailc",)),
-        ("#wleft .endContent h1", ("#endText",)),
+        (".endContent h1, h1#h1title, h1", ("#endText",)),
     ),
     "wujue.com": (("#article-main_left .main_articletitle h1", ("#article-main_left .art-text",)),),
     "baocantho.com.vn": (("#colcate1 > h1", ("#newscontents",)),),
@@ -26,14 +27,29 @@ ARTICLE_LAYOUTS: dict[str, tuple[tuple[str, tuple[str, ...]], ...]] = {
         ("h1.firstHeading, h1", ("#bodyContent",)),
         ("h1.firstHeading, h1", ("#content",)),
     ),
+    "suckhoecongdongonline.vn": (
+        ("h1.article__title, h1", (".article__body, .cms-body",)),
+    ),
     "sggp.org.vn": (
         ("h1.article__title, h1", (".article__body",)),
     ),
-    "bachmai.gov.vn": (
-        (".c-detail-head__title, #title-print, h1", ("#content-post",)),
-    ),
     "dantri.com.vn": (
         (".title-page, h1", ("#articleContent",)),
+    ),
+    "39.net": (
+        ("h1.ask_tit, .ask_tit, .art_left > h1, h1", (".ask_cont, .all_answer, .doc_ans, .art_left > .art_content, .art_content",)),
+    ),
+    "familydoctor.com.cn": (
+        (".art-title h1, .title h1, h1.title, h1", (".art-content, .content, #content, .q-content",)),
+    ),
+    "youlai.cn": (
+        ("h1.doc_title, h1.title, h1", (".doc_content, .article_content, .art_content, .content",)),
+    ),
+    "thanhnien.vn": (
+        ("h1.detail-title, h1", (".detail-content, .detail-cmain",)),
+    ),
+    "zydcd.com": (
+        ("h1.title, h1, .title", (".content, #content, .text, #text",)),
     ),
 }
 MIN_BODY_CHARACTERS = 40
@@ -88,7 +104,7 @@ def http_article_error(domain: str, result: object, text: str) -> str | None:
     html = getattr(result, "html", None)
     if not isinstance(html, str) or not html:
         return "HTTP response has no HTML"
-    markdown = normalized_text(text)
+    markdown = normalized_text(clean_to_verbatim(text))
     layouts = ARTICLE_LAYOUTS.get(domain)
     if layouts is None and len(markdown) < MIN_BODY_CHARACTERS:
         return f"HTTP article layout is not configured for {domain}"

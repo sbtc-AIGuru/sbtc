@@ -130,11 +130,19 @@ def build_run_configs() -> tuple[CrawlerRunConfig, dict[str, CrawlerRunConfig]]:
             ],
             markdown_generator=DefaultMarkdownGenerator(),
         ),
+        "suckhoecongdongonline.vn": run_config.clone(
+            target_elements=[
+                "h1.article__title, h1",
+                ".article__sapo",
+                ".article__body",
+            ],
+            markdown_generator=DefaultMarkdownGenerator(),
+        ),
         "thanhnien.vn": run_config.clone(
             target_elements=[
-                "article.detail__cmain > h1",
-                "article.detail__cmain .detail-sapo",
-                "article.detail__cmain .detail-cmain",
+                "h1.detail-title, article.detail__cmain > h1, h1",
+                ".detail-sapo",
+                ".detail-content",
             ],
             markdown_generator=DefaultMarkdownGenerator(),
         ),
@@ -174,9 +182,54 @@ def build_run_configs() -> tuple[CrawlerRunConfig, dict[str, CrawlerRunConfig]]:
         ),
         "39.net": run_config.clone(
             target_elements=[
+                "h1.ask_tit",
+                ".ask_tit",
                 ".art_left > h1",
+                "h1",
+                ".ask_cont",
+                ".all_answer",
+                ".doc_ans",
                 ".art_left > .art_summary",
                 ".art_left > .art_content",
+                ".art_content",
+            ],
+            markdown_generator=DefaultMarkdownGenerator(),
+        ),
+        "familydoctor.com.cn": run_config.clone(
+            target_elements=[
+                ".art-title h1",
+                ".title h1",
+                "h1.title",
+                "h1",
+                ".art-content",
+                ".content",
+                "#content",
+                ".q-content",
+                ".ans-content",
+            ],
+            markdown_generator=DefaultMarkdownGenerator(),
+        ),
+        "youlai.cn": run_config.clone(
+            target_elements=[
+                "h1.doc_title",
+                "h1.title",
+                "h1",
+                ".doc_content",
+                ".article_content",
+                ".art_content",
+                ".content",
+            ],
+            markdown_generator=DefaultMarkdownGenerator(),
+        ),
+        "zydcd.com": run_config.clone(
+            target_elements=[
+                "h1.title",
+                "h1",
+                ".title",
+                ".content",
+                "#content",
+                ".text",
+                "#text",
             ],
             markdown_generator=DefaultMarkdownGenerator(),
         ),
@@ -192,7 +245,8 @@ def build_run_configs() -> tuple[CrawlerRunConfig, dict[str, CrawlerRunConfig]]:
             target_elements=[
                 ".detail h1.detaila",
                 ".detail .detailc",
-                "#wleft .endContent h1",
+                ".endContent h1",
+                "h1#h1title",
                 "#endText",
             ],
             excluded_selector="#endText .article_intro",
@@ -358,7 +412,7 @@ def build_run_configs() -> tuple[CrawlerRunConfig, dict[str, CrawlerRunConfig]]:
         ),
         "zhongyibaodian.net": run_config.clone(
             target_elements=["h1#firstHeading", "#bodyContent"],
-            excluded_selector="#toc, .printfooter, #catlinks",
+            excluded_selector="#toc, .toc, #jump-to-nav, #siteSub, #contentSub, .printfooter, #heading-search",
             markdown_generator=DefaultMarkdownGenerator(),
         ),
     }

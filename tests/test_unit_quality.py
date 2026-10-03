@@ -32,12 +32,14 @@ class TestQualityModule(unittest.TestCase):
             "a-hospital.com",
             "zhongyibaodian.net",
             "sggp.org.vn",
-            "bachmai.gov.vn",
             "dantri.com.vn",
         ]
         for domain in expected_domains:
             with self.subTest(domain=domain):
                 self.assertIn(domain, ARTICLE_LAYOUTS, f"{domain} missing from ARTICLE_LAYOUTS")
+        
+        from fetch import BROWSER_ONLY_DOMAINS
+        self.assertIn("bachmai.gov.vn", BROWSER_ONLY_DOMAINS)
 
     def test_valid_article_passes(self):
         """A complete article matching title and body layout should pass with None error."""
