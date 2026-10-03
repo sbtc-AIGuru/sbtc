@@ -3,9 +3,11 @@
 from __future__ import annotations
 
 import json
+import fcntl
 from dataclasses import dataclass
+from datetime import datetime, timezone
 from pathlib import Path
-from typing import Iterator
+from typing import Iterator, TextIO
 
 import pyarrow.parquet as parquet
 
@@ -79,20 +81,31 @@ def load_url_range(
         yield pending
 
 
-def load_completed_ids(output: Path) -> dict[int, str]:
+def load_completed_ids(output: Path, repair_tail: bool = False) -> dict[int, str]:
     """Read successful IDs and their original URLs from an existing JSONL file."""
     completed: dict[int, str] = {}
     if not output.exists():
         return completed
-    with output.open("r", encoding="utf-8") as handle:
-        for line_number, line in enumerate(handle, start=1):
+    with output.open("rb") as handle:
+        line_number = 0
+        while line := handle.readline():
+            line_number += 1
+            line_start = handle.tell() - len(line)
             if not line.strip():
                 continue
             try:
-                record = json.loads(line)
+                record = json.loads(line.decode("utf-8"))
                 if record.get("success", True) and record.get("text"):
                     completed[int(record["id"])] = str(record["url"])
-            except (json.JSONDecodeError, KeyError, TypeError, ValueError) as error:
+            except (UnicodeDecodeError, json.JSONDecodeError, KeyError, TypeError, ValueError) as error:
+                if repair_tail and not line.endswith(b"\n") and not handle.read(1):
+                    timestamp = datetime.now(timezone.utc).strftime("%Y%m%d%H%M%S%f")
+                    backup = output.with_name(f"{output.name}.partial-{timestamp}")
+                    backup.write_bytes(line)
+                    with output.open("r+b") as writable:
+                        writable.truncate(line_start)
+                    print(f"[Resume] Preserved incomplete final line at {backup}", flush=True)
+                    break
                 raise ValueError(f"Invalid JSONL record at {output}:{line_number}") from error
     return completed
 
@@ -103,3 +116,40 @@ def save_results(output: Path, results: list[dict[str, object]]) -> None:
     with output.open("a", encoding="utf-8") as handle:
         for result in results:
             handle.write(json.dumps(result, ensure_ascii=False) + "\n")
+
+
+class JsonlWriter:
+    """Hold a single writer lock and flush each completed result to JSONL."""
+
+    def __init__(self, output: Path) -> None:
+        self.output = output
+        self.completed_ids: dict[int, str] = {}
+        self._lock: TextIO | None = None
+        self._handle: TextIO | None = None
+
+    def __enter__(self) -> JsonlWriter:
+        self.output.parent.mkdir(parents=True, exist_ok=True)
+        lock_path = self.output.with_name(f"{self.output.name}.lock")
+        self._lock = lock_path.open("a+", encoding="utf-8")
+        try:
+            fcntl.flock(self._lock.fileno(), fcntl.LOCK_EX | fcntl.LOCK_NB)
+            self.completed_ids = load_completed_ids(self.output, repair_tail=True)
+            self._handle = self.output.open("a", encoding="utf-8", buffering=1)
+        except (OSError, ValueError):
+            self._lock.close()
+            self._lock = None
+            raise
+        return self
+
+    def write(self, result: dict[str, object]) -> None:
+        """Append one complete UTF-8 line without retaining its text in memory."""
+        if self._handle is None:
+            raise RuntimeError("JSONL writer is not open")
+        self._handle.write(json.dumps(result, ensure_ascii=False) + "\n")
+
+    def __exit__(self, exc_type: object, exc: object, traceback: object) -> None:
+        if self._handle is not None:
+            self._handle.close()
+        if self._lock is not None:
+            fcntl.flock(self._lock.fileno(), fcntl.LOCK_UN)
+            self._lock.close()

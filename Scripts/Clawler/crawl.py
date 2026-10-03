@@ -4,260 +4,255 @@ from __future__ import annotations
 
 import argparse
 import asyncio
+from collections import Counter, deque
+from contextlib import AsyncExitStack
 from pathlib import Path
-import re
-from urllib.parse import urlsplit
 
-from crawl4ai import (
-    AsyncWebCrawler,
-    BrowserConfig,
-    CrawlerRunConfig,
-)
+import psutil
+from crawl4ai import AsyncWebCrawler, BrowserConfig
+from crawl4ai.async_crawler_strategy import AsyncHTTPCrawlerStrategy
 
+from fetch import CrawlOutcome, crawl_one, is_browser_disconnected
 from site_configs import build_run_configs
-
-from utils import (
-    SourceRecord,
-    get_row_count,
-    load_completed_ids,
-    load_url_range,
-    save_results,
-)
+from utils import JsonlWriter, SourceRecord, get_row_count, load_url_range
 
 
-MAX_RETRIES = 3
-REQUEST_TIMEOUT_SECONDS = 45
-TRANSIENT_STATUS_CODES = {408, 425, 429}
-INLINE_IMAGE_RE = re.compile(r"!\[([^\]]*)\]\(data:image/[^)\s]+\)", re.IGNORECASE)
-MAX_BATCHES_PER_BROWSER = 100
 MAX_BROWSER_RESTARTS = 3
-BROWSER_DISCONNECT_MESSAGES = (
-    "Connection closed while reading from the driver",
-    "BrowserContext.new_page: Connection closed",
-    "Target page, context or browser has been closed",
-)
+DEFAULT_RECYCLE_AFTER = 5_000
+DEFAULT_MIN_FREE_MEMORY_GB = 2.0
+METRICS_INTERVAL = 1_000
 
 
-def get_markdown_text(result: object) -> str:
-    """Prefer filtered Markdown and fall back to raw Markdown."""
-    markdown = getattr(result, "markdown", None)
-    fit = getattr(markdown, "fit_markdown", None)
-    raw = getattr(markdown, "raw_markdown", None)
-    fit_text = fit.strip() if isinstance(fit, str) else ""
-    if fit_text and not fit_text.startswith("Error generating fit markdown:"):
-        text = fit_text
-    else:
-        text = raw if isinstance(raw, str) else ""
-    return INLINE_IMAGE_RE.sub(lambda match: match.group(1).strip(), text).strip()
-
-
-def is_transient_status(status: int | None) -> bool:
-    return status is None or status in TRANSIENT_STATUS_CODES or status >= 500
-
-
-def is_browser_disconnected(error: str) -> bool:
-    """Identify a dead Playwright browser rather than a per-URL failure."""
-    return any(message in error for message in BROWSER_DISCONNECT_MESSAGES)
-
-
-def page_error(text: str) -> str | None:
-    """Recognize short browser challenge or application error pages."""
-    if len(text) > 500:
-        return None
-    content = text.lstrip("# \n").lower()
-    if content.startswith(("checking your browser", "this will only take a few seconds")):
-        return "Browser verification page instead of article content"
-    if content.startswith("application error:"):
-        return "Website application error instead of article content"
-    return None
-
-
-def homepage_redirect_error(url: str, result: object) -> str | None:
-    """Reject article URLs that resolve to a site's homepage."""
-    redirected_url = getattr(result, "redirected_url", None)
-    if not isinstance(redirected_url, str):
-        return None
-    try:
-        if urlsplit(url).path.strip("/") and not urlsplit(redirected_url).path.strip("/"):
-            return f"Article redirected to homepage: {redirected_url}"
-    except ValueError:
-        return None
-    return None
-
-
-async def crawl_one(
-    crawler: AsyncWebCrawler,
-    record: SourceRecord,
-    semaphore: asyncio.Semaphore,
-    run_config: CrawlerRunConfig,
-    domain_configs: dict[str, CrawlerRunConfig],
-) -> dict[str, object]:
-    """Crawl and retry one record while retaining its original ID and URL."""
-    if not record.url.startswith(("http://", "https://")):
-        return {
+def failed_outcome(record: SourceRecord, error: Exception) -> CrawlOutcome:
+    """Turn an unexpected task error into an ordinary per-URL failure."""
+    return CrawlOutcome(
+        record=record,
+        payload={
+            "row_index": record.row_index,
             "id": record.id,
             "url": record.url,
             "text": "",
             "success": False,
-            "error": "Missing or unsupported URL",
-        }
-
-    error_message = "Unknown crawl error"
-    try:
-        hostname = urlsplit(record.url).hostname or ""
-    except ValueError as error:
-        return {
-            "id": record.id,
-            "url": record.url,
-            "text": "",
-            "success": False,
-            "error": f"Invalid URL: {error}",
-        }
-    hostname = hostname.removeprefix("www.")
-    config = domain_configs.get(hostname)
-    if hostname == "nhathuoclongchau.com.vn" and urlsplit(record.url).path.startswith("/benh/"):
-        config = domain_configs["nhathuoclongchau.com.vn/benh"]
-    if config is None and hostname.endswith(".39.net"):
-        config = domain_configs["39.net"]
-    config = config or run_config
-    async with semaphore:
-        for attempt in range(MAX_RETRIES + 1):
-            try:
-                result = await asyncio.wait_for(
-                    crawler.arun(url=record.url, config=config),
-                    timeout=REQUEST_TIMEOUT_SECONDS,
-                )
-                redirect_error = homepage_redirect_error(record.url, result)
-                if redirect_error:
-                    return {
-                        "id": record.id,
-                        "url": record.url,
-                        "text": "",
-                        "success": False,
-                        "error": redirect_error,
-                    }
-                text = get_markdown_text(result) if result.success else ""
-                content_error = page_error(text) if text else None
-                if result.success and text and not content_error:
-                    return {"id": record.id, "url": record.url, "text": text}
-                status = getattr(result, "status_code", None)
-                error_message = content_error or result.error_message or (
-                    "Empty Markdown" if result.success else f"HTTP {status or 'unknown'}"
-                )
-                if is_browser_disconnected(error_message):
-                    break
-                if not result.success and not is_transient_status(status):
-                    break
-            except Exception as error:
-                error_message = f"{type(error).__name__}: {error}"
-                if is_browser_disconnected(error_message):
-                    break
-            if attempt < MAX_RETRIES:
-                await asyncio.sleep(2**attempt)
-
-    return {
-        "id": record.id,
-        "url": record.url,
-        "text": "",
-        "success": False,
-        "error": error_message,
-    }
-
-
-async def crawl_batch(
-    crawler: AsyncWebCrawler,
-    records: list[SourceRecord],
-    concurrency: int,
-    run_config: CrawlerRunConfig,
-    domain_configs: dict[str, CrawlerRunConfig],
-) -> list[dict[str, object]]:
-    """Run a bounded number of Crawl4AI requests concurrently."""
-    semaphore = asyncio.Semaphore(concurrency)
-    return await asyncio.gather(
-        *(
-            crawl_one(crawler, record, semaphore, run_config, domain_configs)
-            for record in records
-        )
+            "error": f"{type(error).__name__}: {error}",
+        },
+        mode="none",
+        elapsed_seconds=0.0,
+        attempts=0,
+        used_fallback=False,
     )
 
 
 async def run_job(args: argparse.Namespace, output: Path) -> None:
-    completed = load_completed_ids(output)
+    """Keep a bounded task window full and write each completed URL immediately."""
     total = args.end - args.start + 1
     success = failed = skipped = 0
+    last_progress = browser_restarts = completed_since_restart = 0
+    mode_success: Counter[str] = Counter()
+    fallback_count = attempts = 0
+    elapsed_seconds = 0.0
     print(f"[Crawl] {args.start}-{args.end}", flush=True)
 
-    browser_config = BrowserConfig(headless=True, verbose=False)
+    browser_config = BrowserConfig(
+        headless=True,
+        verbose=False,
+        light_mode=args.light_browser,
+        avoid_ads=args.avoid_ads,
+    )
     run_config, domain_configs = build_run_configs()
     batches = iter(load_url_range(args.input, args.start, args.end, args.batch_size))
-    batch = next(batches, None)
-    browser_restarts = 0
-    while batch is not None:
-        restart_requested = False
-        try:
-            async with AsyncWebCrawler(config=browser_config) as crawler:
-                for _ in range(MAX_BATCHES_PER_BROWSER):
-                    if batch is None:
-                        break
-                    print(f"[Batch] {batch[0].row_index}-{batch[-1].row_index}", flush=True)
-                    pending = [
-                        record for record in batch if completed.get(record.id) != record.url
-                    ]
-                    results = await crawl_batch(
-                        crawler, pending, args.concurrency, run_config, domain_configs
-                    )
-                    if any(
-                        is_browser_disconnected(str(result.get("error", "")))
-                        for result in results
-                    ):
-                        browser_restarts += 1
-                        if browser_restarts > MAX_BROWSER_RESTARTS:
-                            raise RuntimeError(
-                                f"Browser disconnected {browser_restarts} times at "
-                                f"batch {batch[0].row_index}-{batch[-1].row_index}"
-                            )
-                        restart_requested = True
-                        print(
-                            f"[Browser] Disconnected; restarting and retrying batch "
-                            f"{batch[0].row_index}-{batch[-1].row_index} "
-                            f"({browser_restarts}/{MAX_BROWSER_RESTARTS})",
-                            flush=True,
+    waiting: deque[SourceRecord] = deque()
+    source_finished = False
+    in_flight_limit = max(args.batch_size, args.concurrency + args.http_concurrency)
+    min_free_bytes = int(args.min_free_memory_gb * 1024**3)
+
+    with JsonlWriter(output) as writer:
+        completed = writer.completed_ids
+        while True:
+            while len(waiting) < in_flight_limit and not source_finished:
+                batch = next(batches, None)
+                if batch is None:
+                    source_finished = True
+                    break
+                print(f"[Batch] {batch[0].row_index}-{batch[-1].row_index}", flush=True)
+                for record in batch:
+                    if completed.get(record.id) == record.url:
+                        skipped += 1
+                    else:
+                        waiting.append(record)
+            if source_finished and not waiting:
+                break
+
+            active: dict[asyncio.Task[CrawlOutcome], SourceRecord] = {}
+            started_in_cycle = 0
+            recycle_requested = restart_requested = False
+            try:
+                async with AsyncExitStack() as stack:
+                    http = None
+                    browser = None
+                    if args.fetch_mode != "browser":
+                        http = await stack.enter_async_context(
+                            AsyncWebCrawler(crawler_strategy=AsyncHTTPCrawlerStrategy())
                         )
-                        break
+                    if args.fetch_mode != "http":
+                        browser = await stack.enter_async_context(
+                            AsyncWebCrawler(config=browser_config)
+                        )
+                    browser_semaphore = asyncio.Semaphore(args.concurrency)
+                    http_semaphore = asyncio.Semaphore(args.http_concurrency)
 
-                    save_results(output, results)
-                    skipped += len(batch) - len(pending)
-                    for record, result in zip(pending, results, strict=True):
-                        if result.get("success", True):
-                            success += 1
-                            completed[record.id] = record.url
-                            print(f"[OK] id={record.id} url={record.url}", flush=True)
-                        else:
-                            failed += 1
-                            reason = str(result["error"]).splitlines()[0]
-                            print(f"[FAILED] id={record.id} url={record.url}: {reason}", flush=True)
-                    print(f"[Progress] {success + failed + skipped}/{total}", flush=True)
+                    while True:
+                        while (
+                            len(active) < in_flight_limit
+                            and started_in_cycle < args.browser_recycle_after
+                            and not recycle_requested
+                        ):
+                            if not waiting and not source_finished:
+                                batch = next(batches, None)
+                                if batch is None:
+                                    source_finished = True
+                                else:
+                                    print(
+                                        f"[Batch] {batch[0].row_index}-{batch[-1].row_index}",
+                                        flush=True,
+                                    )
+                                    waiting.extend(batch)
+                            if not waiting:
+                                break
+                            record = waiting.popleft()
+                            if completed.get(record.id) == record.url:
+                                skipped += 1
+                                continue
+                            task = asyncio.create_task(
+                                crawl_one(
+                                    record,
+                                    browser,
+                                    http,
+                                    browser_semaphore,
+                                    http_semaphore,
+                                    run_config,
+                                    domain_configs,
+                                    args.fetch_mode,
+                                )
+                            )
+                            active[task] = record
+                            started_in_cycle += 1
+
+                        processed = success + failed + skipped
+                        if processed - last_progress >= args.batch_size:
+                            print(f"[Progress] {processed}/{total}", flush=True)
+                            last_progress = processed
+                        if not active:
+                            break
+
+                        done, _ = await asyncio.wait(
+                            active, return_when=asyncio.FIRST_COMPLETED
+                        )
+                        retry_after_restart: list[SourceRecord] = []
+                        for task in done:
+                            record = active.pop(task)
+                            try:
+                                outcome = task.result()
+                            except Exception as error:
+                                outcome = failed_outcome(record, error)
+                            result = outcome.payload
+                            if is_browser_disconnected(str(result.get("error", ""))):
+                                retry_after_restart.append(record)
+                                continue
+
+                            writer.write(result)
+                            attempts += outcome.attempts
+                            elapsed_seconds += outcome.elapsed_seconds
+                            fallback_count += outcome.used_fallback
+                            if outcome.used_fallback:
+                                print(
+                                    f"[Fallback] id={record.id} "
+                                    f"reason={outcome.fallback_error.splitlines()[0]}",
+                                    flush=True,
+                                )
+                            completed_since_restart += 1
+                            if result.get("success"):
+                                success += 1
+                                completed[record.id] = record.url
+                                mode_success[outcome.mode] += 1
+                                print(
+                                    f"[OK] id={record.id} url={record.url} "
+                                    f"mode={outcome.mode} seconds={outcome.elapsed_seconds:.2f}",
+                                    flush=True,
+                                )
+                            else:
+                                failed += 1
+                                reason = str(result["error"]).splitlines()[0]
+                                print(
+                                    f"[FAILED] id={record.id} url={record.url}: {reason}",
+                                    flush=True,
+                                )
+
+                        if retry_after_restart:
+                            pending_tasks = list(active)
+                            retry_after_restart.extend(active.values())
+                            for task in pending_tasks:
+                                task.cancel()
+                            await asyncio.gather(*pending_tasks, return_exceptions=True)
+                            active.clear()
+                            waiting.extendleft(reversed(retry_after_restart))
+                            restart_requested = True
+                            break
+
+                        processed = success + failed + skipped
+                        if processed - last_progress >= args.batch_size:
+                            print(f"[Progress] {processed}/{total}", flush=True)
+                            last_progress = processed
+                        if processed and processed % METRICS_INTERVAL < len(done):
+                            print(
+                                f"[Metrics] http={mode_success['http']} "
+                                f"browser={mode_success['browser']} "
+                                f"fallback={fallback_count} attempts={attempts} "
+                                f"mean_seconds={elapsed_seconds / max(success + failed, 1):.2f}",
+                                flush=True,
+                            )
+                        if (
+                            min_free_bytes
+                            and completed_since_restart >= args.batch_size
+                            and psutil.virtual_memory().available < min_free_bytes
+                        ):
+                            recycle_requested = True
+
+            except Exception as error:
+                if not is_browser_disconnected(str(error)):
+                    raise
+                restart_requested = True
+
+            if restart_requested:
+                if completed_since_restart >= args.batch_size:
                     browser_restarts = 0
-                    batch = next(batches, None)
-                else:
-                    print("[Browser] Recycling after bounded batches", flush=True)
-        except Exception as error:
-            if not is_browser_disconnected(str(error)):
-                raise
-            if not restart_requested:
+                completed_since_restart = 0
                 browser_restarts += 1
-            if browser_restarts > MAX_BROWSER_RESTARTS:
-                raise RuntimeError(
-                    f"Browser disconnected {browser_restarts} times while "
-                    f"processing batch {batch[0].row_index if batch else 'end'}"
-                ) from error
-            print(
-                f"[Browser] Connection closed during browser cleanup; "
-                f"retrying with a new browser ({browser_restarts}/{MAX_BROWSER_RESTARTS})",
-                flush=True,
-            )
+                if browser_restarts > MAX_BROWSER_RESTARTS:
+                    raise RuntimeError(
+                        f"Browser disconnected {browser_restarts} times without "
+                        f"a completed batch near row {waiting[0].row_index if waiting else 'end'}"
+                    )
+                print(
+                    f"[Browser] Disconnected; resuming unfinished URLs "
+                    f"with a new browser ({browser_restarts}/{MAX_BROWSER_RESTARTS})",
+                    flush=True,
+                )
+                continue
 
-    print(f"Total: {total}\nSuccess: {success}\nFailed: {failed}\nSkipped: {skipped}\nOutput: {output}")
+            if source_finished and not waiting:
+                break
+            if recycle_requested:
+                print("[Browser] Recycling because available memory is low", flush=True)
+            else:
+                print("[Browser] Recycling after bounded requests", flush=True)
+            completed_since_restart = browser_restarts = 0
+
+    print(f"[Progress] {success + failed + skipped}/{total}", flush=True)
+    print(
+        f"Total: {total}\nSuccess: {success}\nFailed: {failed}"
+        f"\nSkipped: {skipped}\nOutput: {output}",
+        flush=True,
+    )
 
 
 def main() -> None:
@@ -265,14 +260,22 @@ def main() -> None:
     parser.add_argument("--start", type=int, required=True, help="First Parquet row index")
     parser.add_argument("--end", type=int, required=True, help="Last Parquet row index (inclusive)")
     parser.add_argument("--batch-size", type=int, default=50)
-    parser.add_argument("--concurrency", type=int, default=8)
+    parser.add_argument("--concurrency", type=int, default=8, help="Maximum browser requests")
+    parser.add_argument("--http-concurrency", type=int, default=8)
+    parser.add_argument("--fetch-mode", choices=("auto", "browser", "http"), default="auto")
+    parser.add_argument("--light-browser", action="store_true")
+    parser.add_argument("--avoid-ads", action="store_true")
+    parser.add_argument("--browser-recycle-after", type=int, default=DEFAULT_RECYCLE_AFTER)
+    parser.add_argument("--min-free-memory-gb", type=float, default=DEFAULT_MIN_FREE_MEMORY_GB)
     parser.add_argument("--input", type=Path, default=Path("data/links_corpus.parquet"))
     parser.add_argument("--output", type=Path)
     args = parser.parse_args()
     if args.start < 0 or args.end < args.start:
         parser.error("require 0 <= --start <= --end")
-    if args.batch_size < 1 or args.concurrency < 1:
-        parser.error("--batch-size and --concurrency must be positive")
+    if min(args.batch_size, args.concurrency, args.http_concurrency, args.browser_recycle_after) < 1:
+        parser.error("batch size and concurrency limits must be positive")
+    if args.min_free_memory_gb < 0:
+        parser.error("--min-free-memory-gb must be nonnegative")
     if not args.input.is_file():
         parser.error(f"input Parquet file not found: {args.input}")
     row_count = get_row_count(args.input)
@@ -283,6 +286,8 @@ def main() -> None:
         asyncio.run(run_job(args, output))
     except ValueError as error:
         parser.error(str(error))
+    except KeyboardInterrupt:
+        print(f"[Stopped] Resume with the same command. Output: {output}", flush=True)
 
 
 if __name__ == "__main__":
