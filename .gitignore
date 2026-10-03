@@ -8,6 +8,7 @@
 __pycache__/
 *.py[cod]
 .venv/
+.krun/
 venv/
 env/
 .pytest_cache/
