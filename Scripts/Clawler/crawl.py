@@ -193,51 +193,69 @@ async def run_job(args: argparse.Namespace, output: Path) -> None:
     batch = next(batches, None)
     browser_restarts = 0
     while batch is not None:
-        async with AsyncWebCrawler(config=browser_config) as crawler:
-            for _ in range(MAX_BATCHES_PER_BROWSER):
-                if batch is None:
-                    break
-                print(f"[Batch] {batch[0].row_index}-{batch[-1].row_index}", flush=True)
-                pending = [
-                    record for record in batch if completed.get(record.id) != record.url
-                ]
-                results = await crawl_batch(
-                    crawler, pending, args.concurrency, run_config, domain_configs
-                )
-                if any(
-                    is_browser_disconnected(str(result.get("error", "")))
-                    for result in results
-                ):
-                    browser_restarts += 1
-                    if browser_restarts > MAX_BROWSER_RESTARTS:
-                        raise RuntimeError(
-                            f"Browser disconnected {browser_restarts} times at "
-                            f"batch {batch[0].row_index}-{batch[-1].row_index}"
-                        )
-                    print(
-                        f"[Browser] Disconnected; restarting and retrying batch "
-                        f"{batch[0].row_index}-{batch[-1].row_index} "
-                        f"({browser_restarts}/{MAX_BROWSER_RESTARTS})",
-                        flush=True,
+        restart_requested = False
+        try:
+            async with AsyncWebCrawler(config=browser_config) as crawler:
+                for _ in range(MAX_BATCHES_PER_BROWSER):
+                    if batch is None:
+                        break
+                    print(f"[Batch] {batch[0].row_index}-{batch[-1].row_index}", flush=True)
+                    pending = [
+                        record for record in batch if completed.get(record.id) != record.url
+                    ]
+                    results = await crawl_batch(
+                        crawler, pending, args.concurrency, run_config, domain_configs
                     )
-                    break
+                    if any(
+                        is_browser_disconnected(str(result.get("error", "")))
+                        for result in results
+                    ):
+                        browser_restarts += 1
+                        if browser_restarts > MAX_BROWSER_RESTARTS:
+                            raise RuntimeError(
+                                f"Browser disconnected {browser_restarts} times at "
+                                f"batch {batch[0].row_index}-{batch[-1].row_index}"
+                            )
+                        restart_requested = True
+                        print(
+                            f"[Browser] Disconnected; restarting and retrying batch "
+                            f"{batch[0].row_index}-{batch[-1].row_index} "
+                            f"({browser_restarts}/{MAX_BROWSER_RESTARTS})",
+                            flush=True,
+                        )
+                        break
 
-                save_results(output, results)
-                skipped += len(batch) - len(pending)
-                for record, result in zip(pending, results, strict=True):
-                    if result.get("success", True):
-                        success += 1
-                        completed[record.id] = record.url
-                        print(f"[OK] id={record.id} url={record.url}", flush=True)
-                    else:
-                        failed += 1
-                        reason = str(result["error"]).splitlines()[0]
-                        print(f"[FAILED] id={record.id} url={record.url}: {reason}", flush=True)
-                print(f"[Progress] {success + failed + skipped}/{total}", flush=True)
-                browser_restarts = 0
-                batch = next(batches, None)
-            else:
-                print("[Browser] Recycling after bounded batches", flush=True)
+                    save_results(output, results)
+                    skipped += len(batch) - len(pending)
+                    for record, result in zip(pending, results, strict=True):
+                        if result.get("success", True):
+                            success += 1
+                            completed[record.id] = record.url
+                            print(f"[OK] id={record.id} url={record.url}", flush=True)
+                        else:
+                            failed += 1
+                            reason = str(result["error"]).splitlines()[0]
+                            print(f"[FAILED] id={record.id} url={record.url}: {reason}", flush=True)
+                    print(f"[Progress] {success + failed + skipped}/{total}", flush=True)
+                    browser_restarts = 0
+                    batch = next(batches, None)
+                else:
+                    print("[Browser] Recycling after bounded batches", flush=True)
+        except Exception as error:
+            if not is_browser_disconnected(str(error)):
+                raise
+            if not restart_requested:
+                browser_restarts += 1
+            if browser_restarts > MAX_BROWSER_RESTARTS:
+                raise RuntimeError(
+                    f"Browser disconnected {browser_restarts} times while "
+                    f"processing batch {batch[0].row_index if batch else 'end'}"
+                ) from error
+            print(
+                f"[Browser] Connection closed during browser cleanup; "
+                f"retrying with a new browser ({browser_restarts}/{MAX_BROWSER_RESTARTS})",
+                flush=True,
+            )
 
     print(f"Total: {total}\nSuccess: {success}\nFailed: {failed}\nSkipped: {skipped}\nOutput: {output}")
 
