@@ -22,11 +22,9 @@ from utils import SourceRecord
 from verbatim import clean_to_verbatim
 
 
-MAX_BROWSER_RETRIES = 1
+MAX_BROWSER_RETRIES = 3
 MAX_HTTP_RETRIES = 1
-HTTP_REQUEST_TIMEOUT_SECONDS = 15
-BROWSER_REQUEST_TIMEOUT_SECONDS = 30
-REQUEST_TIMEOUT_SECONDS = 30
+REQUEST_TIMEOUT_SECONDS = 45
 TRANSIENT_STATUS_CODES = {408, 425, 429}
 HTTP_STATUS_RE = re.compile(r"\bHTTP\s+([1-5]\d{2})\b", re.IGNORECASE)
 INLINE_IMAGE_RE = re.compile(r"!\[([^\]]*)\]\(data:image/[^)\s]+\)", re.IGNORECASE)
@@ -99,26 +97,6 @@ def is_browser_disconnected(error: str) -> bool:
     return any(message in error for message in BROWSER_DISCONNECT_MESSAGES)
 
 
-def is_unreachable_error(error: str) -> bool:
-    """Identify network failures where Chromium on the same IP is guaranteed to fail as well."""
-    err_lower = error.lower()
-    return any(
-        needle in err_lower
-        for needle in (
-            "timeouterror",
-            "timed out",
-            "connection refused",
-            "cannot connect to host",
-            "name or service not known",
-            "getaddrinfo failed",
-            "network is unreachable",
-            "http 404",
-            "http 410",
-            "http 428",
-        )
-    )
-
-
 def page_error(text: str) -> str | None:
     """Recognize short browser challenge or application error pages."""
     if len(text) > 600:
@@ -175,7 +153,6 @@ async def _fetch_with_strategy(
 ) -> tuple[str | None, str, int, object | None]:
     """Retry one strategy without occupying a concurrency slot during backoff."""
     max_retries = MAX_HTTP_RETRIES if strategy == "http" else MAX_BROWSER_RETRIES
-    timeout = HTTP_REQUEST_TIMEOUT_SECONDS if strategy == "http" else BROWSER_REQUEST_TIMEOUT_SECONDS
     error_message = "Unknown crawl error"
     for attempt in range(max_retries + 1):
         status: int | None = None
@@ -183,7 +160,7 @@ async def _fetch_with_strategy(
             async with semaphore:
                 result = await asyncio.wait_for(
                     crawler.arun(url=request_url, config=config),
-                    timeout=timeout,
+                    timeout=REQUEST_TIMEOUT_SECONDS,
                 )
             status = getattr(result, "status_code", None)
             redirect_error = homepage_redirect_error(record.url, result)
@@ -212,8 +189,6 @@ async def _fetch_with_strategy(
             error_message = f"{type(error).__name__}: {error}"
             status = getattr(error, "status_code", None) or _status_from_error(error_message)
             if is_browser_disconnected(error_message):
-                break
-            if isinstance(error, asyncio.TimeoutError) or "timeouterror" in error_message.lower():
                 break
             if not is_transient_status(status):
                 break
@@ -409,9 +384,6 @@ async def crawl_one(
         return CrawlOutcome(record, payload, "none", monotonic() - started, attempts, False)
     if http_attempted and not http_error:
         http_error = "HTTP article validation failed"
-    if http_attempted and is_unreachable_error(http_error):
-        payload.update(success=False, text="", error=http_error)
-        return CrawlOutcome(record, payload, "http", monotonic() - started, attempts, False)
     text, browser_error, count, result = await _fetch_with_strategy(
         browser, browser_semaphore, record, record.url, domain, config, "browser"
     )
