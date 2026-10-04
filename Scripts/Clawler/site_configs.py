@@ -19,6 +19,7 @@ def build_run_configs() -> tuple[CrawlerRunConfig, dict[str, CrawlerRunConfig]]:
         cache_mode=CacheMode.BYPASS,
         page_timeout=PAGE_TIMEOUT_MS,
         verbose=False,
+        exclude_all_images=True,
         markdown_generator=DefaultMarkdownGenerator(
             content_filter=PruningContentFilterLXML(
                 threshold=0.45,

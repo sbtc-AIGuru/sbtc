@@ -9,6 +9,24 @@ import re
 
 ESCAPED_PATTERN = re.compile(r"\\([\\`*{}\[\]()#+\-.!_>~\"'$])")
 PROTECTED_PATTERN = re.compile(r"\x00([0-9a-f]{2})\x00")
+MARKDOWN_IMAGE_PATTERN = re.compile(r"!\[([^\]]*)\]\((?:[^()]|\([^()]*\))*\)")
+REFERENCE_IMAGE_PATTERN = re.compile(r"!\[([^\]]*)\]\[[^\]]*\]")
+MARKDOWN_LINK_PATTERN = re.compile(r"\[([^\]]*)\]\((?:[^()]|\([^()]*\))*\)")
+REFERENCE_DEFINITION_PATTERN = re.compile(r"^\s*\[[^\]]+\]:\s*https?://[^\n]*$", re.MULTILINE | re.IGNORECASE)
+BARE_URL_PATTERN = re.compile(r"https?://\S+", re.IGNORECASE)
+DATA_IMAGE_PATTERN = re.compile(r"data:image/[^\s<>)\]]+", re.IGNORECASE)
+HTML_IMAGE_PATTERN = re.compile(r"<img\b[^>]*>", re.IGNORECASE)
+
+
+def remove_link_targets(text: str) -> str:
+    """Keep visible link labels while removing image and URL targets."""
+    text = HTML_IMAGE_PATTERN.sub("", text)
+    text = MARKDOWN_IMAGE_PATTERN.sub(lambda match: match.group(1), text)
+    text = REFERENCE_IMAGE_PATTERN.sub(lambda match: match.group(1), text)
+    text = MARKDOWN_LINK_PATTERN.sub(lambda match: match.group(1), text)
+    text = REFERENCE_DEFINITION_PATTERN.sub("", text)
+    text = BARE_URL_PATTERN.sub("", text)
+    return DATA_IMAGE_PATTERN.sub("", text)
 
 
 def clean_to_verbatim(text: str) -> str:
@@ -28,11 +46,8 @@ def clean_to_verbatim(text: str) -> str:
     # 4. Protect backslash-escaped characters so their literal forms are preserved
     text = ESCAPED_PATTERN.sub(lambda m: f"\x00{ord(m.group(1)):02x}\x00", text)
 
-    # 5. Markdown images: ![alt](url) -> keep alt text if present
-    text = re.sub(r"!\[([^\]]*)\]\([^)]+\)", r"\1", text)
-
-    # 6. Markdown links: [text](url "title") -> keep anchor text, or drop if empty []
-    text = re.sub(r"\[([^\]]*)\]\([^)]+\)", r"\1", text)
+    # 5. Keep visible labels, but discard link and image locations.
+    text = remove_link_targets(text)
 
     # 7. Headers: lines starting with #, ##, etc. -> remove #
     text = re.sub(r"^\s*#{1,6}\s+", "", text, flags=re.MULTILINE)

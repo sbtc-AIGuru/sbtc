@@ -54,6 +54,26 @@ class TestVerbatimCleaner(unittest.TestCase):
         expected_no_alt = "Triệu chứng: đỏ tấy."
         self.assertEqual(self._clean(sample_no_alt), expected_no_alt)
 
+    def test_image_links_and_bare_urls_are_removed(self):
+        sample = (
+            "Dấu hiệu: ![ảnh tổn thương](https://cdn.example.com/image_(1).jpg) "
+            "[điều trị](https://example.com/guide) và "
+            "https://cdn.example.com/second.webp?width=400"
+        )
+        result = self._clean(sample)
+        self.assertIn("ảnh tổn thương", result)
+        self.assertIn("điều trị", result)
+        self.assertNotIn("http", result)
+        self.assertNotIn("![", result)
+
+    def test_reference_image_keeps_alt_without_url(self):
+        sample = "Triệu chứng ![sưng đỏ][figure]\n[figure]: https://cdn.example.com/one.png"
+        self.assertEqual(self._clean(sample), "Triệu chứng sưng đỏ")
+
+    def test_inline_image_data_is_not_kept(self):
+        sample = "Dấu hiệu sưng đỏ ![](data:image/png;base64,AAABBB) rõ rệt."
+        self.assertEqual(self._clean(sample), "Dấu hiệu sưng đỏ rõ rệt.")
+
     def test_headers(self):
         """Header hashes (#, ##, ...) at line beginnings must be stripped."""
         sample = "# Tiêu đề 1\n## Tiêu đề 2\n###### Tiêu đề 6\nNội dung bài viết."

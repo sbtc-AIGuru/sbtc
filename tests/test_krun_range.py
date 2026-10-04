@@ -82,6 +82,31 @@ class TestKrunRange(unittest.TestCase):
         self.assertEqual(rows[1]["text"], "recovered")
         self.assertFalse(rows[3]["success"])
 
+    def test_merge_removes_image_targets_from_existing_shards(self) -> None:
+        first = self.make_job(
+            "with-image", 0, 1,
+            [
+                self.row(0, text="Triệu chứng ![mẩn đỏ](https://cdn.example.test/photo.jpg) rõ."),
+                self.row(1, text="Điều trị [tham khảo](https://example.test/guide)."),
+            ],
+        )
+        merged = krun_range.merge_outputs(0, 1, {(0, 1): first})
+        rows = [json.loads(line) for line in merged.read_text(encoding="utf-8").splitlines()]
+        self.assertEqual(rows[0]["text"], "Triệu chứng mẩn đỏ rõ.")
+        self.assertEqual(rows[1]["text"], "Điều trị tham khảo.")
+        self.assertEqual(rows[0]["url"], "https://example.test/0")
+
+    def test_image_only_result_becomes_failure_after_cleaning(self) -> None:
+        job = self.make_job(
+            "image-only", 0, 1,
+            [self.row(0, text="![](https://cdn.example.test/photo.jpg)"), self.row(1)],
+        )
+        self.assertEqual(krun_range.validate_output(job), (1, 1))
+        merged = krun_range.merge_outputs(0, 1, {(0, 1): job})
+        first = json.loads(merged.read_text(encoding="utf-8").splitlines()[0])
+        self.assertFalse(first["success"])
+        self.assertEqual(first["text"], "")
+
     def test_validate_rejects_wrong_source_mapping(self) -> None:
         wrong = self.row(0)
         wrong["id"] = 999
@@ -135,6 +160,65 @@ class TestKrunRange(unittest.TestCase):
         arguments = run_krun.call_args.args
         position = arguments.index("--http-concurrency")
         self.assertEqual(arguments[position + 1], "12")
+
+    def test_submit_job_forwards_browser_tuning(self) -> None:
+        with patch.object(krun_range, "run_krun", return_value="Job ID: tuned-job\n") as run_krun:
+            krun_range.submit_job(
+                0, 1, 1, 1, 1,
+                max_in_flight=1, browser_recycle_after=1,
+                request_interval_seconds=2.5,
+            )
+        arguments = run_krun.call_args.args
+        for option, expected in (
+            ("--max-in-flight", "1"),
+            ("--browser-recycle-after", "1"),
+            ("--request-interval-seconds", "2.5"),
+        ):
+            self.assertEqual(arguments[arguments.index(option) + 1], expected)
+
+    def test_invalid_completed_shard_is_retried(self) -> None:
+        bad_job = self.make_job("bad", 0, 1, [self.row(0)])
+        args = type("Args", (), {
+            "start": 0, "end": 1, "max_active": 1, "shard_size": 2,
+            "batch_size": 50, "concurrency": 4, "http_concurrency": 8,
+        })()
+        with (
+            patch.object(krun_range, "discover_jobs", return_value=[bad_job]),
+            patch.object(krun_range, "submit_job") as submit,
+        ):
+            complete = krun_range.run_cycle(args, self.root / "validated.json")
+
+        self.assertFalse(complete)
+        submit.assert_called_once_with(0, 1, 50, 4, 8)
+        rejected = json.loads((self.root / "validated_rejected.json").read_text())
+        self.assertIn("bad", rejected)
+
+    def test_completed_shard_prefers_more_text_and_ignores_rejected_job(self) -> None:
+        low = self.make_job("low", 0, 1, [self.row(0), self.row(1, success=False)])
+        high = self.make_job("high", 0, 1, [self.row(0), self.row(1)])
+        validated = {"low": [1, 1], "high": [2, 0]}
+        selected = krun_range.complete_segments([high, low], validated)
+        self.assertEqual(selected[(0, 1)].job_id, "high")
+        rejected = krun_range.Job("high", 0, 1, "invalid", "")
+        selected = krun_range.complete_segments([rejected, low], validated)
+        self.assertEqual(selected[(0, 1)].job_id, "low")
+
+    def test_low_success_shard_stops_new_submissions(self) -> None:
+        poor = self.make_job(
+            "poor", 0, 1, [self.row(0), self.row(1, success=False)]
+        )
+        args = type("Args", (), {
+            "start": 0, "end": 3, "max_active": 1, "shard_size": 2,
+            "batch_size": 50, "concurrency": 4, "http_concurrency": 8,
+            "min_success_rate": 0.75,
+        })()
+        with (
+            patch.object(krun_range, "discover_jobs", return_value=[poor]),
+            patch.object(krun_range, "submit_job") as submit,
+        ):
+            with self.assertRaisesRegex(krun_range.QualityHold, "1/2"):
+                krun_range.run_cycle(args, self.root / "validated.json")
+        submit.assert_not_called()
 
 
 if __name__ == "__main__":

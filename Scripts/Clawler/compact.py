@@ -10,6 +10,7 @@ import sqlite3
 from tempfile import TemporaryDirectory
 
 from utils import SourceRecord, get_row_count, load_url_range
+from verbatim import remove_link_targets
 
 
 def source_rows(source: Path, start: int, end: int):
@@ -102,8 +103,17 @@ def write_canonical(
             if value["id"] != record.id or value["url"] != record.url:
                 raise ValueError(f"ID/URL mismatch at Parquet row {record.row_index}")
             value["row_index"] = record.row_index
+            value["text"] = remove_link_targets(value["text"])
+            row_success = bool(indexed[1])
+            if row_success and not value["text"].strip():
+                value.update(
+                    success=False,
+                    text="",
+                    error="No article text after removing link targets",
+                )
+                row_success = False
             writer.write(json.dumps(value, ensure_ascii=False) + "\n")
-            if indexed[1]:
+            if row_success:
                 success += 1
             else:
                 failed += 1

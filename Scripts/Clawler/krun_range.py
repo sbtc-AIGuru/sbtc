@@ -26,7 +26,14 @@ MAX_JOB_ATTEMPTS = 3
 STATUS_PATTERN = re.compile(r"^Status: ([A-Z_]+)$", re.MULTILINE)
 JOB_ID_PATTERN = re.compile(r"^Job ID: (\S+)$", re.MULTILINE)
 ARGUMENTS_PATTERN = re.compile(r"^ARGUMENTS = (.+)$", re.MULTILINE)
-TERMINAL_ERRORS = {"error", "cancelled", "failed", "preparation_error", "package_upload_error"}
+TERMINAL_ERRORS = {
+    "error", "cancelled", "failed", "preparation_error", "package_upload_error",
+    "invalid",
+}
+
+
+class QualityHold(Exception):
+    """Stop scheduling when a completed shard yields too little source text."""
 
 
 @dataclass(frozen=True)
@@ -159,9 +166,21 @@ def save_validated(path: Path, validated: dict[str, list[int]]) -> None:
 
 
 def submit_job(
-    start: int, end: int, batch_size: int, concurrency: int, http_concurrency: int = 8
+    start: int, end: int, batch_size: int, concurrency: int, http_concurrency: int = 8,
+    *, max_in_flight: int | None = None, browser_recycle_after: int | None = None,
+    request_interval_seconds: float | None = None,
+    max_consecutive_blocked: int | None = None,
 ) -> Job:
     output = f"data/crawled_{start}_{end}.jsonl"
+    tuning = []
+    if max_in_flight is not None:
+        tuning.extend(("--max-in-flight", str(max_in_flight)))
+    if browser_recycle_after is not None:
+        tuning.extend(("--browser-recycle-after", str(browser_recycle_after)))
+    if request_interval_seconds is not None:
+        tuning.extend(("--request-interval-seconds", str(request_interval_seconds)))
+    if max_consecutive_blocked is not None:
+        tuning.extend(("--max-consecutive-blocked", str(max_consecutive_blocked)))
     response = run_krun(
         "run",
         RUNNER,
@@ -182,6 +201,7 @@ def submit_job(
         str(concurrency),
         "--http-concurrency",
         str(http_concurrency),
+        *tuning,
         "--output",
         output,
     )
@@ -195,10 +215,18 @@ def submit_job(
 def complete_segments(
     jobs: list[Job], validated: dict[str, list[int]]
 ) -> dict[tuple[int, int], Job]:
-    completed = {}
+    completed: dict[tuple[int, int], Job] = {}
     for job in jobs:
-        if job.job_id in validated and job.output_path.is_file():
-            completed[(job.start, job.end)] = job
+        if job.status == "invalid" or job.job_id not in validated or not job.output_path.is_file():
+            continue
+        segment = (job.start, job.end)
+        previous = completed.get(segment)
+        if previous is None or (
+            validated[job.job_id][0], job.submitted_at, job.job_id
+        ) > (
+            validated[previous.job_id][0], previous.submitted_at, previous.job_id
+        ):
+            completed[segment] = job
     return completed
 
 
@@ -241,7 +269,15 @@ def merge_outputs(
 
 
 def run_cycle(args: argparse.Namespace, validated_path: Path) -> bool:
-    jobs = discover_jobs(args.start, args.end)
+    rejected_path = validated_path.with_name(f"{validated_path.stem}_rejected.json")
+    rejected = load_validated(rejected_path)
+    ignored = set(getattr(args, "ignore_job", ()))
+    jobs = [job for job in discover_jobs(args.start, args.end) if job.job_id not in ignored]
+    jobs = [
+        Job(job.job_id, job.start, job.end, "invalid", job.submitted_at)
+        if job.job_id in rejected else job
+        for job in jobs
+    ]
     validated = load_validated(validated_path)
     refreshed = []
     for job in jobs:
@@ -252,12 +288,18 @@ def run_cycle(args: argparse.Namespace, validated_path: Path) -> bool:
             refreshed.append(job)
     jobs = refreshed
 
-    for job in jobs:
-        if job.status == "complete" and job.job_id not in validated:
+    for index, job in enumerate(jobs):
+        if job.status == "complete" and (
+            job.job_id not in validated or not job.output_path.is_file()
+        ):
             try:
                 success, failed = validate_output(job)
             except ValueError as error:
-                raise ValueError(f"Invalid completed shard {job.job_id}: {error}") from error
+                rejected[job.job_id] = str(error)
+                save_validated(rejected_path, rejected)
+                jobs[index] = Job(job.job_id, job.start, job.end, "invalid", job.submitted_at)
+                print(f"[Rejected] job={job.job_id}: {error}", flush=True)
+                continue
             except (OSError, RuntimeError, subprocess.TimeoutExpired) as error:
                 print(f"[Output retry] job={job.job_id}: {error}", flush=True)
                 continue
@@ -269,6 +311,14 @@ def run_cycle(args: argparse.Namespace, validated_path: Path) -> bool:
             )
 
     completed = complete_segments(jobs, validated)
+    minimum_success_rate = getattr(args, "min_success_rate", 0.0)
+    for segment, job in completed.items():
+        success, failed = validated[job.job_id]
+        if success / (success + failed) < minimum_success_rate:
+            raise QualityHold(
+                f"Shard {segment} has {success}/{success + failed} successful texts "
+                f"(< {minimum_success_rate:.0%}); inspect source errors before continuing"
+            )
     groups: dict[tuple[int, int], list[Job]] = {}
     for job in jobs:
         groups.setdefault((job.start, job.end), []).append(job)
@@ -279,6 +329,15 @@ def run_cycle(args: argparse.Namespace, validated_path: Path) -> bool:
         and any(job.status not in TERMINAL_ERRORS | {"complete"} for job in attempts)
     )
     cursor = first_unassigned(args.start, args.end, list(groups))
+
+    tuning = {}
+    for name in (
+        "max_in_flight", "browser_recycle_after", "request_interval_seconds",
+        "max_consecutive_blocked",
+    ):
+        value = getattr(args, name, None)
+        if value is not None:
+            tuning[name] = value
 
     if cursor > args.end and len(completed) == len(groups):
         final = merge_outputs(args.start, args.end, completed)
@@ -301,13 +360,16 @@ def run_cycle(args: argparse.Namespace, validated_path: Path) -> bool:
             raise RuntimeError(f"Shard {segment} failed {len(attempts)} times")
         if any(job.status == "complete" for job in attempts):
             continue
-        submit_job(*segment, args.batch_size, args.concurrency, args.http_concurrency)
+        submit_job(*segment, args.batch_size, args.concurrency, args.http_concurrency, **tuning)
         active += 1
 
     while active < args.max_active and cursor <= args.end:
         next_start = min((a for a, _ in groups if a > cursor), default=args.end + 1)
         shard_end = min(cursor + args.shard_size - 1, next_start - 1, args.end)
-        submit_job(cursor, shard_end, args.batch_size, args.concurrency, args.http_concurrency)
+        submit_job(
+            cursor, shard_end, args.batch_size, args.concurrency,
+            args.http_concurrency, **tuning,
+        )
         active += 1
         cursor = shard_end + 1
 
@@ -328,7 +390,16 @@ def main() -> None:
     parser.add_argument("--batch-size", type=int, default=50)
     parser.add_argument("--concurrency", type=int, default=8)
     parser.add_argument("--http-concurrency", type=int, default=8)
+    parser.add_argument("--max-in-flight", type=int)
+    parser.add_argument("--browser-recycle-after", type=int)
+    parser.add_argument("--request-interval-seconds", type=float)
+    parser.add_argument("--max-consecutive-blocked", type=int)
+    parser.add_argument("--ignore-job", action="append", default=[])
     parser.add_argument("--poll-seconds", type=int, default=300)
+    parser.add_argument(
+        "--min-success-rate", type=float, default=0.0,
+        help="Stop scheduling if a verified shard has a lower text success rate",
+    )
     parser.add_argument("--once", action="store_true", help="Run one scheduling cycle")
     args = parser.parse_args()
     if args.start < 0 or args.end < args.start:
@@ -338,6 +409,16 @@ def main() -> None:
         args.http_concurrency, args.poll_seconds,
     ) < 1:
         parser.error("all size, concurrency and polling options must be positive")
+    if not 0 <= args.min_success_rate <= 1:
+        parser.error("--min-success-rate must be between 0 and 1")
+    if args.max_in_flight is not None and args.max_in_flight < 1:
+        parser.error("--max-in-flight must be positive")
+    if args.browser_recycle_after is not None and args.browser_recycle_after < 1:
+        parser.error("--browser-recycle-after must be positive")
+    if args.request_interval_seconds is not None and args.request_interval_seconds < 0:
+        parser.error("--request-interval-seconds must be nonnegative")
+    if args.max_consecutive_blocked is not None and args.max_consecutive_blocked < 1:
+        parser.error("--max-consecutive-blocked must be positive")
 
     JOB_DIR.mkdir(parents=True, exist_ok=True)
     lock_path = JOB_DIR.parent / f"crawl_{args.start}_{args.end}.lock"
@@ -348,7 +429,11 @@ def main() -> None:
         except BlockingIOError as error:
             raise SystemExit("Another KRun range controller is already running") from error
         while True:
-            complete = run_cycle(args, validated_path)
+            try:
+                complete = run_cycle(args, validated_path)
+            except QualityHold as error:
+                print(f"[Quality hold] {error}", flush=True)
+                break
             if complete or args.once:
                 break
             time.sleep(args.poll_seconds)

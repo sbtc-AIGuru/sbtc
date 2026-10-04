@@ -4,8 +4,10 @@ from __future__ import annotations
 
 import argparse
 import asyncio
+from contextlib import redirect_stdout
 from dataclasses import dataclass
 import importlib.util
+from io import StringIO
 from pathlib import Path
 import sys
 from types import ModuleType, SimpleNamespace
@@ -145,6 +147,61 @@ def successful_outcome(record: SourceRecord, mode: str) -> CrawlOutcome:
 
 
 class TestCrawlLifecycle(unittest.IsolatedAsyncioTestCase):
+    async def test_repeated_rate_limits_stop_before_rest_of_shard(self) -> None:
+        records = [
+            SourceRecord(index, 583 + index, f"https://example.test/{index}")
+            for index in range(6)
+        ]
+        subject, writer, _ = load_crawl_module(records)
+        args = make_args(records, "auto", recycle_after=10)
+        args.max_in_flight = 1
+        args.max_consecutive_blocked = 3
+        attempted: list[int] = []
+
+        async def crawl_one(record: SourceRecord, *_args: object) -> CrawlOutcome:
+            attempted.append(record.row_index)
+            return CrawlOutcome(
+                record=record,
+                payload={
+                    "row_index": record.row_index,
+                    "id": record.id,
+                    "url": record.url,
+                    "text": "",
+                    "success": False,
+                    "error": "HTTP request failed: HTTP 429",
+                },
+                mode="none",
+            )
+
+        subject.crawl_one = crawl_one
+        with self.assertRaisesRegex(RuntimeError, "3 consecutive HTTP 403/429"):
+            await subject.run_job(args, Path("unused.jsonl"))
+        self.assertEqual(attempted, [0, 1, 2])
+        self.assertEqual(len(writer.rows), 3)
+
+    async def test_max_in_flight_one_processes_urls_serially(self) -> None:
+        records = [
+            SourceRecord(index, 583 + index, f"https://example.test/{index}")
+            for index in range(3)
+        ]
+        subject, writer, _ = load_crawl_module(records)
+        args = make_args(records, "auto", recycle_after=10)
+        args.max_in_flight = 1
+        running = peak = 0
+
+        async def crawl_one(record: SourceRecord, *_args: object) -> CrawlOutcome:
+            nonlocal running, peak
+            running += 1
+            peak = max(peak, running)
+            await asyncio.sleep(0.01)
+            running -= 1
+            return successful_outcome(record, "http")
+
+        subject.crawl_one = crawl_one
+        await subject.run_job(args, Path("unused.jsonl"))
+        self.assertEqual(peak, 1)
+        self.assertEqual(len(writer.rows), 3)
+
     async def test_empty_fallback_reason_does_not_abort_job(self) -> None:
         record = SourceRecord(0, 583, "https://example.test/first")
         subject, writer, _ = load_crawl_module([record])
@@ -186,13 +243,15 @@ class TestCrawlLifecycle(unittest.IsolatedAsyncioTestCase):
         original_wait = asyncio.wait
         raised = False
 
-        async def disconnect_once(tasks: object, *, return_when: object) -> object:
+        async def disconnect_once(
+            tasks: object, *, timeout: float | None = None, return_when: object
+        ) -> object:
             nonlocal raised
             if not raised:
                 raised = True
                 await asyncio.sleep(0)
                 raise RuntimeError(DISCONNECT_ERROR)
-            return await original_wait(tasks, return_when=return_when)
+            return await original_wait(tasks, timeout=timeout, return_when=return_when)
 
         class AsyncioProxy:
             wait = staticmethod(disconnect_once)
@@ -263,6 +322,22 @@ class TestCrawlLifecycle(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(len(writer.rows), len(records))
         self.assertEqual(sum(crawler.kind == "http" for crawler in crawlers), 1)
         self.assertEqual(sum(crawler.kind == "browser" for crawler in crawlers), 1)
+
+    async def test_progress_reports_when_requests_have_not_finished(self) -> None:
+        record = SourceRecord(0, 583, "https://example.test/slow")
+        subject, writer, _ = load_crawl_module([record])
+        subject.PROGRESS_INTERVAL_SECONDS = 0.01
+
+        async def crawl_one(*_args: object) -> CrawlOutcome:
+            await asyncio.sleep(0.04)
+            return successful_outcome(record, "http")
+
+        subject.crawl_one = crawl_one
+        output = StringIO()
+        with redirect_stdout(output):
+            await subject.run_job(make_args([record], "auto"), Path("unused.jsonl"))
+        self.assertIn("[Progress] 0/1", output.getvalue())
+        self.assertEqual(len(writer.rows), 1)
 
 
 if __name__ == "__main__":

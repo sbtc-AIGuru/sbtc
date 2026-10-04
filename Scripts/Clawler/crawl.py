@@ -7,6 +7,7 @@ import asyncio
 from collections import Counter, deque
 from contextlib import AsyncExitStack
 from pathlib import Path
+import re
 from time import monotonic
 
 import psutil
@@ -23,6 +24,12 @@ DEFAULT_RECYCLE_AFTER = 5_000
 DEFAULT_MIN_FREE_MEMORY_GB = 2.0
 METRICS_INTERVAL = 1_000
 PROGRESS_INTERVAL_SECONDS = 30
+BLOCKED_STATUS_RE = re.compile(r"\bHTTP\s+(?:403|429)\b", re.IGNORECASE)
+
+
+def is_source_blocked(error: str) -> bool:
+    """Recognize repeated source denials after all fetch strategies fail."""
+    return bool(BLOCKED_STATUS_RE.search(error)) or "Browser verification page" in error
 
 
 def failed_outcome(record: SourceRecord, error: Exception) -> CrawlOutcome:
@@ -68,6 +75,7 @@ async def run_job(args: argparse.Namespace, output: Path) -> None:
     last_progress_at = started
     mode_success: Counter[str] = Counter()
     fallback_count = attempts = 0
+    blocked_streak = 0
     elapsed_seconds = 0.0
     verbose_records = getattr(args, "verbose_records", False)
     print(f"[Crawl] {args.start}-{args.end}", flush=True)
@@ -75,6 +83,7 @@ async def run_job(args: argparse.Namespace, output: Path) -> None:
     browser_config = BrowserConfig(
         headless=True,
         verbose=False,
+        text_mode=True,
         light_mode=args.light_browser,
         avoid_ads=args.avoid_ads,
     )
@@ -82,7 +91,11 @@ async def run_job(args: argparse.Namespace, output: Path) -> None:
     batches = iter(load_url_range(args.input, args.start, args.end, args.batch_size))
     waiting: deque[SourceRecord] = deque()
     source_finished = False
-    in_flight_limit = max(args.batch_size, args.concurrency + args.http_concurrency)
+    in_flight_limit = getattr(args, "max_in_flight", None) or max(
+        args.batch_size, args.concurrency + args.http_concurrency
+    )
+    request_interval = getattr(args, "request_interval_seconds", 0.0)
+    next_request_at = started
     min_free_bytes = int(args.min_free_memory_gb * 1024**3)
     recycle_limit = args.browser_recycle_after if args.fetch_mode != "http" else None
 
@@ -145,6 +158,11 @@ async def run_job(args: argparse.Namespace, output: Path) -> None:
                             if completed.get(record.id) == record.url:
                                 skipped += 1
                                 continue
+                            if request_interval:
+                                delay = next_request_at - monotonic()
+                                if delay > 0:
+                                    await asyncio.sleep(delay)
+                                next_request_at = monotonic() + request_interval
                             task = asyncio.create_task(
                                 crawl_one(
                                     record,
@@ -163,7 +181,9 @@ async def run_job(args: argparse.Namespace, output: Path) -> None:
                             break
 
                         done, _ = await asyncio.wait(
-                            active, return_when=asyncio.FIRST_COMPLETED
+                            active,
+                            timeout=PROGRESS_INTERVAL_SECONDS,
+                            return_when=asyncio.FIRST_COMPLETED,
                         )
                         retry_after_restart: list[SourceRecord] = []
                         for task in done:
@@ -192,6 +212,7 @@ async def run_job(args: argparse.Namespace, output: Path) -> None:
                             completed_since_restart += 1
                             if result.get("success"):
                                 success += 1
+                                blocked_streak = 0
                                 completed[record.id] = record.url
                                 mode_success[outcome.mode] += 1
                                 if verbose_records:
@@ -202,11 +223,21 @@ async def run_job(args: argparse.Namespace, output: Path) -> None:
                                     )
                             else:
                                 failed += 1
+                                blocked_streak = blocked_streak + 1 if is_source_blocked(
+                                    str(result.get("error", ""))
+                                ) else 0
                                 if verbose_records:
                                     reason = str(result["error"]).splitlines()[0]
                                     print(
                                         f"[FAILED] id={record.id} url={record.url}: {reason}",
                                         flush=True,
+                                    )
+                                blocked_limit = getattr(args, "max_consecutive_blocked", 0)
+                                if blocked_limit and blocked_streak >= blocked_limit:
+                                    raise RuntimeError(
+                                        f"Source returned {blocked_streak} consecutive "
+                                        f"HTTP 403/429 or verification pages near row "
+                                        f"{record.row_index}; stopping this shard"
                                     )
 
                         if retry_after_restart:
@@ -231,7 +262,7 @@ async def run_job(args: argparse.Namespace, output: Path) -> None:
                                 f"http={mode_success['http']} "
                                 f"browser={mode_success['browser']} "
                                 f"failed={failed} fallback={fallback_count} "
-                                f"attempts={attempts} "
+                                f"attempts={attempts} in_flight={len(active)} "
                                 f"mean_seconds={elapsed_seconds / max(success + failed, 1):.2f}",
                                 flush=True,
                             )
@@ -296,7 +327,19 @@ def main() -> None:
     parser.add_argument("--batch-size", type=int, default=50)
     parser.add_argument("--concurrency", type=int, default=8, help="Maximum browser requests")
     parser.add_argument("--http-concurrency", type=int, default=8)
+    parser.add_argument(
+        "--max-in-flight", type=int,
+        help="Maximum URLs processed at once, including HTTP and browser fallback",
+    )
+    parser.add_argument(
+        "--request-interval-seconds", type=float, default=0.0,
+        help="Minimum time between starting URLs; useful for rate-limited sources",
+    )
     parser.add_argument("--fetch-mode", choices=("auto", "browser", "http"), default="auto")
+    parser.add_argument(
+        "--max-consecutive-blocked", type=int, default=0,
+        help="Stop after this many consecutive blocked URLs; 0 disables the guard",
+    )
     parser.add_argument("--verbose-records", action="store_true", help="Log every URL result")
     parser.add_argument("--light-browser", action="store_true")
     parser.add_argument("--avoid-ads", action="store_true")
@@ -312,6 +355,12 @@ def main() -> None:
         parser.error("require 0 <= --start <= --end")
     if min(args.batch_size, args.concurrency, args.http_concurrency, args.browser_recycle_after) < 1:
         parser.error("batch size and concurrency limits must be positive")
+    if args.max_in_flight is not None and args.max_in_flight < 1:
+        parser.error("--max-in-flight must be positive")
+    if args.max_consecutive_blocked < 0:
+        parser.error("--max-consecutive-blocked must be nonnegative")
+    if args.request_interval_seconds < 0:
+        parser.error("--request-interval-seconds must be nonnegative")
     if args.min_free_memory_gb < 0:
         parser.error("--min-free-memory-gb must be nonnegative")
     if not args.input.is_file():
