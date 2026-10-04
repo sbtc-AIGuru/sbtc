@@ -7,6 +7,7 @@ import asyncio
 from collections import Counter, deque
 from contextlib import AsyncExitStack
 from pathlib import Path
+from time import monotonic
 
 import psutil
 from crawl4ai import AsyncWebCrawler, BrowserConfig
@@ -21,6 +22,7 @@ MAX_BROWSER_RESTARTS = 3
 DEFAULT_RECYCLE_AFTER = 5_000
 DEFAULT_MIN_FREE_MEMORY_GB = 2.0
 METRICS_INTERVAL = 1_000
+PROGRESS_INTERVAL_SECONDS = 30
 
 
 def failed_outcome(record: SourceRecord, error: Exception) -> CrawlOutcome:
@@ -42,14 +44,32 @@ def failed_outcome(record: SourceRecord, error: Exception) -> CrawlOutcome:
     )
 
 
+async def cancel_active_tasks(
+    active: dict[asyncio.Task[CrawlOutcome], SourceRecord],
+    waiting: deque[SourceRecord],
+) -> None:
+    """Preserve unfinished URLs before their crawler contexts are closed."""
+    if not active:
+        return
+    tasks = list(active)
+    waiting.extendleft(reversed(active.values()))
+    for task in tasks:
+        task.cancel()
+    await asyncio.gather(*tasks, return_exceptions=True)
+    active.clear()
+
+
 async def run_job(args: argparse.Namespace, output: Path) -> None:
     """Keep a bounded task window full and write each completed URL immediately."""
+    started = monotonic()
     total = args.end - args.start + 1
     success = failed = skipped = 0
     last_progress = browser_restarts = completed_since_restart = 0
+    last_progress_at = started
     mode_success: Counter[str] = Counter()
     fallback_count = attempts = 0
     elapsed_seconds = 0.0
+    verbose_records = getattr(args, "verbose_records", False)
     print(f"[Crawl] {args.start}-{args.end}", flush=True)
 
     browser_config = BrowserConfig(
@@ -64,6 +84,7 @@ async def run_job(args: argparse.Namespace, output: Path) -> None:
     source_finished = False
     in_flight_limit = max(args.batch_size, args.concurrency + args.http_concurrency)
     min_free_bytes = int(args.min_free_memory_gb * 1024**3)
+    recycle_limit = args.browser_recycle_after if args.fetch_mode != "http" else None
 
     with JsonlWriter(output) as writer:
         completed = writer.completed_ids
@@ -73,7 +94,8 @@ async def run_job(args: argparse.Namespace, output: Path) -> None:
                 if batch is None:
                     source_finished = True
                     break
-                print(f"[Batch] {batch[0].row_index}-{batch[-1].row_index}", flush=True)
+                if verbose_records:
+                    print(f"[Batch] {batch[0].row_index}-{batch[-1].row_index}", flush=True)
                 for record in batch:
                     if completed.get(record.id) == record.url:
                         skipped += 1
@@ -83,8 +105,8 @@ async def run_job(args: argparse.Namespace, output: Path) -> None:
                 break
 
             active: dict[asyncio.Task[CrawlOutcome], SourceRecord] = {}
-            started_in_cycle = 0
-            recycle_requested = restart_requested = False
+            browser_outcomes_in_cycle = 0
+            recycle_requested = restart_requested = memory_recycle_requested = False
             try:
                 async with AsyncExitStack() as stack:
                     http = None
@@ -97,13 +119,13 @@ async def run_job(args: argparse.Namespace, output: Path) -> None:
                         browser = await stack.enter_async_context(
                             AsyncWebCrawler(config=browser_config)
                         )
+                    stack.push_async_callback(cancel_active_tasks, active, waiting)
                     browser_semaphore = asyncio.Semaphore(args.concurrency)
                     http_semaphore = asyncio.Semaphore(args.http_concurrency)
 
                     while True:
                         while (
                             len(active) < in_flight_limit
-                            and started_in_cycle < args.browser_recycle_after
                             and not recycle_requested
                         ):
                             if not waiting and not source_finished:
@@ -111,10 +133,11 @@ async def run_job(args: argparse.Namespace, output: Path) -> None:
                                 if batch is None:
                                     source_finished = True
                                 else:
-                                    print(
-                                        f"[Batch] {batch[0].row_index}-{batch[-1].row_index}",
-                                        flush=True,
-                                    )
+                                    if verbose_records:
+                                        print(
+                                            f"[Batch] {batch[0].row_index}-{batch[-1].row_index}",
+                                            flush=True,
+                                        )
                                     waiting.extend(batch)
                             if not waiting:
                                 break
@@ -135,12 +158,7 @@ async def run_job(args: argparse.Namespace, output: Path) -> None:
                                 )
                             )
                             active[task] = record
-                            started_in_cycle += 1
-
                         processed = success + failed + skipped
-                        if processed - last_progress >= args.batch_size:
-                            print(f"[Progress] {processed}/{total}", flush=True)
-                            last_progress = processed
                         if not active:
                             break
 
@@ -163,10 +181,12 @@ async def run_job(args: argparse.Namespace, output: Path) -> None:
                             attempts += outcome.attempts
                             elapsed_seconds += outcome.elapsed_seconds
                             fallback_count += outcome.used_fallback
-                            if outcome.used_fallback:
+                            if outcome.mode == "browser":
+                                browser_outcomes_in_cycle += 1
+                            if verbose_records and outcome.used_fallback:
                                 print(
                                     f"[Fallback] id={record.id} "
-                                    f"reason={outcome.fallback_error.splitlines()[0]}",
+                                    f"reason={(outcome.fallback_error or 'Unknown HTTP failure').splitlines()[0]}",
                                     flush=True,
                                 )
                             completed_since_restart += 1
@@ -174,18 +194,20 @@ async def run_job(args: argparse.Namespace, output: Path) -> None:
                                 success += 1
                                 completed[record.id] = record.url
                                 mode_success[outcome.mode] += 1
-                                print(
-                                    f"[OK] id={record.id} url={record.url} "
-                                    f"mode={outcome.mode} seconds={outcome.elapsed_seconds:.2f}",
-                                    flush=True,
-                                )
+                                if verbose_records:
+                                    print(
+                                        f"[OK] id={record.id} url={record.url} "
+                                        f"mode={outcome.mode} seconds={outcome.elapsed_seconds:.2f}",
+                                        flush=True,
+                                    )
                             else:
                                 failed += 1
-                                reason = str(result["error"]).splitlines()[0]
-                                print(
-                                    f"[FAILED] id={record.id} url={record.url}: {reason}",
-                                    flush=True,
-                                )
+                                if verbose_records:
+                                    reason = str(result["error"]).splitlines()[0]
+                                    print(
+                                        f"[FAILED] id={record.id} url={record.url}: {reason}",
+                                        flush=True,
+                                    )
 
                         if retry_after_restart:
                             pending_tasks = list(active)
@@ -199,23 +221,32 @@ async def run_job(args: argparse.Namespace, output: Path) -> None:
                             break
 
                         processed = success + failed + skipped
-                        if processed - last_progress >= args.batch_size:
-                            print(f"[Progress] {processed}/{total}", flush=True)
-                            last_progress = processed
-                        if processed and processed % METRICS_INTERVAL < len(done):
+                        now = monotonic()
+                        if (
+                            processed - last_progress >= METRICS_INTERVAL
+                            or now - last_progress_at >= PROGRESS_INTERVAL_SECONDS
+                        ):
                             print(
-                                f"[Metrics] http={mode_success['http']} "
+                                f"[Progress] {processed}/{total} "
+                                f"http={mode_success['http']} "
                                 f"browser={mode_success['browser']} "
-                                f"fallback={fallback_count} attempts={attempts} "
+                                f"failed={failed} fallback={fallback_count} "
+                                f"attempts={attempts} "
                                 f"mean_seconds={elapsed_seconds / max(success + failed, 1):.2f}",
                                 flush=True,
                             )
+                            last_progress = processed
+                            last_progress_at = now
+                        if recycle_limit is not None and browser_outcomes_in_cycle >= recycle_limit:
+                            recycle_requested = True
                         if (
                             min_free_bytes
+                            and browser is not None
                             and completed_since_restart >= args.batch_size
                             and psutil.virtual_memory().available < min_free_bytes
                         ):
                             recycle_requested = True
+                            memory_recycle_requested = True
 
             except Exception as error:
                 if not is_browser_disconnected(str(error)):
@@ -241,16 +272,19 @@ async def run_job(args: argparse.Namespace, output: Path) -> None:
 
             if source_finished and not waiting:
                 break
-            if recycle_requested:
+            if memory_recycle_requested:
                 print("[Browser] Recycling because available memory is low", flush=True)
             else:
                 print("[Browser] Recycling after bounded requests", flush=True)
             completed_since_restart = browser_restarts = 0
 
+    wall_seconds = monotonic() - started
+    fresh_rows_per_hour = (success + failed) * 3600 / wall_seconds if wall_seconds else 0.0
     print(f"[Progress] {success + failed + skipped}/{total}", flush=True)
     print(
         f"Total: {total}\nSuccess: {success}\nFailed: {failed}"
-        f"\nSkipped: {skipped}\nOutput: {output}",
+        f"\nSkipped: {skipped}\nWall seconds: {wall_seconds:.2f}"
+        f"\nFresh rows/hour: {fresh_rows_per_hour:.1f}\nOutput: {output}",
         flush=True,
     )
 
@@ -263,9 +297,13 @@ def main() -> None:
     parser.add_argument("--concurrency", type=int, default=8, help="Maximum browser requests")
     parser.add_argument("--http-concurrency", type=int, default=8)
     parser.add_argument("--fetch-mode", choices=("auto", "browser", "http"), default="auto")
+    parser.add_argument("--verbose-records", action="store_true", help="Log every URL result")
     parser.add_argument("--light-browser", action="store_true")
     parser.add_argument("--avoid-ads", action="store_true")
-    parser.add_argument("--browser-recycle-after", type=int, default=DEFAULT_RECYCLE_AFTER)
+    parser.add_argument(
+        "--browser-recycle-after", type=int, default=DEFAULT_RECYCLE_AFTER,
+        help="Completed browser URLs before restarting Chromium",
+    )
     parser.add_argument("--min-free-memory-gb", type=float, default=DEFAULT_MIN_FREE_MEMORY_GB)
     parser.add_argument("--input", type=Path, default=Path("data/links_corpus.parquet"))
     parser.add_argument("--output", type=Path)

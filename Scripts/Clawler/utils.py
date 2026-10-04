@@ -95,8 +95,14 @@ def load_completed_ids(output: Path, repair_tail: bool = False) -> dict[int, str
                 continue
             try:
                 record = json.loads(line.decode("utf-8"))
+                if not isinstance(record, dict):
+                    raise ValueError("JSONL record must be an object")
                 if record.get("success", True) and record.get("text"):
                     completed[int(record["id"])] = str(record["url"])
+                if repair_tail and not line.endswith(b"\n"):
+                    # A complete final JSON object still needs a separator before append.
+                    with output.open("ab") as writable:
+                        writable.write(b"\n")
             except (UnicodeDecodeError, json.JSONDecodeError, KeyError, TypeError, ValueError) as error:
                 if repair_tail and not line.endswith(b"\n") and not handle.read(1):
                     timestamp = datetime.now(timezone.utc).strftime("%Y%m%d%H%M%S%f")

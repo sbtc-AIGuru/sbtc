@@ -1,6 +1,6 @@
 """Tests for Generalized Crawler Architecture.
 Verifies:
-1. Browser-only domain routing (e.g., bachmai.gov.vn bypasses HTTP directly).
+1. HTTP-first routing for every domain with browser fallback in auto mode.
 2. Universal HTTP enablement for all static domains (Top 20 + unconfigured).
 3. Anti-boilerplate / copyright guard rejects empty or disclaimer-only texts.
 4. Multi-layout selector coverage on key corpus domains (familydoctor, 39.net, youlai, cnkang, etc.).
@@ -9,11 +9,12 @@ Verifies:
 
 from __future__ import annotations
 
+import asyncio
 import html
 import re
 import unicodedata
 import unittest
-from unittest.mock import AsyncMock, MagicMock
+from unittest.mock import AsyncMock, MagicMock, patch
 
 from bs4 import BeautifulSoup
 
@@ -23,9 +24,10 @@ from pathlib import Path
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(PROJECT_ROOT / "Scripts/Clawler"))
 
-from fetch import BROWSER_ONLY_DOMAINS, is_boilerplate_text
+from fetch import crawl_one, is_boilerplate_text
 from quality import ARTICLE_LAYOUTS, http_article_error
 from site_configs import build_run_configs
+from utils import SourceRecord
 from verbatim import clean_to_verbatim
 
 
@@ -42,9 +44,20 @@ def normalize_btc(text: str) -> list[str]:
 class TestGeneralizedCrawler(unittest.TestCase):
     """Test suite verifying overarching architectural improvements."""
 
-    def test_browser_only_domains_contain_spas(self):
-        """Pure SPA/Next.js domains must be in BROWSER_ONLY_DOMAINS."""
-        self.assertIn("bachmai.gov.vn", BROWSER_ONLY_DOMAINS)
+    def test_auto_mode_tries_http_for_bachmai(self):
+        """Auto mode tests HTTP before using the browser for Bach Mai."""
+        record = SourceRecord(0, 101, "https://bachmai.gov.vn/bai-viet/article")
+        valid_text = "Medical article content with enough words to pass validation. " * 3
+        run_config, domain_configs = build_run_configs()
+        with patch("fetch._fetch_with_strategy", new_callable=AsyncMock) as fetch_strategy:
+            fetch_strategy.return_value = (valid_text, "", 1, object())
+            outcome = asyncio.run(crawl_one(
+                record, object(), object(), asyncio.Semaphore(1), asyncio.Semaphore(1),
+                run_config, domain_configs, "auto",
+            ))
+        self.assertTrue(outcome.payload["success"])
+        self.assertEqual(outcome.mode, "http")
+        self.assertEqual(fetch_strategy.await_args.args[-1], "http")
 
     def test_anti_boilerplate_guard(self):
         """Copyright footers, error pages, and disclaimers must be detected as boilerplate."""

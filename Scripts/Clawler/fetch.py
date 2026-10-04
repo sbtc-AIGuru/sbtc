@@ -26,15 +26,13 @@ MAX_BROWSER_RETRIES = 3
 MAX_HTTP_RETRIES = 1
 REQUEST_TIMEOUT_SECONDS = 45
 TRANSIENT_STATUS_CODES = {408, 425, 429}
+HTTP_STATUS_RE = re.compile(r"\bHTTP\s+([1-5]\d{2})\b", re.IGNORECASE)
 INLINE_IMAGE_RE = re.compile(r"!\[([^\]]*)\]\(data:image/[^)\s]+\)", re.IGNORECASE)
 BROWSER_DISCONNECT_MESSAGES = (
     "Connection closed while reading from the driver",
     "BrowserContext.new_page: Connection closed",
     "Target page, context or browser has been closed",
 )
-BROWSER_ONLY_DOMAINS = {
-    "bachmai.gov.vn",
-}
 BOILERPLATE_PATTERNS = (
     re.compile(r"copyright\s*©.*(?:all\s+rights\s+reserved|版权所有)", re.IGNORECASE),
     re.compile(r"^(?:出错提示|页面不存在|404\s+not\s+found|403\s+forbidden)", re.IGNORECASE),
@@ -86,6 +84,12 @@ def get_markdown_candidates(result: object) -> list[str]:
 
 def is_transient_status(status: int | None) -> bool:
     return status is None or status in TRANSIENT_STATUS_CODES or status >= 500
+
+
+def _status_from_error(error_message: str) -> int | None:
+    """Recover status codes that Crawl4AI includes only in its error message."""
+    match = HTTP_STATUS_RE.search(error_message)
+    return int(match.group(1)) if match else None
 
 
 def is_browser_disconnected(error: str) -> bool:
@@ -173,6 +177,8 @@ async def _fetch_with_strategy(
             error_message = content_error or str(getattr(result, "error_message", "") or "")
             if not error_message:
                 error_message = "Empty Markdown" if getattr(result, "success", False) else f"HTTP {status or 'unknown'}"
+            if status is None:
+                status = _status_from_error(error_message)
             if is_browser_disconnected(error_message):
                 break
             if getattr(result, "success", False) and content_error:
@@ -181,7 +187,10 @@ async def _fetch_with_strategy(
                 break
         except Exception as error:
             error_message = f"{type(error).__name__}: {error}"
+            status = getattr(error, "status_code", None) or _status_from_error(error_message)
             if is_browser_disconnected(error_message):
+                break
+            if not is_transient_status(status):
                 break
         if attempt < max_retries:
             await asyncio.sleep(2**attempt)
@@ -323,11 +332,11 @@ async def crawl_one(
 
     attempts = 0
     http_error = ""
-    try_http = fetch_mode == "http" or (
-        fetch_mode == "auto"
-        and domain not in BROWSER_ONLY_DOMAINS
-    )
+    http_attempted = False
+    wujue_http_pagination_failed = False
+    try_http = fetch_mode in ("auto", "http")
     if try_http and http is not None:
+        http_attempted = True
         text, http_error, count, result = await _fetch_with_strategy(
             http, http_semaphore, record, http_fetch_url(record), domain, config, "http"
         )
@@ -335,36 +344,46 @@ async def crawl_one(
         if text is not None:
             used_browser = False
             if domain == "wujue.com":
-                text, pagination_error, count, used_browser, page_count = await _complete_wujue_article(
-                    record, result, http, browser, http_semaphore, browser_semaphore,
-                    config, fetch_mode,
-                )
-                attempts += count
-                if text is None:
-                    payload.update(success=False, text="", error=pagination_error)
-                    return CrawlOutcome(
-                        record, payload, "http", monotonic() - started, attempts, used_browser
+                try:
+                    text, pagination_error, count, used_browser, page_count = await _complete_wujue_article(
+                        record, result, http, browser, http_semaphore, browser_semaphore,
+                        config, fetch_mode,
                     )
-                payload["page_count"] = page_count
-            verbatim_text = clean_to_verbatim(text)
-            if is_boilerplate_text(verbatim_text):
-                payload.update(success=False, text="", error="Empty or boilerplate text after cleaning")
-                return CrawlOutcome(
-                    record, payload, "http", monotonic() - started, attempts, used_browser
-                )
-            payload.update(text=verbatim_text, success=True)
-            return CrawlOutcome(
-                record, payload, "browser" if used_browser else "http",
-                monotonic() - started, attempts, used_browser,
-                "Wujue numbered page required Chromium" if used_browser else "",
-            )
+                except Exception as error:
+                    text = None
+                    http_error = f"Article pagination failed: {type(error).__name__}: {error}"
+                    wujue_http_pagination_failed = True
+                else:
+                    attempts += count
+                    if text is None:
+                        http_error = pagination_error
+                        wujue_http_pagination_failed = True
+                    else:
+                        payload["page_count"] = page_count
+            if text is not None:
+                try:
+                    verbatim_text = clean_to_verbatim(text)
+                except Exception as error:
+                    http_error = f"Text cleaning failed: {type(error).__name__}: {error}"
+                else:
+                    if is_boilerplate_text(verbatim_text):
+                        http_error = "Empty or boilerplate text after cleaning"
+                    else:
+                        payload.update(text=verbatim_text, success=True)
+                        return CrawlOutcome(
+                            record, payload, "browser" if used_browser else "http",
+                            monotonic() - started, attempts, used_browser,
+                            "Wujue numbered page required Chromium" if used_browser else "",
+                        )
         if fetch_mode == "http":
             payload.update(success=False, text="", error=http_error)
             return CrawlOutcome(record, payload, "http", monotonic() - started, attempts, False)
 
     if browser is None:
         payload.update(success=False, text="", error=http_error or "Browser is unavailable")
-        return CrawlOutcome(record, payload, "none", monotonic() - started, attempts, try_http)
+        return CrawlOutcome(record, payload, "none", monotonic() - started, attempts, False)
+    if http_attempted and not http_error:
+        http_error = "HTTP article validation failed"
     text, browser_error, count, result = await _fetch_with_strategy(
         browser, browser_semaphore, record, record.url, domain, config, "browser"
     )
@@ -373,7 +392,7 @@ async def crawl_one(
         if domain == "wujue.com":
             text, pagination_error, count, _, page_count = await _complete_wujue_article(
                 record, result, http, browser, http_semaphore, browser_semaphore,
-                config, fetch_mode,
+                config, "browser" if wujue_http_pagination_failed else fetch_mode,
             )
             attempts += count
             if text is None:
@@ -381,15 +400,21 @@ async def crawl_one(
             else:
                 payload["page_count"] = page_count
         if text is not None:
-            verbatim_text = clean_to_verbatim(text)
-            if not is_boilerplate_text(verbatim_text):
-                payload.update(text=verbatim_text, success=True)
-            else:
-                browser_error = "Empty or boilerplate text after cleaning"
+            try:
+                verbatim_text = clean_to_verbatim(text)
+            except Exception as error:
+                browser_error = f"Text cleaning failed: {type(error).__name__}: {error}"
                 text = None
+            else:
+                if not is_boilerplate_text(verbatim_text):
+                    payload.update(text=verbatim_text, success=True)
+                else:
+                    browser_error = "Empty or boilerplate text after cleaning"
+                    text = None
     if text is None:
         error_message = f"HTTP: {http_error}; Browser: {browser_error}" if http_error else browser_error
         payload.update(success=False, text="", error=error_message)
     return CrawlOutcome(
-        record, payload, "browser", monotonic() - started, attempts, try_http, http_error
+        record, payload, "browser", monotonic() - started, attempts,
+        http_attempted, http_error,
     )

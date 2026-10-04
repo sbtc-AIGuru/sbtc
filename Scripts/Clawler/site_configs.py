@@ -211,6 +211,8 @@ def build_run_configs() -> tuple[CrawlerRunConfig, dict[str, CrawlerRunConfig]]:
         ),
         "youlai.cn": run_config.clone(
             target_elements=[
+                '[class*="mainContent--"] > [class*="title--"]',
+                '[class*="mainContent--"] [class*="textContent--"]',
                 "h1.doc_title",
                 "h1.title",
                 "h1",

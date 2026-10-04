@@ -21,6 +21,57 @@ class MockResult:
 class TestQualityModule(unittest.TestCase):
     """Test ARTICLE_LAYOUTS configurations and validation logic."""
 
+    def test_39_net_subdomain_uses_shared_article_layout(self):
+        """Question pages on ask.39.net can pass the configured HTTP gate."""
+        title = "Question about treatment options"
+        body = (
+            "The doctor explains the symptoms, recommended tests, treatment "
+            "options, and follow-up care for this condition."
+        )
+        html = f"<h1 class='ask_tit'>{title}</h1><div class='ask_cont'>{body}</div>"
+        self.assertIsNone(
+            http_article_error("ask.39.net", MockResult(html), f"{title}\n{body}")
+        )
+
+    def test_live_news_layouts_validate_article_body(self):
+        """Known news layouts pass complete articles and reject missing body text."""
+        title = "How doctors recommend preventing seasonal illness"
+        body = (
+            "Doctors explain the symptoms, treatment choices, and practical "
+            "steps for preventing this illness."
+        )
+        cases = (
+            (
+                "baohaiphong.vn",
+                "<h1 class='c-detail-head__title'>{title}</h1>"
+                "<div class='entry'>{body}</div>",
+            ),
+            (
+                "phunusuckhoe.giadinhonline.vn",
+                "<div class='single-post'><div class='post-title'><h1>{title}</h1>"
+                "</div><div id='article-body'>{body}</div></div>",
+            ),
+        )
+        for domain, template in cases:
+            with self.subTest(domain=domain):
+                result = MockResult(template.format(title=title, body=body))
+                self.assertIsNone(http_article_error(domain, result, f"{title}\n{body}"))
+                self.assertIsNotNone(http_article_error(domain, result, title))
+
+    def test_youlai_current_layout_validates_title_and_body(self):
+        title = "Can regular treatment reduce the risk of illness?"
+        body = (
+            "The article explains the risk factors, treatment options, "
+            "and follow-up steps for the patient."
+        )
+        html = (
+            f'<div class="mainContent--KSDkL"><div class="title--OslK-">{title}</div>'
+            f'<div class="textContent--1jgN9">{body}</div></div>'
+        )
+        result = MockResult(html)
+        self.assertIsNone(http_article_error("youlai.cn", result, f"{title}\n{body}"))
+        self.assertIsNotNone(http_article_error("youlai.cn", result, title))
+
     def test_configured_domains_present(self):
         """Verify baseline and newly added static domains are in ARTICLE_LAYOUTS."""
         expected_domains = [
@@ -38,9 +89,6 @@ class TestQualityModule(unittest.TestCase):
             with self.subTest(domain=domain):
                 self.assertIn(domain, ARTICLE_LAYOUTS, f"{domain} missing from ARTICLE_LAYOUTS")
         
-        from fetch import BROWSER_ONLY_DOMAINS
-        self.assertIn("bachmai.gov.vn", BROWSER_ONLY_DOMAINS)
-
     def test_valid_article_passes(self):
         """A complete article matching title and body layout should pass with None error."""
         html = (

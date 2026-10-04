@@ -30,6 +30,12 @@ ARTICLE_LAYOUTS: dict[str, tuple[tuple[str, tuple[str, ...]], ...]] = {
     "suckhoecongdongonline.vn": (
         ("h1.article__title, h1", (".article__body, .cms-body",)),
     ),
+    "phunusuckhoe.giadinhonline.vn": (
+        (".single-post .post-title h1", ("#article-body",)),
+    ),
+    "baohaiphong.vn": (
+        ("h1.c-detail-head__title", (".entry",)),
+    ),
     "sggp.org.vn": (
         ("h1.article__title, h1", (".article__body",)),
     ),
@@ -43,6 +49,10 @@ ARTICLE_LAYOUTS: dict[str, tuple[tuple[str, tuple[str, ...]], ...]] = {
         (".art-title h1, .title h1, h1.title, h1", (".art-content, .content, #content, .q-content",)),
     ),
     "youlai.cn": (
+        (
+            '[class*="mainContent--"] > [class*="title--"]',
+            ('[class*="mainContent--"] [class*="textContent--"]',),
+        ),
         ("h1.doc_title, h1.title, h1", (".doc_content, .article_content, .art_content, .content",)),
     ),
     "thanhnien.vn": (
@@ -106,6 +116,8 @@ def http_article_error(domain: str, result: object, text: str) -> str | None:
         return "HTTP response has no HTML"
     markdown = normalized_text(clean_to_verbatim(text))
     layouts = ARTICLE_LAYOUTS.get(domain)
+    if layouts is None and domain.endswith(".39.net"):
+        layouts = ARTICLE_LAYOUTS["39.net"]
     if layouts is None and len(markdown) < MIN_BODY_CHARACTERS:
         return f"HTTP article layout is not configured for {domain}"
     if len(markdown) < MIN_BODY_CHARACTERS:

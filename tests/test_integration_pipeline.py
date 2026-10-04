@@ -20,6 +20,21 @@ from compact import compact
 class TestIntegrationPipeline(unittest.TestCase):
     """Test JsonlWriter, append/resume, and compact.py workflow."""
 
+    def test_resume_adds_separator_after_complete_final_record(self):
+        """A crash after JSON bytes but before newline must not corrupt the next row."""
+        with TemporaryDirectory() as tmp_dir:
+            out_file = Path(tmp_dir) / "test_crawl.jsonl"
+            original = {"id": 583, "url": "https://a.com", "text": "Article", "success": True}
+            following = {"id": 584, "url": "https://b.com", "text": "Next", "success": True}
+            out_file.write_text(json.dumps(original), encoding="utf-8")
+
+            with JsonlWriter(out_file) as writer:
+                self.assertEqual(writer.completed_ids, {583: "https://a.com"})
+                writer.write(following)
+
+            lines = out_file.read_text(encoding="utf-8").splitlines()
+            self.assertEqual([json.loads(line) for line in lines], [original, following])
+
     def test_jsonl_writer_and_resume(self):
         """Test JsonlWriter writes records with file lock and recovers completed IDs."""
         with TemporaryDirectory() as tmp_dir:
