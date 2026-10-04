@@ -5,6 +5,7 @@ from __future__ import annotations
 import argparse
 import ast
 from dataclasses import dataclass
+from datetime import datetime, timezone
 import fcntl
 import json
 import os
@@ -23,6 +24,7 @@ RUNNER = "Scripts/Clawler/kaggle_run.py"
 INPUT = PROJECT_ROOT / "data/links_corpus.parquet"
 JOB_DIR = PROJECT_ROOT / ".krun/jobs"
 MAX_JOB_ATTEMPTS = 3
+MISSING_JOB_GRACE_SECONDS = 300
 STATUS_PATTERN = re.compile(r"^Status: ([A-Z_]+)$", re.MULTILINE)
 JOB_ID_PATTERN = re.compile(r"^Job ID: (\S+)$", re.MULTILINE)
 ARGUMENTS_PATTERN = re.compile(r"^ARGUMENTS = (.+)$", re.MULTILINE)
@@ -34,6 +36,10 @@ TERMINAL_ERRORS = {
 
 class QualityHold(Exception):
     """Stop scheduling when a completed shard yields too little source text."""
+
+
+class JobAttemptsExhausted(RuntimeError):
+    """A shard could not produce a complete output after bounded retries."""
 
 
 @dataclass(frozen=True)
@@ -125,6 +131,19 @@ def refresh_job(job: Job) -> Job:
     if match is None:
         raise RuntimeError(f"Could not parse KRun status for {job.job_id}: {output}")
     return Job(job.job_id, job.start, job.end, match.group(1).lower(), job.submitted_at)
+
+
+def is_stale_missing_job(job: Job, error: Exception) -> bool:
+    """Reject a job only after Kaggle has returned 404 beyond a grace period."""
+    if "404 Client Error" not in str(error) or not job.submitted_at:
+        return False
+    try:
+        submitted_at = datetime.fromisoformat(job.submitted_at)
+    except ValueError:
+        return False
+    if submitted_at.tzinfo is None:
+        submitted_at = submitted_at.replace(tzinfo=timezone.utc)
+    return (datetime.now(timezone.utc) - submitted_at).total_seconds() >= MISSING_JOB_GRACE_SECONDS
 
 
 def validate_canonical(canonical: Path) -> None:
@@ -284,8 +303,14 @@ def run_cycle(args: argparse.Namespace, validated_path: Path) -> bool:
         try:
             refreshed.append(refresh_job(job))
         except (RuntimeError, subprocess.TimeoutExpired) as error:
-            print(f"[Status retry] job={job.job_id}: {error}", flush=True)
-            refreshed.append(job)
+            if is_stale_missing_job(job, error):
+                rejected[job.job_id] = f"Kaggle status missing after grace period: {error}"
+                save_validated(rejected_path, rejected)
+                refreshed.append(Job(job.job_id, job.start, job.end, "invalid", job.submitted_at))
+                print(f"[Missing] job={job.job_id}; shard can be resubmitted", flush=True)
+            else:
+                print(f"[Status retry] job={job.job_id}: {error}", flush=True)
+                refreshed.append(job)
     jobs = refreshed
 
     for index, job in enumerate(jobs):
@@ -357,7 +382,7 @@ def run_cycle(args: argparse.Namespace, validated_path: Path) -> bool:
         if any(job.status not in TERMINAL_ERRORS | {"complete"} for job in attempts):
             continue
         if len(attempts) >= MAX_JOB_ATTEMPTS:
-            raise RuntimeError(f"Shard {segment} failed {len(attempts)} times")
+            raise JobAttemptsExhausted(f"Shard {segment} failed {len(attempts)} times")
         if any(job.status == "complete" for job in attempts):
             continue
         submit_job(*segment, args.batch_size, args.concurrency, args.http_concurrency, **tuning)

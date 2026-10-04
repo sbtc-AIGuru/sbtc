@@ -193,6 +193,25 @@ class TestKrunRange(unittest.TestCase):
         rejected = json.loads((self.root / "validated_rejected.json").read_text())
         self.assertIn("bad", rejected)
 
+    def test_stale_missing_kaggle_job_is_resubmitted(self) -> None:
+        missing = krun_range.Job("missing", 0, 1, "submitted", "2020-01-01T00:00:00+00:00")
+        args = type("Args", (), {
+            "start": 0, "end": 1, "max_active": 1, "shard_size": 2,
+            "batch_size": 50, "concurrency": 4, "http_concurrency": 8,
+        })()
+        with (
+            patch.object(krun_range, "discover_jobs", return_value=[missing]),
+            patch.object(
+                krun_range, "refresh_job",
+                side_effect=RuntimeError("404 Client Error: Not Found"),
+            ),
+            patch.object(krun_range, "submit_job") as submit,
+        ):
+            self.assertFalse(krun_range.run_cycle(args, self.root / "validated.json"))
+        submit.assert_called_once_with(0, 1, 50, 4, 8)
+        rejected = json.loads((self.root / "validated_rejected.json").read_text())
+        self.assertIn("missing", rejected)
+
     def test_completed_shard_prefers_more_text_and_ignores_rejected_job(self) -> None:
         low = self.make_job("low", 0, 1, [self.row(0), self.row(1, success=False)])
         high = self.make_job("high", 0, 1, [self.row(0), self.row(1)])
