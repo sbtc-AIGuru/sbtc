@@ -99,7 +99,9 @@ async def run_job(args: argparse.Namespace, output: Path) -> None:
     min_free_bytes = int(args.min_free_memory_gb * 1024**3)
     recycle_limit = args.browser_recycle_after if args.fetch_mode != "http" else None
 
-    with JsonlWriter(output) as writer:
+    with JsonlWriter(
+        output, skip_failed_on_resume=getattr(args, "skip_failed_on_resume", False)
+    ) as writer:
         completed = writer.completed_ids
         while True:
             while len(waiting) < in_flight_limit and not source_finished:
@@ -336,6 +338,10 @@ def main() -> None:
         help="Minimum time between starting URLs; useful for rate-limited sources",
     )
     parser.add_argument("--fetch-mode", choices=("auto", "browser", "http"), default="auto")
+    parser.add_argument(
+        "--skip-failed-on-resume", action="store_true",
+        help="Skip previously recorded failed URLs when resuming the same output",
+    )
     parser.add_argument(
         "--max-consecutive-blocked", type=int, default=0,
         help="Stop after this many consecutive blocked URLs; 0 disables the guard",

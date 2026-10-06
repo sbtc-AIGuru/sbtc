@@ -226,13 +226,8 @@ def build_run_configs() -> tuple[CrawlerRunConfig, dict[str, CrawlerRunConfig]]:
         ),
         "zydcd.com": run_config.clone(
             target_elements=[
-                "h1.title",
-                "h1",
-                ".title",
-                ".content",
-                "#content",
-                ".text",
-                "#text",
+                ".panel.panel-danger > .panel-heading h1",
+                ".panel.panel-danger > .panel-body.info_txt",
             ],
             markdown_generator=DefaultMarkdownGenerator(),
         ),

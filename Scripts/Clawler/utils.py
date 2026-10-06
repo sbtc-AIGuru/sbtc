@@ -81,8 +81,10 @@ def load_url_range(
         yield pending
 
 
-def load_completed_ids(output: Path, repair_tail: bool = False) -> dict[int, str]:
-    """Read successful IDs and their original URLs from an existing JSONL file."""
+def load_completed_ids(
+    output: Path, repair_tail: bool = False, include_failed: bool = False
+) -> dict[int, str]:
+    """Read recorded IDs and URLs, optionally treating failures as complete."""
     completed: dict[int, str] = {}
     if not output.exists():
         return completed
@@ -97,7 +99,9 @@ def load_completed_ids(output: Path, repair_tail: bool = False) -> dict[int, str
                 record = json.loads(line.decode("utf-8"))
                 if not isinstance(record, dict):
                     raise ValueError("JSONL record must be an object")
-                if record.get("success", True) and record.get("text"):
+                if (record.get("success", True) and record.get("text")) or (
+                    include_failed and record.get("success") is False
+                ):
                     completed[int(record["id"])] = str(record["url"])
                 if repair_tail and not line.endswith(b"\n"):
                     # A complete final JSON object still needs a separator before append.
@@ -127,8 +131,9 @@ def save_results(output: Path, results: list[dict[str, object]]) -> None:
 class JsonlWriter:
     """Hold a single writer lock and flush each completed result to JSONL."""
 
-    def __init__(self, output: Path) -> None:
+    def __init__(self, output: Path, skip_failed_on_resume: bool = False) -> None:
         self.output = output
+        self.skip_failed_on_resume = skip_failed_on_resume
         self.completed_ids: dict[int, str] = {}
         self._lock: TextIO | None = None
         self._handle: TextIO | None = None
@@ -139,7 +144,11 @@ class JsonlWriter:
         self._lock = lock_path.open("a+", encoding="utf-8")
         try:
             fcntl.flock(self._lock.fileno(), fcntl.LOCK_EX | fcntl.LOCK_NB)
-            self.completed_ids = load_completed_ids(self.output, repair_tail=True)
+            self.completed_ids = load_completed_ids(
+                self.output,
+                repair_tail=True,
+                include_failed=self.skip_failed_on_resume,
+            )
             self._handle = self.output.open("a", encoding="utf-8", buffering=1)
         except (OSError, ValueError):
             self._lock.close()

@@ -58,6 +58,57 @@ class TestQualityModule(unittest.TestCase):
                 self.assertIsNone(http_article_error(domain, result, f"{title}\n{body}"))
                 self.assertIsNotNone(http_article_error(domain, result, title))
 
+    def test_first_crawl_domains_accept_complete_http_articles(self):
+        """Match the source-specific article regions before using Chromium."""
+        title = "Doctors explain how to prevent illness and recover safely"
+        summary = (
+            "The article introduces symptoms, prevention measures, and when "
+            "patients should seek medical care."
+        )
+        body = (
+            "Doctors describe the recommended treatment, practical steps at "
+            "home, and follow-up care for patients with persistent symptoms."
+        )
+        cases = (
+            (
+                "bachmai.gov.vn",
+                "<div id='content-post'><h3 class='h3'>{title}</h3>"
+                "<div class='content-editor'><p>{body}</p></div></div>",
+                f"{title}\n{body}",
+                title,
+            ),
+            (
+                "baoangiang.com.vn",
+                "<div class='detail-title'><h1>{title}</h1></div>"
+                "<div id='newscontents'><p>{body}</p></div>",
+                f"{title}\n{body}",
+                title,
+            ),
+            (
+                "suckhoeviet.org.vn",
+                "<div class='article-detail-body-right'><h1>{title}</h1>"
+                "<div class='article-detail-desc'>{summary}</div>"
+                "<div class='__MASTERCMS_CONTENT'><p>{body}</p></div></div>",
+                f"{title}\n{summary}\n{body}",
+                f"{title}\n{summary}",
+            ),
+            (
+                "tamanhhospital.vn",
+                "<div class='post_info box_detail_post'>"
+                "<div class='title'>{title}</div></div>"
+                "<div class='post_info box_detail_post'><p>{body}</p></div>",
+                f"{title}\n{body}",
+                title,
+            ),
+        )
+        for domain, template, complete, truncated in cases:
+            with self.subTest(domain=domain):
+                result = MockResult(template.format(
+                    title=title, summary=summary, body=body
+                ))
+                self.assertIsNone(http_article_error(domain, result, complete))
+                self.assertIsNotNone(http_article_error(domain, result, truncated))
+
     def test_youlai_current_layout_validates_title_and_body(self):
         title = "Can regular treatment reduce the risk of illness?"
         body = (
@@ -72,14 +123,51 @@ class TestQualityModule(unittest.TestCase):
         self.assertIsNone(http_article_error("youlai.cn", result, f"{title}\n{body}"))
         self.assertIsNotNone(http_article_error("youlai.cn", result, title))
 
+    def test_vietnamnet_and_zydcd_current_article_layouts(self):
+        title = "Doctors explain a complete treatment plan"
+        body = (
+            "The article describes symptoms, treatment choices, follow-up care, "
+            "and practical steps for patients and their families."
+        )
+        cases = (
+            (
+                "vietnamnet.vn",
+                f"<div class='content-detail'><h1>{title}</h1>"
+                f"<div class='main-content'><p>{body}</p></div></div>",
+            ),
+            (
+                "zydcd.com",
+                "<div class='panel panel-danger'>"
+                f"<div class='panel-heading'><h1>{title}</h1></div>"
+                f"<div class='panel-body info_txt'><p>{body}</p></div></div>"
+                "<div class='panel panel-danger'><div class='panel-body info_txt'></div></div>"
+                "<div class='panel panel-success'>Recommended content</div>",
+            ),
+            (
+                "vinmec.com",
+                "<div class='post-detail'><div class='post-header'>"
+                f"<h1>{title}</h1></div></div>"
+                f"<div id='main-article'><p>{body}</p></div>",
+            ),
+        )
+        for domain, html in cases:
+            with self.subTest(domain=domain):
+                result = MockResult(html)
+                self.assertIsNone(http_article_error(domain, result, f"{title}\n{body}"))
+                self.assertIsNotNone(http_article_error(domain, result, title))
+
     def test_configured_domains_present(self):
         """Verify baseline and newly added static domains are in ARTICLE_LAYOUTS."""
         expected_domains = [
             "120ask.com",
+            "bachmai.gov.vn",
+            "baoangiang.com.vn",
             "cnkang.com",
             "wujue.com",
             "baocantho.com.vn",
             "suckhoedoisong.vn",
+            "suckhoeviet.org.vn",
+            "tamanhhospital.vn",
             "a-hospital.com",
             "zhongyibaodian.net",
             "sggp.org.vn",

@@ -89,7 +89,7 @@ def load_crawl_module(
     site_configs.build_run_configs = lambda: (object(), {})
 
     utils = ModuleType("utils")
-    utils.JsonlWriter = lambda _output: writer
+    utils.JsonlWriter = lambda _output, **_kwargs: writer
     utils.SourceRecord = SourceRecord
     utils.get_row_count = lambda _source: len(records)
     utils.load_url_range = lambda *_args: iter([records])
