@@ -161,6 +161,7 @@ class JsonlWriter:
         if self._handle is None:
             raise RuntimeError("JSONL writer is not open")
         self._handle.write(json.dumps(result, ensure_ascii=False) + "\n")
+        self._handle.flush()
 
     def __exit__(self, exc_type: object, exc: object, traceback: object) -> None:
         if self._handle is not None:

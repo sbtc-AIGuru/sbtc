@@ -34,7 +34,7 @@ def create_index(database: sqlite3.Connection, source: Path, start: int, end: in
     database.commit()
 
 
-def find_row_index(database: sqlite3.Connection, value: dict[str, object]) -> int:
+def find_row_index(database: sqlite3.Connection, value: dict[str, object]) -> int | None:
     """Resolve legacy lines lacking row_index only when ID and URL are unambiguous."""
     record_id = int(value["id"])
     url = str(value["url"])
@@ -43,12 +43,16 @@ def find_row_index(database: sqlite3.Connection, value: dict[str, object]) -> in
         original = database.execute(
             "SELECT id, url FROM source WHERE row_index = ?", (row_index,)
         ).fetchone()
+        if original is None:
+            return None
         if original != (record_id, url):
             raise ValueError(f"ID/URL mismatch at Parquet row {row_index}")
         return row_index
     rows = database.execute(
         "SELECT row_index FROM source WHERE id = ? AND url = ? LIMIT 2", (record_id, url)
     ).fetchall()
+    if len(rows) == 0:
+        return None
     if len(rows) != 1:
         raise ValueError(f"Legacy result has missing or ambiguous ID/URL: {record_id}")
     return int(rows[0][0])
@@ -66,6 +70,8 @@ def index_results(database: sqlite3.Connection, raw: Path) -> int:
                 if not isinstance(value, dict) or not isinstance(value.get("text"), str):
                     raise ValueError("Missing text field")
                 row_index = find_row_index(database, value)
+                if row_index is None:
+                    continue
                 success = int(value.get("success", True) is not False and bool(value["text"].strip()))
                 if not success and value["text"]:
                     raise ValueError("Failure has nonempty text")
