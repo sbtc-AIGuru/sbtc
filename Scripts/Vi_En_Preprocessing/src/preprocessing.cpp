@@ -2,6 +2,7 @@
 #include <iostream>
 #include <string>
 #include <nlohmann/json.hpp>
+#include "src/processor.h"
 
 using json = nlohmann::json; 
 
@@ -25,5 +26,4 @@ int main() {
             std::cerr << "Invalid JSON: " << e.what() << "\n"; 
         }
     }
-    return 0;
 }
