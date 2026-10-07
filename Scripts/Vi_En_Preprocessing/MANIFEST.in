@@ -1,0 +1,4 @@
+include CMakeLists.txt
+include src/processor.h
+include src/preprocessing.cpp
+recursive-include tests *.py
