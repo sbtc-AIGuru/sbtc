@@ -1,0 +1,4 @@
+{
+    "embedding_model": "Alibaba-NLP/gte-multilingual-base",
+    "embedding_vector_dim": 768
+}
