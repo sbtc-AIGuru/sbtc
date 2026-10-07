@@ -19,6 +19,8 @@ def build_run_configs() -> tuple[CrawlerRunConfig, dict[str, CrawlerRunConfig]]:
         cache_mode=CacheMode.BYPASS,
         page_timeout=PAGE_TIMEOUT_MS,
         verbose=False,
+        check_robots_txt=True,
+        user_agent="SBTCResearchCrawler/1.0",
         exclude_all_images=True,
         markdown_generator=DefaultMarkdownGenerator(
             content_filter=PruningContentFilterLXML(
@@ -179,6 +181,11 @@ def build_run_configs() -> tuple[CrawlerRunConfig, dict[str, CrawlerRunConfig]]:
                 ".article-content > article > h1",
                 ".article-content > article > .prose",
             ],
+            markdown_generator=DefaultMarkdownGenerator(),
+        ),
+        "ask.39.net": run_config.clone(
+            target_elements=["h1.ask_tit", ".ask_tit", ".ask_cont", ".all_answer", ".doc_ans"],
+            excluded_selector=".ask_cont > .sys-box, #txt_totopicforum, .txt_nametime, .txt_label, .askCenterAd",
             markdown_generator=DefaultMarkdownGenerator(),
         ),
         "39.net": run_config.clone(

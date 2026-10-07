@@ -45,6 +45,23 @@ ARTICLE_LAYOUTS: dict[str, tuple[tuple[str, tuple[str, ...]], ...]] = {
     "39.net": (
         ("h1.ask_tit, .ask_tit, .art_left > h1, h1", (".ask_cont, .all_answer, .doc_ans, .art_left > .art_content, .art_content",)),
     ),
+    "ask.39.net": (
+        ("h1.ask_tit, .ask_tit, h1", (".ask_hid .txt_ms, .ask_hid .txt_bc",)),
+        ("h1.ask_tit, .ask_tit, h1", (".ask_cont", ".all_answer, .doc_ans")),
+    ),
+    "nhathuoclongchau.com.vn": (
+        ("h1", ('[class*="posts-detail_posts-detail-container"] .bg-white',)),
+        ("h1", ("div.relative.container-lite.flex.flex-col",)),
+    ),
+    "youmed.vn": (
+        (".article-content > article > h1", (".article-content > article > .prose",)),
+    ),
+    "suckhoeviet.org.vn": (
+        (".article-detail-body-right > h1", (".article-detail-body-right > .__MASTERCMS_CONTENT",)),
+    ),
+    "tamanhhospital.vn": (
+        ("h1", (".post_info.box_detail_post",)),
+    ),
     "familydoctor.com.cn": (
         (".art-title h1, .title h1, h1.title, h1", (".art-content, .content, #content, .q-content",)),
     ),
@@ -118,12 +135,16 @@ def http_article_error(domain: str, result: object, text: str) -> str | None:
     layouts = ARTICLE_LAYOUTS.get(domain)
     if layouts is None and domain.endswith(".39.net"):
         layouts = ARTICLE_LAYOUTS["39.net"]
-    if layouts is None and len(markdown) < MIN_BODY_CHARACTERS:
+    minimum_characters = 8 if domain == "ask.39.net" else MIN_BODY_CHARACTERS
+    if layouts is None and len(markdown) < minimum_characters:
         return f"HTTP article layout is not configured for {domain}"
-    if len(markdown) < MIN_BODY_CHARACTERS:
+    if len(markdown) < minimum_characters:
         return "HTTP Markdown is too short for an article"
 
     soup = BeautifulSoup(html, "lxml")
+    if domain == "tamanhhospital.vn":
+        for noise in soup.select(".post_info.box_detail_post .content_insert, .post_info.box_detail_post .div_over, .post_info.box_detail_post .mt_15"):
+            noise.decompose()
     if domain == "wujue.com":
         for body in soup.select("#article-main_left .art-text"):
             remove_wujue_pager(body)
@@ -137,6 +158,10 @@ def http_article_error(domain: str, result: object, text: str) -> str | None:
             if not title_text or title_text not in markdown:
                 continue
             bodies = [soup.select(selector) for selector in body_selectors]
+            if domain == "ask.39.net":
+                answers = soup.select(".all_answer, .doc_ans")
+                if answers:
+                    bodies.append(answers)
             if any(not elements for elements in bodies):
                 continue
             if all(
@@ -169,3 +194,11 @@ def http_article_error(domain: str, result: object, text: str) -> str | None:
             return None
 
     return f"HTTP article layout is not configured for {domain} (body content did not match markdown)"
+
+
+def article_metadata(domain: str, result: object) -> dict[str, object]:
+    """Identify question-only documents without inventing absent medical answers."""
+    if domain != "ask.39.net":
+        return {}
+    soup = BeautifulSoup(getattr(result, "html", "") or "", "lxml")
+    return {"document_type": "question", "has_answer": bool(soup.select(".all_answer, .doc_ans"))}

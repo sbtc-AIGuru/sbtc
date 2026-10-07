@@ -10,7 +10,7 @@ from pathlib import Path
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(PROJECT_ROOT / "Scripts/Clawler"))
 
-from quality import ARTICLE_LAYOUTS, http_article_error
+from quality import ARTICLE_LAYOUTS, article_metadata, http_article_error
 
 
 class MockResult:
@@ -28,10 +28,35 @@ class TestQualityModule(unittest.TestCase):
             "The doctor explains the symptoms, recommended tests, treatment "
             "options, and follow-up care for this condition."
         )
-        html = f"<h1 class='ask_tit'>{title}</h1><div class='ask_cont'>{body}</div>"
+        html = f"<h1 class='ask_tit'>{title}</h1><div class='ask_cont'>{body}</div><div class='doc_ans'>{body}</div>"
         self.assertIsNone(
             http_article_error("ask.39.net", MockResult(html), f"{title}\n{body}")
         )
+
+    def test_39_question_without_answer_is_incomplete(self):
+        title = "What treatment should a patient receive?"
+        question = "The question describes symptoms but there is no doctor answer on the page."
+        html = f"<h1 class='ask_tit'>{title}</h1><div class='ask_cont'>{question}</div>"
+        self.assertIsNotNone(http_article_error("ask.39.net", MockResult(html), f"{title}\n{question}"))
+
+    def test_modern_39_question_only_layout_excludes_related_disease_widgets(self):
+        title = "Question about symptoms"
+        question = "Symptoms started several days ago and the patient asks how to seek care."
+        html = (f"<div class='ask_cont'><h1 class='ask_tit'>{title}</h1>"
+                f"<div class='ask_hid'><p class='txt_ms'>{question}</p></div>"
+                "<section class='sys-box'>Related disease recommendations and consultation links</section></div>")
+        result = MockResult(html)
+        self.assertIsNone(http_article_error("ask.39.net", result, f"{title}\n{question}"))
+        self.assertEqual(article_metadata("ask.39.net", result), {"document_type": "question", "has_answer": False})
+
+    def test_modern_39_layout_does_not_drop_existing_answer(self):
+        title = "Question about symptoms"
+        question = "The patient describes recent symptoms and asks for advice."
+        answer = "The doctor explains which tests and follow-up examinations are appropriate."
+        html = (f"<h1 class='ask_tit'>{title}</h1><div class='ask_hid'><p class='txt_ms'>{question}</p></div>"
+                f"<div class='doc_ans'>{answer}</div>")
+        self.assertIsNotNone(http_article_error("ask.39.net", MockResult(html), f"{title}\n{question}"))
+        self.assertIsNone(http_article_error("ask.39.net", MockResult(html), f"{title}\n{question}\n{answer}"))
 
     def test_live_news_layouts_validate_article_body(self):
         """Known news layouts pass complete articles and reject missing body text."""

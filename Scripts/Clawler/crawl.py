@@ -12,11 +12,11 @@ from time import monotonic
 
 import psutil
 from crawl4ai import AsyncWebCrawler, BrowserConfig
-from crawl4ai.async_crawler_strategy import AsyncHTTPCrawlerStrategy
 
 from fetch import CrawlOutcome, crawl_one, is_browser_disconnected
 from site_configs import build_run_configs
 from utils import JsonlWriter, SourceRecord, get_row_count, load_url_range
+from fetch_policy import FetchController, active_controller, read_policies
 
 
 MAX_BROWSER_RESTARTS = 3
@@ -66,7 +66,7 @@ async def cancel_active_tasks(
     active.clear()
 
 
-async def run_job(args: argparse.Namespace, output: Path) -> None:
+async def _run_job(args: argparse.Namespace, output: Path) -> None:
     """Keep a bounded task window full and write each completed URL immediately."""
     started = monotonic()
     total = args.end - args.start + 1
@@ -87,6 +87,7 @@ async def run_job(args: argparse.Namespace, output: Path) -> None:
         light_mode=args.light_browser,
         avoid_ads=args.avoid_ads,
     )
+    from http_strategy import create_http_strategy
     run_config, domain_configs = build_run_configs()
     batches = iter(load_url_range(args.input, args.start, args.end, args.batch_size))
     waiting: deque[SourceRecord] = deque()
@@ -101,6 +102,13 @@ async def run_job(args: argparse.Namespace, output: Path) -> None:
 
     with JsonlWriter(output) as writer:
         completed = writer.completed_ids
+        completed_rows = getattr(writer, "completed_rows", None)
+        legacy_completed = getattr(writer, "legacy_completed_ids", completed)
+
+        def is_completed(record: SourceRecord) -> bool:
+            if completed_rows is not None and completed_rows.get(record.row_index) == (record.id, record.url):
+                return True
+            return legacy_completed.get(record.id) == record.url
         while True:
             while len(waiting) < in_flight_limit and not source_finished:
                 batch = next(batches, None)
@@ -110,7 +118,7 @@ async def run_job(args: argparse.Namespace, output: Path) -> None:
                 if verbose_records:
                     print(f"[Batch] {batch[0].row_index}-{batch[-1].row_index}", flush=True)
                 for record in batch:
-                    if completed.get(record.id) == record.url:
+                    if is_completed(record):
                         skipped += 1
                     else:
                         waiting.append(record)
@@ -126,7 +134,7 @@ async def run_job(args: argparse.Namespace, output: Path) -> None:
                     browser = None
                     if args.fetch_mode != "browser":
                         http = await stack.enter_async_context(
-                            AsyncWebCrawler(crawler_strategy=AsyncHTTPCrawlerStrategy())
+                            AsyncWebCrawler(crawler_strategy=create_http_strategy())
                         )
                     if args.fetch_mode != "http":
                         browser = await stack.enter_async_context(
@@ -155,13 +163,14 @@ async def run_job(args: argparse.Namespace, output: Path) -> None:
                             if not waiting:
                                 break
                             record = waiting.popleft()
-                            if completed.get(record.id) == record.url:
+                            if is_completed(record):
                                 skipped += 1
                                 continue
                             if request_interval:
                                 delay = next_request_at - monotonic()
                                 if delay > 0:
-                                    await asyncio.sleep(delay)
+                                    waiting.appendleft(record)
+                                    break
                                 next_request_at = monotonic() + request_interval
                             task = asyncio.create_task(
                                 crawl_one(
@@ -178,6 +187,9 @@ async def run_job(args: argparse.Namespace, output: Path) -> None:
                             active[task] = record
                         processed = success + failed + skipped
                         if not active:
+                            if waiting and request_interval:
+                                await asyncio.sleep(max(0.0, next_request_at - monotonic()))
+                                continue
                             break
 
                         done, _ = await asyncio.wait(
@@ -193,6 +205,8 @@ async def run_job(args: argparse.Namespace, output: Path) -> None:
                             except Exception as error:
                                 outcome = failed_outcome(record, error)
                             result = outcome.payload
+                            if result.get("error_kind") == "configuration_error":
+                                raise RuntimeError(f"Fetcher configuration error: {result.get('error')}")
                             if is_browser_disconnected(str(result.get("error", ""))):
                                 retry_after_restart.append(record)
                                 continue
@@ -214,6 +228,8 @@ async def run_job(args: argparse.Namespace, output: Path) -> None:
                                 success += 1
                                 blocked_streak = 0
                                 completed[record.id] = record.url
+                                if completed_rows is not None:
+                                    completed_rows[record.row_index] = (record.id, record.url)
                                 mode_success[outcome.mode] += 1
                                 if verbose_records:
                                     print(
@@ -320,6 +336,16 @@ async def run_job(args: argparse.Namespace, output: Path) -> None:
     )
 
 
+async def run_job(args: argparse.Namespace, output: Path) -> None:
+    """Apply one controller to every HTTP/browser request in this job."""
+    controller = FetchController(read_policies(getattr(args, "host_policy_file", None)))
+    token = active_controller.set(controller)
+    try:
+        await _run_job(args, output)
+    finally:
+        active_controller.reset(token)
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--start", type=int, required=True, help="First Parquet row index")
@@ -336,6 +362,7 @@ def main() -> None:
         help="Minimum time between starting URLs; useful for rate-limited sources",
     )
     parser.add_argument("--fetch-mode", choices=("auto", "browser", "http"), default="auto")
+    parser.add_argument("--host-policy-file", type=Path)
     parser.add_argument(
         "--max-consecutive-blocked", type=int, default=0,
         help="Stop after this many consecutive blocked URLs; 0 disables the guard",

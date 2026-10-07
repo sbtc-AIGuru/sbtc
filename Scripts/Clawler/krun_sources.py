@@ -61,7 +61,8 @@ def run_sources(args: argparse.Namespace) -> dict[str, dict[str, str]]:
         if key in deferred:
             print(f"[Deferred] {key} source={domain}: {deferred[key]['reason']}", flush=True)
             continue
-        source_args = argparse.Namespace(**(vars(args) | {"start": start, "end": end}))
+        # One active shard per source keeps host admission from multiplying across jobs.
+        source_args = argparse.Namespace(**(vars(args) | {"start": start, "end": end, "max_active": 1}))
         validated_path = JOB_DIR.parent / f"crawl_{key}_validated.json"
         print(f"[Source] {key} source={domain}", flush=True)
         while True:
