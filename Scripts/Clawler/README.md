@@ -42,6 +42,19 @@ campaign. A pass returns when remaining work is cooling down; use
 `--max-rounds 3` campaign rounds by default. Sources that repeatedly deny access
 should be inspected before enabling a long-running retry pass.
 
+After changing article extraction, retry the recorded failures first:
+
+```bash
+python Scripts/Clawler/backfill.py run \
+  --campaign .backfill/large_ranges_20261007 \
+  --retry-only --max-rounds 4
+```
+
+`--retry-only` selects recoverable `retryable`/`deferred` rows, preserves
+successful rows and permanent failures, and does not dispatch untouched
+pending rows. Remove this flag to resume the complete manifest. Cooldowns
+still apply; add `--wait-for-retries` to wait for scheduled retries.
+
 Inspect coverage and request diagnostics:
 
 ```bash
@@ -54,10 +67,19 @@ permanent failures. A completed pass does not mean complete success coverage.
 Reports include per-host counts, request modes/error types, and latency
 percentiles for the last 500 requests per host. `results.jsonl` records final
 document outcomes; `attempts.jsonl` records individual HTTP/browser requests.
+These files are written during the run. `run` prints the absolute live output
+path at startup and a `Saved batch` message after each durable write. Completed
+outcomes are synced after 50 documents or 5 seconds, whichever comes first;
+partial batches are also flushed at the end of a pass or on Ctrl+C. Change this
+with `--write-batch-size 50 --write-interval-seconds 5`. The write order is
+JSONL flush/fsync, then SQLite commit. A forced process kill can lose the last
+unsynced batch; use `--write-batch-size 1` to sync every completed document.
+`results.jsonl` contains both successes and failures for this campaign. It is
+the incremental delta; the baseline plus delta is published by `merge` below.
 The SQLite ledger recovers from a journal append followed by a crash before
 the state commit. A partial final journal line is backed up before repair.
 An unrestricted run exits with code 3 while targets remain; deliberately
-bounded pilot/group runs return normally with their remaining counts.
+bounded pilot/group/retry-only runs return normally with their remaining counts.
 
 HTTP/browser/retry/pagination share one admission controller. Denials trigger
 cooldown for the relevant host/group; other groups continue. `Retry-After`
@@ -70,6 +92,22 @@ pilot returned valid browser content while a direct HTTP sample was denied.
 Other sources start with HTTP. Explicit `--fetch-mode http` or `browser`
 overrides routing; policies may also specify `fetch_mode`. Existing cooldowns
 still apply when changing strategies.
+Phu Tho uses HTTP first and browser fallback for JavaScript-rendered content.
+FamilyDoctor question URLs use the observed public canonical hostname while
+retaining their original ID/URL and source quota. Other legacy FamilyDoctor
+URLs keep the original protocol so the server can perform its normal redirect.
+Request diagnostics include `source_url` and attribute metrics to that source.
+
+Known magazine and older article templates have explicit title/body checks.
+Image-only headings retain their existing alt title. Invalid XML controls are
+removed before HTML parsing, and medical comparisons such as `<5 years` and
+`<90/60 mmHg` survive text cleaning. Media-only bodies requiring OCR or
+transcription, link-only external references, and homepage rows are reported
+as permanent content/input failures. They are not successful article text.
+Repeated 403/429 responses increase source cooldown exponentially; repeated
+server/transport failures also pause that source. Exhausted HTTP server errors
+return without immediately launching a browser request.
+
 The current `ask.39.net` question template keeps its question description,
 excludes recommendation/consultation widgets, and records `has_answer=false`
 when no answer is actually present. If answer sections exist, they must be
@@ -79,7 +117,8 @@ The default global limits are 8 HTTP slots, 2 browser slots and 16 document
 tasks. Host limits are more restrictive. The `39.net` family shares a quota,
 with one document in flight per hostname. Chromium is reused and recycled
 after 300 browser outcomes or low memory; the HTTP session stays open across
-browser recycling. Request pacing controls page fetches, not every browser
+browser recycling. Requests waiting for source pacing do not occupy global
+HTTP/browser slots. Request pacing controls page fetches, not every browser
 asset or redirect hop.
 
 Policy overrides can be supplied to `prepare --policy-file path.json`:
@@ -161,6 +200,54 @@ PYTHONPATH=Scripts/Clawler:tests python -m unittest \
 needs permission to create local sockets. The other listed tests use fixtures
 and mocked transports. Existing live-site test modules are excluded from this
 command. The backfill command never installs dependencies or browsers.
+
+## Export the final 200,000 campaign targets to Kaggle
+
+Use the project virtual environment and snapshot the highest original campaign
+row indices into two private notebooks with exactly 100,000 planned slots each:
+
+```bash
+source .venv/bin/activate
+python Scripts/Clawler/kaggle_campaign.py prepare \
+  --campaign .backfill/large_ranges_20261007 \
+  --output .backfill/kaggle_tail_200k_20261008 \
+  --owner nhminh107
+```
+
+An export directory is immutable once uploaded; choose another output directory
+for another snapshot. The exporter reads the local ledger without changing it,
+validates every selected global `row_index`, `id`, and `url` against the source
+Parquet, and partitions hostnames without overlap between the two notebooks.
+The scope is the final 200,000 original targets, including already completed
+slots; it does not select an additional 200,000 unfinished URLs. Snapshot states
+`success`, `permanent_failure`, and `running` are skipped remotely.
+
+The current export explicitly keeps the local worker running. Remote pacing is
+reduced to account for that worker and shared origin groups, but independent
+machines have no shared lock or live success ledger. A local worker can later
+reach a URL also scheduled remotely. Ingestion retains one successful result.
+
+Upload the `dataset` directory using `kaggle datasets create --keep-tabular -p`
+(private by default), wait for dataset status `ready`, then upload each
+`notebook-1` and `notebook-2` directory using `kaggle kernels push -p`.
+These are actual `.ipynb` notebooks with Internet enabled and no GPU.
+Kaggle may expand `crawler-code.zip`; bootstrap supports both layouts and
+checks each code file's hash. Dependencies and Chromium are installed into the
+notebook's own runtime environment, without installing anything locally.
+
+Each worker writes `/kaggle/working/backfill-shard-N/results.jsonl` after
+50 completed results or five seconds, and flushes a partial batch on exit.
+After an eight-hour pass it saves `report.json` and `checkpoint.zip` containing
+the sparse ledger, journal and manifest. The report's `remaining_remote` shows
+actual uncovered remote slots; a session ending does not mean all URLs were
+crawled successfully. Resume by restoring that checkpoint to the same worker
+directory and using the same input export. `--max-rounds 4` is the total retry
+budget per URL, preserving rounds already recorded locally at export.
+
+Download each notebook's output with `kaggle kernels output OWNER/SLUG -p DIR`.
+Import its `results.jsonl` with `backfill.py ingest --input ...` after the local
+campaign writer has stopped. Original campaign IDs and global row identities
+are preserved so the normal validation and deduplication apply.
 
 ## Implementation map
 

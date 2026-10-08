@@ -52,6 +52,57 @@ class BackfillFixture:
 
 
 class TestBackfill(BackfillFixture, unittest.TestCase):
+    def test_request_metrics_attribute_canonical_requests_to_original_source(self) -> None:
+        self.prepare()
+        attempt = {"source_url": "https://a.test/article", "request_url": "https://cdn.test/article",
+                   "error_kind": "success", "mode": "http", "elapsed_seconds": 0.5}
+        (self.campaign / "attempts.jsonl").write_text(json.dumps(attempt) + "\n")
+        with backfill.connect(self.campaign) as database:
+            report = backfill.campaign_report(database, self.campaign)
+            self.assertIn("a.test", report["request_metrics"])
+            self.assertNotIn("cdn.test", report["request_metrics"])
+
+    def test_batch_is_synced_once_before_sqlite_commit(self) -> None:
+        self.prepare()
+        path = self.campaign / "results.jsonl"
+        with backfill.connect(self.campaign) as database, path.open("ab") as journal:
+            writer = backfill.BatchJournal(database, journal, batch_size=2)
+            with patch("backfill.os.fsync") as sync:
+                writer.append(self.result(0))
+                sync.assert_not_called()
+                self.assertEqual(writer.pending, 1)
+                writer.append(self.result(1))
+                sync.assert_called_once()
+                self.assertFalse(database.in_transaction)
+                self.assertEqual((writer.pending, writer.saved), (0, 2))
+                rows = [json.loads(line) for line in path.read_bytes().splitlines()]
+                self.assertEqual([r["row_index"] for r in rows], [0, 1])
+
+    def test_partial_batch_flushes_after_interval_and_on_close(self) -> None:
+        self.prepare()
+        with backfill.connect(self.campaign) as database, (self.campaign / "results.jsonl").open("ab") as journal:
+            writer = backfill.BatchJournal(database, journal, batch_size=50, interval_seconds=5)
+            with patch("backfill.monotonic", return_value=100):
+                writer.append(self.result(0))
+            with patch("backfill.monotonic", return_value=106):
+                writer.flush_if_due()
+            self.assertEqual(writer.saved, 1)
+            writer.append(self.result(1))
+            writer.flush()
+            self.assertEqual(writer.saved, 2)
+
+    def test_journal_recovers_batch_when_db_commit_fails(self) -> None:
+        self.prepare()
+        # Persist the journal, then simulate losing the uncommitted ledger state.
+        with backfill.connect(self.campaign) as database, (self.campaign / "results.jsonl").open("ab") as journal:
+            writer = backfill.BatchJournal(database, journal, batch_size=50)
+            writer.append(self.result(0))
+            journal.flush()
+            backfill.os.fsync(journal.fileno())
+            database.rollback()
+            backfill.reconcile(database, self.campaign)
+            self.assertEqual(database.execute("SELECT state FROM targets WHERE row_index=0").fetchone()[0], "success")
+
     def test_select_only_large_gaps_across_parquet_groups(self) -> None:
         manifest = self.prepare(min_gap=3)
         self.assertEqual(manifest["ranges"], [(3, 8)])
@@ -151,6 +202,88 @@ class TestCampaignScheduler(BackfillFixture, unittest.IsolatedAsyncioTestCase):
                                   http_concurrency=2, browser_concurrency=2, fetch_mode=fetch_mode,
                                   max_in_flight=4, max_rounds=3, limit=0,
                                   min_free_memory_gb=0, browser_recycle_after=300, wait_for_retries=False)
+
+    async def test_retry_only_leaves_pending_success_and_permanent_failures_untouched(self) -> None:
+        manifest = self.prepare(present=(9,))
+        requested = []
+
+        class FakeCrawler:
+            def __init__(self, **kwargs):
+                pass
+
+            async def __aenter__(self):
+                return self
+
+            async def __aexit__(self, *_args):
+                pass
+
+        async def crawl(record, *_args):
+            requested.append(record.row_index)
+            return SimpleNamespace(payload=self.result(record.row_index), mode="http", attempts=1)
+
+        args = self.runner_args()
+        args.retry_only = True
+        args.wait_for_retries = True
+        with backfill.connect(self.campaign) as database, patch("crawl4ai.AsyncWebCrawler", FakeCrawler), patch("fetch.crawl_one", crawl), patch("http_strategy.create_http_strategy", return_value=object()), patch.object(backfill, "HOST_LOCK_DIRECTORY", self.root / "locks"):
+            database.execute("UPDATE targets SET state='retryable' WHERE row_index=0")
+            database.execute("UPDATE targets SET state='deferred' WHERE row_index=1")
+            database.execute("UPDATE targets SET state='permanent_failure' WHERE row_index=2")
+            database.execute("UPDATE targets SET state='success' WHERE row_index=3")
+            database.commit()
+            async with asyncio.timeout(5):
+                await backfill.run_campaign(args, database, manifest)
+            self.assertEqual(requested, [0, 1])
+            counts = backfill.campaign_report(database)["counts"]
+            self.assertEqual(counts, {"pending": 5, "permanent_failure": 1, "success": 3})
+
+    async def check_partial_batch_during_run(self, wait_for_timer: bool) -> None:
+        manifest = self.prepare(present=(9,))
+        second_started = asyncio.Event()
+
+        class FakeCrawler:
+            def __init__(self, **kwargs):
+                pass
+
+            async def __aenter__(self):
+                return self
+
+            async def __aexit__(self, *_args):
+                pass
+
+        async def crawl(record, *_args):
+            if record.row_index != 0:
+                second_started.set()
+                await asyncio.Event().wait()
+            return SimpleNamespace(payload=self.result(record.row_index), mode="http", attempts=1)
+
+        args = self.runner_args()
+        args.group = ["a.test"]
+        args.write_interval_seconds = 0.02 if wait_for_timer else 60
+        path = self.campaign / "results.jsonl"
+        with backfill.connect(self.campaign) as database, patch("crawl4ai.AsyncWebCrawler", FakeCrawler), patch("fetch.crawl_one", crawl), patch("http_strategy.create_http_strategy", return_value=object()), patch.object(backfill, "HOST_LOCK_DIRECTORY", self.root / "locks"):
+            task = asyncio.create_task(backfill.run_campaign(args, database, manifest))
+            try:
+                async with asyncio.timeout(3):
+                    await second_started.wait()
+                    if wait_for_timer:
+                        while not path.stat().st_size:
+                            await asyncio.sleep(0.01)
+                        self.assertFalse(task.done())
+                        self.assertEqual(json.loads(path.read_bytes())["row_index"], 0)
+            finally:
+                task.cancel()
+                with self.assertRaises(asyncio.CancelledError):
+                    await task
+            self.assertEqual(json.loads(path.read_bytes())["row_index"], 0)
+            self.assertEqual(database.execute("SELECT state FROM targets WHERE row_index=0").fetchone()[0], "success")
+            self.assertEqual(database.execute("SELECT state FROM targets WHERE row_index=1").fetchone()[0], "pending")
+            self.assertFalse(database.in_transaction)
+
+    async def test_partial_batch_is_saved_while_another_document_is_running(self) -> None:
+        await self.check_partial_batch_during_run(wait_for_timer=True)
+
+    async def test_cancellation_flushes_partial_batch_and_resets_unfinished_document(self) -> None:
+        await self.check_partial_batch_during_run(wait_for_timer=False)
 
     async def test_blocked_host_does_not_stop_another_host(self) -> None:
         manifest = self.prepare(present=(9,))

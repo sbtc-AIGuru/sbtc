@@ -15,8 +15,34 @@ from crawl4ai import AsyncWebCrawler, BrowserConfig, CacheMode, CrawlerRunConfig
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "Scripts/Clawler"))
 from fetch import crawl_one
 from fetch_policy import FetchController, HostPolicy, active_controller
-from http_strategy import USER_AGENT, create_http_strategy
+from http_strategy import USER_AGENT, create_http_strategy, normalize_response_html, repair_empty_html_root
 from utils import SourceRecord
+
+
+class TestHTMLRepair(unittest.TestCase):
+    def test_xml_controls_removed_without_changing_medical_text(self) -> None:
+        html = '<h1>Chẩn đoán</h1><p>Trẻ \x08<5 tuổi\n cần \x01khám bệnh.</p>'
+        normalized = normalize_response_html(html)
+        self.assertNotIn("\x08", normalized)
+        self.assertNotIn("\x01", normalized)
+        self.assertIn("<5 tuổi\n", normalized)
+
+    def test_image_only_heading_uses_its_existing_alt_title(self) -> None:
+        html = '<h1><img src="cover.png" alt="Điều trị &amp; phòng bệnh"/></h1><p>Body</p>'
+        self.assertEqual(normalize_response_html(html), '<h1>Điều trị &amp; phòng bệnh</h1><p>Body</p>')
+        without_alt = '<h1><img src="cover.png"/></h1>'
+        self.assertEqual(normalize_response_html(without_alt), without_alt)
+        data_alt = '<h1><img src="cover.png" data-alt="Not an actual alt title"/></h1>'
+        self.assertEqual(normalize_response_html(data_alt), data_alt)
+    def test_preserves_normal_html_and_literal_markup_in_script(self) -> None:
+        html = '<html><head></head><body><script>const text="<html></html><head>";</script></body></html>'
+        self.assertEqual(repair_empty_html_root(html), html)
+
+    def test_repairs_only_empty_root_before_head(self) -> None:
+        html = '<!DOCTYPE html>\n<html lang="vi">\n</html>\n<head></head><body>Complete article</body></html>'
+        repaired = repair_empty_html_root(html)
+        self.assertIn("Complete article", repaired)
+        self.assertEqual(repaired.count("</html>"), 1)
 
 
 class TestHTTPStrategy(unittest.IsolatedAsyncioTestCase):
@@ -39,10 +65,18 @@ class TestHTTPStrategy(unittest.IsolatedAsyncioTestCase):
                 'A complete medical article explains treatment options and appropriate follow-up care. '.repeat(5) + '</article>';
                 </script></body></html>""", content_type="text/html")
 
+        async def malformed(_request):
+            return web.Response(text="""<!DOCTYPE html><html lang='en'>\n</html>
+                <head><title>Article</title></head><body><main>
+                <h1>Medical information and treatment</h1><article>
+                A complete medical article explains treatment options and appropriate follow-up care.
+                </article></main></body></html>""", content_type="text/html")
+
         app = web.Application()
         app.router.add_get("/rate", denied)
         app.router.add_get("/gone", missing)
         app.router.add_get("/dynamic", dynamic)
+        app.router.add_get("/malformed", malformed)
         self.runner = web.AppRunner(app)
         await self.runner.setup()
         site = web.TCPSite(self.runner, "127.0.0.1", 0)
@@ -75,6 +109,16 @@ class TestHTTPStrategy(unittest.IsolatedAsyncioTestCase):
                                      asyncio.Semaphore(1), asyncio.Semaphore(1), config, {}, "auto")
         self.assertEqual(result.payload["error_kind"], "not_found")
         self.assertEqual(self.calls, 1)
+
+    async def test_premature_empty_html_root_keeps_article_without_browser(self) -> None:
+        url = self.base_url + "/malformed"
+        config = CrawlerRunConfig(cache_mode=CacheMode.BYPASS, verbose=False, user_agent=USER_AGENT)
+        async with AsyncWebCrawler(crawler_strategy=create_http_strategy(), base_directory=self.temporary.name) as http:
+            result = await crawl_one(SourceRecord(0, 101, url), None, http,
+                                     asyncio.Semaphore(1), asyncio.Semaphore(1), config, {}, "http")
+        self.assertTrue(result.payload["success"], result.payload.get("error"))
+        self.assertEqual(result.mode, "http")
+        self.assertIn("appropriate follow-up care", result.payload["text"])
 
     async def test_dynamic_article_uses_browser_and_passes_shared_validation(self) -> None:
         url = self.base_url + "/dynamic"

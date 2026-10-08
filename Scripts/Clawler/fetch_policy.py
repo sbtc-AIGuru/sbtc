@@ -111,10 +111,10 @@ def classify_error(status: int | None, error: str) -> str:
         return "browser_disconnected"
     if "timeout" in lowered or "timed out" in lowered:
         return "timeout"
-    if any(value in lowered for value in ("markdown", "article", "boilerplate", "cleaning")):
-        return "incomplete_content"
     if "invalid url" in lowered or "unsupported url" in lowered:
         return "invalid_url"
+    if any(value in lowered for value in ("markdown", "article", "boilerplate", "cleaning")):
+        return "incomplete_content"
     return "transport" if error else "success"
 
 
@@ -137,6 +137,7 @@ class HostState:
     recent_blocks: deque[bool] = field(default_factory=lambda: deque(maxlen=50))
     healthy: int = 0
     server_error_streak: int = 0
+    transport_error_streak: int = 0
 
 
 class FetchController:
@@ -173,8 +174,8 @@ class FetchController:
         return time() + max(0.0, state.cooldown_until - monotonic())
 
     @asynccontextmanager
-    async def request(self, url: str) -> AsyncIterator[None]:
-        """Reserve pacing immediately before arun, including every retry."""
+    async def request(self, url: str, semaphore: asyncio.Semaphore | None = None) -> AsyncIterator[None]:
+        """Reserve source and global capacity together immediately before arun."""
         state, policy = self.state(url)
         host = hostname(url)
         host_limit = 1 if policy.group else policy.concurrency
@@ -183,7 +184,14 @@ class FetchController:
                 now = monotonic()
                 if state.cooldown_until > now:
                     raise DeferredRequest(f"Source cooldown until {self.retry_at(url):.0f}")
-                if state.active < policy.concurrency and self.host_active.get(host, 0) < host_limit and state.next_start <= now:
+                if (state.active < policy.concurrency
+                        and self.host_active.get(host, 0) < host_limit
+                        and state.next_start <= now
+                        and (semaphore is None or not semaphore.locked())):
+                    # acquire() cannot suspend when capacity is available. Keep
+                    # pacing waiters from occupying another source's HTTP/browser slot.
+                    if semaphore is not None:
+                        await semaphore.acquire()
                     state.active += 1
                     self.host_active[host] = self.host_active.get(host, 0) + 1
                     state.next_start = now + state.interval * random.uniform(1.0, 1.2)
@@ -195,6 +203,8 @@ class FetchController:
         finally:
             state.active -= 1
             self.host_active[host] -= 1
+            if semaphore is not None:
+                semaphore.release()
 
     def observe(self, url: str, status: int | None, error: str, retry_after: str | None) -> None:
         state, policy = self.state(url)
@@ -204,18 +214,22 @@ class FetchController:
         state.blocked_streak = state.blocked_streak + 1 if blocked else 0
         server_wait = retry_after_seconds(retry_after)
         state.server_error_streak = state.server_error_streak + 1 if status is not None and status >= 500 else 0
+        state.transport_error_streak = state.transport_error_streak + 1 if kind in {"timeout", "transport"} else 0
         if blocked or (status == 503 and server_wait is not None):
             # Cool down on the first denial; other sources remain runnable.
             wait = max(policy.cooldown_seconds, server_wait or 0.0)
-            if state.blocked_streak >= 3 or (
+            wait *= 2 ** min(max(0, state.blocked_streak - 1), 4)
+            if state.blocked_streak < 2 and (
                 len(state.recent_blocks) >= 20 and sum(state.recent_blocks) / len(state.recent_blocks) >= 0.05
             ):
                 wait *= 2
             state.cooldown_until = max(state.cooldown_until, monotonic() + wait)
             state.interval = min(max(policy.interval_seconds, state.interval) * 2, max(60.0, policy.interval_seconds * 16))
             state.healthy = 0
-        elif state.server_error_streak >= 3:
-            state.cooldown_until = max(state.cooldown_until, monotonic() + max(60.0, policy.cooldown_seconds / 2))
+        elif max(state.server_error_streak, state.transport_error_streak) >= 3:
+            streak = max(state.server_error_streak, state.transport_error_streak)
+            wait = max(60.0, policy.cooldown_seconds / 2) * 2 ** min(streak - 3, 3)
+            state.cooldown_until = max(state.cooldown_until, monotonic() + wait)
             state.interval = min(max(policy.interval_seconds, state.interval) * 2, max(60.0, policy.interval_seconds * 16))
             state.healthy = 0
         elif kind == "success":

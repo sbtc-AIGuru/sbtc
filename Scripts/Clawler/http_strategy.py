@@ -3,8 +3,11 @@
 from __future__ import annotations
 
 import asyncio
+from html import escape
+import re
 
 from aiohttp import ClientTimeout
+from bs4 import BeautifulSoup
 import chardet
 from crawl4ai import CrawlerRunConfig, HTTPCrawlerConfig
 from crawl4ai.async_crawler_strategy import AsyncHTTPCrawlerStrategy
@@ -13,6 +16,29 @@ from crawl4ai.models import AsyncCrawlResponse
 
 MAX_RESPONSE_BYTES = 10 * 1024 * 1024
 USER_AGENT = "SBTCResearchCrawler/1.0"
+XML_CONTROL_PATTERN = re.compile(r"[\x00-\x08\x0b\x0c\x0e-\x1f\ud800-\udfff\ufffe\uffff]")
+IMAGE_HEADING_PATTERN = re.compile(r"(<h1\b[^>]*>)\s*(<img\b[^>]*>)\s*(</h1>)", re.IGNORECASE)
+
+
+def repair_empty_html_root(html: str) -> str:
+    """Repair a premature empty root before head without altering article content."""
+    # Some Tay Ninh responses close an empty html element before the real
+    # head/body. lxml then discards the article; browsers repair this markup.
+    return re.sub(r"(\A\s*(?:<!DOCTYPE[^>]*>\s*)?<html\b[^>]*>\s*)</html>(?=\s*<head\b)", r"\1", html,
+                  count=1, flags=re.IGNORECASE)
+
+
+def normalize_response_html(html: str) -> str:
+    """Repair parser hazards and retain source image-alt titles as visible text."""
+    def restore_heading(match: re.Match[str]) -> str:
+        tag = BeautifulSoup(match[2], "lxml").find("img")
+        alt = tag.get("alt", "") if tag is not None else ""
+        if not alt.strip():
+            return match[0]
+        return match[1] + escape(alt) + match[3]
+
+    html = repair_empty_html_root(XML_CONTROL_PATTERN.sub("", html))
+    return IMAGE_HEADING_PATTERN.sub(restore_heading, html)
 
 
 class HeaderAwareHTTPStrategy(AsyncHTTPCrawlerStrategy):
@@ -55,6 +81,7 @@ class HeaderAwareHTTPStrategy(AsyncHTTPCrawlerStrategy):
                         html = raw.decode(encoding, errors="replace")
                     except LookupError:
                         html = raw.decode("utf-8", errors="replace")
+                    html = normalize_response_html(html)
                     result = AsyncCrawlResponse(
                         html=html, response_headers=dict(response.headers),
                         status_code=response.status, redirected_url=str(response.url),

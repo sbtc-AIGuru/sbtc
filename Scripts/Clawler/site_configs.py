@@ -46,7 +46,7 @@ def build_run_configs() -> tuple[CrawlerRunConfig, dict[str, CrawlerRunConfig]]:
             markdown_generator=DefaultMarkdownGenerator(),
         ),
         "baocantho.com.vn": run_config.clone(
-            target_elements=["#colcate1 > h1", "#newscontents"],
+            target_elements=["#colcate1 > h1", "#newscontents", ".noidungbai"],
             markdown_generator=DefaultMarkdownGenerator(),
         ),
         "baodanang.vn": run_config.clone(
@@ -62,7 +62,7 @@ def build_run_configs() -> tuple[CrawlerRunConfig, dict[str, CrawlerRunConfig]]:
             markdown_generator=DefaultMarkdownGenerator(),
         ),
         "dantri.com.vn": run_config.clone(
-            target_elements=["#articleContent"],
+            target_elements=["#articleContent", "article.e-magazine h1", ".e-magazine__sapo", ".e-magazine__body"],
             markdown_generator=DefaultMarkdownGenerator(),
         ),
         "giadinhonline.vn": run_config.clone(
@@ -94,7 +94,7 @@ def build_run_configs() -> tuple[CrawlerRunConfig, dict[str, CrawlerRunConfig]]:
             markdown_generator=DefaultMarkdownGenerator(),
         ),
         "nhathuoclongchau.com.vn": run_config.clone(
-            target_elements=['[class*="posts-detail_posts-detail-container"] .bg-white'],
+            target_elements=['[class*="posts-detail_posts-detail-container"] > .bg-white'],
             excluded_selector=(
                 '[class*="posts-detail_posts-detail-container"] '
                 '.flex.flex-col.items-center'
@@ -200,6 +200,10 @@ def build_run_configs() -> tuple[CrawlerRunConfig, dict[str, CrawlerRunConfig]]:
                 ".art_left > .art_summary",
                 ".art_left > .art_content",
                 ".art_content",
+                ".artCon",
+                ".artbox .article",
+                ".article_title",
+                ".article_cur",
             ],
             markdown_generator=DefaultMarkdownGenerator(),
         ),
@@ -214,7 +218,12 @@ def build_run_configs() -> tuple[CrawlerRunConfig, dict[str, CrawlerRunConfig]]:
                 "#content",
                 ".q-content",
                 ".ans-content",
+                "#viewContent",
             ],
+            markdown_generator=DefaultMarkdownGenerator(),
+        ),
+        "ask.familydoctor.com.cn": run_config.clone(
+            target_elements=[".quest-title", ".quest-info .illness-pics", ".answer-words"],
             markdown_generator=DefaultMarkdownGenerator(),
         ),
         "youlai.cn": run_config.clone(
@@ -274,6 +283,9 @@ def build_run_configs() -> tuple[CrawlerRunConfig, dict[str, CrawlerRunConfig]]:
                 ".detail-mcontent > h1",
                 ".detail-mcontent > .detail-sapo",
                 ".detail-mcontent > .detail-content",
+                "h1.title",
+                ".detail-sapo",
+                ".detail-content",
             ],
             markdown_generator=DefaultMarkdownGenerator(),
         ),
@@ -302,7 +314,7 @@ def build_run_configs() -> tuple[CrawlerRunConfig, dict[str, CrawlerRunConfig]]:
             markdown_generator=DefaultMarkdownGenerator(),
         ),
         "baovinhlong.com.vn": run_config.clone(
-            target_elements=[".col11 > h1.head_title", ".col11 > #content"],
+            target_elements=["h1.head_title", "#content"],
             markdown_generator=DefaultMarkdownGenerator(),
         ),
         "khoahocphothong.vn": run_config.clone(
@@ -326,6 +338,7 @@ def build_run_configs() -> tuple[CrawlerRunConfig, dict[str, CrawlerRunConfig]]:
                 ".article-detail-body-right > h1",
                 ".article-detail-body-right > .article-detail-desc",
                 ".article-detail-body-right > .__MASTERCMS_CONTENT",
+                "article.mastercms-emag-article",
             ],
             excluded_selector=".__MASTERCMS_CONTENT > table.__mb_article_in_image",
             markdown_generator=DefaultMarkdownGenerator(),
@@ -335,7 +348,8 @@ def build_run_configs() -> tuple[CrawlerRunConfig, dict[str, CrawlerRunConfig]]:
             excluded_selector=(
                 ".post_info.box_detail_post .content_insert, "
                 ".post_info.box_detail_post .div_over, "
-                ".post_info.box_detail_post .mt_15"
+                ".post_info.box_detail_post .mt_15, "
+                ".post_info.box_detail_post .div_tool"
             ),
             markdown_generator=DefaultMarkdownGenerator(),
         ),

@@ -70,6 +70,45 @@ class TestPolicy(unittest.IsolatedAsyncioTestCase):
         async with controller.request("https://a.test/b"):
             pass
 
+    async def test_pacing_wait_does_not_occupy_global_slot(self) -> None:
+        controller = FetchController({"a.test": HostPolicy(1, 0, 0)})
+        semaphore = asyncio.Semaphore(1)
+        state, _ = controller.state("https://a.test/a")
+        state.next_start = monotonic() + 10
+
+        async def waiting_request():
+            async with controller.request("https://a.test/a", semaphore):
+                self.fail("Paced request must still be waiting")
+
+        task = asyncio.create_task(waiting_request())
+        await asyncio.sleep(0.01)
+        async with asyncio.timeout(0.5):
+            async with controller.request("https://b.test/a", semaphore):
+                self.assertTrue(semaphore.locked())
+        task.cancel()
+        with self.assertRaises(asyncio.CancelledError):
+            await task
+        self.assertFalse(semaphore.locked())
+        self.assertEqual(state.active, 0)
+
+    async def test_global_slot_is_released_on_cancellation(self) -> None:
+        controller = FetchController({"a.test": HostPolicy(1, 0, 0)})
+        semaphore = asyncio.Semaphore(1)
+        entered = asyncio.Event()
+
+        async def request():
+            async with controller.request("https://a.test/a", semaphore):
+                entered.set()
+                await asyncio.sleep(100)
+
+        task = asyncio.create_task(request())
+        await entered.wait()
+        task.cancel()
+        with self.assertRaises(asyncio.CancelledError):
+            await task
+        self.assertFalse(semaphore.locked())
+        self.assertEqual(controller.state("https://a.test/a")[0].active, 0)
+
     def test_conflicting_group_overrides_rejected(self) -> None:
         with self.assertRaises(ValueError):
             FetchController({"baby.39.net": HostPolicy(group="39.net"), "ask.39.net": HostPolicy(1, group="39.net")})
@@ -79,6 +118,22 @@ class TestPolicy(unittest.IsolatedAsyncioTestCase):
         for _ in range(3):
             controller.observe("https://article.iiyi.com/a", 521, "Origin unavailable", None)
         self.assertGreater(controller.state("https://article.iiyi.com/b")[0].cooldown_until, monotonic() + 449)
+
+    def test_repeated_transport_timeouts_pause_only_that_source(self) -> None:
+        controller = FetchController()
+        for _ in range(3):
+            controller.observe("https://a.test/article", None, "TimeoutError", None)
+        self.assertGreater(controller.retry_at("https://a.test/other") - time(), 299)
+        self.assertLess(controller.retry_at("https://b.test/other") - time(), 1)
+
+    def test_denial_backoff_grows_without_shortening_retry_after(self) -> None:
+        controller = FetchController({"a.test": HostPolicy(cooldown_seconds=10)})
+        with patch("fetch_policy.monotonic", return_value=100):
+            for expected in (110, 120, 140, 180, 260, 260):
+                controller.observe("https://a.test/article", 403, "HTTP 403", None)
+                self.assertEqual(controller.state("https://a.test/article")[0].cooldown_until, expected)
+            controller.observe("https://a.test/article", 429, "HTTP 429", "7200")
+            self.assertGreaterEqual(controller.state("https://a.test/article")[0].cooldown_until, 7300)
 
 
 if __name__ == "__main__":

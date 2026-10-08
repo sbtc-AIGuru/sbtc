@@ -4,11 +4,10 @@ from __future__ import annotations
 
 import asyncio
 from dataclasses import dataclass
-from contextlib import nullcontext
 import random
 import re
 from time import monotonic, time
-from urllib.parse import urlsplit
+from urllib.parse import urlsplit, urlunsplit
 
 from crawl4ai import AsyncWebCrawler, CrawlerRunConfig
 
@@ -19,7 +18,7 @@ from pagination import (
     wujue_page_markdown,
     wujue_page_number,
 )
-from quality import article_metadata, http_article_error
+from quality import article_content_issue, article_metadata, http_article_error
 from utils import SourceRecord
 from verbatim import clean_to_verbatim
 from fetch_policy import (
@@ -136,12 +135,15 @@ def homepage_redirect_error(url: str, result: object) -> str | None:
 
 def http_fetch_url(record: SourceRecord) -> str:
     """Avoid slower HTTP-to-HTTPS redirects while preserving the source URL."""
+    parsed = urlsplit(record.url)
+    if parsed.hostname == "ask.familydoctor.com.cn" and parsed.path.startswith("/q/"):
+        # The legacy question host redirects to this public canonical host.
+        return urlunsplit(("https", "www.familydoctor.com.cn", parsed.path, parsed.query, parsed.fragment))
     if record.url.startswith("http://"):
         host = (urlsplit(record.url).hostname or "").removeprefix("www.")
         if (
-            host in {"cnkang.com", "familydoctor.com.cn", "120ask.com", "zhongyibaodian.net"}
+            host in {"cnkang.com", "120ask.com", "zhongyibaodian.net"}
             or host.endswith(".39.net")
-            or host.endswith(".familydoctor.com.cn")
             or host.endswith(".120ask.com")
         ):
             return "https://" + record.url[len("http://") :]
@@ -161,7 +163,7 @@ async def _fetch_with_strategy(
     max_retries = MAX_HTTP_RETRIES if strategy == "http" else MAX_BROWSER_RETRIES
     controller = active_controller.get()
     if controller is not None:
-        _, policy = controller.policy(request_url)
+        _, policy = controller.policy(record.url)
         max_retries = min(max_retries, policy.max_attempts - 1)
     error_message = "Unknown crawl error"
     attempts = 0
@@ -172,16 +174,15 @@ async def _fetch_with_strategy(
         request_started = monotonic()
         requested = False
         try:
-            async with semaphore:
-                admission = controller.request(request_url) if controller else nullcontext()
-                async with admission:
-                    request_started = monotonic()
-                    requested = True
-                    attempts += 1
-                    result = await asyncio.wait_for(
-                        crawler.arun(url=request_url, config=config),
-                        timeout=REQUEST_TIMEOUT_SECONDS,
-                    )
+            admission = controller.request(record.url, semaphore) if controller else semaphore
+            async with admission:
+                request_started = monotonic()
+                requested = True
+                attempts += 1
+                result = await asyncio.wait_for(
+                    crawler.arun(url=request_url, config=config),
+                    timeout=REQUEST_TIMEOUT_SECONDS,
+                )
             status = getattr(result, "redirected_status_code", None) or getattr(result, "status_code", None)
             headers = getattr(result, "response_headers", None) or {}
             retry_after = next((str(value) for key, value in headers.items() if key.lower() == "retry-after"), None)
@@ -190,9 +191,9 @@ async def _fetch_with_strategy(
             if redirect_error:
                 error_message = redirect_error
                 return None, error_message, attempts, None
-            content_error = None
+            content_error = article_content_issue(domain, result, record.url) if status == 200 else None
             if getattr(result, "success", False) and (status is None or status < 400):
-                for text in get_markdown_candidates(result):
+                for text in get_markdown_candidates(result) if content_error is None else ():
                     content_error = page_error(text)
                     if content_error is None:
                         content_error = http_article_error(domain, result, text)
@@ -229,9 +230,10 @@ async def _fetch_with_strategy(
         finally:
             if requested:
                 if controller is not None:
-                    controller.observe(request_url, status, error_message, retry_after)
+                    controller.observe(record.url, status, error_message, retry_after)
                 record_attempt({
                     "row_index": record.row_index, "id": record.id,
+                    "source_url": record.url,
                     "request_url": request_url, "final_url": final_url,
                     "mode": strategy, "status_code": status,
                     "error_kind": classify_error(status, error_message),
@@ -361,12 +363,15 @@ async def _crawl_one(
         "text": "",
     }
     try:
-        domain = (urlsplit(record.url).hostname or "").removeprefix("www.")
+        domain = (urlsplit(record.url).hostname or "").lower().removeprefix("www.")
     except ValueError as error:
         domain = ""
         validation_error = f"Invalid URL: {error}"
     else:
-        validation_error = None if record.url.startswith(("http://", "https://")) else "Missing or unsupported URL"
+        validation_error = None if domain and record.url.startswith(("http://", "https://")) else "Missing or unsupported URL"
+        parsed = urlsplit(record.url)
+        if validation_error is None and not parsed.path.strip("/") and not parsed.query:
+            validation_error = "Invalid URL: source points to a homepage, not an article"
     if validation_error:
         payload.update(success=False, error=validation_error)
         return CrawlOutcome(record, payload, "none", monotonic() - started, 0, False)
@@ -376,6 +381,8 @@ async def _crawl_one(
         config = domain_configs["nhathuoclongchau.com.vn/benh"]
     if config is None and domain.endswith(".39.net"):
         config = domain_configs["39.net"]
+    if config is None and domain.endswith(".familydoctor.com.cn"):
+        config = domain_configs.get("familydoctor.com.cn")
     config = config or run_config
     minimum_characters = 8 if domain == "ask.39.net" else 40
 
@@ -428,7 +435,7 @@ async def _crawl_one(
         trace = attempt_trace.get() or []
         status = trace[-1]["status_code"] if trace else error_status(http_error)
         if fetch_mode == "http" or classify_error(status, http_error) in {
-            "rate_limited", "access_denied", "challenge", "not_found", "deferred", "invalid_url", "robots_denied", "unsupported_content", "configuration_error",
+            "rate_limited", "access_denied", "challenge", "not_found", "deferred", "invalid_url", "robots_denied", "unsupported_content", "configuration_error", "server_error",
         }:
             payload.update(success=False, text="", error=http_error)
             return CrawlOutcome(record, payload, "http", monotonic() - started, attempts, False)

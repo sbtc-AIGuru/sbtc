@@ -38,6 +38,7 @@ def load_fetch_module() -> ModuleType:
     modules["quality"].ARTICLE_LAYOUTS = {}
     modules["quality"].http_article_error = lambda *args: None
     modules["quality"].article_metadata = lambda *args: {}
+    modules["quality"].article_content_issue = lambda *args: None
     modules["utils"].SourceRecord = SourceRecord
     modules["verbatim"].clean_to_verbatim = lambda text: text
 
@@ -119,7 +120,7 @@ def test_auto_tries_http_for_bachmai_before_browser() -> None:
 def test_denials_and_missing_pages_do_not_fall_back_to_browser() -> None:
     fetch = load_fetch_module()
     record = SourceRecord(0, 101, "https://example.org/article")
-    for status in (401, 403, 404, 410, 429):
+    for status in (401, 403, 404, 410, 429, 521):
         with patch.object(fetch, "_fetch_with_strategy", new_callable=AsyncMock) as strategy:
             strategy.return_value = (None, f"HTTP {status}", 1, None)
             outcome = asyncio.run(fetch.crawl_one(
@@ -129,6 +130,71 @@ def test_denials_and_missing_pages_do_not_fall_back_to_browser() -> None:
         strategy.assert_awaited_once()
         assert outcome.payload["success"] is False
         assert outcome.payload["status_code"] == status
+
+
+def test_homepage_is_invalid_without_fetching() -> None:
+    fetch = load_fetch_module()
+    record = SourceRecord(0, 101, "https://suckhoecongdongonline.vn/")
+    with patch.object(fetch, "_fetch_with_strategy", new_callable=AsyncMock) as strategy:
+        outcome = asyncio.run(fetch.crawl_one(record, object(), object(), asyncio.Semaphore(1),
+                                             asyncio.Semaphore(1), object(), {}, "auto"))
+        strategy.assert_not_awaited()
+    assert outcome.payload["error_kind"] == "invalid_url"
+    assert outcome.payload["attempts"] == 0
+
+
+def test_familydoctor_uses_original_url_for_canonical_redirect() -> None:
+    fetch = load_fetch_module()
+    for host in ("ask.familydoctor.com.cn", "yanglao.familydoctor.com.cn"):
+        url = f"http://{host}/article"
+        assert fetch.http_fetch_url(SourceRecord(0, 101, url)) == url
+
+    question = "http://ask.familydoctor.com.cn/q/10420069.html?x=1"
+    assert fetch.http_fetch_url(SourceRecord(0, 101, question)) == "https://www.familydoctor.com.cn/q/10420069.html?x=1"
+
+
+def test_canonical_request_keeps_original_source_quota_and_cooldown() -> None:
+    from fetch_policy import FetchController, HostPolicy, active_controller
+    fetch = load_fetch_module()
+    source = "http://ask.familydoctor.com.cn/q/10420069.html"
+    request = "https://www.familydoctor.com.cn/q/10420069.html"
+    record = SourceRecord(0, 101, source)
+    response = make_result("", success=False, error="HTTP 403")
+    response.status_code = 403
+    response.response_headers = {"Retry-After": "1234"}
+    crawler = SimpleNamespace(arun=AsyncMock(return_value=response))
+    controller = FetchController({"ask.familydoctor.com.cn": HostPolicy(1, 0, 10, max_attempts=1)})
+    attempts = []
+    controller.attempt_sink = attempts.append
+
+    async def run():
+        token = active_controller.set(controller)
+        try:
+            return await fetch._fetch_with_strategy(crawler, asyncio.Semaphore(1), record,
+                                                     request, "ask.familydoctor.com.cn", object(), "http")
+        finally:
+            active_controller.reset(token)
+
+    _, _, count, _ = asyncio.run(run())
+    assert count == 1
+    assert controller.state(source)[0].cooldown_until > monotonic() + 1233
+    assert controller.state(request)[0].cooldown_until == 0
+    assert attempts[0]["source_url"] == source
+    assert attempts[0]["request_url"] == request
+
+
+def test_media_only_article_does_not_fall_back_to_browser() -> None:
+    fetch = load_fetch_module()
+    response = make_result("Title only")
+    response.status_code = 200
+    crawler = SimpleNamespace(arun=AsyncMock(return_value=response))
+    fetch.article_content_issue = lambda *args: "Unsupported content type: image-only article requires OCR"
+    outcome = asyncio.run(fetch.crawl_one(SourceRecord(0, 101, "https://a.test/article"), object(), crawler,
+                                         asyncio.Semaphore(1), asyncio.Semaphore(1), object(), {}, "auto"))
+    assert outcome.payload["success"] is False
+    assert outcome.payload["error_kind"] == "unsupported_content"
+    assert outcome.attempts == 1
+    assert outcome.used_fallback is False
 
 
 def test_rate_limit_headers_cool_down_the_group_without_immediate_retry() -> None:

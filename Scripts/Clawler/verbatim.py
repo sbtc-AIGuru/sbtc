@@ -16,6 +16,7 @@ REFERENCE_DEFINITION_PATTERN = re.compile(r"^\s*\[[^\]]+\]:\s*https?://[^\n]*$",
 BARE_URL_PATTERN = re.compile(r"https?://\S+", re.IGNORECASE)
 DATA_IMAGE_PATTERN = re.compile(r"data:image/[^\s<>)\]]+", re.IGNORECASE)
 HTML_IMAGE_PATTERN = re.compile(r"<img\b[^>]*>", re.IGNORECASE)
+HTML_TAG_PATTERN = re.compile(r"</?[A-Za-z][A-Za-z0-9:-]*(?:\s+[^<>]*?)?\s*/?>")
 
 
 def remove_link_targets(text: str) -> str:
@@ -41,7 +42,10 @@ def clean_to_verbatim(text: str) -> str:
     text = re.sub(r"<br\b[^>]*>?|<br(?=[^\s>])", " ", text, flags=re.IGNORECASE)
 
     # 3. Strip valid HTML tags (<p>, <div>, etc.) without swallowing nested content
-    text = re.sub(r"<[^<>]+>", " ", text)
+    # Numeric comparisons such as <5 years or <90/60 mmHg are medical text.
+    # Treating every <...> span as a tag can erase multiple paragraphs.
+    text = HTML_TAG_PATTERN.sub(" ", text)
+    text = re.sub(r"<(?=https?://)([^<>]+)>", r"\1", text)
 
     # 4. Protect backslash-escaped characters so their literal forms are preserved
     text = ESCAPED_PATTERN.sub(lambda m: f"\x00{ord(m.group(1)):02x}\x00", text)

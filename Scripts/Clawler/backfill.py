@@ -16,7 +16,7 @@ from pathlib import Path
 import sqlite3
 from tempfile import TemporaryDirectory
 from time import monotonic, time
-from typing import Iterator
+from typing import BinaryIO, Iterator
 
 from fetch_policy import FetchController, HostPolicy, active_controller, hostname, read_policies
 from utils import SourceRecord, get_row_count, load_completed_ids, load_url_range
@@ -27,6 +27,24 @@ PROJECT_ROOT = Path(__file__).resolve().parents[2]
 DEFAULT_BASELINE = PROJECT_ROOT / "data/crawled_local_kaggle_success_unique_20261005.jsonl"
 DEFAULT_SOURCE = PROJECT_ROOT / "data/links_corpus.parquet"
 HOST_LOCK_DIRECTORY = PROJECT_ROOT / ".backfill/host_locks"
+
+
+def initialize_campaign_database(database: sqlite3.Connection) -> None:
+    """Create the shared ledger schema for local and sparse remote campaigns."""
+    database.executescript("""
+        CREATE TABLE targets (
+            row_index INTEGER PRIMARY KEY, id INTEGER NOT NULL, url TEXT NOT NULL,
+            host TEXT NOT NULL, group_key TEXT NOT NULL,
+            state TEXT NOT NULL DEFAULT 'pending', rounds INTEGER NOT NULL DEFAULT 0,
+            next_retry_at REAL NOT NULL DEFAULT 0, last_error TEXT NOT NULL DEFAULT '',
+            success_offset INTEGER
+        );
+        CREATE INDEX targets_ready ON targets(group_key, state, next_retry_at, row_index);
+        CREATE INDEX targets_host ON targets(host, row_index);
+        CREATE TABLE origins (group_key TEXT PRIMARY KEY, next_retry_at REAL NOT NULL DEFAULT 0,
+                              interval_seconds REAL NOT NULL DEFAULT 0);
+        CREATE TABLE receipts (sha256 TEXT PRIMARY KEY, path TEXT NOT NULL);
+    """)
 
 
 def fingerprint(path: Path) -> dict[str, object]:
@@ -138,20 +156,7 @@ def prepare(
     with TemporaryDirectory(prefix="backfill-prepare-", dir=campaign.parent) as directory:
         temporary = Path(directory)
         with connect(temporary) as database:
-            database.executescript("""
-                CREATE TABLE targets (
-                    row_index INTEGER PRIMARY KEY, id INTEGER NOT NULL, url TEXT NOT NULL,
-                    host TEXT NOT NULL, group_key TEXT NOT NULL,
-                    state TEXT NOT NULL DEFAULT 'pending', rounds INTEGER NOT NULL DEFAULT 0,
-                    next_retry_at REAL NOT NULL DEFAULT 0, last_error TEXT NOT NULL DEFAULT '',
-                    success_offset INTEGER
-                );
-                CREATE INDEX targets_ready ON targets(group_key, state, next_retry_at, row_index);
-                CREATE INDEX targets_host ON targets(host, row_index);
-                CREATE TABLE origins (group_key TEXT PRIMARY KEY, next_retry_at REAL NOT NULL DEFAULT 0,
-                                      interval_seconds REAL NOT NULL DEFAULT 0);
-                CREATE TABLE receipts (sha256 TEXT PRIMARY KEY, path TEXT NOT NULL);
-            """)
+            initialize_campaign_database(database)
             target_count = 0
             host_policies = {}
             if selected:
@@ -270,7 +275,7 @@ def campaign_report(database: sqlite3.Connection, campaign: Path | None = None, 
                 if not line.endswith(b"\n"):
                     break
                 attempt = json.loads(line)
-                host = hostname(attempt["request_url"])
+                host = hostname(attempt.get("source_url", attempt["request_url"]))
                 values = metrics.setdefault(host, {"attempts": 0, "errors": Counter(), "modes": Counter(), "latencies": deque(maxlen=500)})
                 values["attempts"] += 1
                 values["errors"][attempt["error_kind"]] += 1
@@ -326,6 +331,49 @@ def ingest_files(campaign: Path, database: sqlite3.Connection, manifest: dict[st
     return count
 
 
+class BatchJournal:
+    """Sync each bounded result batch before committing its SQLite state."""
+
+    def __init__(self, database: sqlite3.Connection, journal: BinaryIO,
+                 batch_size: int = 50, interval_seconds: float = 5.0) -> None:
+        if batch_size < 1 or not math.isfinite(interval_seconds) or interval_seconds <= 0:
+            raise ValueError("Write batch size and interval must be positive")
+        self.database = database
+        self.journal = journal
+        self.batch_size = batch_size
+        self.interval_seconds = interval_seconds
+        self.pending = self.saved = 0
+        self.batch_started = monotonic()
+
+    def append(self, value: dict[str, object]) -> None:
+        """Buffer a validated outcome and make its state visible to this scheduler."""
+        validate_result(self.database, value)
+        if self.pending == 0:
+            self.batch_started = monotonic()
+        offset = self.journal.tell()
+        self.journal.write((json.dumps(value, ensure_ascii=False) + "\n").encode("utf-8"))
+        ingest_record(self.database, value, offset)
+        self.pending += 1
+        self.flush_if_due()
+
+    def flush_if_due(self) -> None:
+        """Bound both batch length and how long completed results wait for sync."""
+        if self.pending >= self.batch_size or (self.pending and monotonic() - self.batch_started >= self.interval_seconds):
+            self.flush()
+
+    def flush(self) -> None:
+        """Make the journal durable first; replay repairs an interrupted DB commit."""
+        if not self.pending:
+            return
+        self.journal.flush()
+        os.fsync(self.journal.fileno())
+        self.database.commit()
+        self.saved += self.pending
+        print(f"[Backfill] Saved batch: results={self.pending} saved_this_run={self.saved} "
+              f"file={self.journal.name}", flush=True)
+        self.pending = 0
+
+
 async def run_campaign(args: argparse.Namespace, database: sqlite3.Connection, manifest: dict[str, object]) -> None:
     """Schedule independent ready origins without sleeping in a task-fill loop."""
     # Import only for run: prepare/report/merge need no browser dependencies.
@@ -364,6 +412,8 @@ async def run_campaign(args: argparse.Namespace, database: sqlite3.Connection, m
                          "(SELECT row_index,host,NTILE(?) OVER(PARTITION BY host ORDER BY row_index) AS bucket FROM targets) "
                          "GROUP BY host,bucket", (args.pilot_per_host,))
     pilot_clause = " AND row_index IN (SELECT row_index FROM pilot_targets)" if args.pilot_per_host else ""
+    retry_only = getattr(args, "retry_only", False)
+    target_states = ("retryable", "deferred") if retry_only else ("pending", "retryable", "deferred")
     for origin in database.execute("SELECT * FROM origins"):
         state, policy = controller.state(urls[origin["group_key"]])
         state.cooldown_until = monotonic() + max(0, origin["next_retry_at"] - time())
@@ -393,6 +443,10 @@ async def run_campaign(args: argparse.Namespace, database: sqlite3.Connection, m
             except BlockingIOError as error:
                 raise RuntimeError(f"Another local worker owns origin {group}") from error
         journal = stack.enter_context((args.campaign / "results.jsonl").open("ab"))
+        writer = BatchJournal(database, journal, getattr(args, "write_batch_size", 50),
+                              getattr(args, "write_interval_seconds", 5.0))
+        print(f"[Backfill] Live output: {(args.campaign / 'results.jsonl').resolve()} "
+              f"batch_size={writer.batch_size} flush_interval_seconds={writer.interval_seconds}", flush=True)
         attempts = stack.enter_context((args.campaign / "attempts.jsonl").open("a", encoding="utf-8", buffering=1))
         controller.attempt_sink = lambda value: attempts.write(json.dumps(value, ensure_ascii=False) + "\n")
         token = active_controller.set(controller)
@@ -408,6 +462,7 @@ async def run_campaign(args: argparse.Namespace, database: sqlite3.Connection, m
                 memory_low = args.min_free_memory_gb > 0 and psutil.virtual_memory().available < args.min_free_memory_gb * 1024**3
                 recycle = browser is not None and (browser_count >= args.browser_recycle_after or memory_low)
                 if recycle and not active:
+                    writer.flush()
                     await browser_stack.aclose()
                     if memory_low:
                         print("[Backfill] Paused: insufficient free RAM; resume after freeing memory", flush=True)
@@ -437,7 +492,7 @@ async def run_campaign(args: argparse.Namespace, database: sqlite3.Connection, m
                             host_queues[group].append(host)
                             if host_active[host] >= (1 if policy.group else policy.concurrency):
                                 continue
-                            for status in ("pending", "retryable", "deferred"):
+                            for status in target_states:
                                 row = database.execute(
                                     "SELECT * FROM targets WHERE host=? AND state=? AND rounds<? AND next_retry_at<=?"
                                     + pilot_clause + " ORDER BY rounds,row_index LIMIT 1",
@@ -450,7 +505,6 @@ async def run_campaign(args: argparse.Namespace, database: sqlite3.Connection, m
                         if row is None:
                             continue
                         database.execute("UPDATE targets SET state='running' WHERE row_index=?", (row["row_index"],))
-                        database.commit()
                         record = SourceRecord(row["row_index"], row["id"], row["url"])
                         task = asyncio.create_task(crawl_one(record, browser, http, browser_semaphore, http_semaphore,
                                                              run_config, domain_configs, args.fetch_mode))
@@ -461,20 +515,27 @@ async def run_campaign(args: argparse.Namespace, database: sqlite3.Connection, m
                         dispatched = True
                     if not dispatched:
                         break
+                if writer.pending == 0:
+                    database.commit()
+                writer.flush_if_due()
                 if not active:
+                    writer.flush()
                     if args.wait_for_retries and not (args.limit and attempted >= args.limit):
                         placeholders = ",".join("?" for _ in groups)
+                        filters = " AND t.state!='pending'" if retry_only else ""
+                        if selected_hosts:
+                            filters += " AND t.host IN (" + ",".join("?" for _ in selected_hosts) + ")"
                         next_row = database.execute(
                             "SELECT MIN(MAX(t.next_retry_at,o.next_retry_at)) FROM targets t JOIN origins o USING(group_key) "
                             f"WHERE group_key IN ({placeholders}) AND state IN ('pending','retryable','deferred') AND rounds<?"
-                            + pilot_clause,
-                            (*groups, args.max_rounds),
+                            + pilot_clause + filters,
+                            (*groups, args.max_rounds, *selected_hosts),
                         ).fetchone()
                         if next_row[0] is not None:
                             await asyncio.sleep(min(30.0, max(0.1, next_row[0] - time())))
                             continue
                     break
-                done, _ = await asyncio.wait(active, timeout=1.0, return_when=asyncio.FIRST_COMPLETED)
+                done, _ = await asyncio.wait(active, timeout=min(1.0, writer.interval_seconds), return_when=asyncio.FIRST_COMPLETED)
                 for task in done:
                     row = active.pop(task)
                     group_active[row["group_key"]] -= 1
@@ -492,25 +553,32 @@ async def run_campaign(args: argparse.Namespace, database: sqlite3.Connection, m
                         browser_restarts = 0
                     value.update(campaign_id=manifest["campaign_id"],
                                  campaign_attempt=row["rounds"] + int(outcome.attempts > 0), completed_at=time())
-                    offset = journal.tell()
-                    journal.write((json.dumps(value, ensure_ascii=False) + "\n").encode("utf-8"))
-                    journal.flush()
-                    os.fsync(journal.fileno())
-                    ingest_record(database, value, offset)
+                    if "export_id" in manifest:
+                        value.update(export_id=manifest["export_id"], shard_id=manifest["shard_id"])
+                    writer.append(value)
                     browser_count += int(outcome.mode == "browser")
-                database.commit()
+                writer.flush_if_due()
                 now = monotonic()
                 if now - last_progress >= 30:
                     counts = dict(database.execute("SELECT state,COUNT(*) FROM targets GROUP BY state"))
-                    print(f"[Backfill] attempted={attempted} in_flight={len(active)} states={counts}", flush=True)
+                    new_success = counts.get("success", 0) - initial_success
+                    print(f"[Backfill] attempted={attempted} in_flight={len(active)} "
+                          f"saved={writer.saved} buffered={writer.pending} "
+                          f"success_per_hour={new_success * 3600 / max(now - started, 0.001):.1f} states={counts}", flush=True)
                     last_progress = now
         finally:
             for task in active:
                 task.cancel()
-            await asyncio.gather(*active, return_exceptions=True)
-            database.execute("UPDATE targets SET state='pending' WHERE state='running'")
-            database.commit()
-            await browser_stack.aclose()
+            try:
+                writer.flush()
+            finally:
+                await asyncio.gather(*active, return_exceptions=True)
+                if writer.pending:
+                    # A failed disk sync must not commit buffered outcomes.
+                    database.rollback()
+                database.execute("UPDATE targets SET state='pending' WHERE state='running'")
+                database.commit()
+                await browser_stack.aclose()
     elapsed = monotonic() - started
     new_success = database.execute("SELECT COUNT(*) FROM targets WHERE state='success'").fetchone()[0] - initial_success
     print(f"[Backfill] Finished this pass: attempted={attempted} new_success={new_success} "
@@ -589,6 +657,9 @@ def main() -> None:
     runner.add_argument("--browser-recycle-after", type=int, default=300)
     runner.add_argument("--min-free-memory-gb", type=float, default=2.0)
     runner.add_argument("--max-rounds", type=int, default=3)
+    runner.add_argument("--retry-only", action="store_true", help="Retry recorded recoverable failures without dispatching untouched pending rows")
+    runner.add_argument("--write-batch-size", type=int, default=50, help="Durably write outcomes after this many completed documents")
+    runner.add_argument("--write-interval-seconds", type=float, default=5.0, help="Flush partial batches after this interval")
     runner.add_argument("--limit", type=int, default=0)
     runner.add_argument("--pilot-per-host", type=int, default=0)
     runner.add_argument("--wait-for-retries", action="store_true", help="Wait for scheduled retries; default returns at cooldown")
@@ -606,8 +677,8 @@ def main() -> None:
             manifest = prepare(args.source, args.baseline, args.campaign, args.min_gap, args.max_index, args.policy_file)
             print(json.dumps({key: value for key, value in manifest.items() if key != "policies"}, indent=2))
             return
-        if args.command == "run" and (min(args.max_in_flight, args.http_concurrency, args.browser_concurrency, args.browser_recycle_after, args.max_rounds) < 1 or min(args.limit, args.pilot_per_host, args.min_free_memory_gb) < 0):
-            parser.error("Concurrency, recycle and rounds must be positive; limits and memory must be nonnegative")
+        if args.command == "run" and (min(args.max_in_flight, args.http_concurrency, args.browser_concurrency, args.browser_recycle_after, args.max_rounds, args.write_batch_size) < 1 or min(args.limit, args.pilot_per_host, args.min_free_memory_gb) < 0 or not math.isfinite(args.write_interval_seconds) or args.write_interval_seconds <= 0):
+            parser.error("Concurrency, recycle, rounds and write batch/interval must be positive; limits and memory must be nonnegative")
         manifest = read_manifest(args.campaign)
         verify_inputs(manifest)
         with campaign_lock(args.campaign), connect(args.campaign) as database:
@@ -616,7 +687,7 @@ def main() -> None:
                 asyncio.run(run_campaign(args, database, manifest))
                 report = campaign_report(database, args.campaign, args.max_rounds)
                 print(json.dumps(report, indent=2))
-                if report["remaining"] and not (args.limit or args.pilot_per_host or args.group or args.host):
+                if report["remaining"] and not (args.limit or args.pilot_per_host or args.group or args.host or args.retry_only):
                     parser.exit(3, f"{report['remaining']} targets remain; inspect cooldowns and retry budgets\n")
             elif args.command == "merge":
                 print(json.dumps(merge_campaign(args.campaign, database, manifest, args.output), indent=2))

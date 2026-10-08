@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from copy import copy
 from bs4 import BeautifulSoup, Tag
 
 from pagination import remove_wujue_pager
@@ -9,13 +10,34 @@ from verbatim import clean_to_verbatim
 
 
 ARTICLE_LAYOUTS: dict[str, tuple[tuple[str, tuple[str, ...]], ...]] = {
+    "bachmai.gov.vn": (("#content-post > h3, #content-post > h1", ("#content-post .content-editor",)),),
+    "baoangiang.com.vn": ((".detail-title h1", ("#newscontents",)),),
+    "baogialai.com.vn": (("h1.article__title", (".article__body",)),),
+    "baotayninh.vn": ((".content-article > h1", ("#content-detail",)),),
+    "baothanhhoa.vn": (("h1.article__title", (".article__body",)),),
+    "baoquangninh.vn": (("h1.article__title", (".article__body",)),),
+    "health.people.com.cn": ((".articleCont .title", (".articleCont .artDet",)),),
+    "qihuangzhishu.com": ((".cbody > h1", (".cbody .spider",)),),
+    "baophutho.vn": (("#dcontent h1.pTitle", ("#dcontent",)),),
+    "baochinhphu.vn": (
+        (".detail-mcontent > h1", (".detail-mcontent > .detail-content",)),
+        ("h1.title", (".detail-content",)),
+    ),
+    "benhviennhitrunguong.gov.vn": (("#primary .entry-title h1", ("#primary .entry-content",)),),
+    "benhvienvietduc.org": ((".news-primary-content h1, .news-primary-content h2", (".news-primary-content",)),),
+    "baoquangtri.vn": (("h2#title", (".td-post-content",)),),
+    "baovinhlong.com.vn": (("h1.head_title", ("#content",)),),
+    "ask.familydoctor.com.cn": ((".quest-title", (".quest-info .illness-pics", ".answer-words")),),
     "120ask.com": (("#d_askH1", ("#d_msCon", ".b_answerbox .b_answerli .b_anscont_cont")),),
     "cnkang.com": (
         (".detail h1.detaila", (".detail .detailc",)),
         (".endContent h1, h1#h1title, h1", ("#endText",)),
     ),
     "wujue.com": (("#article-main_left .main_articletitle h1", ("#article-main_left .art-text",)),),
-    "baocantho.com.vn": (("#colcate1 > h1", ("#newscontents",)),),
+    "baocantho.com.vn": (
+        ("#colcate1 > h1", ("#newscontents",)),
+        ("h1.h1magazine", (".noidungbai",)),
+    ),
     "suckhoedoisong.vn": (
         ("h1.detail-title, .detail-title, h1", (".detail-content",)),
     ),
@@ -41,16 +63,20 @@ ARTICLE_LAYOUTS: dict[str, tuple[tuple[str, tuple[str, ...]], ...]] = {
     ),
     "dantri.com.vn": (
         (".title-page, h1", ("#articleContent",)),
+        ("article.e-magazine h1", (".e-magazine__body",)),
     ),
     "39.net": (
         ("h1.ask_tit, .ask_tit, .art_left > h1, h1", (".ask_cont, .all_answer, .doc_ans, .art_left > .art_content, .art_content",)),
+        ("h1", (".artCon",)),
+        (".artbox h1, h1", (".artbox .article",)),
+        (".article_title", (".article_cur",)),
     ),
     "ask.39.net": (
         ("h1.ask_tit, .ask_tit, h1", (".ask_hid .txt_ms, .ask_hid .txt_bc",)),
         ("h1.ask_tit, .ask_tit, h1", (".ask_cont", ".all_answer, .doc_ans")),
     ),
     "nhathuoclongchau.com.vn": (
-        ("h1", ('[class*="posts-detail_posts-detail-container"] .bg-white',)),
+        ("h1", ('[class*="posts-detail_posts-detail-container"] > .bg-white',)),
         ("h1", ("div.relative.container-lite.flex.flex-col",)),
     ),
     "youmed.vn": (
@@ -58,12 +84,14 @@ ARTICLE_LAYOUTS: dict[str, tuple[tuple[str, tuple[str, ...]], ...]] = {
     ),
     "suckhoeviet.org.vn": (
         (".article-detail-body-right > h1", (".article-detail-body-right > .__MASTERCMS_CONTENT",)),
+        ("h1.mastercms-emag-title", ("article.mastercms-emag-article",)),
     ),
     "tamanhhospital.vn": (
         ("h1", (".post_info.box_detail_post",)),
     ),
     "familydoctor.com.cn": (
         (".art-title h1, .title h1, h1.title, h1", (".art-content, .content, #content, .q-content",)),
+        (".article-titile h1", ("#viewContent",)),
     ),
     "youlai.cn": (
         (
@@ -93,6 +121,45 @@ UNIVERSAL_NOISE_SELECTORS = (
 def normalized_text(value: str) -> str:
     """Remove markup punctuation and whitespace for HTML/Markdown comparison."""
     return "".join(character.lower() for character in value if character.isalnum())
+
+
+def article_content_issue(domain: str, result: object, url: str) -> str | None:
+    """Identify known article bodies requiring OCR or transcription, without guessing text."""
+    layouts = ARTICLE_LAYOUTS.get(domain)
+    html = getattr(result, "html", "")
+    if not layouts or not html:
+        return None
+    if domain not in {"baocantho.com.vn", "baoquangtri.vn", "baovinhlong.com.vn",
+                      "benhviennhitrunguong.gov.vn", "suckhoeviet.org.vn"}:
+        return None
+    soup = BeautifulSoup(html, "lxml")
+    for title_selector, body_selectors in layouts:
+        title = soup.select_one(title_selector)
+        if title is None:
+            continue
+        for selector in body_selectors:
+            for element in soup.select(selector):
+                has_image = bool(element.select("img"))
+                has_video = bool(element.select("iframe, video, .rll-youtube-player, .wp-video"))
+                body = copy(element)
+                purify_body(body)
+                for noise in body.select("h1, h2#title, .entry-post_info, .article-info, .author-post"):
+                    noise.decompose()
+                external_reference = False
+                for link in body.select('a[href^="http"]'):
+                    if link.get_text(strip=True).rstrip("/") == link["href"].rstrip("/"):
+                        external_reference = True
+                        link.decompose()
+                length = len(normalized_text(body.get_text(" ", strip=True)))
+                infographic = "infograph" in (url + " " + title.get_text()).lower()
+                if not (has_image or has_video or external_reference):
+                    continue
+                if length < MIN_BODY_CHARACTERS or (has_image and infographic and length < 400):
+                    kind = "video-only article requires transcription" if has_video else "image-only article requires OCR"
+                    if not (has_image or has_video):
+                        kind = "article only links to an external resource"
+                    return f"Unsupported content type: {kind}"
+    return None
 
 
 def purify_body(element: Tag) -> None:
@@ -135,6 +202,8 @@ def http_article_error(domain: str, result: object, text: str) -> str | None:
     layouts = ARTICLE_LAYOUTS.get(domain)
     if layouts is None and domain.endswith(".39.net"):
         layouts = ARTICLE_LAYOUTS["39.net"]
+    if layouts is None and domain.endswith(".familydoctor.com.cn"):
+        layouts = ARTICLE_LAYOUTS["familydoctor.com.cn"]
     minimum_characters = 8 if domain == "ask.39.net" else MIN_BODY_CHARACTERS
     if layouts is None and len(markdown) < minimum_characters:
         return f"HTTP article layout is not configured for {domain}"
@@ -143,7 +212,7 @@ def http_article_error(domain: str, result: object, text: str) -> str | None:
 
     soup = BeautifulSoup(html, "lxml")
     if domain == "tamanhhospital.vn":
-        for noise in soup.select(".post_info.box_detail_post .content_insert, .post_info.box_detail_post .div_over, .post_info.box_detail_post .mt_15"):
+        for noise in soup.select(".post_info.box_detail_post .content_insert, .post_info.box_detail_post .div_over, .post_info.box_detail_post .mt_15, .post_info.box_detail_post .div_tool"):
             noise.decompose()
     if domain == "wujue.com":
         for body in soup.select("#article-main_left .art-text"):
