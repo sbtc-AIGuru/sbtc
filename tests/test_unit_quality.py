@@ -21,6 +21,25 @@ class MockResult:
 class TestQualityModule(unittest.TestCase):
     """Test ARTICLE_LAYOUTS configurations and validation logic."""
 
+    def test_short_medical_book_verse_requires_the_entire_source_body(self):
+        title = "医学观察歌诀"
+        body = "科学记录观察数据，合理讨论治疗建议，及时开展随访评估。"
+        html = f'<div class="cbody"><h1>{title}</h1><div class="spider">{body}</div></div>'
+        self.assertIsNone(http_article_error("qihuangzhishu.com", MockResult(html), f"{title}\n{body}"))
+        self.assertIsNotNone(http_article_error("qihuangzhishu.com", MockResult(html), f"{title}\n{body[:20]}"))
+        self.assertIsNotNone(http_article_error("qihuangzhishu.com", MockResult(html), title))
+
+    def test_people_modern_layout_requires_title_and_complete_body(self):
+        title = "Medical industry develops reliable treatment options"
+        first = "The article describes production processes and research methods for medicines."
+        last = "A final paragraph explains how product quality is monitored after manufacturing."
+        html = (f'<div class="rm_txt"><div class="col-1"><h1>{title}</h1>'
+                f'<div class="rm_txt_con"><div id="rm_txt_zw"><p>{first}</p><p>{last}</p></div>'
+                '<div class="related">Unrelated recommendations</div></div></div></div>')
+        self.assertIsNone(http_article_error("health.people.com.cn", MockResult(html), f"{title}\n{first}\n{last}"))
+        self.assertIsNotNone(http_article_error("health.people.com.cn", MockResult(html), f"{title}\n{first}"))
+        self.assertIsNotNone(http_article_error("health.people.com.cn", MockResult(html), f"{first}\n{last}"))
+
     def test_short_chinese_heading_and_legacy_article_layouts(self):
         body = "Clinical content describes symptoms, treatment and follow-up examinations. " * 4
         cases = {

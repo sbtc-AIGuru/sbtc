@@ -37,6 +37,9 @@ def load_fetch_module() -> ModuleType:
         setattr(modules["pagination"], name, lambda *args, **kwargs: None)
     modules["quality"].ARTICLE_LAYOUTS = {}
     modules["quality"].http_article_error = lambda *args: None
+    modules["quality"].minimum_article_characters = lambda domain: {
+        "ask.39.net": 8, "qihuangzhishu.com": 12,
+    }.get(domain, 40)
     modules["quality"].article_metadata = lambda *args: {}
     modules["quality"].article_content_issue = lambda *args: None
     modules["utils"].SourceRecord = SourceRecord

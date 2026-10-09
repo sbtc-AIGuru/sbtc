@@ -229,7 +229,7 @@ def ingest_record(database: sqlite3.Connection, value: dict[str, object], offset
     if value["success"]:
         database.execute("UPDATE targets SET state='success', rounds=?, next_retry_at=0, last_error='', success_offset=? WHERE row_index=?",
                          (rounds, offset, target["row_index"]))
-    elif target["state"] != "success":
+    elif target["state"] not in {"success", "local_success", "local_permanent_failure", "local_running"}:
         kind = value.get("error_kind", "transport")
         state = "permanent_failure" if kind in {"not_found", "invalid_url", "robots_denied", "unsupported_content"} else (
             "deferred" if kind in {"rate_limited", "access_denied", "challenge", "deferred"} else "retryable")
@@ -417,7 +417,11 @@ async def run_campaign(args: argparse.Namespace, database: sqlite3.Connection, m
     for origin in database.execute("SELECT * FROM origins"):
         state, policy = controller.state(urls[origin["group_key"]])
         state.cooldown_until = monotonic() + max(0, origin["next_retry_at"] - time())
-        state.interval = max(policy.interval_seconds, origin["interval_seconds"])
+        # Remote sessions keep persisted Retry-After/cooldown deadlines, while
+        # learning throughput on their own runtime instead of inheriting a
+        # previous machine's permanently slowed request interval.
+        state.interval = policy.interval_seconds if manifest.get("pacing_scope") == "session" else max(
+            policy.interval_seconds, origin["interval_seconds"])
     ready_groups = deque(groups)
     group_active = Counter()
     host_active = Counter()

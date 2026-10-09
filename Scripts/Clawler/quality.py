@@ -16,7 +16,10 @@ ARTICLE_LAYOUTS: dict[str, tuple[tuple[str, tuple[str, ...]], ...]] = {
     "baotayninh.vn": ((".content-article > h1", ("#content-detail",)),),
     "baothanhhoa.vn": (("h1.article__title", (".article__body",)),),
     "baoquangninh.vn": (("h1.article__title", (".article__body",)),),
-    "health.people.com.cn": ((".articleCont .title", (".articleCont .artDet",)),),
+    "health.people.com.cn": (
+        (".articleCont .title", (".articleCont .artDet",)),
+        (".rm_txt .col-1 > h1", ("#rm_txt_zw",)),
+    ),
     "qihuangzhishu.com": ((".cbody > h1", (".cbody .spider",)),),
     "baophutho.vn": (("#dcontent h1.pTitle", ("#dcontent",)),),
     "baochinhphu.vn": (
@@ -109,6 +112,11 @@ ARTICLE_LAYOUTS: dict[str, tuple[tuple[str, tuple[str, ...]], ...]] = {
 }
 MIN_BODY_CHARACTERS = 40
 EXCERPT_CHARACTERS = 25
+
+
+def minimum_article_characters(domain: str) -> int:
+    """Allow complete short questions and Chinese book verses in known layouts."""
+    return {"ask.39.net": 8, "qihuangzhishu.com": 12}.get(domain, MIN_BODY_CHARACTERS)
 
 UNIVERSAL_NOISE_SELECTORS = (
     "script, style, noscript, iframe, svg, nav, footer, aside, "
@@ -204,7 +212,7 @@ def http_article_error(domain: str, result: object, text: str) -> str | None:
         layouts = ARTICLE_LAYOUTS["39.net"]
     if layouts is None and domain.endswith(".familydoctor.com.cn"):
         layouts = ARTICLE_LAYOUTS["familydoctor.com.cn"]
-    minimum_characters = 8 if domain == "ask.39.net" else MIN_BODY_CHARACTERS
+    minimum_characters = minimum_article_characters(domain)
     if layouts is None and len(markdown) < minimum_characters:
         return f"HTTP article layout is not configured for {domain}"
     if len(markdown) < minimum_characters:
@@ -233,6 +241,14 @@ def http_article_error(domain: str, result: object, text: str) -> str | None:
                     bodies.append(answers)
             if any(not elements for elements in bodies):
                 continue
+            if domain == "qihuangzhishu.com":
+                # Medical book verses can be shorter than forty characters.
+                # Accept these only when the entire source body is present.
+                short_bodies = [normalized_text(element.get_text(" ", strip=True))
+                                for elements in bodies for element in elements
+                                if len(normalized_text(element.get_text(" ", strip=True))) < MIN_BODY_CHARACTERS]
+                if any(len(body) < minimum_characters or body not in markdown for body in short_bodies):
+                    continue
             if all(
                 _content_in_markdown(element, markdown)
                 for elements in bodies

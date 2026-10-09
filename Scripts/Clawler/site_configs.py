@@ -426,7 +426,7 @@ def build_run_configs() -> tuple[CrawlerRunConfig, dict[str, CrawlerRunConfig]]:
             markdown_generator=DefaultMarkdownGenerator(),
         ),
         "health.people.com.cn": run_config.clone(
-            target_elements=[".articleCont"],
+            target_elements=[".articleCont", ".rm_txt .col-1 > h1", "#rm_txt_zw"],
             markdown_generator=DefaultMarkdownGenerator(),
         ),
         "a-hospital.com": run_config.clone(

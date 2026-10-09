@@ -18,7 +18,7 @@ from pagination import (
     wujue_page_markdown,
     wujue_page_number,
 )
-from quality import article_content_issue, article_metadata, http_article_error
+from quality import article_content_issue, article_metadata, http_article_error, minimum_article_characters
 from utils import SourceRecord
 from verbatim import clean_to_verbatim
 from fetch_policy import (
@@ -384,7 +384,7 @@ async def _crawl_one(
     if config is None and domain.endswith(".familydoctor.com.cn"):
         config = domain_configs.get("familydoctor.com.cn")
     config = config or run_config
-    minimum_characters = 8 if domain == "ask.39.net" else 40
+    minimum_characters = minimum_article_characters(domain)
 
     attempts = 0
     http_error = ""

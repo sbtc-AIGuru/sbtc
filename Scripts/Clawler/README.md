@@ -237,12 +237,51 @@ notebook's own runtime environment, without installing anything locally.
 
 Each worker writes `/kaggle/working/backfill-shard-N/results.jsonl` after
 50 completed results or five seconds, and flushes a partial batch on exit.
-After an eight-hour pass it saves `report.json` and `checkpoint.zip` containing
+After an eleven-hour pass it saves `report.json` and `checkpoint.zip` containing
 the sparse ledger, journal and manifest. The report's `remaining_remote` shows
 actual uncovered remote slots; a session ending does not mean all URLs were
 crawled successfully. Resume by restoring that checkpoint to the same worker
-directory and using the same input export. `--max-rounds 4` is the total retry
-budget per URL, preserving rounds already recorded locally at export.
+directory and using the same input export. The relaunch uses `--max-rounds 8`
+as the total retry budget per URL, preserving historical rounds and allowing
+URLs affected by repaired extraction code another pass. Each actual request
+still obeys source pacing and denial cooldowns.
+
+Relaunch the exact original shards with the journals downloaded from them:
+
+```bash
+source .venv/bin/activate
+python Scripts/Clawler/kaggle_campaign.py prepare \
+  --campaign .backfill/large_ranges_20261007 \
+  --output .backfill/kaggle_tail_200k_relaunch_20261009 \
+  --owner nhminh107 \
+  --resume-from .backfill/kaggle_tail_200k_20261008 \
+  --resume-outputs .backfill/kaggle_tail_200k_20261008/downloads_20261009 \
+  --wall-hours 11
+```
+
+The exporter verifies unchanged per-shard global identities, refreshes the
+read-only local snapshot and includes only the two journals from each original
+shard. Journal checksums, campaign identity and export ancestry are validated
+before replay. The worker retains successful remote text and newer local
+terminal states; successive relaunches can carry inherited journal records.
+The in-notebook pilot uses the production ledger so its successes are retained.
+
+The remote session starts with its own request interval while retaining stored
+cooldown/Retry-After deadlines. After twenty consecutive validated successes,
+the interval drops by twenty percent to a configured floor. The `39.net` family
+keeps one shared quota per notebook and one request per hostname in flight.
+With two remote notebooks and an active local worker, each remote starts at
+1.5 seconds, can ramp to 0.3 seconds, and allows four family documents in flight.
+Denials immediately trigger the existing exponential cooldown and slower
+interval. This allocation is not a distributed lock over the local process.
+Static HTTP sources use 24 shared HTTP slots, browser fallbacks use four slots.
+
+The Python environment, browser installation and extracted source now live in
+`/tmp`; working-directory outputs contain crawl artifacts. A final `COVERAGE`
+line reports `PARTIAL` whenever uncovered remote slots remain. Kaggle's kernel
+execution status is separate from that coverage result. A short live benchmark
+is a throughput sample and does not guarantee complete successful recovery
+within one session, especially for deleted articles and denied sources.
 
 Download each notebook's output with `kaggle kernels output OWNER/SLUG -p DIR`.
 Import its `results.jsonl` with `backfill.py ingest --input ...` after the local

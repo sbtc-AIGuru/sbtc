@@ -16,6 +16,46 @@ from fetch_policy import DeferredRequest, FetchController, HostPolicy, retry_aft
 
 
 class TestPolicy(unittest.IsolatedAsyncioTestCase):
+    def test_stale_interval_recovers_after_twenty_healthy_responses(self) -> None:
+        controller = FetchController({"a.test": HostPolicy(interval_seconds=1)})
+        state, _ = controller.state("https://a.test/article")
+        state.interval = 60
+        for _ in range(20):
+            controller.observe("https://a.test/article", 200, "", None)
+        self.assertEqual(state.interval, 48)
+        for _ in range(500):
+            controller.observe("https://a.test/article", 200, "", None)
+        self.assertEqual(state.interval, 1)
+
+    def test_adaptive_ramp_has_a_floor_and_denial_restores_slow_start(self) -> None:
+        policy = HostPolicy(interval_seconds=1.5, minimum_interval_seconds=0.3)
+        controller = FetchController({"a.test": policy})
+        state, _ = controller.state("https://a.test/article")
+        for _ in range(200):
+            controller.observe("https://a.test/article", 200, "", None)
+        self.assertEqual(state.interval, 0.3)
+        controller.observe("https://a.test/article", 429, "HTTP 429", "7200")
+        self.assertEqual(state.interval, 3)
+        self.assertGreaterEqual(controller.retry_at("https://a.test/article") - time(), 7199)
+
+    def test_invalid_content_does_not_advance_healthy_recovery(self) -> None:
+        controller = FetchController({"a.test": HostPolicy(interval_seconds=1)})
+        state, _ = controller.state("https://a.test/article")
+        state.interval = 60
+        for _ in range(19):
+            controller.observe("https://a.test/article", 200, "", None)
+        controller.observe("https://a.test/article", 200, "Empty Markdown", None)
+        controller.observe("https://a.test/article", 200, "", None)
+        self.assertEqual(state.interval, 60)
+        self.assertEqual(state.healthy, 1)
+
+    def test_invalid_ramp_policy_is_rejected(self) -> None:
+        for value in (-1, 2, float("nan"), "fast", True):
+            with self.subTest(value=value), self.assertRaises(ValueError):
+                HostPolicy(interval_seconds=1, minimum_interval_seconds=value)
+        with self.assertRaises(ValueError):
+            HostPolicy(recovery_successes=0)
+
     def test_retry_after_both_formats_and_invalid_value(self) -> None:
         self.assertEqual(retry_after_seconds("7200", now=1000), 7200)
         date = format_datetime(datetime.fromtimestamp(8200, timezone.utc), usegmt=True)

@@ -29,6 +29,8 @@ class HostPolicy:
     group: str = ""
     max_attempts: int = 3
     fetch_mode: str = "auto"
+    minimum_interval_seconds: float | None = None
+    recovery_successes: int = 20
 
     def __post_init__(self) -> None:
         if type(self.concurrency) is not int or type(self.max_attempts) is not int or self.concurrency < 1 or self.max_attempts < 1:
@@ -40,6 +42,14 @@ class HostPolicy:
             raise ValueError("Policy group must be a string")
         if self.fetch_mode not in {"auto", "http", "browser"}:
             raise ValueError("Policy fetch_mode must be auto, http, or browser")
+        if self.minimum_interval_seconds is not None and (
+            type(self.minimum_interval_seconds) not in {int, float}
+            or not math.isfinite(self.minimum_interval_seconds)
+            or not 0 <= self.minimum_interval_seconds <= self.interval_seconds
+        ):
+            raise ValueError("Minimum interval must be between zero and the starting interval")
+        if type(self.recovery_successes) is not int or self.recovery_successes < 1:
+            raise ValueError("Recovery successes must be a positive integer")
 
 
 def hostname(url: str) -> str:
@@ -234,9 +244,12 @@ class FetchController:
             state.healthy = 0
         elif kind == "success":
             state.healthy += 1
-            if state.healthy >= 500:
-                state.interval = max(policy.interval_seconds, state.interval / 1.2)
+            if state.healthy >= policy.recovery_successes:
+                floor = policy.interval_seconds if policy.minimum_interval_seconds is None else policy.minimum_interval_seconds
+                state.interval = max(floor, state.interval * 0.8)
                 state.healthy = 0
+        else:
+            state.healthy = 0
 
 
 active_controller: ContextVar[FetchController | None] = ContextVar("fetch_controller", default=None)

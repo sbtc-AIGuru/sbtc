@@ -197,6 +197,36 @@ class TestBackfill(BackfillFixture, unittest.TestCase):
 
 
 class TestCampaignScheduler(BackfillFixture, unittest.IsolatedAsyncioTestCase):
+    async def test_session_pacing_resets_old_interval_but_keeps_source_cooldown(self) -> None:
+        manifest = self.prepare(present=(9,))
+        manifest['pacing_scope'] = 'session'
+        requested = []
+        intervals = []
+
+        class FakeCrawler:
+            def __init__(self, **_kwargs):
+                pass
+
+            async def __aenter__(self):
+                return self
+
+            async def __aexit__(self, *_args):
+                pass
+
+        async def crawl(record, *_args):
+            requested.append(record.url)
+            intervals.append(active_controller.get().state(record.url)[0].interval)
+            return SimpleNamespace(payload=self.result(record.row_index), mode='http', attempts=1)
+
+        with backfill.connect(self.campaign) as db:
+            db.execute("UPDATE origins SET interval_seconds=60")
+            db.execute("UPDATE origins SET next_retry_at=? WHERE group_key='a.test'", (time() + 3600,))
+        with backfill.connect(self.campaign) as db, patch('crawl4ai.AsyncWebCrawler', FakeCrawler), patch('fetch.crawl_one', crawl), patch('http_strategy.create_http_strategy', return_value=object()), patch.object(backfill, 'HOST_LOCK_DIRECTORY', self.root / 'locks'):
+            await backfill.run_campaign(self.runner_args(), db, manifest)
+        self.assertTrue(requested)
+        self.assertTrue(all('b.test' in url for url in requested))
+        self.assertTrue(all(value == 0 for value in intervals))
+
     def runner_args(self, fetch_mode: str = "http") -> argparse.Namespace:
         return argparse.Namespace(campaign=self.campaign, group=[], pilot_per_host=0,
                                   http_concurrency=2, browser_concurrency=2, fetch_mode=fetch_mode,
