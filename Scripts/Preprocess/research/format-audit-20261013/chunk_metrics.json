@@ -1,0 +1,554 @@
+{
+  "input": "data_final/test_20k.jsonl",
+  "seconds": 53.25,
+  "counters": {
+    "documents": 20000,
+    "skipped": 100,
+    "pubmed_structured_documents": 1212,
+    "pubmed_with_CJK_20plus": 38,
+    "nonfinal_clause_delimiter_end": 8828,
+    "documents_repeated_100char_paragraph": 863
+  },
+  "risk_flags_not_ground_truth": {
+    "pubmed_multiple_section_labels": 1354,
+    "pubmed_clause_boundary": 313,
+    "clause_boundary_in_parentheses": 472,
+    "numeric_expression_cut": 17,
+    "repeated_source_paragraph": 863,
+    "tiny_chunk_in_long_document": 1636,
+    "parent_ends_at_leadin_colon": 352,
+    "possible_dose_as_heading": 11,
+    "tiny_1_to_9_units": 556,
+    "indexed_navigation_or_bio": 1405,
+    "oversized": 2
+  },
+  "groups": {
+    "pubmed_abstract": {
+      "documents": 4475,
+      "chunks": 6636,
+      "parents": 4532,
+      "sizes": {
+        "150-219": 2365,
+        "220-300": 2054,
+        "100-149": 844,
+        "50-99": 672,
+        "0-49": 701
+      },
+      "short_reasons": {
+        "none": 5263,
+        "short_document": 1367,
+        "atomic_section": 6
+      },
+      "boundaries": {
+        "clause": 320,
+        "sentence": 5536,
+        "paragraph": 780
+      },
+      "risks": {
+        "pubmed_multiple_section_labels": 1354,
+        "nonfinal_clause_delimiter_end": 313,
+        "numeric_expression_cut": 7
+      },
+      "eligible_transitions": 2104,
+      "overlap_30_50": 1737,
+      "coverage_total": 6232017,
+      "coverage_covered": 6232017,
+      "doc_units": {
+        "count": 4475,
+        "mean": 240.5372067039106,
+        "p50": 170.0,
+        "p95": 819.6000000000004,
+        "p99": 1357.0800000000017,
+        "min": 1,
+        "max": 3837
+      },
+      "chunk_units": {
+        "count": 6636,
+        "mean": 174.37793851717902,
+        "p50": 200.0,
+        "p95": 269.0,
+        "p99": 291.0,
+        "min": 1,
+        "max": 300
+      }
+    },
+    "longchau_article": {
+      "documents": 2508,
+      "chunks": 16010,
+      "parents": 4500,
+      "sizes": {
+        "150-219": 5619,
+        "220-300": 8976,
+        "50-99": 459,
+        "100-149": 829,
+        "0-49": 127
+      },
+      "short_reasons": {
+        "none": 15424,
+        "atomic_section": 326,
+        "short_document": 260
+      },
+      "boundaries": {
+        "paragraph": 6776,
+        "sentence": 8808,
+        "clause": 426
+      },
+      "risks": {
+        "nonfinal_clause_delimiter_end": 1523,
+        "numeric_expression_cut": 2
+      },
+      "eligible_transitions": 11510,
+      "overlap_30_50": 9694,
+      "coverage_total": 10677664,
+      "coverage_covered": 10677664,
+      "doc_units": {
+        "count": 2508,
+        "mean": 1211.8680223285487,
+        "p50": 1333.5,
+        "p95": 1862.8500000000008,
+        "p99": 2367.229999999998,
+        "min": 31,
+        "max": 4099
+      },
+      "chunk_units": {
+        "count": 16010,
+        "mean": 217.39775140537165,
+        "p50": 230.0,
+        "p95": 267.0,
+        "p99": 288.0,
+        "min": 2,
+        "max": 300
+      }
+    },
+    "longchau_other": {
+      "documents": 1492,
+      "chunks": 1733,
+      "parents": 1492,
+      "sizes": {
+        "150-219": 777,
+        "220-300": 370,
+        "50-99": 194,
+        "100-149": 375,
+        "0-49": 17
+      },
+      "short_reasons": {
+        "none": 1522,
+        "short_document": 211
+      },
+      "boundaries": {
+        "sentence": 1025,
+        "paragraph": 673,
+        "clause": 35
+      },
+      "risks": {
+        "nonfinal_clause_delimiter_end": 38
+      },
+      "eligible_transitions": 241,
+      "overlap_30_50": 195,
+      "coverage_total": 1043229,
+      "coverage_covered": 1043229,
+      "doc_units": {
+        "count": 1492,
+        "mean": 196.9597855227882,
+        "p50": 177.0,
+        "p95": 395.45000000000005,
+        "p99": 490.4499999999996,
+        "min": 20,
+        "max": 570
+      },
+      "chunk_units": {
+        "count": 1733,
+        "mean": 174.91517599538372,
+        "p50": 179.0,
+        "p95": 273.0,
+        "p99": 293.68000000000006,
+        "min": 20,
+        "max": 300
+      }
+    },
+    "other_health_news": {
+      "documents": 4861,
+      "chunks": 15517,
+      "parents": 7458,
+      "sizes": {
+        "0-49": 1286,
+        "50-99": 847,
+        "100-149": 1461,
+        "150-219": 5839,
+        "220-300": 6084
+      },
+      "short_reasons": {
+        "atomic_section": 1291,
+        "none": 13384,
+        "short_document": 842
+      },
+      "boundaries": {
+        "paragraph": 7185,
+        "sentence": 6800,
+        "clause": 1532
+      },
+      "risks": {
+        "nonfinal_clause_delimiter_end": 1421,
+        "numeric_expression_cut": 2
+      },
+      "eligible_transitions": 8059,
+      "overlap_30_50": 6584,
+      "coverage_total": 8801942,
+      "coverage_covered": 8801942,
+      "doc_units": {
+        "count": 4861,
+        "mean": 541.7936638551738,
+        "p50": 369.0,
+        "p95": 1639.0,
+        "p99": 2643.7999999999884,
+        "min": 7,
+        "max": 50206
+      },
+      "chunk_units": {
+        "count": 15517,
+        "mean": 189.39646838950827,
+        "p50": 210.0,
+        "p95": 267.0,
+        "p99": 291.0,
+        "min": 1,
+        "max": 300
+      }
+    },
+    "tcm_book_dictionary": {
+      "documents": 290,
+      "chunks": 798,
+      "parents": 500,
+      "sizes": {
+        "100-149": 106,
+        "150-219": 278,
+        "220-300": 228,
+        "0-49": 117,
+        "50-99": 69
+      },
+      "short_reasons": {
+        "none": 612,
+        "atomic_section": 145,
+        "short_document": 41
+      },
+      "boundaries": {
+        "paragraph": 397,
+        "sentence": 311,
+        "clause": 90
+      },
+      "risks": {
+        "nonfinal_clause_delimiter_end": 60,
+        "navigation_or_doctor_info_chunks": 31
+      },
+      "eligible_transitions": 298,
+      "overlap_30_50": 237,
+      "coverage_total": 146192,
+      "coverage_covered": 146192,
+      "doc_units": {
+        "count": 290,
+        "mean": 417.7551724137931,
+        "p50": 335.0,
+        "p95": 1055.2500000000032,
+        "p99": 2435.120000000004,
+        "min": 34,
+        "max": 6376
+      },
+      "chunk_units": {
+        "count": 798,
+        "mean": 165.9423558897243,
+        "p50": 197.0,
+        "p95": 270.15,
+        "p99": 290.0,
+        "min": 3,
+        "max": 300
+      }
+    },
+    "zh_health_article": {
+      "documents": 911,
+      "chunks": 4780,
+      "parents": 1995,
+      "sizes": {
+        "150-219": 1581,
+        "220-300": 2231,
+        "50-99": 282,
+        "100-149": 407,
+        "0-49": 279
+      },
+      "short_reasons": {
+        "none": 4219,
+        "short_document": 120,
+        "atomic_section": 441
+      },
+      "boundaries": {
+        "clause": 1025,
+        "sentence": 2446,
+        "paragraph": 1309
+      },
+      "risks": {
+        "nonfinal_clause_delimiter_end": 604,
+        "numeric_expression_cut": 1
+      },
+      "eligible_transitions": 2785,
+      "overlap_30_50": 2416,
+      "coverage_total": 946357,
+      "coverage_covered": 946357,
+      "doc_units": {
+        "count": 911,
+        "mean": 919.0702524698133,
+        "p50": 399.0,
+        "p95": 3524.0,
+        "p99": 4814.7,
+        "min": 22,
+        "max": 8190
+      },
+      "chunk_units": {
+        "count": 4780,
+        "mean": 197.39853556485355,
+        "p50": 216.0,
+        "p95": 268.0,
+        "p99": 291.0,
+        "min": 2,
+        "max": 300
+      }
+    },
+    "vinmec_article": {
+      "documents": 1300,
+      "chunks": 4382,
+      "parents": 2571,
+      "sizes": {
+        "150-219": 1854,
+        "220-300": 1579,
+        "50-99": 300,
+        "100-149": 559,
+        "0-49": 90
+      },
+      "short_reasons": {
+        "none": 3992,
+        "atomic_section": 368,
+        "short_document": 22
+      },
+      "boundaries": {
+        "sentence": 1819,
+        "paragraph": 2360,
+        "clause": 203
+      },
+      "risks": {
+        "nonfinal_clause_delimiter_end": 288,
+        "numeric_expression_cut": 5
+      },
+      "eligible_transitions": 1811,
+      "overlap_30_50": 1497,
+      "coverage_total": 2750829,
+      "coverage_covered": 2750829,
+      "doc_units": {
+        "count": 1300,
+        "mean": 601.766923076923,
+        "p50": 303.0,
+        "p95": 1888.05,
+        "p99": 2598.2299999999987,
+        "min": 60,
+        "max": 7034
+      },
+      "chunk_units": {
+        "count": 4382,
+        "mean": 194.23413966225468,
+        "p50": 206.0,
+        "p95": 276.0,
+        "p99": 294.1899999999996,
+        "min": 3,
+        "max": 300
+      }
+    },
+    "hospital_article": {
+      "documents": 700,
+      "chunks": 4241,
+      "parents": 1834,
+      "sizes": {
+        "150-219": 1768,
+        "220-300": 1842,
+        "50-99": 259,
+        "100-149": 307,
+        "0-49": 65
+      },
+      "short_reasons": {
+        "none": 3917,
+        "atomic_section": 283,
+        "short_document": 41
+      },
+      "boundaries": {
+        "paragraph": 1633,
+        "sentence": 2339,
+        "clause": 269
+      },
+      "risks": {
+        "nonfinal_clause_delimiter_end": 319
+      },
+      "eligible_transitions": 2407,
+      "overlap_30_50": 1978,
+      "coverage_total": 2768866,
+      "coverage_covered": 2768866,
+      "doc_units": {
+        "count": 700,
+        "mean": 1111.7985714285714,
+        "p50": 1327.0,
+        "p95": 1666.1,
+        "p99": 2050.24,
+        "min": 9,
+        "max": 6441
+      },
+      "chunk_units": {
+        "count": 4241,
+        "mean": 205.14359820796983,
+        "p50": 215.0,
+        "p95": 269.0,
+        "p99": 292.60000000000036,
+        "min": 5,
+        "max": 300
+      }
+    },
+    "medical_qa": {
+      "documents": 1800,
+      "chunks": 7153,
+      "parents": 2494,
+      "sizes": {
+        "220-300": 5143,
+        "150-219": 1226,
+        "100-149": 539,
+        "50-99": 199,
+        "0-49": 46
+      },
+      "short_reasons": {
+        "none": 6908,
+        "short_document": 151,
+        "qa_atomic": 94
+      },
+      "boundaries": {
+        "paragraph": 1828,
+        "sentence": 2087,
+        "clause": 3238
+      },
+      "risks": {
+        "nonfinal_clause_delimiter_end": 2789,
+        "navigation_or_doctor_info_chunks": 392
+      },
+      "eligible_transitions": 4659,
+      "overlap_30_50": 3796,
+      "coverage_total": 1776806,
+      "coverage_covered": 1776806,
+      "doc_units": {
+        "count": 1800,
+        "mean": 853.8038888888889,
+        "p50": 416.5,
+        "p95": 3161.8499999999985,
+        "p99": 5199.19,
+        "min": 39,
+        "max": 21268
+      },
+      "chunk_units": {
+        "count": 7153,
+        "mean": 237.1309939885363,
+        "p50": 255.0,
+        "p95": 297.0,
+        "p99": 300.0,
+        "min": 4,
+        "max": 300
+      }
+    },
+    "medical_encyclopedia": {
+      "documents": 1472,
+      "chunks": 8781,
+      "parents": 3296,
+      "sizes": {
+        "150-219": 3102,
+        "220-300": 4354,
+        "0-49": 380,
+        "50-99": 309,
+        "100-149": 634,
+        ">300": 2
+      },
+      "short_reasons": {
+        "none": 8092,
+        "atomic_section": 552,
+        "oversized_neighbor": 2,
+        "short_document": 135
+      },
+      "boundaries": {
+        "sentence": 3277,
+        "paragraph": 3663,
+        "clause": 1841
+      },
+      "risks": {
+        "navigation_or_doctor_info_chunks": 932,
+        "nonfinal_clause_delimiter_end": 1317
+      },
+      "eligible_transitions": 5485,
+      "overlap_30_50": 4659,
+      "coverage_total": 1915396,
+      "coverage_covered": 1915396,
+      "doc_units": {
+        "count": 1472,
+        "mean": 1099.7751358695652,
+        "p50": 466.5,
+        "p95": 4194.2000000000035,
+        "p99": 10277.219999999967,
+        "min": 33,
+        "max": 29680
+      },
+      "chunk_units": {
+        "count": 8781,
+        "mean": 206.20669627605056,
+        "p50": 219.0,
+        "p95": 268.0,
+        "p99": 291.0,
+        "min": 1,
+        "max": 425
+      }
+    },
+    "disease_symptom_catalogue": {
+      "documents": 91,
+      "chunks": 1172,
+      "parents": 257,
+      "sizes": {
+        "150-219": 396,
+        "220-300": 723,
+        "100-149": 44,
+        "50-99": 3,
+        "0-49": 6
+      },
+      "short_reasons": {
+        "none": 1163,
+        "atomic_section": 9
+      },
+      "boundaries": {
+        "sentence": 308,
+        "paragraph": 690,
+        "clause": 174
+      },
+      "risks": {
+        "navigation_or_doctor_info_chunks": 50,
+        "nonfinal_clause_delimiter_end": 156
+      },
+      "eligible_transitions": 915,
+      "overlap_30_50": 837,
+      "coverage_total": 274928,
+      "coverage_covered": 274928,
+      "doc_units": {
+        "count": 91,
+        "mean": 2511.076923076923,
+        "p50": 1337.0,
+        "p95": 6271.0,
+        "p99": 6974.599999999999,
+        "min": 234,
+        "max": 7052
+      },
+      "chunk_units": {
+        "count": 1172,
+        "mean": 226.48464163822527,
+        "p50": 238.0,
+        "p95": 269.0,
+        "p99": 287.0,
+        "min": 9,
+        "max": 300
+      }
+    }
+  }
+}

@@ -1,0 +1,86 @@
+{
+  "input_path": "/home/tran-nhat-truong/TranNhatTruong/other/AIGuru/data_final/test_20k.jsonl",
+  "input_sha256": "9fdacfb07ecc1757c53c5b03bd41d31358c4a0db74fea785a6a62f90cfe8bf43",
+  "baseline_output_path": "/home/tran-nhat-truong/TranNhatTruong/other/AIGuru/data_final/chunks_format_v2_baseline_test20k",
+  "candidate_output_path": "/home/tran-nhat-truong/TranNhatTruong/other/AIGuru/data_final/chunks_format_v2_test20k",
+  "profile_version": "format-v2",
+  "configuration": {
+    "max_units": 300,
+    "min_units": 150,
+    "overlap_units": 40,
+    "parent_max_units": 1200,
+    "target_units": 220,
+    "version": "paragraph-v3"
+  },
+  "baseline": {
+    "records": 20000,
+    "ok": 19900,
+    "skipped": 100,
+    "chunks": 62465,
+    "chunk_size_distribution": {
+      "0-49": 2036,
+      "100-149": 2866,
+      "150-219": 12052,
+      "220-300": 43063,
+      "50-99": 2424,
+      ">300": 24
+    },
+    "under_50": 2036,
+    "over_300": 24,
+    "over_500": 7,
+    "max_units": 2760,
+    "coverage_non_whitespace": 37334226,
+    "placeholders_chunked": 2
+  },
+  "candidate": {
+    "records": 20000,
+    "ok": 19898,
+    "skipped": 102,
+    "skip_reasons": {
+      "crawl_error_placeholder": 2,
+      "crawl_failed": 100
+    },
+    "chunks": 62483,
+    "chunk_size_distribution": {
+      "0-49": 2037,
+      "100-149": 2864,
+      "150-219": 12060,
+      "220-300": 43079,
+      "50-99": 2421,
+      ">300": 22
+    },
+    "under_50": 2037,
+    "over_300": 22,
+    "over_500": 0,
+    "max_units": 494,
+    "coverage_non_whitespace": 37333358,
+    "source_non_whitespace": 37333358,
+    "indexed_non_whitespace": 37147376,
+    "excluded_non_whitespace": 185982,
+    "format_warning_counts": {
+      "content_limited": 1,
+      "damaged_bracket_review": 1721,
+      "oversized_atom_review": 22,
+      "uncertain_format": 13068
+    }
+  },
+  "audit": {
+    "records": 20000,
+    "checked": 19898,
+    "skipped": 102,
+    "errors": 0,
+    "examples": []
+  },
+  "short_merge": {
+    "merged_children": 0,
+    "under_50_delta": 1,
+    "note": "No naturally eligible consecutive short run in fixture met same-parent/section/role/language constraints; helper path is covered with source from test_20k."
+  },
+  "runtime_seconds": 190.43332781799836,
+  "test_command": "python -m unittest sbtc.tests.test_chunk_formats sbtc.tests.test_chunk_format_streaming",
+  "tests": {
+    "run": 75,
+    "failures": 0,
+    "errors": 0
+  }
+}

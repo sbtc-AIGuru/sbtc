@@ -328,6 +328,8 @@ async def crawl_one(
         config = domain_configs["nhathuoclongchau.com.vn/benh"]
     if config is None and domain.endswith(".39.net"):
         config = domain_configs["39.net"]
+    if config is None and (domain.endswith(".familydoctor.com.cn") or domain == "familydoctor.cn"):
+        config = domain_configs["familydoctor.com.cn"]
     config = config or run_config
 
     attempts = 0

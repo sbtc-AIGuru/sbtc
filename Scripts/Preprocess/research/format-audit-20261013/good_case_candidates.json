@@ -1,0 +1,245 @@
+{
+  "abstract": {
+    "doc_id": 6954391,
+    "url": "https://pubmed.ncbi.nlm.nih.gov/34722488/",
+    "status": "ok",
+    "parents": [
+      {
+        "parent_id": "6954391:p:0:0:1538:paragraph-v3",
+        "start_char": 0,
+        "end_char": 1538,
+        "block_type": "section",
+        "unit_count": 228
+      }
+    ],
+    "children": [
+      {
+        "chunk_id": "6954391:c:0:0:1538:paragraph-v3",
+        "parent_id": "6954391:p:0:0:1538:paragraph-v3",
+        "doc_id": 6954391,
+        "chunk_order": 0,
+        "start_char": 0,
+        "end_char": 1538,
+        "chunk_text": "Novel Guarded Needle Trans-Scleral Biopsy for Uveal Melanoma: A Pilot Study.\n\nINTRODUCTION: Trans-scleral biopsy of uveal melanoma (UM) poses an inherent risk of tumor and possibly retinal perforation. We describe a novel technique for trans-scleral biopsy of UM and evaluate its safety and efficacy in an initial cohort of patients.\n\nMETHODS: A retrospective, consecutive observational case series was conducted from October 14, 2019, to April 15, 2020, at Kaiser Permanente, San Francisco, CA among patients with UM of the ciliary body or anterior choroid undergoing trans-scleral fine-needle aspiration biopsy using a novel guarded needle technique.\n\nRESULTS: A total of 6 patients were included in the study, with a mean age of 64.3 (range 35-77) years (5 women 83%). Mean (±SD) tumor thickness and maximal basal diameter were 6.4 (±2.66) and 11.9 (±2.13) mm, respectively. Five out of 6 patients achieved a successful biopsy with reliable gene expression profiling (GEP) results. The only failure to obtain specimen occurred in the first attempted patient and, after a minor technique modification, all subsequent biopsies were successful. No intraoperative or short-term postoperative complications were observed in any patient.\n\nCONCLUSION: This novel trans-scleral biopsy technique appears to be safe and effective when obtaining UM tissue for GEP. This method may provide a more controlled biopsy depth thereby minimizing the risk of tumor perforation and its associated complications while still obtaining adequate biopsy yield.",
+        "unit_count": 228,
+        "oversized_reason": null,
+        "boundary_type": "sentence",
+        "short_chunk_reason": null,
+        "overlap_units": 0,
+        "overlap_exception": "document_start",
+        "retrieval_eligible": true
+      }
+    ],
+    "cleaning": {
+      "version": "verbatim-v4",
+      "input_sha256": "9f6b68b4d9c1aa3625e30b9824e5e1fef5e0df2553d2b406864c7a25f0a3dbfa",
+      "output_sha256": "9f6b68b4d9c1aa3625e30b9824e5e1fef5e0df2553d2b406864c7a25f0a3dbfa",
+      "input_chars": 1538,
+      "output_chars": 1538,
+      "actions": {},
+      "warnings": []
+    },
+    "raw_sha256": "9f6b68b4d9c1aa3625e30b9824e5e1fef5e0df2553d2b406864c7a25f0a3dbfa",
+    "source_sha256": "9f6b68b4d9c1aa3625e30b9824e5e1fef5e0df2553d2b406864c7a25f0a3dbfa",
+    "strategy": "hybrid",
+    "version": "paragraph-v3",
+    "doc_type": "article",
+    "classification_reason": "long_text",
+    "classification_confidence": "medium",
+    "source_length": 1538,
+    "source_units": 228,
+    "excluded_spans": [],
+    "coverage": {
+      "non_whitespace_total": 1307,
+      "non_whitespace_covered": 1307,
+      "non_whitespace_indexed": 1307,
+      "non_whitespace_excluded": 0
+    },
+    "structural_boundary_rate": 1.0,
+    "input_line": 102
+  },
+  "longchau": {
+    "doc_id": 218831,
+    "url": "https://nhathuoclongchau.com.vn/bai-viet/cach-diet-chay-bang-may-say-toc-co-thuc-su-hieu-qua-66733.html",
+    "status": "ok",
+    "parents": [
+      {
+        "parent_id": "218831:p:0:0:4934:paragraph-v3",
+        "start_char": 0,
+        "end_char": 4934,
+        "block_type": "section",
+        "unit_count": 1105
+      }
+    ],
+    "children": [
+      {
+        "chunk_id": "218831:c:0:0:968:paragraph-v3",
+        "parent_id": "218831:p:0:0:4934:paragraph-v3",
+        "doc_id": 218831,
+        "chunk_order": 0,
+        "start_char": 0,
+        "end_char": 968,
+        "chunk_text": "Cách diệt chấy bằng máy sấy tóc có thực sự hiệu quả?\n\nTrẻ em trong độ tuổi từ mầm non đến tiểu học dễ bị lây chấy từ bạn bè. Khi phát hiện bé có chấy, mẹ có thể áp dụng một số cách diệt chấy tại nhà. Trong đó diệt chấy bằng máy sấy tóc. Vậy cách diệt chấy bằng máy sấy tóc có thực sự hiệu quả?\n\nTrẻ em trong độ tuổi từ mẫu giáo đến tiểu học rất dễ bị chấy do lây từ lớp học. Có nhiều cách trị chấy khác nhau, trong đó cách diệt chấy bằng máy sấy tóc được nhiều người truyền tai nhau. Tuy nhiên, cách làm này có thực sự an toàn và hiệu quả không?\n\nCó nên diệt chấy bằng máy sấy tóc không?\n\nChấy\n\nlà những ký sinh trùng nhỏ bé sống ký sinh trên đầu người. Chấy tồn tại bằng cách hút máu qua da đầu và đẻ trứng bám vào sợi tóc. Khi tiếp xúc ở khoảng cách gần, chấy có thể lây từ người sang người. Các bé mầm non đến tiểu học là đối tượng dễ có chấy nhất. Sau đó các bé có thể lây lại cho những người khác trong gia đình. Chấy cắn hút máu gây cảm giác ngứa ngáy, khó chịu.",
+        "unit_count": 220,
+        "oversized_reason": null,
+        "boundary_type": "sentence",
+        "short_chunk_reason": null,
+        "overlap_units": 0,
+        "overlap_exception": "document_start",
+        "retrieval_eligible": true
+      },
+      {
+        "chunk_id": "218831:c:1:794:1859:paragraph-v3",
+        "parent_id": "218831:p:0:0:4934:paragraph-v3",
+        "doc_id": 218831,
+        "chunk_order": 1,
+        "start_char": 794,
+        "end_char": 1859,
+        "chunk_text": "Các bé mầm non đến tiểu học là đối tượng dễ có chấy nhất. Sau đó các bé có thể lây lại cho những người khác trong gia đình. Chấy cắn hút máu gây cảm giác ngứa ngáy, khó chịu. Khi trẻ gãi sẽ dẫn đến xước da đầu, nếu nặng có thể gây viêm nhiễm.\n\nCó nên diệt chấy bằng máy sấy tóc không?\n\nDiệt chấy bằng máy sấy tóc là sử dụng nguồn khí nóng phát ra từ máy sấy. Khi thổi lên tóc và da đầu đủ lâu, hơi nóng sẽ làm mất đi độ ẩm để tồn tại của chấy và trứng chấy. Tuy nhiên, không khí nóng chỉ có hiệu quả trong việc tiêu diệt trứng chấy, nhưng lại ít hiệu quả đối với con chấy.\n\nBạn cần lưu ý, con chấy di chuyển rất nhanh nên bạn cần sấy lần lượt từng lớp tóc từ trái sang phải và ngược lại để không bỏ sót bất cứ khu vực nào trên da đầu. Chấy thường đẻ trứng ở gần sát da đầu và ở vùng sau tai, sau gáy. Vì vậy khi sấy bạn cần đặc biệt lưu ý những vùng đó. Bạn nên sấy từ chân tóc ra ngọn tóc vì con chấy vẫn có thể ra ngọn tóc khi thấy động.\n\nDiệt chấy bằng máy sấy tóc là một phương pháp dân gian được nhiều người áp dụng vì tính tiện lợi và không dùng đến hóa chất.",
+        "unit_count": 246,
+        "oversized_reason": null,
+        "boundary_type": "sentence",
+        "short_chunk_reason": null,
+        "overlap_units": 40,
+        "overlap_exception": null,
+        "retrieval_eligible": true
+      },
+      {
+        "chunk_id": "218831:c:2:1648:2776:paragraph-v3",
+        "parent_id": "218831:p:0:0:4934:paragraph-v3",
+        "doc_id": 218831,
+        "chunk_order": 2,
+        "start_char": 1648,
+        "end_char": 2776,
+        "chunk_text": "Bạn nên sấy từ chân tóc ra ngọn tóc vì con chấy vẫn có thể ra ngọn tóc khi thấy động.\n\nDiệt chấy bằng máy sấy tóc là một phương pháp dân gian được nhiều người áp dụng vì tính tiện lợi và không dùng đến hóa chất. Nhiệt độ cao từ máy sấy có thể giúp làm khô trứng chấy và phần nào tiêu diệt chấy con, đặc biệt là khi sấy sát da đầu. Tuy nhiên, phương pháp này không thể loại bỏ hoàn toàn chấy trưởng thành vì chúng di chuyển rất nhanh và dễ bỏ sót. Ngoài ra, nếu không cẩn thận, việc sấy quá nóng có thể gây bỏng rát da đầu, đặc biệt ở trẻ nhỏ. Do đó, máy sấy tóc chỉ nên được xem là một biện pháp hỗ trợ trong quá trình trị chấy, nên kết hợp thêm với dầu gội đặc trị, lược chải chấy chuyên dụng và giữ vệ sinh chăn gối để đạt hiệu quả cao nhất.\n\nLưu ý khi áp dụng cách diệt chấy bằng máy sấy tóc\n\nCách diệt chấy bằng máy sấy tóc tuy hiệu quả nhưng cần áp dụng đúng cách để không gây hại cho da đầu. Bạn cần lưu ý những điều sau khi diệt chấy:\n\nSau khi gội đầu bạn hãy đảm bảo dùng khăn khô thấm bớt 90% lượng nước trên tóc. Việc sấy tóc khi tóc còn ướt rất mất thời gian, không có hiệu quả diệt chấy và cũng không có lợi cho tóc.",
+        "unit_count": 255,
+        "oversized_reason": null,
+        "boundary_type": "sentence",
+        "short_chunk_reason": null,
+        "overlap_units": 48,
+        "overlap_exception": null,
+        "retrieval_eligible": true
+      },
+      {
+        "chunk_id": "218831:c:3:2591:3743:paragraph-v3",
+        "parent_id": "218831:p:0:0:4934:paragraph-v3",
+        "doc_id": 218831,
+        "chunk_order": 3,
+        "start_char": 2591,
+        "end_char": 3743,
+        "chunk_text": "Sau khi gội đầu bạn hãy đảm bảo dùng khăn khô thấm bớt 90% lượng nước trên tóc. Việc sấy tóc khi tóc còn ướt rất mất thời gian, không có hiệu quả diệt chấy và cũng không có lợi cho tóc.\n\nKhông nên dùng nhiệt bỏng rát tác động lên da đầu bé\n\nMẹ nên cân nhắc việc dùng máy sấy nhiệt độ nóng để diệt chấy cho trẻ nhỏ có da đầu nhạy cảm. Nhiệt độ quá nóng có thể khiến bé cảm thấy bỏng rát.\n\nMáy sấy tóc có thể diệt chấy ở mức độ nhất định nhưng không thể diệt chấy hoàn toàn. Nhất là tiêu diệt trứng chấy bằng máy sấy sẽ khá khó khăn.\n\nSau khi dùng máy sấy xong, bạn phải lưu ý vệ sinh khu vực xung quanh, nhất là sàn nhà, mặt bàn bởi chấy có thể rơi xuống đó và lây cho người khác trong gia đình.\n\nCác cách diệt chấy hiệu quả khác\n\nNgoài cách diệt chấy bằng máy sấy tóc, bạn có thể áp dụng những cách\n\ndiệt chấy rận triệt để\n\nsau đây:\n\nDùng dầu gội trị chấy\n\nTrên thị trường hiện nay có nhiều sản phẩm dầu gội trị chấy. Trong đó những sản phẩm được các mẹ tin dùng nhất là dầu gội trị chấy của các thương hiệu nổi tiếng trong nước với thành phần chiết xuất 100% thiên nhiên.\n\nCắt tóc và bắt chấy bằng tay\n\nĐây là cách thủ công nhưng lại vô cùng hiệu quả.",
+        "unit_count": 254,
+        "oversized_reason": null,
+        "boundary_type": "sentence",
+        "short_chunk_reason": null,
+        "overlap_units": 42,
+        "overlap_exception": null,
+        "retrieval_eligible": true
+      },
+      {
+        "chunk_id": "218831:c:4:3665:4934:paragraph-v3",
+        "parent_id": "218831:p:0:0:4934:paragraph-v3",
+        "doc_id": 218831,
+        "chunk_order": 4,
+        "start_char": 3665,
+        "end_char": 4934,
+        "chunk_text": "Cắt tóc và bắt chấy bằng tay\n\nĐây là cách thủ công nhưng lại vô cùng hiệu quả. Chấy sẽ không mấy ưa thích trú ẩn với những mái tóc ngắn bởi chúng không có nơi trú ẩn an toàn. Mẹ có thể cắt tóc ngắn cho bé rồi bắt chấy bằng tay. Cách này giúp loại bỏ được cả trứng chấy, vì nếu còn sót trứng, sau 1 tuần chấy con sẽ nở và tiếp tục sinh sôi. Mẹ cũng có thể dùng loại lược dày chuyên dùng để chải chấy.\n\nDiệt chấy bằng thuốc\n\nTrên thị trường hiện cũng có nhiều loại thuốc chấy, có loại mẹ có thể mua ở hiệu thuốc mà không cần kê đơn như: Dimethicone, Permethrin lotion... Trước khi cho bé dùng thuốc mẹ cần tìm hiểu thành phần để chắc chắn bé không dị ứng với thuốc.\n\nDiệt chấy bằng thuốc theo chỉ định của bác sĩ\n\nDiệt chấy bằng máy sấy tóc\n\ntuy có hiệu quả nhưng cũng tiềm ẩn nhiều nguy cơ. Mẹ có thể áp dụng những cách diệt chấy đơn giản bằng dầu gội trị chấy và cần áp dụng liên tục trong 4 - 5 ngày. Tùy tình trạng chấy nhiều hay ít mà thời gian có thể kéo dài hơn. Để bé không bị tái lại, tốt nhất mẹ nên tìm ra nguyên nhân để phòng tránh hiệu quả.\n\nSong song với việc diệt chấy, mẹ hãy vệ sinh sạch sẽ giường đệm cho bé. Và mẹ đừng quên ưu tiên dùng những cách diệt chấy an toàn như dùng máy sấy, dùng dầu gội, dùng nguyên liệu thiên nhiên trước khi dùng thuốc nhé!",
+        "unit_count": 278,
+        "oversized_reason": null,
+        "boundary_type": "sentence",
+        "short_chunk_reason": null,
+        "overlap_units": 18,
+        "overlap_exception": "max_capacity",
+        "retrieval_eligible": true
+      }
+    ],
+    "cleaning": {
+      "version": "verbatim-v4",
+      "input_sha256": "5980297e8cc74dd67781f13c83476ee71bf6b2a551dd89eed902f7554fc710a4",
+      "output_sha256": "f6f29ec53a5d679038e840011446fe8a9770ff27776aa30f9f24fa20f68a47f1",
+      "input_chars": 4934,
+      "output_chars": 4934,
+      "actions": {
+        "unicode_space": 6
+      },
+      "warnings": []
+    },
+    "raw_sha256": "5980297e8cc74dd67781f13c83476ee71bf6b2a551dd89eed902f7554fc710a4",
+    "source_sha256": "f6f29ec53a5d679038e840011446fe8a9770ff27776aa30f9f24fa20f68a47f1",
+    "strategy": "hybrid",
+    "version": "paragraph-v3",
+    "doc_type": "article",
+    "classification_reason": "long_text",
+    "classification_confidence": "medium",
+    "source_length": 4934,
+    "source_units": 1105,
+    "excluded_spans": [],
+    "coverage": {
+      "non_whitespace_total": 3799,
+      "non_whitespace_covered": 3799,
+      "non_whitespace_indexed": 3799,
+      "non_whitespace_excluded": 0
+    },
+    "structural_boundary_rate": 1.0,
+    "input_line": 4583
+  },
+  "qa": {
+    "doc_id": 1128713,
+    "url": "http://www.120ask.com/question/2005063.htm",
+    "status": "ok",
+    "parents": [
+      {
+        "parent_id": "1128713:p:0:0:189:paragraph-v3",
+        "start_char": 0,
+        "end_char": 189,
+        "block_type": "qa_region",
+        "unit_count": 159
+      }
+    ],
+    "children": [
+      {
+        "chunk_id": "1128713:c:0:0:189:paragraph-v3",
+        "parent_id": "1128713:p:0:0:189:paragraph-v3",
+        "doc_id": 1128713,
+        "chunk_order": 0,
+        "start_char": 0,
+        "end_char": 189,
+        "chunk_text": "我现在满身上长满了小红点,非常痒洗热水澡时\n健康咨询描述： 我现在满身上长满了小红点,非常痒洗热水澡时,更痒爱抓,越抓越大.跟大豆一样.非常痒还抓破皮了,怎么办,求教您医师.\n上班时候都没心事了.快速治疗.好让我好好上班\n本次发病及持续时间:一星期多了非常困人.\n以往诊断治疗经过及效果:有治疗过说什么.(麻疹)\n建议口服赛庚啶、甲氰咪胍、维生素C、维生素B6，外用尤卓尔治疗。",
+        "unit_count": 159,
+        "oversized_reason": null,
+        "boundary_type": "paragraph",
+        "short_chunk_reason": null,
+        "overlap_units": 0,
+        "overlap_exception": "document_start",
+        "retrieval_eligible": true
+      }
+    ],
+    "cleaning": {
+      "version": "verbatim-v4",
+      "input_sha256": "7681bf8ecfce5561b76b6a9a2d6cce9a292b55de520daaa5421a70c61dcbff44",
+      "output_sha256": "7681bf8ecfce5561b76b6a9a2d6cce9a292b55de520daaa5421a70c61dcbff44",
+      "input_chars": 189,
+      "output_chars": 189,
+      "actions": {},
+      "warnings": []
+    },
+    "raw_sha256": "7681bf8ecfce5561b76b6a9a2d6cce9a292b55de520daaa5421a70c61dcbff44",
+    "source_sha256": "7681bf8ecfce5561b76b6a9a2d6cce9a292b55de520daaa5421a70c61dcbff44",
+    "strategy": "hybrid",
+    "version": "paragraph-v3",
+    "doc_type": "qa",
+    "classification_reason": "qa_marker",
+    "classification_confidence": "high",
+    "source_length": 189,
+    "source_units": 159,
+    "excluded_spans": [],
+    "coverage": {
+      "non_whitespace_total": 183,
+      "non_whitespace_covered": 183,
+      "non_whitespace_indexed": 183,
+      "non_whitespace_excluded": 0
+    },
+    "structural_boundary_rate": 1.0,
+    "input_line": 15530
+  }
+}

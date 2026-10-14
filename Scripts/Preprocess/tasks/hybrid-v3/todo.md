@@ -1,0 +1,28 @@
+# Hybrid Chunking v3 tasks
+
+- [x] Task 1: Sentence/clause boundary tests và exact-slice atom splitter.
+  - Acceptance: không tách decimal/domain/abbreviation; oversized chỉ còn ở atom không thể tách tự nhiên.
+  - Verify: focused component tests dùng record từ `datacrawl/test.jsonl`.
+  - Files: `chunking.py`, `test_chunk_component.py`.
+- [x] Task 2: Overlap-aware packing và short-tail rebalance.
+  - Acceptance: overlap dài hơn paragraph budget được lấy theo atom; chunk `<100` có reason; max được giữ trừ oversized atom.
+  - Verify: focused packing tests và parent containment.
+  - Files: `chunking.py`, `test_chunk_component.py`.
+- [x] Checkpoint 1: component tests đạt và output mẫu exact slice/coverage.
+- [x] Task 3: Boilerplate span detector có provenance.
+  - Acceptance: bốn regression doc đúng; valid prefix còn index; excluded span không mất khỏi audit.
+  - Verify: focused boilerplate tests trên `test.jsonl`.
+  - Files: `boilerplate.py`, `chunking.py`, `test_chunk_component.py`.
+- [x] Task 4: CLI metrics và audit v3.
+  - Acceptance: summary báo overlap/short/oversized/excluded; audit kiểm included + excluded và boundary v3.
+  - Verify: streaming/resume/audit tests.
+  - Files: `chunk_cli.py`, `chunk_audit.py`, `chunk_benchmark.py`, `test_chunk_streaming.py`.
+- [x] Checkpoint 2: toàn bộ `test_chunk_*.py` đạt (26/26).
+- [x] Task 5: Full run, audit, v2/v3 comparison và boundary quality review.
+  - Acceptance: 20.000 record audit sạch; có báo cáo metric và mẫu cắt câu phân tầng.
+  - Verify: CLI + audit trên `datacrawl/test.jsonl`, SHA-256 nguồn không đổi.
+  - Files: output `/tmp`, `docs_AI.md`.
+- [x] Task 6: Code review cuối và cập nhật tài liệu.
+  - Acceptance: không còn finding correctness mức required; hạn chế được ghi rõ.
+  - Verify: review diff, output và checklist spec.
+  - Files: `docs_AI.md`, spec/task docs nếu cần.

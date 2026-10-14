@@ -149,6 +149,21 @@ Ví dụ:
 Các đội tự thực hiện việc thu thập nội dung từ các URL được cung cấp, tiền xử lý, phân đoạn và xây dựng cơ sở tri thức phục vụ truy hồi.
 Trong phiên bản đánh giá này, mọi nhãn tài liệu đều sử dụng trường id kiểu số nguyên có trong links_corpus.parquet. Tài liệu nằm ngoài danh sách này không được tính là nhãn dương.
 
+### Cập nhật nguồn corpus sau Mentor Day 2 (12/10/2026)
+
+Thông báo BTC được đội cung cấp xác định snapshot corpus dùng cho giai đoạn hiện tại là **1.194.469 URL**: tiếng Việt **714.469**, tiếng Trung **240.000**, tiếng Anh **240.000**. BTC nêu tiếng Việt giữ nguyên, tiếng Trung được rút gọn và bổ sung 240.000 URL tiếng Anh; ID tài liệu không đổi. Tệp tại `newcorpus/links_corpus_vi_en_zh.parquet` có đúng 1.194.469 dòng và SHA-256 `9e34cb4b7d6424b80ed2634ada581ea9e2d97da69c245d80bdbb31413a78e8ce`. `newcorpus/query.parquet` có cùng SHA-256 với `sbtc/data/query.parquet` (`ce13508b893bbd6b9169679d540630bc37eb5950cad08b4d5e0e5d7063670c08`), nên bộ 1.200 truy vấn cục bộ không đổi.
+
+**Có lệch phiên bản cần BTC/đội xác nhận trước khi chuyển pipeline:** tại lần kiểm tra ngày 13/10/2026, nhánh `main` của [dataset ViBioMIR trên Hugging Face](https://huggingface.co/datasets/AIGuruTinix/ViBioMIR) có file `links_corpus_vi_en_zh.parquet` gồm **1.220.598 URL**: tiếng Việt **740.598**, tiếng Trung **240.000**, tiếng Anh **240.000**. Bản tải đối chiếu có SHA-256 `87e44a792d7a99fb0fde5dff7f09f1a38a0a1fdf02ddd1ac93a005736e00b0a7`. So với snapshot trong thông báo và thư mục `newcorpus/`, bản `main` thêm **26.129 URL `www.vinmec.com`**, không xóa ID và không đổi URL trên ID chung. Các URL thêm nằm giữa danh sách, làm thay đổi `row_index` của 487.189 ID chung; `id` vẫn là khóa định danh. Trang cuộc thi chính thức `https://leaderboard.aiguru.com.vn/competitions/15/` không truy cập được trong lần đối chiếu này. Vì vậy, `asked.md` ghi nhận cả hai snapshot; chưa coi bản `main` mới hơn là thay thế snapshot thông báo cho đến khi đội/BTC xác nhận phiên bản nộp cần dùng.
+
+| Snapshot | Tổng URL | VI | ZH | EN | Trạng thái cục bộ |
+|---|---:|---:|---:|---:|---|
+| Thông báo Mentor Day 2 / `newcorpus/` | 1.194.469 | 714.469 | 240.000 | 240.000 | Đang được `data_final/` bao phủ đầy đủ theo ID và URL |
+| Hugging Face `main` tại lần kiểm tra 13/10/2026 | 1.220.598 | 740.598 | 240.000 | 240.000 | Thêm 26.129 URL Vinmec; chưa hợp nhất vào dữ liệu đích |
+
+Parquet chỉ có `id,url`, không có cột ngôn ngữ theo từng dòng. Quy tắc domain trong `sbtc/Scripts/Clawler/audit_datacrawl_vs_newcorpus.py` hiện phân loại snapshot cục bộ thành VI 735.584, ZH 218.885, EN 240.000; lệch đúng 21.115 URL giữa VI và ZH so với phân bổ BTC. Không dùng kết quả phân loại này làm chuẩn ngôn ngữ cho retrieval cho đến khi hoàn chỉnh và kiểm chứng mapping domain; các tổng theo ngôn ngữ ở bảng trên là số BTC công bố.
+
+Thông báo cũng cập nhật lịch Stage 3: **31/10/2026** kết thúc Vòng 1, **01–10/11/2026** Vòng 2 mentoring/tối ưu sản phẩm, **11/11/2026** Demo Day. Các mốc nộp bài/kiểm thử đã có ở phần trên của tài liệu được giữ như yêu cầu submission hiện hành cho đến khi có xác nhận rằng lịch Stage 3 thay thế chúng; thông báo Mentor Day không nêu rõ thay đổi hạn nộp trên Dashboard.
+
 # quy ddinhj chung:
 **Quyền hủy bỏ, sửa đổi hoặc loại tư cách.** Ban Tổ chức Cuộc thi có toàn quyền theo quyết định riêng của mình để chấm dứt, sửa đổi hoặc tạm ngưng cuộc thi.
 Khi nộp kết quả cho cuộc thi này, bạn đồng ý cho phép công bố công khai điểm số của mình tại hội thảo của Cuộc thi và trong các kỷ yếu liên quan, theo quyết định của ban tổ chức nhiệm vụ. Điểm số có thể bao gồm nhưng không giới hạn ở các đánh giá định lượng tự động và thủ công, các đánh giá định tính, cùng các chỉ số khác mà ban tổ chức nhiệm vụ cho là phù hợp. Bạn chấp nhận rằng quyết định cuối cùng về việc lựa chọn chỉ số và giá trị điểm số thuộc về ban tổ chức nhiệm vụ.

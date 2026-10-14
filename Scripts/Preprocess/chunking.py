@@ -4,15 +4,14 @@ from __future__ import annotations
 
 from bisect import bisect_right
 from dataclasses import dataclass
-import hashlib
 import re
 from urllib.parse import urlparse
 
-from sbtc.Scripts.Clawler.verbatim import clean_to_verbatim
+from sbtc.Scripts.Clawler.verbatim import clean_with_report
 from sbtc.Scripts.Preprocess.boilerplate import detect_boilerplate
 
 
-STRATEGIES = ("basic", "structure", "adaptive", "hybrid")
+STRATEGIES = ("basic", "structure", "adaptive", "hybrid", "format")
 QA_MARKERS = ("健康咨询描述", "问题描述", "病情描述", "医生回答", "医生回复", "医生解答", "指导意见", "病情分析")
 QUESTION_RE = re.compile(r"^(?:健康咨询描述|问题描述|病情描述|患者提问|提问|问[：:])")
 ANSWER_RE = re.compile(r"^(?:医生回答|医生回复|医生解答|指导意见|病情分析|答[：:])")
@@ -486,12 +485,23 @@ def chunk_document(record: dict, config: ChunkConfig | None = None, *, strategy:
         raise ValueError("Record needs integer id, string text/url, and boolean success")
     output = {"doc_id": doc_id, "url": url, "status": "skipped", "parents": [], "children": []}
     if not success or not raw_text.strip():
+        output["text"] = ""
         output["reason"] = "crawl_failed" if not success else "empty_text"
         return output
-    source = clean_to_verbatim(raw_text)
+    source, cleaning = clean_with_report(raw_text)
+    output.update(cleaning=cleaning, raw_sha256=cleaning["input_sha256"], source_sha256=cleaning["output_sha256"])
     if not source:
+        output["text"] = ""
         output["reason"] = "empty_after_cleaning"
         return output
+    if strategy == "format":
+        from sbtc.Scripts.Preprocess.format_profiles import PROFILE_VERSION, is_crawl_error_placeholder
+        if is_crawl_error_placeholder(source):
+            output.update(
+                status="skipped", strategy="format", version=config.version,
+                profile_version=PROFILE_VERSION, text="", reason="crawl_error_placeholder",
+            )
+            return output
     all_paragraphs = extract_paragraphs(source)
     if not all_paragraphs:
         output["reason"] = "no_paragraphs"
@@ -501,10 +511,11 @@ def chunk_document(record: dict, config: ChunkConfig | None = None, *, strategy:
         status="ok", strategy=strategy, version=config.version, doc_type=doc_type,
         classification_reason=classification_reason,
         classification_confidence=classification_confidence,
-        raw_sha256=hashlib.sha256(raw_text.encode("utf-8")).hexdigest(),
-        source_sha256=hashlib.sha256(source.encode("utf-8")).hexdigest(),
         source_length=len(source), source_units=count_units(source),
     )
+    if strategy == "format":
+        from sbtc.Scripts.Preprocess.format_chunking import build_format_chunks
+        return build_format_chunks(source, record, config, output)
     excluded = detect_boilerplate(source, url) if strategy == "hybrid" else []
     output["excluded_spans"] = [dict(span, doc_id=doc_id) for span in excluded]
     parents = []
@@ -519,6 +530,7 @@ def chunk_document(record: dict, config: ChunkConfig | None = None, *, strategy:
             "parent_id": parent_id, "start_char": parent_start, "end_char": parent_end,
             "block_type": "qa_region" if doc_type == "qa" else "section" if parent_paragraphs[0].role == "heading" else "region",
             "unit_count": sum(item.units for item in parent_paragraphs),
+            "topic": None,
         })
         child_atoms = []
         for paragraph in parent_paragraphs:

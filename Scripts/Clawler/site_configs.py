@@ -196,12 +196,35 @@ def build_run_configs() -> tuple[CrawlerRunConfig, dict[str, CrawlerRunConfig]]:
             ],
             markdown_generator=DefaultMarkdownGenerator(),
         ),
+        "jbk.39.net": run_config.clone(
+            target_elements=[
+                "h1",
+                ".information_box",
+                ".disease_box",
+                ".catalogItem",
+                ".lbox",
+                ".chi-cont",
+                ".item-left",
+                ".intro",
+                ".des",
+                ".text",
+                ".disease_detail",
+            ],
+            excluded_selector=(
+                ".disease_box.firend, .disease_box.hospital, "
+                ".ad, .share, script, style"
+            ),
+            markdown_generator=DefaultMarkdownGenerator(),
+        ),
         "familydoctor.com.cn": run_config.clone(
             target_elements=[
                 ".art-title h1",
                 ".title h1",
                 "h1.title",
                 "h1",
+                "#viewContent",
+                ".viewContent",
+                ".endContent",
                 ".art-content",
                 ".content",
                 "#content",
@@ -234,20 +257,28 @@ def build_run_configs() -> tuple[CrawlerRunConfig, dict[str, CrawlerRunConfig]]:
         "120ask.com": run_config.clone(
             target_elements=[
                 "#d_askH1",
+                ".b_askbox h1",
+                "h1",
                 "#d_msCon",
+                ".b_askbox",
                 ".b_answerbox .b_answerli .b_anscont_cont",
+                ".b_anscont",
             ],
             markdown_generator=DefaultMarkdownGenerator(),
         ),
         "cnkang.com": run_config.clone(
             target_elements=[
+                "title",
                 ".detail h1.detaila",
                 ".detail .detailc",
                 ".endContent h1",
                 "h1#h1title",
+                "h1",
                 "#endText",
+                ".zh05b",
+                ".main_content",
+                ".article_content",
             ],
-            excluded_selector="#endText .article_intro",
             markdown_generator=DefaultMarkdownGenerator(),
         ),
         "wujue.com": run_config.clone(
@@ -404,13 +435,32 @@ def build_run_configs() -> tuple[CrawlerRunConfig, dict[str, CrawlerRunConfig]]:
             markdown_generator=DefaultMarkdownGenerator(),
         ),
         "a-hospital.com": run_config.clone(
-            target_elements=["h1#firstHeading", "#bodyContent"],
-            excluded_selector="#toc, .printfooter, #catlinks",
+            target_elements=["h1.firstHeading, h1#firstHeading, h1", "#bodyContent, #content"],
+            excluded_selector="#toc, .printfooter, #catlinks, #siteSub, #contentSub, #jump-to-nav, .urllink",
             markdown_generator=DefaultMarkdownGenerator(),
         ),
         "zhongyibaodian.net": run_config.clone(
-            target_elements=["h1#firstHeading", "#bodyContent"],
+            target_elements=["h1.firstHeading, h1#firstHeading, h1", "#bodyContent, #content"],
             excluded_selector="#toc, .toc, #jump-to-nav, #siteSub, #contentSub, .printfooter, #heading-search",
+            markdown_generator=DefaultMarkdownGenerator(),
+        ),
+        "baidu.com": run_config.clone(
+            target_elements=[
+                "title",
+                "h1",
+                ".health-dict__content",
+                ".health-dict",
+            ],
+            excluded_selector="script, style, noscript, iframe, svg, nav, footer",
+            markdown_generator=DefaultMarkdownGenerator(),
+        ),
+        "zysjonline.com": run_config.clone(
+            target_elements=[
+                "article",
+                "main .flex-1.min-w-0",
+                "h1, .leading-8",
+            ],
+            excluded_selector="aside, nav, header, footer, dialog, script, style, .sticky",
             markdown_generator=DefaultMarkdownGenerator(),
         ),
     }

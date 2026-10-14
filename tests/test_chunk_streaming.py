@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+import hashlib
 import os
 from pathlib import Path
 import tempfile
@@ -91,6 +92,33 @@ class ChunkStreamingTests(unittest.TestCase):
             self.assertIn("excluded_rule_counts", reference)
             self.assertEqual(output_rows(resumed), output_rows(complete))
             self.assertEqual(audit_output(source, resumed)["errors"], 0)
+
+    def test_resume_rejects_missing_or_changed_cleaner_before_recovery(self) -> None:
+        for version in (None, "unknown-cleaner"):
+            with self.subTest(version=version), tempfile.TemporaryDirectory() as directory:
+                root = Path(directory)
+                source = root / "test.jsonl"
+                source.write_bytes(b"".join(self.lines))
+                output = root / "output"
+                run_chunking(source, output, shard_records=2, max_shards=1)
+                checkpoint_path = output / "checkpoint.json"
+                checkpoint = json.loads(checkpoint_path.read_text())
+                if version is None:
+                    checkpoint.pop("cleaner_version", None)
+                else:
+                    checkpoint["cleaner_version"] = version
+                part = output / "part-000000.jsonl"
+                checkpoint["pending"] = {
+                    "index": 0, "sha256": hashlib.sha256(part.read_bytes()).hexdigest(),
+                    "end_offset": checkpoint["next_offset"], "end_line": checkpoint["last_line"],
+                    "summary_after": checkpoint["summary"],
+                }
+                checkpoint_path.write_text(json.dumps(checkpoint))
+                before = {p.name: p.read_bytes() for p in output.iterdir() if p.is_file()}
+                with self.assertRaisesRegex(ValueError, "Cleaner version"):
+                    run_chunking(source, output, shard_records=2, resume=True)
+                self.assertEqual(before, {p.name: p.read_bytes() for p in output.iterdir() if p.is_file()})
+                self.assertGreater(audit_output(source, output)["errors"], 0)
 
     def test_v3_audit_covers_indexed_and_excluded_spans(self) -> None:
         with tempfile.TemporaryDirectory() as directory:

@@ -16,7 +16,10 @@ import sys
 import time
 from typing import BinaryIO, Iterator
 
+from sbtc.Scripts.Clawler.verbatim import CLEANER_VERSION
+from sbtc.Scripts.Clawler import verbatim
 from sbtc.Scripts.Preprocess.chunking import ChunkConfig, STRATEGIES, chunk_document
+from sbtc.Scripts.Preprocess.format_profiles import PROFILE_VERSION
 
 
 def _sha256_file(path: Path) -> str:
@@ -37,14 +40,27 @@ def _atomic_json(path: Path, value: dict) -> None:
     os.replace(temporary, path)
 
 
+def _format_code_fingerprint() -> str:
+    directory = Path(__file__).resolve().parent
+    paths = [directory / name for name in ("chunking.py", "format_profiles.py", "format_chunking.py", "boilerplate.py", "chunk_cli.py")]
+    paths.append(Path(verbatim.__file__))
+    payload = json.dumps({p.name: _sha256_file(p) for p in paths}, sort_keys=True)
+    return hashlib.sha256(payload.encode()).hexdigest()
+
+
 def _config_fingerprint(config: ChunkConfig, strategy: str, shard_records: int) -> str:
-    payload = json.dumps({"config": asdict(config), "strategy": strategy, "shard_records": shard_records}, sort_keys=True)
+    data = {"config": asdict(config), "strategy": strategy, "shard_records": shard_records, "cleaner_version": CLEANER_VERSION}
+    if strategy == "format":
+        data["profile_version"] = PROFILE_VERSION
+        data["format_code_sha256"] = _format_code_fingerprint()
+    payload = json.dumps(data, sort_keys=True)
     return hashlib.sha256(payload.encode("utf-8")).hexdigest()
 
 
 def _empty_summary() -> dict:
     return {
         "records": 0, "ok": 0, "skipped": 0, "errors": 0,
+        "cleaned_records": 0, "cleaning_actions": {}, "cleaning_warnings": {},
         "parents": 0, "chunks": 0, "oversized_chunks": 0,
         "source_non_whitespace": 0, "covered_non_whitespace": 0,
         "indexed_non_whitespace": 0, "excluded_non_whitespace": 0,
@@ -57,6 +73,7 @@ def _empty_summary() -> dict:
         "reason_counts": {},
         "short_chunk_reason_counts": {}, "overlap_exception_counts": {},
         "excluded_rule_counts": {},
+        "profile_counts": {}, "format_warning_counts": {}, "content_language_counts": {},
         "chunk_size_distribution": {key: 0 for key in ("0-49", "50-99", "100-149", "150-219", "220-300", ">300")},
     }
 
@@ -77,12 +94,30 @@ def _size_bucket(units: int) -> str:
 
 def _add_result(summary: dict, result: dict) -> None:
     summary["records"] += 1
+    cleaning = result.get("cleaning")
+    if cleaning:
+        summary["cleaned_records"] += 1
+        for action, count in cleaning["actions"].items():
+            summary["cleaning_actions"][action] = summary["cleaning_actions"].get(action, 0) + count
+        for warning in cleaning["warnings"]:
+            code = warning["code"]
+            summary["cleaning_warnings"][code] = summary["cleaning_warnings"].get(code, 0) + warning["count"]
     status = result["status"]
     summary["ok" if status == "ok" else "skipped" if status == "skipped" else "errors"] += 1
     if status != "ok":
         reason = result.get("reason") or result.get("error_type") or "unknown"
         summary["reason_counts"][reason] = summary["reason_counts"].get(reason, 0) + 1
         return
+    if result.get("profile"):
+        profile = result["profile"]
+        counts = summary.setdefault("profile_counts", {})
+        counts[profile] = counts.get(profile, 0) + 1
+        for warning in result.get("format_warnings", []):
+            counts = summary.setdefault("format_warning_counts", {})
+            counts[warning["code"]] = counts.get(warning["code"], 0) + warning["count"]
+        for language in {s["language"] for s in result.get("content_language_spans", [])}:
+            counts = summary.setdefault("content_language_counts", {})
+            counts[language] = counts.get(language, 0) + 1
     summary["parents"] += len(result["parents"])
     summary["chunks"] += len(result["children"])
     summary["source_non_whitespace"] += result["coverage"]["non_whitespace_total"]
@@ -225,6 +260,12 @@ def run_chunking(
         if not checkpoint_file.is_file():
             raise FileNotFoundError(f"No checkpoint to resume: {checkpoint_file}")
         checkpoint = json.loads(checkpoint_file.read_text(encoding="utf-8"))
+        if checkpoint.get("cleaner_version") != CLEANER_VERSION:
+            raise ValueError("Cleaner version differs or is missing from checkpoint; use a new output directory")
+        if strategy == "format" and checkpoint.get("profile_version") != PROFILE_VERSION:
+            raise ValueError("Profile version differs or is missing from checkpoint; use a new output directory")
+        if strategy == "format" and checkpoint.get("format_code_sha256") != _format_code_fingerprint():
+            raise ValueError("Format code differs or is missing from checkpoint; use a new output directory")
         if checkpoint["input_sha256"] != input_sha256 or checkpoint["config_sha256"] != fingerprint:
             raise ValueError("Input or configuration differs from checkpoint")
         _recover_pending(directory, checkpoint)
@@ -235,7 +276,11 @@ def run_chunking(
         directory.mkdir(parents=True, exist_ok=True)
         checkpoint = {
             "input_sha256": input_sha256, "config_sha256": fingerprint,
+            "cleaner_version": CLEANER_VERSION,
+            "profile_version": PROFILE_VERSION if strategy == "format" else None,
+            "format_code_sha256": _format_code_fingerprint() if strategy == "format" else None,
             "config": asdict(config), "strategy": strategy,
+            "shard_records": shard_records,
             "next_offset": 0, "last_line": 0, "next_shard": 0,
             "summary": _empty_summary(), "done": False,
         }
@@ -299,6 +344,8 @@ def run_chunking(
     processed_now = summary["records"] - initial_records
     summary.update(
         done=checkpoint["done"], strategy=strategy, shards=checkpoint["next_shard"],
+        cleaner_version=CLEANER_VERSION,
+        profile_version=PROFILE_VERSION if strategy == "format" else None,
         input_sha256=input_sha256, elapsed_seconds=duration,
         records_per_second=processed_now / duration if duration else 0.0,
         peak_rss_kb=resource.getrusage(resource.RUSAGE_SELF).ru_maxrss,

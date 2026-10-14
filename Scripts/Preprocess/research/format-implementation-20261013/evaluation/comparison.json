@@ -1,0 +1,191 @@
+{
+  "records": 20000,
+  "input_sha256": "9fdacfb07ecc1757c53c5b03bd41d31358c4a0db74fea785a6a62f90cfe8bf43",
+  "overall": {
+    "baseline": {
+      "chunks": 71203,
+      "parents": 30929,
+      "short_50": 3114,
+      "short_100": 6707,
+      "oversized": 2,
+      "unit_sum": 14449177,
+      "numeric_cuts": 38,
+      "delimiter_end_flags": 9254
+    },
+    "format": {
+      "chunks": 62465,
+      "parents": 27778,
+      "short_50": 2036,
+      "short_100": 4460,
+      "oversized": 24,
+      "unit_sum": 14060958,
+      "numeric_cuts": 0,
+      "delimiter_end_flags": 424
+    }
+  },
+  "profiles": {
+    "research_abstract": {
+      "documents": 4482,
+      "baseline": {
+        "chunks": 6826,
+        "parents": 4599,
+        "short_50": 703,
+        "short_100": 1383,
+        "oversized": 0,
+        "unit_sum": 1197188,
+        "numeric_cuts": 17,
+        "delimiter_end_flags": 348
+      },
+      "format": {
+        "chunks": 6547,
+        "parents": 4818,
+        "short_50": 697,
+        "short_100": 1376,
+        "oversized": 3,
+        "unit_sum": 1176897,
+        "numeric_cuts": 0,
+        "delimiter_end_flags": 0
+      }
+    },
+    "structured_list": {
+      "documents": 1,
+      "baseline": {
+        "chunks": 10,
+        "parents": 2,
+        "short_50": 1,
+        "short_100": 1,
+        "oversized": 0,
+        "unit_sum": 2278,
+        "numeric_cuts": 0,
+        "delimiter_end_flags": 8
+      },
+      "format": {
+        "chunks": 8,
+        "parents": 2,
+        "short_50": 0,
+        "short_100": 0,
+        "oversized": 0,
+        "unit_sum": 2137,
+        "numeric_cuts": 0,
+        "delimiter_end_flags": 0
+      }
+    },
+    "narrative_article": {
+      "documents": 13014,
+      "baseline": {
+        "chunks": 52998,
+        "parents": 22181,
+        "short_50": 2052,
+        "short_100": 4611,
+        "oversized": 2,
+        "unit_sum": 10709411,
+        "numeric_cuts": 19,
+        "delimiter_end_flags": 5547
+      },
+      "format": {
+        "chunks": 44509,
+        "parents": 17177,
+        "short_50": 728,
+        "short_100": 1669,
+        "oversized": 9,
+        "unit_sum": 10485582,
+        "numeric_cuts": 0,
+        "delimiter_end_flags": 290
+      }
+    },
+    "disease_drug_catalogue": {
+      "documents": 307,
+      "baseline": {
+        "chunks": 3094,
+        "parents": 1065,
+        "short_50": 139,
+        "short_100": 231,
+        "oversized": 0,
+        "unit_sum": 646806,
+        "numeric_cuts": 0,
+        "delimiter_end_flags": 275
+      },
+      "format": {
+        "chunks": 2335,
+        "parents": 645,
+        "short_50": 2,
+        "short_100": 8,
+        "oversized": 0,
+        "unit_sum": 590653,
+        "numeric_cuts": 0,
+        "delimiter_end_flags": 34
+      }
+    },
+    "tcm_book": {
+      "documents": 240,
+      "baseline": {
+        "chunks": 1066,
+        "parents": 532,
+        "short_50": 119,
+        "short_100": 181,
+        "oversized": 0,
+        "unit_sum": 196246,
+        "numeric_cuts": 0,
+        "delimiter_end_flags": 145
+      },
+      "format": {
+        "chunks": 791,
+        "parents": 315,
+        "short_50": 9,
+        "short_100": 30,
+        "oversized": 4,
+        "unit_sum": 186915,
+        "numeric_cuts": 0,
+        "delimiter_end_flags": 1
+      }
+    },
+    "generic": {
+      "documents": 55,
+      "baseline": {
+        "chunks": 55,
+        "parents": 55,
+        "short_50": 54,
+        "short_100": 55,
+        "oversized": 0,
+        "unit_sum": 856,
+        "numeric_cuts": 0,
+        "delimiter_end_flags": 0
+      },
+      "format": {
+        "chunks": 55,
+        "parents": 55,
+        "short_50": 54,
+        "short_100": 55,
+        "oversized": 0,
+        "unit_sum": 856,
+        "numeric_cuts": 0,
+        "delimiter_end_flags": 0
+      }
+    },
+    "qa": {
+      "documents": 1801,
+      "baseline": {
+        "chunks": 7154,
+        "parents": 2495,
+        "short_50": 46,
+        "short_100": 245,
+        "oversized": 0,
+        "unit_sum": 1696392,
+        "numeric_cuts": 2,
+        "delimiter_end_flags": 2931
+      },
+      "format": {
+        "chunks": 8220,
+        "parents": 4766,
+        "short_50": 546,
+        "short_100": 1322,
+        "oversized": 8,
+        "unit_sum": 1617918,
+        "numeric_cuts": 0,
+        "delimiter_end_flags": 99
+      }
+    }
+  },
+  "output_bytes": 324821132,
+  "baseline_bytes": 122322418
+}
