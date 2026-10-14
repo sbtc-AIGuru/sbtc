@@ -13,7 +13,7 @@ from urllib.parse import urlparse
 from sbtc.Scripts.Preprocess.boilerplate import detect_boilerplate, _span
 from sbtc.Scripts.Preprocess.chunking import count_units, _period_is_boundary
 
-PROFILE_VERSION = "format-v2"
+PROFILE_VERSION = "format-v3"
 CRAWL_ERROR_PREFIX = "Crawl4AI Error: This page is not fully supported."
 # Labels observed in test_20k PubMed, not arbitrary uppercase statistics such as CI/OR/ES.
 ABSTRACT_LABELS = (
@@ -104,15 +104,147 @@ def is_crawl_error_placeholder(text: str) -> bool:
     ))
 
 
-def select_profile(text: str, url: str) -> dict:
+TOC_MARKER = re.compile(r"^(?:Nội dung bài viết|Mục lục|Table of contents|Contents|目录)\s*[:：]?\s*$", re.I)
+REFERENCE_MARKER = re.compile(r"(?im)^\s*(?:Tài liệu tham khảo|Nguồn tham khảo|References|Bibliography|参考文献)\s*[:：]?\s*$")
+
+
+def _heading_key(line: str) -> str:
+    line = re.sub(r"^(?:[-*•]\s+|\d+(?:\.\d+)*[.)]?\s+)", "", line.strip())
+    return re.sub(r"\s+", " ", line).strip(" :：").casefold()
+
+
+def _toc_navigation(text: str, lines: list[tuple[int, int, str]]) -> list[dict]:
+    """Locate explicit navigation for routing; exclusion needs body proof too."""
+    candidates = []
+    for index, (start, marker_end, marker) in enumerate(lines[:12]):
+        if start > 1500 or not TOC_MARKER.fullmatch(marker):
+            continue
+        entries = []
+        end = marker_end
+        for left, right, line in lines[index + 1:index + 81]:
+            if line.casefold() in ('toggle', 'show', 'hide') and not entries:
+                end = right
+                continue
+            if (len(line) > 200 or count_units(line) > 45 or
+                    entries and text[end:left].count('\n') >= 2):
+                break
+            if line.endswith(('。', '.')) and not NUMBERED.match(line):
+                break
+            entries.append((left, right, line))
+            end = right
+        if len(entries) < 3:
+            continue
+        candidates.append(dict(start_char=start, end_char=end, entries=entries))
+    return candidates
+
+
+def verified_toc_spans(text: str) -> list[dict]:
+    """Exclude only early explicit navigation repeated as body headings in order."""
+    lines = _lines(text)
+    for candidate in _toc_navigation(text, lines):
+        start, end, entries = candidate['start_char'], candidate['end_char'], candidate['entries']
+        body = [(a, b, line) for a, b, line in lines if a > end]
+        cursor = 0
+        matches = []
+        for left, right, label in entries:
+            key = _heading_key(label)
+            for pos in range(cursor, len(body)):
+                a, b, line = body[pos]
+                if key == _heading_key(line):
+                    matches.append(dict(toc_start_char=left, toc_end_char=right,
+                                        body_start_char=a, body_end_char=b, body_text=line))
+                    cursor = pos + 1
+                    break
+        if len(matches) < 3 or len(matches) < len(entries) * .6:
+            continue
+        # A navigation-only page must retain its content even if entries repeat.
+        if not any(len(line) >= 120 and count_units(line) > 20 for _, _, line in body):
+            continue
+        span = _span(text, start, end, 'verified_table_of_contents', 'explicit TOC with repeated body headings in source order')
+        span['toc_evidence'] = dict(matched_entries=matches, candidate_entries=len(entries))
+        return [span]
+    return []
+
+
+def _research_matches(text: str, toc: list[dict]) -> list:
+    reference = REFERENCE_MARKER.search(text)
+    stop = reference.start() if reference else len(text)
+    return [m for m in ABSTRACT_LABEL.finditer(text, 0, stop)
+            if not any(s['start_char'] <= m.start() < s['end_char'] for s in toc)]
+
+
+def _research_role(label: str) -> str:
+    label = label.upper().strip(' :：')
+    if any(term in label for term in ('METHOD', 'MÉTHOD', 'METHODE', '方法')):
+        return 'methods'
+    if any(term in label for term in ('RESULT', 'RÉSULT', 'ERGEBNIS', 'FINDING', '结果')):
+        return 'results'
+    if any(term in label for term in ('CONCLU', 'INTERPRET', 'ZAKLJU', '结论')):
+        return 'conclusions'
+    if label in ('OBJECTIVE', 'OBJECTIVES', 'AIM', 'AIMS', 'PURPOSE', '目的', 'OBJETIVO', 'OBJETIVOS', 'OBJECTIF'):
+        return 'objective'
+    return label.casefold()
+
+
+VI_DRUG_ROLES = {
+    'composition': re.compile(r'thành phần|hoạt chất|bào chế', re.I),
+    'dosing': re.compile(r'liều dùng|cách dùng|cách sử dụng', re.I),
+    'adverse': re.compile(r'tác dụng phụ|không mong muốn', re.I),
+    'interactions': re.compile(r'tương tác', re.I),
+    'contraindications': re.compile(r'chống chỉ định|không nên sử dụng thuốc', re.I),
+    'indications': re.compile(r'chỉ định|công dụng', re.I),
+}
+
+
+def _vi_drug_fields(text: str, lines: list[tuple[int, int, str]], toc: list[dict]) -> dict:
+    """Recognize drug monographs with specific body fields, not health headings."""
+    if 'thuốc' not in text.casefold() and not re.search(r'(?im)^(?:Hoạt chất|Thành phần|Nhà sản xuất|Dạng bào chế)\s*[:：]', text):
+        return dict(strong=False, identity_field=False, roles=[], spans=[])
+    reference = REFERENCE_MARKER.search(text)
+    stop = reference.start() if reference else len(text)
+    roles, spans, identity = set(), [], False
+    for start, end, line in lines:
+        if start >= stop or len(line) > 200 or count_units(line) > 30:
+            continue
+        if any(s['start_char'] <= start < s['end_char'] for s in toc):
+            continue
+        key = _heading_key(line)
+        field_identity = bool(re.match(r'^(?:thành phần hoạt chất|hoạt chất|nhà sản xuất|dạng bào chế)\s*[:：]', key))
+        if line.endswith(('.', '。')) and not field_identity:
+            continue
+        matching = {role for role, pattern in VI_DRUG_ROLES.items() if pattern.search(key)}
+        if 'chống chỉ định' in key:
+            matching.discard('indications')
+        if matching:
+            roles.update(matching)
+            spans.append(dict(start_char=start, end_char=end, roles=sorted(matching)))
+        identity |= field_identity
+    drug_title = 'thuốc' in lines[0][2].casefold() if lines else False
+    strong = 'dosing' in roles and ((identity and len(roles) >= 3) or (drug_title and len(roles) >= 4))
+    return dict(strong=strong, identity_field=identity, roles=sorted(roles), spans=spans)
+
+
+def select_profile(text: str, url: str, *, toc: list[dict] | None = None) -> dict:
     host = (urlparse(url).hostname or "").lower()
     path = urlparse(url).path
     entries = list(CONFERENCE_ENTRY.finditer(text))
-    labels = list(ABSTRACT_LABEL.finditer(text))
     lines = _lines(text)
+    toc = (toc or []) + _toc_navigation(text, lines)
+    labels = _research_matches(text, toc)
+    signal_labels = [m for m in labels if m.start() <= 2000]
+    research_roles = {_research_role(m.group()) for m in signal_labels}
+    research_evidence = (len(research_roles) >= 2 and bool(research_roles & {'results', 'conclusions'})
+                         and bool(research_roles & {'methods', 'objective'}))
     field_spans = [(start, end, label) for start, end, line in lines if count_units(line) <= 20
+                   and not any(s['start_char'] <= start < s['end_char'] for s in toc)
                    for label in FIELD_LABELS if label.lower() in line.lower()]
     fields = sorted({label for _, _, label in field_spans})
+    specialized_fields = {label for label in fields if label in FIELD_LABELS[:13] or label in ('Liều dùng', 'Chống chỉ định')}
+    catalogue_path = ('/benh/' in path or '/thuoc/' in path or '/drug/' in path)
+    line_keys = [_heading_key(line) for _, _, line in lines]
+    repeated_fields = sum(line_keys.count(label.casefold()) >= 3 for label in fields)
+    catalogue_template = ('nội dung chính' in line_keys and 'bệnh thường gặp' in line_keys and repeated_fields >= 3)
+    vi_drug = _vi_drug_fields(text, lines, toc)
     evidence = []
     if len(entries) >= 3 and ("proceedings" in text[:500].lower() or "congress" in text[:500].lower()):
         profile, confidence = "structured_list", "high"
@@ -124,13 +256,15 @@ def select_profile(text: str, url: str) -> dict:
     elif host in ("ask.39.net", "www.120ask.com", "120ask.com"):
         profile, confidence = "qa", "medium"
         evidence.append({"rule": "qa_domain_prior", "domain": host})
-    elif len(fields) >= 3 or "可能疾病 伴随症状 就诊科室" in text or ("药品百科" in text[:500] and any(x in text for x in ("用法用量", "不良反应"))):
+    elif len(specialized_fields) >= 3 or vi_drug['strong'] or catalogue_template or (catalogue_path and len(fields) >= 3) or "可能疾病 伴随症状 就诊科室" in text or ("药品百科" in text[:500] and any(x in text for x in ("用法用量", "不良反应"))):
         profile, confidence = "disease_drug_catalogue", "high"
-        evidence.append({"rule": "clinical_fields", "labels": fields, "spans": [dict(start_char=a, end_char=b) for a, b, _ in field_spans[:10]]})
-    elif len(labels) >= 2 or host == "pubmed.ncbi.nlm.nih.gov":
-        profile, confidence = "research_abstract", "high" if len(labels) >= 2 else "medium"
-        evidence.append({"rule": "research_labels" if labels else "pubmed_prior", "count": len(labels), "domain": host,
-                         "spans": [dict(start_char=m.start(), end_char=m.end()) for m in labels[:10]]})
+        evidence.append({"rule": "clinical_fields", "labels": fields, "template": catalogue_template, 'vi_drug_fields': vi_drug,
+                         "spans": [dict(start_char=a, end_char=b) for a, b, _ in field_spans[:10]]})
+    elif research_evidence or host == "pubmed.ncbi.nlm.nih.gov":
+        profile, confidence = "research_abstract", "high" if research_evidence else "medium"
+        evidence.append({"rule": "research_labels" if research_evidence else "pubmed_prior", "count": len(signal_labels),
+                         "roles": sorted(research_roles), "domain": host,
+                         "spans": [dict(start_char=m.start(), end_char=m.end()) for m in signal_labels[:10]]})
     elif "/books/" in path or (host.endswith("zhongyibaodian.net") and len(FORMULA_DOSE.findall(text[:2000])) >= 2 and "药品百科" not in text[:500]):
         profile, confidence = "tcm_book", "medium"
         evidence.append({"rule": "book_path_or_formula", "path": path})
@@ -190,8 +324,8 @@ def _lines(text: str, start: int = 0, end: int | None = None) -> list[tuple[int,
     return result
 
 
-def format_exclusions(text: str, url: str, profile: str) -> list[dict]:
-    candidates = detect_boilerplate(text, url)
+def format_exclusions(text: str, url: str, profile: str, *, toc: list[dict] | None = None) -> list[dict]:
+    candidates = detect_boilerplate(text, url) + (verified_toc_spans(text) if toc is None else toc)
     host = urlparse(url).hostname or ""
     lines = _lines(text)
     # A paired marker gives an unambiguous doctor biography, never a disease keyword alone.
@@ -271,13 +405,23 @@ def format_exclusions(text: str, url: str, profile: str) -> list[dict]:
     merged = []
     for span in sorted(candidates, key=lambda s: (s["start_char"], -s["end_char"])):
         if span["start_char"] >= span["end_char"]: continue
-        span["evidence"] = [{"rule_id": span["rule_id"], "reason": span["reason"]}]
+        span["evidence"] = [{"rule_id": span["rule_id"], "reason": span["reason"], **span.pop('toc_evidence', {})}]
         if merged and span["start_char"] <= merged[-1]["end_char"]:
             merged[-1]["end_char"] = max(merged[-1]["end_char"], span["end_char"])
             merged[-1]["text"] = text[merged[-1]["start_char"]:merged[-1]["end_char"]]
             merged[-1]["evidence"].extend(span["evidence"])
         else: merged.append(span)
     return merged
+
+
+def _format_period_is_boundary(text: str, index: int) -> bool:
+    """Use the same abbreviation/initial/numeric decision in both scanners."""
+    prefix = text[max(0, index - 30):index + 1]
+    if SCIENTIFIC_ABBREVIATION.search(prefix):
+        return False
+    if re.search(r"(?:^|\s)(?:[A-Z]\.){2,5}$", prefix):
+        return False
+    return _period_is_boundary(text, index)
 
 
 def sentence_spans(text: str, start: int, end: int, protected: list[dict] | None = None) -> list[tuple[int, int]]:
@@ -295,10 +439,9 @@ def sentence_spans(text: str, start: int, end: int, protected: list[dict] | None
         previous = text[index - 1] if index > start else ""
         following = text[index + 1] if index + 1 < end else ""
         cjk_period = char == "." and bool(re.fullmatch(r"[\u3400-\u9fff]", previous)) and bool(re.fullmatch(r"[\u3400-\u9fff]", following))
-        abbreviation = char == "." and bool(SCIENTIFIC_ABBREVIATION.search(text[max(start, index - 30):index + 1]))
         boundary = not inside and (char in "。！？!?" or
                     char == "．" and not (index > start and index + 1 < end and text[index-1].isdigit() and text[index+1].isdigit()) or
-                    char == "." and not abbreviation and (cjk_period or _period_is_boundary(text[start:end], index - start)))
+                    char == "." and (cjk_period or _format_period_is_boundary(text[start:end], index - start)))
         if boundary:
             stop = index + 1
             while stop < end and text[stop] in '”’」』）》】)"\'': stop += 1
@@ -337,12 +480,8 @@ def _oversized_split_points(
         for match in re.finditer(r"[.!?。！？；;](?=\s)", text[start:end]):
             punctuation = match.group()
             absolute = start + match.end()
-            if punctuation == ".":
-                before = text[max(start, start + match.start() - 30):absolute]
-                after = text[absolute:].lstrip()
-                if (not after or not after[0].isalpha() or re.search(r"\b(?:et\s+al|i\.v|vs|e\.g|i\.e)\.$", before, re.I)
-                        or (match.start() > 0 and text[start + match.start() - 1].isdigit())):
-                    continue
+            if punctuation == "." and not _format_period_is_boundary(text[start:end], match.start()):
+                continue
             points.append(absolute)
     elif method == "line":
         points.extend(start + match.end() for match in re.finditer(r"\n+", text[start:end]))
@@ -423,7 +562,7 @@ def _role(line: str, first: bool, profile: str) -> str:
         if QA_LABEL.match(line) or line.startswith(("您好", "你好")): return "answer"
         if line.startswith(("健康咨询描述", "曾经的治疗", "想得到怎样", "问题描述", "病情描述")): return "question"
     if line.startswith("…") or line == "原文 →": return "quoted_snippet"
-    if ABSTRACT_LABEL.match(line): return "abstract_section"
+    if profile == 'research_abstract' and ABSTRACT_LABEL.match(line): return "abstract_section"
     if line.endswith((":", "：", "∶")) and count_units(line) <= 20: return "label"
     if any(line.lower().startswith(x.lower()) for x in FIELD_LABELS) and count_units(line) <= 20: return "field_heading"
     if profile == "disease_drug_catalogue" and count_units(line) <= 25 and not line.endswith(tuple(".!?。！？")) and any(
@@ -441,7 +580,7 @@ def _section_spans(text: str, profile: str, headings: list[dict]) -> list[dict]:
     """Keep inline research labels as source evidence without forcing tiny chunks."""
     if profile == "research_abstract":
         labels = [(m.start(), m.end(), m.group().rstrip(" :："), "abstract_section")
-                  for m in ABSTRACT_LABEL.finditer(text)]
+                  for m in _research_matches(text, verified_toc_spans(text))]
     else:
         labels = [(s["start_char"], s["end_char"], text[s["start_char"]:s["end_char"]], s["role"])
                   for s in headings if s["role"] != "title"]
@@ -451,10 +590,11 @@ def _section_spans(text: str, profile: str, headings: list[dict]) -> list[dict]:
 
 
 def analyse_format(text: str, url: str) -> dict:
-    metadata = select_profile(text, url)
+    toc = verified_toc_spans(text)
+    metadata = select_profile(text, url, toc=toc)
     profile = metadata["profile"]
     protected = protected_spans(text)
-    exclusions = format_exclusions(text, url, profile)
+    exclusions = format_exclusions(text, url, profile, toc=toc)
     regions = []
     cursor = 0
     for span in exclusions:

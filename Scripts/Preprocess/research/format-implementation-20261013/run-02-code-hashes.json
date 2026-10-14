@@ -1,9 +1,0 @@
-{
-  "sbtc/Scripts/Preprocess/format_profiles.py": "6836611a35beaade253d69b7ecdb015ecc221f29b496247cf5eb332ad4139100",
-  "sbtc/Scripts/Preprocess/format_chunking.py": "aaedda0c10501ab750bd55022398b5fcacacc36175ce5c8d22cc593a6274eb1f",
-  "sbtc/Scripts/Preprocess/chunking.py": "86699e1838b5a74b775d5b857702d9a8b8c470e8b8c8521f286b880a966e879c",
-  "sbtc/Scripts/Preprocess/chunk_cli.py": "26a41a764befc80cc5b3261366fba02912a6a1d97a987d519e12b9e8cae463e8",
-  "sbtc/Scripts/Preprocess/chunk_audit.py": "1e33b11f0507abbf9ac3d13d469d34aaf95762a46667fdbdf2fb5ee36c52499b",
-  "sbtc/Scripts/Preprocess/boilerplate.py": "ada43b03b0dc90176e999ac250778e0679cc4e2017daa76d72464db60c0ac883",
-  "sbtc/Scripts/Clawler/verbatim.py": "b5b04bcf90d26d6f6e1515d38388e85e79f2bcf5da3b932723f7e4a1a497db39"
-}

@@ -73,7 +73,7 @@ class FormatStreamingTests(unittest.TestCase):
             self.assertEqual(output_rows(root / "resumed"), output_rows(root / "serial"))
             self.assertEqual(output_rows(root / "serial"), output_rows(root / "parallel"))
             for report in (resumed, serial, parallel):
-                self.assertEqual(report["profile_version"], "format-v2")
+                self.assertEqual(report["profile_version"], "format-v3")
                 self.assertEqual(report["source_non_whitespace"], report["covered_non_whitespace"])
             self.assertEqual(audit_output(source, root / "resumed")["errors"], 0)
 
@@ -84,7 +84,7 @@ class FormatStreamingTests(unittest.TestCase):
             source.write_bytes(self.lines[0])
             self.run_format(source, root / "out")
             checkpoint = json.loads((root / "out/checkpoint.json").read_text())
-            self.assertEqual(checkpoint["profile_version"], "format-v2")
+            self.assertEqual(checkpoint["profile_version"], "format-v3")
             self.assertEqual(checkpoint["cleaner_version"], CLEANER_VERSION)
             self.assertEqual(checkpoint["strategy"], "format")
 
@@ -189,7 +189,7 @@ class FormatStreamingTests(unittest.TestCase):
                     self.run_format(source, output, shard_records=2)
             checkpoint = json.loads((output / "checkpoint.json").read_text())
             self.assertIn("pending", checkpoint)
-            self.assertEqual(checkpoint["profile_version"], "format-v2")
+            self.assertEqual(checkpoint["profile_version"], "format-v3")
             report = self.run_format(source, output, shard_records=2, resume=True)
             self.run_format(source, root / "reference", shard_records=2)
             self.assertTrue(report["done"])
@@ -255,7 +255,7 @@ class FormatStreamingTests(unittest.TestCase):
             self.assertTrue(report["done"])
             self.assertEqual(report["records"], 0)
             self.assertEqual(report["chunks"], 0)
-            self.assertEqual(report["profile_version"], "format-v2")
+            self.assertEqual(report["profile_version"], "format-v3")
             self.assertEqual(output_rows(root / "out"), [])
             resumed = self.run_format(source, root / "out", resume=True)
             self.assertTrue(resumed["done"])

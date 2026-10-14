@@ -12,7 +12,7 @@ import html
 from html.parser import HTMLParser
 import re
 
-CLEANER_VERSION = "verbatim-v4"
+CLEANER_VERSION = "verbatim-v5"
 
 ESCAPED_PATTERN = re.compile(r"\\([\\\x60*{}\[\]()#+\-.!_>~\"'$])")
 BARE_URL_PATTERN = re.compile(r"""https?://[^\s<>()\[\]{}"'\u0080-\U0010ffff]+""", re.IGNORECASE | re.ASCII)
@@ -157,6 +157,27 @@ def _destination_valid(value: str) -> bool:
     return bool(re.match(r"(?:https?://|mailto:|tel:|data:image/|/|#)", destination, re.IGNORECASE))
 
 
+def _recover_incomplete_target(text: str, opening: int, label: str) -> int | None:
+    """Consume a proven broken target, never the prose on the next line."""
+    tail = text[opening + 1:opening + 4097]
+    newline = re.search(r'[\r\n]', tail)
+    line_end = opening + 1 + newline.start() if newline else len(text)
+    if line_end - opening > 4096:
+        return None
+    fragment = text[opening + 1:line_end]
+    url = re.match(r'(?:https?://|mailto:|/[A-Za-z0-9]|#[A-Za-z0-9])[^\s<>"\x27\u0080-\U0010ffff]*', fragment, re.I | re.ASCII)
+    if url:
+        return opening + 1 + url.end()
+    if fragment.strip():
+        return None
+    # Crawl renderers often leave [[article title]]( at end of line. A tiny
+    # chemical/unit label has insufficient evidence and keeps its punctuation.
+    letters = sum(char.isalpha() for char in label)
+    cjk = len(re.findall(r'[\u3400-\u9fff]', label))
+    narrative_label = (letters >= 10 and bool(re.search(r'\s', label))) or (label.startswith('[') and (letters >= 6 or cjk >= 4))
+    return opening + 1 if narrative_label else None
+
+
 def _remove_link_targets(text: str, state: _Cleanup, *, definitions: dict[str, str] | None = None, depth: int = 0) -> str:
     if depth >= 8:
         state.warnings["nested_markup_limit"] += 1
@@ -201,6 +222,10 @@ def _remove_link_targets(text: str, state: _Cleanup, *, definitions: dict[str, s
                 action = "markdown_image" if image else "markdown_link"
             else:
                 state.warnings["incomplete_markdown_link" if target_end is None else "ambiguous_markdown_target"] += 1
+                recovery_end = _recover_incomplete_target(text, next_index, label) if target_end is None else None
+                if recovery_end is not None:
+                    next_index = recovery_end
+                    action = 'incomplete_link_recovered'
         elif next_index < len(text) and text[next_index] == "[":
             reference_end = _balanced_end(text, next_index, "[", "]")
             if reference_end is not None:

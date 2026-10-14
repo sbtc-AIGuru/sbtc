@@ -26,16 +26,34 @@ def _parent_groups(atoms: list[Atom], config: ChunkConfig) -> list[list[Atom]]:
     return groups
 
 
+def _reserve_overlap_units(atoms: list[Atom], previous_start: int, start: int, config: ChunkConfig) -> int:
+    """Reserve a short intact suffix without starving the new chunk's body."""
+    capacity = min(max(50, config.overlap_units * 2),
+                   config.max_units - config.min_units, config.max_units - atoms[start].units)
+    units, candidates = 0, []
+    for index in range(start - 1, previous_start - 1, -1):
+        units += atoms[index].units
+        if units > capacity:
+            break
+        candidates.append((abs(units - config.overlap_units), units))
+        if units >= config.overlap_units:
+            break
+    return min(candidates)[1] if candidates else 0
+
+
 def _pack(atoms: list[Atom], config: ChunkConfig) -> list[tuple[int, int, str | None]]:
     if sum(a.units for a in atoms) <= config.max_units:
         return [(0, len(atoms), None)]
     ranges = []
     start = 0
     while start < len(atoms):
+        budget = config.max_units
+        if config.format_overlap_policy == 'reserve' and ranges and config.overlap_units:
+            budget -= _reserve_overlap_units(atoms, ranges[-1][0], start, config)
         end, units = start, 0
         while end < len(atoms):
             atom = atoms[end]
-            if end > start and (units + atom.units > config.max_units or
+            if end > start and (units + atom.units > budget or
                                 units >= config.target_units or atom.units > config.max_units):
                 break
             units += atom.units
@@ -95,7 +113,7 @@ def _atom_metadata(atom: Atom) -> dict:
 
 def _chunk_provenance(child: dict) -> dict:
     return {key: child[key] for key in (
-        "chunk_id", "doc_id", "parent_id", "start_char", "end_char", "unit_count",
+        "chunk_id", "chunk_order", "doc_id", "parent_id", "start_char", "end_char", "unit_count",
         "section_roles", "section_paths", "content_languages",
     )}
 
@@ -249,7 +267,7 @@ def build_format_chunks(source: str, record: dict, config: ChunkConfig, output: 
             if 30 <= child["overlap_units"] <= 50:
                 child["overlap_exception"] = None
             elif child["overlap_units"]:
-                child["overlap_exception"] = "whole_atom_overlap_after_merge"
+                child["overlap_exception"] = "whole_atom_overlap_after_merge" if child.get('merge_reason') else "whole_atom_overlap"
             else:
                 child["overlap_exception"] = child.get("overlap_exception") or "no_source_overlap_after_merge"
         previous_by_parent[child["parent_id"]] = child

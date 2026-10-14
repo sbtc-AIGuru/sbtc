@@ -1,0 +1,646 @@
+{
+  "input_sha256": "9fdacfb07ecc1757c53c5b03bd41d31358c4a0db74fea785a6a62f90cfe8bf43",
+  "runs": {
+    "v2": {
+      "chunk_size_distribution": {
+        "0-49": 2037,
+        "100-149": 2864,
+        "150-219": 12060,
+        "220-300": 43079,
+        "50-99": 2421,
+        ">300": 22
+      },
+      "chunks": 62483,
+      "cleaned_records": 19900,
+      "cleaning_actions": {
+        "control_separator": 8,
+        "horizontal_space": 562,
+        "known_ui": 3,
+        "line_whitespace": 284,
+        "markdown_link": 2,
+        "markdown_quote": 1755,
+        "soft_hyphen": 20,
+        "unicode_space": 11119
+      },
+      "cleaning_warnings": {
+        "incomplete_markdown_link": 541,
+        "replacement_character": 3,
+        "retained_format_character": 837
+      },
+      "content_language_counts": {
+        "en": 4398,
+        "es": 150,
+        "fr": 99,
+        "sr": 4,
+        "und": 14403,
+        "vi": 9580,
+        "zh": 4770
+      },
+      "covered_non_whitespace": 37333358,
+      "document_nonfirst_children": 42585,
+      "document_overlap_positive": 30295,
+      "eligible_overlap_positive": 30295,
+      "eligible_overlap_transitions": 34706,
+      "errors": 0,
+      "excluded_non_whitespace": 185982,
+      "excluded_rule_counts": {
+        "alphabetical_navigation_tail": 17,
+        "book_pagination": 207,
+        "catalogue_header_context": 4,
+        "doctor_biography": 392,
+        "drug_taxonomy_navigation": 39,
+        "duplicate_rendered_paragraph": 18,
+        "duplicate_title_before_navigation": 52,
+        "icd_navigation": 2,
+        "related_arrow_tail": 20,
+        "related_articles_navigation": 4,
+        "related_content_tail": 4,
+        "repeated_field_toc": 8,
+        "store_navigation": 52,
+        "unsupported_audio_line": 76,
+        "wiki_navigation_footer": 4
+      },
+      "excluded_spans": 899,
+      "format_warning_counts": {
+        "content_limited": 1,
+        "damaged_bracket_review": 1721,
+        "oversized_atom_review": 22,
+        "uncertain_format": 13068
+      },
+      "indexed_non_whitespace": 37147376,
+      "ok": 19898,
+      "overlap_30_50": 20489,
+      "overlap_exception_counts": {
+        "document_start": 19898,
+        "semantic_region_or_parent_boundary": 7879,
+        "whole_atom_exceeds_capacity": 4411,
+        "whole_atom_overlap_after_merge": 9806
+      },
+      "oversized_chunks": 22,
+      "parents": 27777,
+      "profile_counts": {
+        "disease_drug_catalogue": 307,
+        "generic": 54,
+        "narrative_article": 13014,
+        "qa": 1800,
+        "research_abstract": 4482,
+        "structured_list": 1,
+        "tcm_book": 240
+      },
+      "reason_counts": {
+        "crawl_error_placeholder": 2,
+        "crawl_failed": 100
+      },
+      "records": 20000,
+      "short_chunk_reason_counts": {
+        "hard_boundary_region": 862,
+        "question_context": 352,
+        "short_document": 3220,
+        "whole_atom_budget_remainder": 24
+      },
+      "skipped": 102,
+      "source_non_whitespace": 37333358,
+      "structural_intact_chunks": 37080,
+      "unit_max": 494,
+      "unit_min": 1,
+      "unit_sum": 14061357,
+      "output_bytes": 338153691,
+      "any_overlap_percent": 87.29038206650146,
+      "ideal_overlap_percent": 59.03590157321501
+    },
+    "v3_post": {
+      "atom_repair_reason_counts": {
+        "clause": 14,
+        "sentence": 32,
+        "whitespace": 103
+      },
+      "chunk_size_distribution": {
+        "0-49": 2084,
+        "100-149": 2864,
+        "150-219": 12051,
+        "220-300": 43061,
+        "50-99": 2422,
+        ">300": 23
+      },
+      "chunks": 62505,
+      "chunks_over_300": 23,
+      "chunks_over_500": 0,
+      "cleaned_records": 19900,
+      "cleaning_actions": {
+        "control_separator": 8,
+        "horizontal_space": 562,
+        "incomplete_link_recovered": 508,
+        "known_ui": 3,
+        "line_whitespace": 314,
+        "markdown_link": 2,
+        "markdown_quote": 1755,
+        "soft_hyphen": 20,
+        "unicode_space": 11119
+      },
+      "cleaning_warning_record_counts": {
+        "incomplete_markdown_link": 95,
+        "replacement_character": 1,
+        "retained_format_character": 285
+      },
+      "cleaning_warnings": {
+        "incomplete_markdown_link": 541,
+        "replacement_character": 3,
+        "retained_format_character": 837
+      },
+      "content_language_counts": {
+        "en": 4398,
+        "es": 150,
+        "fr": 99,
+        "sr": 4,
+        "und": 14403,
+        "vi": 9580,
+        "zh": 4770
+      },
+      "covered_non_whitespace": 37331834,
+      "document_nonfirst_children": 42607,
+      "document_overlap_positive": 30280,
+      "eligible_overlap_positive": 30280,
+      "eligible_overlap_transitions": 34688,
+      "errors": 0,
+      "excluded_non_whitespace": 202928,
+      "excluded_rule_counts": {
+        "alphabetical_navigation_tail": 17,
+        "book_pagination": 207,
+        "catalogue_header_context": 4,
+        "doctor_biography": 392,
+        "drug_taxonomy_navigation": 39,
+        "duplicate_rendered_paragraph": 18,
+        "duplicate_title_before_navigation": 52,
+        "icd_navigation": 2,
+        "related_arrow_tail": 20,
+        "related_articles_navigation": 4,
+        "related_content_tail": 4,
+        "repeated_field_toc": 8,
+        "store_navigation": 52,
+        "unsupported_audio_line": 76,
+        "verified_table_of_contents": 47,
+        "wiki_navigation_footer": 4
+      },
+      "excluded_spans": 946,
+      "format_warning_counts": {
+        "content_limited": 1,
+        "damaged_bracket_review": 1189,
+        "oversized_atom_review": 23,
+        "uncertain_format": 13284
+      },
+      "format_warning_record_counts": {
+        "content_limited": 1,
+        "damaged_bracket_review": 408,
+        "oversized_atom_review": 16,
+        "uncertain_format": 13284
+      },
+      "indexed_non_whitespace": 37128906,
+      "ok": 19898,
+      "overlap_30_50": 20473,
+      "overlap_exception_counts": {
+        "document_start": 19898,
+        "semantic_region_or_parent_boundary": 7919,
+        "whole_atom_exceeds_capacity": 4408,
+        "whole_atom_overlap": 9807
+      },
+      "overlap_size_distribution": {
+        "0": 4408,
+        "1-29": 4635,
+        "30-50": 20473,
+        ">50": 5172
+      },
+      "oversized_chunks": 23,
+      "oversized_split_reason_counts": {
+        "clause": 5,
+        "sentence": 8,
+        "whitespace": 3
+      },
+      "parents": 27817,
+      "profile_counts": {
+        "disease_drug_catalogue": 97,
+        "generic": 54,
+        "narrative_article": 13230,
+        "qa": 1800,
+        "research_abstract": 4476,
+        "structured_list": 1,
+        "tcm_book": 240
+      },
+      "reason_counts": {
+        "crawl_error_placeholder": 2,
+        "crawl_failed": 100
+      },
+      "records": 20000,
+      "short_chunk_reason_counts": {
+        "hard_boundary_region": 909,
+        "question_context": 352,
+        "short_document": 3220,
+        "whole_atom_budget_remainder": 25
+      },
+      "short_under50_reason_counts": {
+        "hard_boundary_region": 186,
+        "question_context": 352,
+        "short_document": 1537,
+        "whole_atom_budget_remainder": 9
+      },
+      "skipped": 102,
+      "source_non_whitespace": 37331834,
+      "structural_intact_chunks": 37130,
+      "unit_max": 494,
+      "unit_min": 1,
+      "unit_sum": 14056204,
+      "unresolved_chunks": 0,
+      "output_bytes": 337915494,
+      "any_overlap_percent": 87.29243542435424,
+      "ideal_overlap_percent": 59.02041051660517
+    },
+    "v3_reserve": {
+      "atom_repair_reason_counts": {
+        "clause": 14,
+        "sentence": 32,
+        "whitespace": 103
+      },
+      "chunk_size_distribution": {
+        "0-49": 2083,
+        "100-149": 2882,
+        "150-219": 12352,
+        "220-300": 43176,
+        "50-99": 2425,
+        ">300": 23
+      },
+      "chunks": 62941,
+      "chunks_over_300": 23,
+      "chunks_over_500": 0,
+      "cleaned_records": 19900,
+      "cleaning_actions": {
+        "control_separator": 8,
+        "horizontal_space": 562,
+        "incomplete_link_recovered": 508,
+        "known_ui": 3,
+        "line_whitespace": 314,
+        "markdown_link": 2,
+        "markdown_quote": 1755,
+        "soft_hyphen": 20,
+        "unicode_space": 11119
+      },
+      "cleaning_warning_record_counts": {
+        "incomplete_markdown_link": 95,
+        "replacement_character": 1,
+        "retained_format_character": 285
+      },
+      "cleaning_warnings": {
+        "incomplete_markdown_link": 541,
+        "replacement_character": 3,
+        "retained_format_character": 837
+      },
+      "content_language_counts": {
+        "en": 4398,
+        "es": 150,
+        "fr": 99,
+        "sr": 4,
+        "und": 14403,
+        "vi": 9580,
+        "zh": 4770
+      },
+      "covered_non_whitespace": 37331834,
+      "document_nonfirst_children": 43043,
+      "document_overlap_positive": 32246,
+      "eligible_overlap_positive": 32246,
+      "eligible_overlap_transitions": 35124,
+      "errors": 0,
+      "excluded_non_whitespace": 202928,
+      "excluded_rule_counts": {
+        "alphabetical_navigation_tail": 17,
+        "book_pagination": 207,
+        "catalogue_header_context": 4,
+        "doctor_biography": 392,
+        "drug_taxonomy_navigation": 39,
+        "duplicate_rendered_paragraph": 18,
+        "duplicate_title_before_navigation": 52,
+        "icd_navigation": 2,
+        "related_arrow_tail": 20,
+        "related_articles_navigation": 4,
+        "related_content_tail": 4,
+        "repeated_field_toc": 8,
+        "store_navigation": 52,
+        "unsupported_audio_line": 76,
+        "verified_table_of_contents": 47,
+        "wiki_navigation_footer": 4
+      },
+      "excluded_spans": 946,
+      "format_warning_counts": {
+        "content_limited": 1,
+        "damaged_bracket_review": 1189,
+        "oversized_atom_review": 23,
+        "uncertain_format": 13284
+      },
+      "format_warning_record_counts": {
+        "content_limited": 1,
+        "damaged_bracket_review": 408,
+        "oversized_atom_review": 16,
+        "uncertain_format": 13284
+      },
+      "indexed_non_whitespace": 37128906,
+      "ok": 19898,
+      "overlap_30_50": 21581,
+      "overlap_exception_counts": {
+        "document_start": 19898,
+        "semantic_region_or_parent_boundary": 7919,
+        "whole_atom_exceeds_capacity": 2877,
+        "whole_atom_overlap": 10666
+      },
+      "overlap_size_distribution": {
+        "0": 2878,
+        "1-29": 4640,
+        "30-50": 21581,
+        ">50": 6025
+      },
+      "oversized_chunks": 23,
+      "oversized_split_reason_counts": {
+        "clause": 5,
+        "sentence": 8,
+        "whitespace": 3
+      },
+      "parents": 27817,
+      "profile_counts": {
+        "disease_drug_catalogue": 97,
+        "generic": 54,
+        "narrative_article": 13230,
+        "qa": 1800,
+        "research_abstract": 4476,
+        "structured_list": 1,
+        "tcm_book": 240
+      },
+      "reason_counts": {
+        "crawl_error_placeholder": 2,
+        "crawl_failed": 100
+      },
+      "records": 20000,
+      "short_chunk_reason_counts": {
+        "hard_boundary_region": 909,
+        "question_context": 352,
+        "short_document": 3220,
+        "whole_atom_budget_remainder": 27
+      },
+      "short_under50_reason_counts": {
+        "hard_boundary_region": 186,
+        "question_context": 352,
+        "short_document": 1537,
+        "whole_atom_budget_remainder": 8
+      },
+      "skipped": 102,
+      "source_non_whitespace": 37331834,
+      "structural_intact_chunks": 37488,
+      "unit_max": 494,
+      "unit_min": 1,
+      "unit_sum": 14153763,
+      "unresolved_chunks": 0,
+      "output_bytes": 338603219,
+      "any_overlap_percent": 91.80617241772008,
+      "ideal_overlap_percent": 61.44231864252363
+    }
+  },
+  "profile_transitions": {
+    "disease_drug_catalogue -> narrative_article": 210,
+    "research_abstract -> narrative_article": 6
+  },
+  "changed_source_records": 76,
+  "lexical_differences": [],
+  "lexical_order_differences": [],
+  "residual_marker_counts_in_changed_sources": {
+    "v2": 510,
+    "v3": 2
+  },
+  "toc_removals": {
+    "records": 47,
+    "non_whitespace_chars": 16946
+  },
+  "residual_marker_counts_on_all_warning_records": {
+    "v2": 540,
+    "v3": 32
+  },
+  "short_remainders": [
+    {
+      "doc_id": 427504,
+      "order": 64,
+      "text": "3. Các nguồn thu đối với nước thải (sinh hoạt, công nghiệp) phải được sử dụng vào mục đích phòng ngừa, hạn chế, kiểm soát và khắc phục ô nhiễm do nước thải gây ra. Điều43. Trách nhiệm của các Bộ trưởng trong quản lý nước thải 1.",
+      "units": 48,
+      "role": [
+        "body"
+      ],
+      "left_units": 295,
+      "right_units": 311,
+      "parent": "427504:p:12:62091:67409:format-v3"
+    },
+    {
+      "doc_id": 1097095,
+      "order": 0,
+      "text": "本人发病已有大半年大半年,症状为心脏经常会突然跳一下\n健康咨询描述： 本人发病已有大半年大半年。",
+      "units": 43,
+      "role": [
+        "body"
+      ],
+      "left_units": null,
+      "right_units": 300,
+      "parent": "1097095:p:0:0:424:format-v3"
+    },
+    {
+      "doc_id": 1097095,
+      "order": 2,
+      "text": "在此希望能得到专家的诊治，谢谢！\n你做过哪些检查？如心电图、心彩超超、动态心电图等。",
+      "units": 35,
+      "role": [
+        "body"
+      ],
+      "left_units": 300,
+      "right_units": null,
+      "parent": "1097095:p:0:0:424:format-v3"
+    },
+    {
+      "doc_id": 1058945,
+      "order": 0,
+      "text": "是否患有精神分裂或其他疾病？",
+      "units": 13,
+      "role": [
+        "body"
+      ],
+      "left_units": null,
+      "right_units": 295,
+      "parent": "1058945:p:0:0:888:format-v3"
+    },
+    {
+      "doc_id": 1055481,
+      "order": 8,
+      "text": "生活护理：\n建议咨询您的医生,由您的医生为您决定选择何种药物,如何治疗",
+      "units": 31,
+      "role": [
+        "body"
+      ],
+      "left_units": 280,
+      "right_units": 247,
+      "parent": "1055481:p:3:978:1751:format-v3"
+    },
+    {
+      "doc_id": 4057861,
+      "order": 25,
+      "text": "然而以上结果仍需进一步深入评价。",
+      "units": 15,
+      "role": [
+        "body"
+      ],
+      "left_units": 494,
+      "right_units": 304,
+      "parent": "4057861:p:5:6885:8595:format-v3"
+    },
+    {
+      "doc_id": 4061665,
+      "order": 7,
+      "text": "参看\n肺癌皮肤转移\n老年人肺癌\n肺不张\n咳嗽性哮喘\n肺癌\n胆管癌\n胸部症状\n\n1个分类: 胸部症状",
+      "units": 38,
+      "role": [
+        "body"
+      ],
+      "left_units": 349,
+      "right_units": null,
+      "parent": "4061665:p:1:1389:2116:format-v3"
+    },
+    {
+      "doc_id": 4053159,
+      "order": 2,
+      "text": "4个分类: 生物化学 生物学 蛋白质 铁",
+      "units": 15,
+      "role": [
+        "body"
+      ],
+      "left_units": 332,
+      "right_units": null,
+      "parent": "4053159:p:0:0:614:format-v3"
+    },
+    {
+      "doc_id": 4043988,
+      "order": 24,
+      "text": "4。根据中成药的性能合理用药\n目前市售降压中成药较多。",
+      "units": 24,
+      "role": [
+        "body"
+      ],
+      "left_units": 349,
+      "right_units": 263,
+      "parent": "4043988:p:4:5310:6764:format-v3"
+    }
+  ],
+  "errors": [],
+  "review_records": 356,
+  "by_source_language_prior": {
+    "v2": {
+      "skipped": {
+        "records": 102
+      },
+      "en": {
+        "records": 4475,
+        "children": 6395,
+        "under50": 697,
+        "eligible": 1617,
+        "overlap_positive": 1471,
+        "overlap_30_50": 1055
+      },
+      "vi": {
+        "records": 9313,
+        "children": 30100,
+        "under50": 691,
+        "eligible": 18051,
+        "overlap_positive": 16473,
+        "overlap_30_50": 11634
+      },
+      "und": {
+        "records": 2234,
+        "children": 6725,
+        "under50": 69,
+        "eligible": 3952,
+        "overlap_positive": 3519,
+        "overlap_30_50": 2437
+      },
+      "zh": {
+        "records": 3876,
+        "children": 19263,
+        "under50": 580,
+        "eligible": 11086,
+        "overlap_positive": 8832,
+        "overlap_30_50": 5363
+      }
+    },
+    "v3_post": {
+      "skipped": {
+        "records": 102
+      },
+      "en": {
+        "records": 4475,
+        "children": 6395,
+        "under50": 697,
+        "eligible": 1617,
+        "overlap_positive": 1469,
+        "overlap_30_50": 1052
+      },
+      "vi": {
+        "records": 9313,
+        "children": 30121,
+        "under50": 738,
+        "eligible": 18032,
+        "overlap_positive": 16454,
+        "overlap_30_50": 11608
+      },
+      "und": {
+        "records": 2234,
+        "children": 6725,
+        "under50": 69,
+        "eligible": 3952,
+        "overlap_positive": 3519,
+        "overlap_30_50": 2437
+      },
+      "zh": {
+        "records": 3876,
+        "children": 19264,
+        "under50": 580,
+        "eligible": 11087,
+        "overlap_positive": 8838,
+        "overlap_30_50": 5376
+      }
+    },
+    "v3_reserve": {
+      "skipped": {
+        "records": 102
+      },
+      "en": {
+        "records": 4475,
+        "children": 6405,
+        "under50": 697,
+        "eligible": 1627,
+        "overlap_positive": 1519,
+        "overlap_30_50": 1089
+      },
+      "vi": {
+        "records": 9313,
+        "children": 30246,
+        "under50": 737,
+        "eligible": 18157,
+        "overlap_positive": 17096,
+        "overlap_30_50": 12018
+      },
+      "und": {
+        "records": 2234,
+        "children": 6770,
+        "under50": 69,
+        "eligible": 3997,
+        "overlap_positive": 3692,
+        "overlap_30_50": 2545
+      },
+      "zh": {
+        "records": 3876,
+        "children": 19520,
+        "under50": 580,
+        "eligible": 11343,
+        "overlap_positive": 9939,
+        "overlap_30_50": 5929
+      }
+    }
+  }
+}

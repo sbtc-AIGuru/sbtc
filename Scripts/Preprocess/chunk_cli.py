@@ -61,7 +61,11 @@ def _empty_summary() -> dict:
     return {
         "records": 0, "ok": 0, "skipped": 0, "errors": 0,
         "cleaned_records": 0, "cleaning_actions": {}, "cleaning_warnings": {},
+        "cleaning_warning_record_counts": {}, "format_warning_record_counts": {},
         "parents": 0, "chunks": 0, "oversized_chunks": 0,
+        "chunks_over_300": 0, "chunks_over_500": 0, "unresolved_chunks": 0,
+        "oversized_split_reason_counts": {}, "atom_repair_reason_counts": {},
+        "short_under50_reason_counts": {},
         "source_non_whitespace": 0, "covered_non_whitespace": 0,
         "indexed_non_whitespace": 0, "excluded_non_whitespace": 0,
         "excluded_spans": 0,
@@ -69,6 +73,7 @@ def _empty_summary() -> dict:
         "document_nonfirst_children": 0, "document_overlap_positive": 0,
         "eligible_overlap_transitions": 0, "eligible_overlap_positive": 0,
         "overlap_30_50": 0,
+        "overlap_size_distribution": {key: 0 for key in ("0", "1-29", "30-50", ">50")},
         "unit_min": None, "unit_max": None,
         "reason_counts": {},
         "short_chunk_reason_counts": {}, "overlap_exception_counts": {},
@@ -102,6 +107,9 @@ def _add_result(summary: dict, result: dict) -> None:
         for warning in cleaning["warnings"]:
             code = warning["code"]
             summary["cleaning_warnings"][code] = summary["cleaning_warnings"].get(code, 0) + warning["count"]
+        for code in {warning['code'] for warning in cleaning['warnings']}:
+            counts = summary['cleaning_warning_record_counts']
+            counts[code] = counts.get(code, 0) + 1
     status = result["status"]
     summary["ok" if status == "ok" else "skipped" if status == "skipped" else "errors"] += 1
     if status != "ok":
@@ -115,6 +123,14 @@ def _add_result(summary: dict, result: dict) -> None:
         for warning in result.get("format_warnings", []):
             counts = summary.setdefault("format_warning_counts", {})
             counts[warning["code"]] = counts.get(warning["code"], 0) + warning["count"]
+        for code in {warning['code'] for warning in result.get('format_warnings', [])}:
+            counts = summary['format_warning_record_counts']
+            counts[code] = counts.get(code, 0) + 1
+        for atom in result.get('atom_spans', []):
+            reason = atom.get('repair_reason')
+            if reason:
+                counts = summary['atom_repair_reason_counts']
+                counts[reason] = counts.get(reason, 0) + 1
         for language in {s["language"] for s in result.get("content_language_spans", [])}:
             counts = summary.setdefault("content_language_counts", {})
             counts[language] = counts.get(language, 0) + 1
@@ -134,9 +150,18 @@ def _add_result(summary: dict, result: dict) -> None:
         summary["unit_max"] = units if summary["unit_max"] is None else max(summary["unit_max"], units)
         summary["chunk_size_distribution"][_size_bucket(units)] += 1
         summary["oversized_chunks"] += bool(child["oversized_reason"])
+        summary['chunks_over_300'] += units > 300
+        summary['chunks_over_500'] += units > 500
+        summary['unresolved_chunks'] += child.get('oversized_reason') == 'oversized_unresolved'
+        for reason in child.get('oversized_split_reasons', []):
+            counts = summary['oversized_split_reason_counts']
+            counts[reason] = counts.get(reason, 0) + 1
         short_reason = child.get("short_chunk_reason")
         if short_reason:
             summary["short_chunk_reason_counts"][short_reason] = summary["short_chunk_reason_counts"].get(short_reason, 0) + 1
+            if units < 50:
+                counts = summary['short_under50_reason_counts']
+                counts[short_reason] = counts.get(short_reason, 0) + 1
         exception = child.get("overlap_exception")
         if exception:
             summary["overlap_exception_counts"][exception] = summary["overlap_exception_counts"].get(exception, 0) + 1
@@ -147,6 +172,9 @@ def _add_result(summary: dict, result: dict) -> None:
             summary["eligible_overlap_transitions"] += 1
             summary["eligible_overlap_positive"] += child.get("overlap_units", 0) > 0
             summary["overlap_30_50"] += 30 <= child.get("overlap_units", 0) <= 50
+            overlap = child.get('overlap_units', 0)
+            bucket = '0' if overlap == 0 else '1-29' if overlap < 30 else '30-50' if overlap <= 50 else '>50'
+            summary['overlap_size_distribution'][bucket] += 1
         seen_parents.add(child["parent_id"])
     for span in result.get("excluded_spans", []):
         rule = span["rule_id"]
@@ -367,13 +395,15 @@ def main() -> None:
     parser.add_argument("--target-units", type=int, default=220)
     parser.add_argument("--max-units", type=int, default=300)
     parser.add_argument("--overlap-units", type=int, default=40)
+    parser.add_argument("--format-overlap-policy", choices=("post_pack", "reserve"), default="post_pack")
     parser.add_argument("--parent-max-units", type=int, default=1200)
     parser.add_argument("--shard-records", type=int, default=1000)
     parser.add_argument("--workers", type=int, default=1)
     parser.add_argument("--progress-every", type=int, default=1000)
     parser.add_argument("--resume", action="store_true")
     args = parser.parse_args()
-    config = ChunkConfig(args.min_units, args.target_units, args.max_units, args.overlap_units, args.parent_max_units)
+    config = ChunkConfig(args.min_units, args.target_units, args.max_units, args.overlap_units, args.parent_max_units,
+                         format_overlap_policy=args.format_overlap_policy)
     report = run_chunking(args.input, args.output, config, strategy=args.strategy, shard_records=args.shard_records, workers=args.workers, resume=args.resume, progress_every=args.progress_every)
     print(json.dumps(report, ensure_ascii=False, sort_keys=True))
 

@@ -1,6 +1,6 @@
 # Tổng hợp đánh giá và đề xuất cải tiến chunking
 
-Ngày: 2026-10-14. Trạng thái: đề xuất để review; chưa thay đổi thuật toán.
+Ngày: 2026-10-14. Trạng thái: đã triển khai theo duyệt của người dùng, bao gồm cleaner và benchmark test20k. Kế hoạch/tiến độ nằm trong `tasks/chunking-next-improvements-20261014/`; kết quả final r3: [REPORT-chunking-next-improvements-20261014.md](REPORT-chunking-next-improvements-20261014.md), 97 tests PASS và hai full audits 0 errors. Reserve giữ opt-in, post_pack là mặc định; chưa đo retrieval F2.
 
 ## Căn cứ và phạm vi số liệu
 

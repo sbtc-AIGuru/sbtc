@@ -75,11 +75,29 @@ def _format_analysis_issues(source: str, input_record: dict, output: dict, confi
                 issues.append("short merge provenance is missing or invalid")
             else:
                 previous_end = None
+                previous_order = -1
+                valid_spans = []
+                ids = [item.get('chunk_id') for item in provenance if isinstance(item, dict)]
+                if child.get('merged_from_chunk_ids') != ids or len(set(str(item) for item in ids)) != len(provenance):
+                    issues.append('short merge source IDs mismatch or duplicated')
                 for item in provenance:
+                    if not isinstance(item, dict):
+                        issues.append('short merge source metadata is not an object')
+                        continue
                     item_start, item_end = item.get("start_char"), item.get("end_char")
-                    if not isinstance(item_start, int) or not isinstance(item_end, int) or not (start <= item_start < item_end <= end):
+                    if type(item_start) is not int or type(item_end) is not int or not (start <= item_start < item_end <= end):
                         issues.append("short merge source span is invalid")
                         continue
+                    valid_spans.append((item_start, item_end))
+                    original_order = item.get('chunk_order')
+                    if type(original_order) is not int or original_order <= previous_order:
+                        issues.append('short merge source order is invalid')
+                    else:
+                        previous_order = original_order
+                    if item.get('chunk_id') != f"{input_record['id']}:c:{original_order}:{item_start}:{item_end}:{PROFILE_VERSION}":
+                        issues.append('short merge source chunk ID does not match its span/order')
+                    if item_start not in {a.start for a in expected['atoms']} or item_end not in {a.end for a in expected['atoms']}:
+                        issues.append('short merge source cuts an atom')
                     if item.get("parent_id") != child.get("parent_id") or item.get("doc_id") != input_record.get("id"):
                         issues.append("short merge crossed a document or parent boundary")
                     if item.get("unit_count") != count_units(source[item_start:item_end]) or item["unit_count"] >= 50:
@@ -90,9 +108,7 @@ def _format_analysis_issues(source: str, input_record: dict, output: dict, confi
                     if previous_end is not None and item_start > previous_end and source[previous_end:item_start].strip():
                         issues.append("short merge crossed uncovered source content")
                     previous_end = item_end
-                if min((item.get("start_char", start) for item in provenance), default=start) != start or max(
-                    (item.get("end_char", end) for item in provenance), default=end
-                ) != end:
+                if not valid_spans or min(a for a, _ in valid_spans) != start or max(b for _, b in valid_spans) != end:
                     issues.append("short merge does not match its source intervals")
                 if count_units(source[start:end]) > config.max_units:
                     issues.append("short merge exceeded the normal chunk budget")

@@ -1,0 +1,500 @@
+[
+  {
+    "doc_id": 269092,
+    "url": "https://nhathuoclongchau.com.vn/bai-viet/thuoc-tanganil-uong-trong-bao-lau-nhung-luu-y-khi-su-dung-thuoc.html",
+    "roles": [
+      "adverse",
+      "composition",
+      "dosing",
+      "indications"
+    ],
+    "identity": false,
+    "old_profile": "narrative_article",
+    "new_profile": "disease_drug_catalogue",
+    "source_same": true,
+    "chunk_spans_same": true
+  },
+  {
+    "doc_id": 268715,
+    "url": "https://nhathuoclongchau.com.vn/bai-viet/thuoc-bo-xuong-khop-cua-nhat-duoc-tin-dung-nhat-hien-nay-65249.html",
+    "roles": [
+      "composition",
+      "dosing",
+      "indications"
+    ],
+    "identity": true,
+    "old_profile": "narrative_article",
+    "new_profile": "disease_drug_catalogue",
+    "source_same": true,
+    "chunk_spans_same": true
+  },
+  {
+    "doc_id": 279284,
+    "url": "https://nhathuoclongchau.com.vn/bai-viet/vi-thuoc-xuyen-son-giap-co-loi-ich-gi.html",
+    "roles": [
+      "composition",
+      "contraindications",
+      "dosing",
+      "indications"
+    ],
+    "identity": false,
+    "old_profile": "narrative_article",
+    "new_profile": "disease_drug_catalogue",
+    "source_same": true,
+    "chunk_spans_same": true
+  },
+  {
+    "doc_id": 246158,
+    "url": "https://nhathuoclongchau.com.vn/bai-viet/medrol-la-thuoc-gi-tac-dung-cua-thuoc-medrol.html",
+    "roles": [
+      "adverse",
+      "composition",
+      "dosing",
+      "indications"
+    ],
+    "identity": false,
+    "old_profile": "narrative_article",
+    "new_profile": "disease_drug_catalogue",
+    "source_same": true,
+    "chunk_spans_same": true
+  },
+  {
+    "doc_id": 269037,
+    "url": "https://nhathuoclongchau.com.vn/bai-viet/thuoc-oracortia-co-dung-cho-tre-em-duoc-khong-cach-dung-nhu-the-nao.html",
+    "roles": [
+      "adverse",
+      "composition",
+      "dosing",
+      "indications"
+    ],
+    "identity": false,
+    "old_profile": "narrative_article",
+    "new_profile": "disease_drug_catalogue",
+    "source_same": true,
+    "chunk_spans_same": true
+  },
+  {
+    "doc_id": 272409,
+    "url": "https://nhathuoclongchau.com.vn/bai-viet/tong-hop-nhung-loai-siro-ho-la-thuong-xuan-pho-bien-hien-nay.html",
+    "roles": [
+      "composition",
+      "dosing",
+      "indications"
+    ],
+    "identity": true,
+    "old_profile": "narrative_article",
+    "new_profile": "disease_drug_catalogue",
+    "source_same": true,
+    "chunk_spans_same": true
+  },
+  {
+    "doc_id": 219098,
+    "url": "https://nhathuoclongchau.com.vn/bai-viet/cach-dung-thuoc-khi-dung-ventolin-va-pulmicort-chinh-xac-hieu-qua-nhat.html",
+    "roles": [
+      "adverse",
+      "dosing",
+      "indications",
+      "interactions"
+    ],
+    "identity": false,
+    "old_profile": "narrative_article",
+    "new_profile": "disease_drug_catalogue",
+    "source_same": true,
+    "chunk_spans_same": true
+  },
+  {
+    "doc_id": 268660,
+    "url": "https://nhathuoclongchau.com.vn/bai-viet/thuoc-alaxan-uong-nhu-the-nao-luu-y-khi-dung-thuoc-alaxan.html",
+    "roles": [
+      "adverse",
+      "composition",
+      "dosing",
+      "indications"
+    ],
+    "identity": false,
+    "old_profile": "narrative_article",
+    "new_profile": "disease_drug_catalogue",
+    "source_same": true,
+    "chunk_spans_same": true
+  },
+  {
+    "doc_id": 265699,
+    "url": "https://nhathuoclongchau.com.vn/bai-viet/tanagel-la-thuoc-gi-nhung-dieu-can-luu-y-khi-su-dung-thuoc-tanagel-70169.html",
+    "roles": [
+      "adverse",
+      "composition",
+      "contraindications",
+      "dosing",
+      "indications",
+      "interactions"
+    ],
+    "identity": false,
+    "old_profile": "narrative_article",
+    "new_profile": "disease_drug_catalogue",
+    "source_same": true,
+    "chunk_spans_same": true
+  },
+  {
+    "doc_id": 268893,
+    "url": "https://nhathuoclongchau.com.vn/bai-viet/thuoc-ha-sot-hapacol-150-cho-tre-bao-nhieu-kg-luu-y-khi-dung-hapacol-150-cho-tre.html",
+    "roles": [
+      "composition",
+      "dosing",
+      "indications",
+      "interactions"
+    ],
+    "identity": false,
+    "old_profile": "narrative_article",
+    "new_profile": "disease_drug_catalogue",
+    "source_same": true,
+    "chunk_spans_same": true
+  },
+  {
+    "doc_id": 277954,
+    "url": "https://nhathuoclongchau.com.vn/bai-viet/uong-thuoc-utrogestan-200mg-co-anh-huong-den-thai-nhi-khong.html",
+    "roles": [
+      "adverse",
+      "composition",
+      "dosing",
+      "indications"
+    ],
+    "identity": false,
+    "old_profile": "narrative_article",
+    "new_profile": "disease_drug_catalogue",
+    "source_same": true,
+    "chunk_spans_same": true
+  },
+  {
+    "doc_id": 277810,
+    "url": "https://nhathuoclongchau.com.vn/bai-viet/uong-thuoc-bo-nao-vao-luc-nao-la-tot-nhat-thong-tin-huu-ich-ve-thuoc-bo-nao.html",
+    "roles": [
+      "adverse",
+      "composition",
+      "dosing",
+      "interactions"
+    ],
+    "identity": false,
+    "old_profile": "narrative_article",
+    "new_profile": "disease_drug_catalogue",
+    "source_same": true,
+    "chunk_spans_same": true
+  },
+  {
+    "doc_id": 268694,
+    "url": "https://nhathuoclongchau.com.vn/bai-viet/thuoc-bisolvon-uong-truoc-hay-sau-an-cach-su-dung-thuoc-bisolvon-an-toan-va-hieu-qua.html",
+    "roles": [
+      "adverse",
+      "composition",
+      "contraindications",
+      "dosing",
+      "indications"
+    ],
+    "identity": false,
+    "old_profile": "narrative_article",
+    "new_profile": "disease_drug_catalogue",
+    "source_same": true,
+    "chunk_spans_same": true
+  },
+  {
+    "doc_id": 759366,
+    "url": "https://youmed.vn/tin-tuc/acyclovir-boston-800/",
+    "roles": [
+      "adverse",
+      "composition",
+      "contraindications",
+      "dosing",
+      "indications",
+      "interactions"
+    ],
+    "identity": true,
+    "old_profile": "narrative_article",
+    "new_profile": "disease_drug_catalogue",
+    "source_same": true,
+    "chunk_spans_same": true
+  },
+  {
+    "doc_id": 499246,
+    "url": "https://suckhoedoisong.vn/cach-dung-nam-huong-ho-tro-giam-mo-mau-169230204140605523.htm",
+    "roles": [
+      "composition",
+      "dosing",
+      "indications"
+    ],
+    "identity": true,
+    "old_profile": "narrative_article",
+    "new_profile": "disease_drug_catalogue",
+    "source_same": true,
+    "chunk_spans_same": true
+  },
+  {
+    "doc_id": 764534,
+    "url": "https://youmed.vn/tin-tuc/thuoc-dermovate-clobetasol/",
+    "roles": [
+      "adverse",
+      "composition",
+      "contraindications",
+      "dosing",
+      "interactions"
+    ],
+    "identity": true,
+    "old_profile": "narrative_article",
+    "new_profile": "disease_drug_catalogue",
+    "source_same": true,
+    "chunk_spans_same": true
+  },
+  {
+    "doc_id": 761429,
+    "url": "https://youmed.vn/tin-tuc/di-angesic/",
+    "roles": [
+      "adverse",
+      "composition",
+      "contraindications",
+      "dosing",
+      "indications",
+      "interactions"
+    ],
+    "identity": true,
+    "old_profile": "narrative_article",
+    "new_profile": "disease_drug_catalogue",
+    "source_same": true,
+    "chunk_spans_same": true
+  },
+  {
+    "doc_id": 565011,
+    "url": "https://suckhoeviet.org.vn/cay-xa-den-tong-quan-dac-diem-va-7-bai-thuoc-tri-benh-hay-10087.html",
+    "roles": [
+      "adverse",
+      "composition",
+      "contraindications",
+      "dosing",
+      "indications"
+    ],
+    "identity": false,
+    "old_profile": "narrative_article",
+    "new_profile": "disease_drug_catalogue",
+    "source_same": true,
+    "chunk_spans_same": true
+  },
+  {
+    "doc_id": 764623,
+    "url": "https://youmed.vn/tin-tuc/thuoc-giam-dau-khang-viem-khong-steroid-nsaids/",
+    "roles": [
+      "adverse",
+      "dosing",
+      "indications",
+      "interactions"
+    ],
+    "identity": false,
+    "old_profile": "narrative_article",
+    "new_profile": "disease_drug_catalogue",
+    "source_same": true,
+    "chunk_spans_same": true
+  },
+  {
+    "doc_id": 764390,
+    "url": "https://youmed.vn/tin-tuc/thuoc-biviantac-thuoc-dung-cho-cac-roi-loan-tieu-hoa/",
+    "roles": [
+      "adverse",
+      "composition",
+      "contraindications",
+      "dosing",
+      "indications",
+      "interactions"
+    ],
+    "identity": false,
+    "old_profile": "narrative_article",
+    "new_profile": "disease_drug_catalogue",
+    "source_same": true,
+    "chunk_spans_same": true
+  },
+  {
+    "doc_id": 764856,
+    "url": "https://youmed.vn/tin-tuc/thuoc-scanneuron-forte/",
+    "roles": [
+      "adverse",
+      "composition",
+      "dosing",
+      "interactions"
+    ],
+    "identity": true,
+    "old_profile": "narrative_article",
+    "new_profile": "disease_drug_catalogue",
+    "source_same": true,
+    "chunk_spans_same": true
+  },
+  {
+    "doc_id": 193224,
+    "url": "https://medlatec.vn/tin-tuc/thuoc-celecoxib-va-nhung-dieu-can-luu-y-khi-su-dung",
+    "roles": [
+      "adverse",
+      "composition",
+      "contraindications",
+      "dosing",
+      "indications",
+      "interactions"
+    ],
+    "identity": false,
+    "old_profile": "narrative_article",
+    "new_profile": "disease_drug_catalogue",
+    "source_same": true,
+    "chunk_spans_same": true
+  },
+  {
+    "doc_id": 746302,
+    "url": "https://www.vinmec.com/vie/bai-viet/luu-y-khi-uong-thuoc-utrogestan-100mg-trong-3-thang-dau-mang-thai-vi",
+    "roles": [
+      "adverse",
+      "contraindications",
+      "dosing",
+      "indications",
+      "interactions"
+    ],
+    "identity": false,
+    "old_profile": "narrative_article",
+    "new_profile": "disease_drug_catalogue",
+    "source_same": true,
+    "chunk_spans_same": true
+  },
+  {
+    "doc_id": 182511,
+    "url": "https://medlatec.vn/tin-tuc/fluoxetine-thuoc-dieu-tri-tram-cam-roi-loan-am-anh-va-cac-benh-ly-than-kinh-khac",
+    "roles": [
+      "adverse",
+      "contraindications",
+      "dosing",
+      "indications",
+      "interactions"
+    ],
+    "identity": false,
+    "old_profile": "narrative_article",
+    "new_profile": "disease_drug_catalogue",
+    "source_same": true,
+    "chunk_spans_same": true
+  },
+  {
+    "doc_id": 186315,
+    "url": "https://medlatec.vn/tin-tuc/luu-y-khi-su-dung-thuoc-ngu-seduxen",
+    "roles": [
+      "adverse",
+      "dosing",
+      "indications",
+      "interactions"
+    ],
+    "identity": false,
+    "old_profile": "narrative_article",
+    "new_profile": "disease_drug_catalogue",
+    "source_same": true,
+    "chunk_spans_same": true
+  },
+  {
+    "doc_id": 740092,
+    "url": "https://www.vinmec.com/vie/bai-viet/cong-dung-thuoc-axitinib-vi",
+    "roles": [
+      "adverse",
+      "composition",
+      "dosing",
+      "indications"
+    ],
+    "identity": false,
+    "old_profile": "narrative_article",
+    "new_profile": "disease_drug_catalogue",
+    "source_same": true,
+    "chunk_spans_same": true
+  },
+  {
+    "doc_id": 753546,
+    "url": "https://www.vinmec.com/vie/bai-viet/thuoc-eprazinone-cong-dung-lieu-dung-va-luu-y-tac-dung-phu-vi",
+    "roles": [
+      "adverse",
+      "composition",
+      "contraindications",
+      "dosing",
+      "indications"
+    ],
+    "identity": false,
+    "old_profile": "narrative_article",
+    "new_profile": "disease_drug_catalogue",
+    "source_same": true,
+    "chunk_spans_same": true
+  },
+  {
+    "doc_id": 189365,
+    "url": "https://medlatec.vn/tin-tuc/nhung-dieu-can-luu-y-khi-dung-thuoc-huyet-ap-exforge-5/80mg",
+    "roles": [
+      "adverse",
+      "composition",
+      "contraindications",
+      "dosing",
+      "indications"
+    ],
+    "identity": false,
+    "old_profile": "narrative_article",
+    "new_profile": "disease_drug_catalogue",
+    "source_same": true,
+    "chunk_spans_same": true
+  },
+  {
+    "doc_id": 193402,
+    "url": "https://medlatec.vn/tin-tuc/thuoc-nho-mat-cravit-0-5-huong-dan-su-dung-va-mot-vai-luu-y-can-biet",
+    "roles": [
+      "adverse",
+      "contraindications",
+      "dosing",
+      "indications"
+    ],
+    "identity": false,
+    "old_profile": "narrative_article",
+    "new_profile": "disease_drug_catalogue",
+    "source_same": true,
+    "chunk_spans_same": true
+  },
+  {
+    "doc_id": 180660,
+    "url": "https://medlatec.vn/tin-tuc/cong-dung-cua-thuoc-ketoconazol-va-cach-su-dung",
+    "roles": [
+      "adverse",
+      "composition",
+      "dosing",
+      "indications",
+      "interactions"
+    ],
+    "identity": false,
+    "old_profile": "narrative_article",
+    "new_profile": "disease_drug_catalogue",
+    "source_same": true,
+    "chunk_spans_same": true
+  },
+  {
+    "doc_id": 186260,
+    "url": "https://medlatec.vn/tin-tuc/loratadine-thuoc-nhom-thuoc-khang-histamin-can-can-trong-khi-dung",
+    "roles": [
+      "adverse",
+      "contraindications",
+      "dosing",
+      "indications",
+      "interactions"
+    ],
+    "identity": false,
+    "old_profile": "narrative_article",
+    "new_profile": "disease_drug_catalogue",
+    "source_same": true,
+    "chunk_spans_same": true
+  },
+  {
+    "doc_id": 193491,
+    "url": "https://medlatec.vn/tin-tuc/thuoc-tim-nho-giot-cortonyl-cong-dung-va-luu-y-su-dung-2",
+    "roles": [
+      "adverse",
+      "composition",
+      "contraindications",
+      "dosing",
+      "indications",
+      "interactions"
+    ],
+    "identity": false,
+    "old_profile": "narrative_article",
+    "new_profile": "disease_drug_catalogue",
+    "source_same": true,
+    "chunk_spans_same": true
+  }
+]

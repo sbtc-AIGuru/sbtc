@@ -35,6 +35,7 @@ class ChunkConfig:
     overlap_units: int = 40
     parent_max_units: int = 1200
     version: str = "paragraph-v3"
+    format_overlap_policy: str = "post_pack"
 
     def __post_init__(self) -> None:
         if not (0 < self.min_units <= self.target_units <= self.max_units):
@@ -45,6 +46,8 @@ class ChunkConfig:
             raise ValueError("parent_max_units must be at least max_units")
         if not self.version or any(ch.isspace() for ch in self.version):
             raise ValueError("version must be nonempty and contain no whitespace")
+        if self.format_overlap_policy not in ("post_pack", "reserve"):
+            raise ValueError("format_overlap_policy must be post_pack or reserve")
 
 
 @dataclass(frozen=True)

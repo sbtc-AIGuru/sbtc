@@ -1,0 +1,295 @@
+"""Pack format-profile atoms without rewriting or splicing source text."""
+from __future__ import annotations
+
+from sbtc.Scripts.Preprocess.chunking import ChunkConfig, count_units, _covered_non_whitespace
+from sbtc.Scripts.Preprocess.format_profiles import Atom, PROFILE_VERSION, analyse_format
+
+
+def _parent_groups(atoms: list[Atom], config: ChunkConfig) -> list[list[Atom]]:
+    groups, current, units = [], [], 0
+    for atom in atoms:
+        if current and (atom.region != current[-1].region or units + atom.units > config.parent_max_units):
+            groups.append(current)
+            current, units = [], 0
+        current.append(atom)
+        units += atom.units
+    if current: groups.append(current)
+    # Rebalance a tiny parent remainder within the same semantic region.
+    for index in range(len(groups) - 1, 0, -1):
+        previous, tail = groups[index - 1], groups[index]
+        if previous[-1].region != tail[0].region: continue
+        while sum(a.units for a in tail) < config.min_units and len(previous) > 1:
+            candidate = previous[-1]
+            if sum(a.units for a in previous[:-1]) < config.min_units: break
+            if sum(a.units for a in tail) + candidate.units > config.parent_max_units: break
+            tail.insert(0, previous.pop())
+    return groups
+
+
+def _reserve_overlap_units(atoms: list[Atom], previous_start: int, start: int, config: ChunkConfig) -> int:
+    """Reserve a short intact suffix without starving the new chunk's body."""
+    capacity = min(max(50, config.overlap_units * 2),
+                   config.max_units - config.min_units, config.max_units - atoms[start].units)
+    units, candidates = 0, []
+    for index in range(start - 1, previous_start - 1, -1):
+        units += atoms[index].units
+        if units > capacity:
+            break
+        candidates.append((abs(units - config.overlap_units), units))
+        if units >= config.overlap_units:
+            break
+    return min(candidates)[1] if candidates else 0
+
+
+def _pack(atoms: list[Atom], config: ChunkConfig) -> list[tuple[int, int, str | None]]:
+    if sum(a.units for a in atoms) <= config.max_units:
+        return [(0, len(atoms), None)]
+    ranges = []
+    start = 0
+    while start < len(atoms):
+        budget = config.max_units
+        if config.format_overlap_policy == 'reserve' and ranges and config.overlap_units:
+            budget -= _reserve_overlap_units(atoms, ranges[-1][0], start, config)
+        end, units = start, 0
+        while end < len(atoms):
+            atom = atoms[end]
+            if end > start and (units + atom.units > budget or
+                                units >= config.target_units or atom.units > config.max_units):
+                break
+            units += atom.units
+            end += 1
+            if atom.units > config.max_units: break
+        ranges.append([start, end])
+        start = end
+    # A short tail is often avoidable by moving an intact sentence from its neighbour.
+    if len(ranges) > 1:
+        left, tail = ranges[-2], ranges[-1]
+        left_units = sum(a.units for a in atoms[left[0]:left[1]])
+        tail_units = sum(a.units for a in atoms[tail[0]:tail[1]])
+        if left_units + tail_units <= config.max_units:
+            left[1] = tail[1]
+            ranges.pop()
+        else:
+            while tail_units < config.min_units and left[1] - left[0] > 1:
+                candidate = atoms[left[1] - 1].units
+                if left_units - candidate < config.min_units or tail_units + candidate > config.max_units: break
+                left[1] -= 1
+                tail[0] -= 1
+                left_units -= candidate
+                tail_units += candidate
+    packed = []
+    for index, (base_start, end) in enumerate(ranges):
+        overlap_start = base_start
+        exception = None
+        if index and config.overlap_units:
+            capacity = config.max_units - sum(a.units for a in atoms[base_start:end])
+            previous_start = ranges[index - 1][0]
+            overlap = 0
+            candidates = []
+            while overlap_start > previous_start:
+                candidate = atoms[overlap_start - 1].units
+                if overlap + candidate > capacity: break
+                overlap_start -= 1
+                overlap += candidate
+                candidates.append((abs(overlap - config.overlap_units), overlap_start, overlap))
+                if overlap >= config.overlap_units: break
+            if candidates:
+                _, overlap_start, overlap = min(candidates)
+                if not 30 <= overlap <= 50: exception = "whole_atom_overlap"
+            else:
+                overlap_start = base_start
+                exception = "whole_atom_exceeds_capacity"
+        elif index:
+            exception = "overlap_disabled"
+        packed.append((overlap_start, end, exception))
+    return packed
+
+
+def _atom_metadata(atom: Atom) -> dict:
+    return dict(start_char=atom.start, end_char=atom.end, role=atom.role, boundary_type=atom.boundary_type,
+                section_path=list(atom.section_path), language=atom.language, region=atom.region,
+                unit_count=atom.units, repair_reason=atom.repair_reason)
+
+
+def _chunk_provenance(child: dict) -> dict:
+    return {key: child[key] for key in (
+        "chunk_id", "chunk_order", "doc_id", "parent_id", "start_char", "end_char", "unit_count",
+        "section_roles", "section_paths", "content_languages",
+    )}
+
+
+def _merge_short_children(children: list[dict], source: str, config: ChunkConfig) -> list[dict]:
+    """Merge consecutive <50-unit chunks only when all semantic boundaries match."""
+    merged: list[dict] = []
+    for original in children:
+        child = dict(original)
+        if merged:
+            previous = merged[-1]
+            same_context = all(previous.get(key) == child.get(key) for key in (
+                "parent_id", "profile", "section_roles", "section_paths", "content_languages",
+            ))
+            previous_is_short_run = previous.get("unit_count", 0) < 50 or previous.get("merge_reason") == "consecutive_short_chunks"
+            ordered = previous["start_char"] <= child["start_char"]
+            gap_is_whitespace = (previous["end_char"] >= child["start_char"] or
+                                 not source[previous["end_char"]:child["start_char"]].strip())
+            start, end = min(previous["start_char"], child["start_char"]), max(previous["end_char"], child["end_char"])
+            can_merge = (same_context and previous_is_short_run and child.get("unit_count", 0) < 50
+                         and ordered and gap_is_whitespace and count_units(source[start:end]) <= config.max_units)
+            if can_merge:
+                previous_provenance = previous.get("merged_from_chunks") or [_chunk_provenance(previous)]
+                child_provenance = child.get("merged_from_chunks") or [_chunk_provenance(child)]
+                combined = dict(previous)
+                combined.update(
+                    start_char=start, end_char=end, chunk_text=source[start:end],
+                    unit_count=count_units(source[start:end]), boundary_type="merged_short_chunks",
+                    boundary_reason="short_chunk_merge", merge_reason="consecutive_short_chunks",
+                    merged_from_chunks=previous_provenance + child_provenance,
+                    merged_from_chunk_ids=[item["chunk_id"] for item in previous_provenance + child_provenance],
+                    oversized_split_reasons=sorted(set(previous.get("oversized_split_reasons", [])) |
+                                                   set(child.get("oversized_split_reasons", []))),
+                )
+                merged[-1] = combined
+                continue
+        merged.append(child)
+    for order, child in enumerate(merged):
+        child["chunk_order"] = order
+        child["chunk_id"] = f"{child['doc_id']}:c:{order}:{child['start_char']}:{child['end_char']}:{PROFILE_VERSION}"
+    return merged
+
+
+def build_format_chunks(source: str, record: dict, config: ChunkConfig, output: dict) -> dict:
+    analysis = analyse_format(source, record["url"])
+    metadata, atoms = analysis["metadata"], analysis["atoms"]
+    output.update(metadata)
+    output["version"] = PROFILE_VERSION
+    output["budget_config_tag"] = config.version
+    output["atom_spans"] = [_atom_metadata(atom) for atom in atoms]
+    for name in ("title_spans", "heading_spans", "section_spans", "question_spans", "answer_spans", "content_language_spans", "protected_spans"):
+        output[name] = analysis[name]
+    doc_id = record["id"]
+    excluded = [dict(span, doc_id=doc_id) for span in analysis["excluded_spans"]]
+    output["excluded_spans"] = excluded
+    question = None
+    if analysis["question_spans"]:
+        question = dict(start_char=analysis["question_spans"][0]["start_char"], end_char=analysis["question_spans"][-1]["end_char"])
+    for parent_order, parent_atoms in enumerate(_parent_groups(atoms, config)):
+        start, end = parent_atoms[0].start, parent_atoms[-1].end
+        parent_id = f"{doc_id}:p:{parent_order}:{start}:{end}:{PROFILE_VERSION}"
+        roles = sorted({a.role for a in parent_atoms})
+        parent = dict(parent_id=parent_id, start_char=start, end_char=end, block_type=metadata["profile"],
+                      unit_count=count_units(source[start:end]), section_roles=roles,
+                      section_paths=[list(p) for p in dict.fromkeys(a.section_path for a in parent_atoms)],
+                      content_languages=sorted({a.language for a in parent_atoms}), question_span=question,
+                      topic=None)
+        parent["title_span"] = analysis["title_spans"][0] if analysis["title_spans"] else None
+        parent["heading_spans"] = [span for span in analysis["heading_spans"] if start <= span["start_char"] < end]
+        parent["block_role"] = "answer_region" if metadata["profile"] == "qa" and question and start >= question["end_char"] else metadata["profile"]
+        parent["answer_span"] = dict(start_char=start, end_char=end) if parent["block_role"] == "answer_region" else None
+        parent["section_paths"] = [[s["label"]] for s in analysis["section_spans"] if max(start, s["start_char"]) < min(end, s["end_char"])]
+        output["parents"].append(parent)
+        previous_child = None
+        for first_atom, end_atom, exception in _pack(parent_atoms, config):
+            selected = parent_atoms[first_atom:end_atom]
+            child_start, child_end = selected[0].start, selected[-1].end
+            units = count_units(source[child_start:child_end])
+            split_reasons = sorted({a.repair_reason for a in selected if a.repair_reason})
+            oversized = None
+            if units > config.max_units:
+                oversized = ("oversized_unresolved" if "oversized_unresolved" in split_reasons else
+                             "oversized_structural_atom" if selected[0].boundary_type in ("structural_atom", "list_entry", "must_link_atom") else
+                             "oversized_sentence")
+            overlap = 0
+            if previous_child and child_start < previous_child["end_char"]:
+                overlap = count_units(source[child_start:min(child_end, previous_child["end_char"])])
+            if not previous_child:
+                exception = "document_start" if not output["children"] else "semantic_region_or_parent_boundary"
+            if units < 100:
+                short_reason = ("short_document" if output["source_units"] < 100 else
+                                "question_context" if all(a.role in ("title", "question") for a in selected) and metadata["profile"] == "qa" else
+                                "hard_boundary_region" if parent["unit_count"] < 100 else "whole_atom_budget_remainder")
+                evidence = dict(parent_units=parent["unit_count"], source_units=output["source_units"],
+                                atom_units=[a.units for a in selected], max_units=config.max_units,
+                                region=selected[0].region)
+            else:
+                short_reason, evidence = None, None
+            order = len(output["children"])
+            boundary_reason = ("oversized_unresolved" if "oversized_unresolved" in split_reasons else
+                               "oversized_repair" if split_reasons else "whole_source_atom")
+            child = dict(chunk_id=f"{doc_id}:c:{order}:{child_start}:{child_end}:{PROFILE_VERSION}", parent_id=parent_id,
+                         doc_id=doc_id, chunk_order=order, start_char=child_start, end_char=child_end,
+                         chunk_text=source[child_start:child_end], unit_count=units, oversized_reason=oversized,
+                         boundary_type=selected[-1].boundary_type, boundary_reason=boundary_reason,
+                         oversized_split_reasons=split_reasons,
+                         short_chunk_reason=short_reason, short_reason_evidence=evidence,
+                         overlap_units=overlap, overlap_exception=exception, retrieval_eligible=True,
+                         profile=metadata["profile"], section_roles=sorted({a.role for a in selected}),
+                         section_paths=[list(p) for p in dict.fromkeys(a.section_path for a in selected)],
+                         content_languages=sorted({a.language for a in selected}),
+                         protected_span_checks={"cuts": 0, "policy": "source_slice_safe_boundaries"})
+            child["section_paths"] = [[s["label"]] for s in analysis["section_spans"] if max(child_start, s["start_char"]) < min(child_end, s["end_char"])]
+            output["children"].append(child)
+            previous_child = child
+    output["children"] = _merge_short_children(output["children"], source, config)
+    parents_by_id = {parent["parent_id"]: parent for parent in output["parents"]}
+    previous_by_parent = {}
+    for order, child in enumerate(output["children"]):
+        child["chunk_order"] = order
+        child["chunk_id"] = f"{doc_id}:c:{order}:{child['start_char']}:{child['end_char']}:{PROFILE_VERSION}"
+        child["chunk_text"] = source[child["start_char"]:child["end_char"]]
+        child["unit_count"] = count_units(child["chunk_text"])
+        parent = parents_by_id[child["parent_id"]]
+        selected = [atom for atom in atoms
+                    if child["start_char"] <= atom.start and atom.end <= child["end_char"]]
+        child["section_paths"] = [[s["label"]] for s in analysis["section_spans"]
+                                  if max(child["start_char"], s["start_char"]) < min(child["end_char"], s["end_char"])]
+        if child["unit_count"] < 100:
+            child["short_chunk_reason"] = (
+                "short_document" if output["source_units"] < 100 else
+                "question_context" if selected and all(a.role in ("title", "question") for a in selected) and metadata["profile"] == "qa" else
+                "hard_boundary_region" if parent["unit_count"] < 100 else "whole_atom_budget_remainder"
+            )
+            child["short_reason_evidence"] = dict(
+                parent_units=parent["unit_count"], source_units=output["source_units"],
+                atom_units=[a.units for a in selected], max_units=config.max_units,
+                region=selected[0].region if selected else None,
+            )
+        else:
+            child["short_chunk_reason"] = None
+            child["short_reason_evidence"] = None
+        previous = previous_by_parent.get(child["parent_id"])
+        if previous is None:
+            child["overlap_units"] = 0
+            child["overlap_exception"] = "document_start" if order == 0 else "semantic_region_or_parent_boundary"
+        else:
+            overlap_start = max(previous["start_char"], child["start_char"])
+            overlap_end = min(previous["end_char"], child["end_char"])
+            child["overlap_units"] = count_units(source[overlap_start:overlap_end]) if overlap_start < overlap_end else 0
+            if 30 <= child["overlap_units"] <= 50:
+                child["overlap_exception"] = None
+            elif child["overlap_units"]:
+                child["overlap_exception"] = "whole_atom_overlap_after_merge" if child.get('merge_reason') else "whole_atom_overlap"
+            else:
+                child["overlap_exception"] = child.get("overlap_exception") or "no_source_overlap_after_merge"
+        previous_by_parent[child["parent_id"]] = child
+    total = sum(not ch.isspace() for ch in source)
+    indexed = _covered_non_whitespace(source, output["children"])
+    excluded_count = _covered_non_whitespace(source, excluded)
+    covered = _covered_non_whitespace(source, output["children"] + excluded)
+    if covered != total: raise AssertionError("Format chunk spans do not cover source")
+    output["coverage"] = dict(non_whitespace_total=total, non_whitespace_covered=covered,
+                              non_whitespace_indexed=indexed, non_whitespace_excluded=excluded_count)
+    heading_starts = [s["start_char"] for s in analysis["heading_spans"]]
+    intact = sum(sum(c["start_char"] < start < c["end_char"] for start in heading_starts) == 0 for c in output["children"])
+    output["structural_boundary_rate"] = intact / len(output["children"]) if output["children"] else 1.0
+    output["atom_boundary_rate"] = 1.0
+    warnings = []
+    if metadata["format_confidence"] == "low": warnings.append(dict(code="uncertain_format", count=1))
+    if any(child["oversized_reason"] for child in output["children"]):
+        warnings.append(dict(code="oversized_atom_review", count=sum(bool(c["oversized_reason"]) for c in output["children"])))
+    if analysis["damaged_bracket_count"]:
+        warnings.append(dict(code="damaged_bracket_review", count=analysis["damaged_bracket_count"]))
+    if record["text"].count("|") >= 6:
+        warnings.append(dict(code="structure_lost", count=1))
+    if metadata["profile"] == "structured_list": warnings.append(dict(code="content_limited", count=1))
+    output["format_warnings"] = warnings
+    return output

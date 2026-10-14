@@ -93,3 +93,5 @@ Kết quả: 75 tests PASS; CLI xử lý 20.000 dòng, 0 runtime errors; audit `
 - Output baseline: `/home/tran-nhat-truong/TranNhatTruong/other/AIGuru/data_final/chunks_format_v2_baseline_test20k/`.
 
 Đánh giá bổ sung về overlap, profile, TOC/link vỡ, short chunks và các phương án đánh đổi được lưu tại [PROPOSAL-chunking-next-improvements-20261014.md](PROPOSAL-chunking-next-improvements-20261014.md). Số liệu diagnostic của đợt review nằm trong `tasks/chunk-quality-update-20261014/review-synthesis-metrics.json`; đây là phân tích output test20k đã có, không phải một lượt chạy thuật toán mới.
+
+Đợt triển khai kế tiếp đã hoàn tất trên test20k với format-v3/verbatim-v5: [REPORT-chunking-next-improvements-20261014.md](REPORT-chunking-next-improvements-20261014.md), 97 tests PASS, hai full audit final r3 0 errors. Số liệu v2 trong báo cáo này được giữ làm lịch sử đối chiếu.

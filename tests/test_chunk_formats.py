@@ -145,7 +145,7 @@ class FormatChunkingTests(unittest.TestCase):
                 output = self.output(doc_id)
                 source = self.sources[doc_id]
                 self.assertIn(output["profile"], PROFILES)
-                self.assertEqual(output["profile_version"], "format-v2")
+                self.assertEqual(output["profile_version"], "format-v3")
                 self.assertIn(output["format_confidence"], ("high", "medium", "low"))
                 self.assertTrue(output["format_evidence"])
                 self.assertIsInstance(output["source_language"], str)
@@ -652,7 +652,7 @@ class FormatChunkingTests(unittest.TestCase):
             paths = [[section["label"]] for section in analysis["section_spans"]
                      if max(start, section["start_char"]) < min(end, section["end_char"])]
             return {
-                "chunk_id": f"{doc_id}:c:{order}:{start}:{end}:format-v2",
+                "chunk_id": f"{doc_id}:c:{order}:{start}:{end}:format-v3",
                 "doc_id": doc_id, "chunk_order": order, "parent_id": f"{doc_id}:p:0",
                 "start_char": start, "end_char": end, "chunk_text": source[start:end],
                 "unit_count": count_units(source[start:end]), "profile": analysis["metadata"]["profile"],

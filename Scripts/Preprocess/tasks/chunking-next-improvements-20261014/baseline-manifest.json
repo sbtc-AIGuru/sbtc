@@ -1,0 +1,139 @@
+{
+  "input": "/home/tran-nhat-truong/TranNhatTruong/other/AIGuru/data_final/test_20k.jsonl",
+  "input_sha256": "9fdacfb07ecc1757c53c5b03bd41d31358c4a0db74fea785a6a62f90cfe8bf43",
+  "output": "/home/tran-nhat-truong/TranNhatTruong/other/AIGuru/data_final/chunks_format_v2_test20k",
+  "checkpoint": {
+    "cleaner_version": "verbatim-v4",
+    "config": {
+      "max_units": 300,
+      "min_units": 150,
+      "overlap_units": 40,
+      "parent_max_units": 1200,
+      "target_units": 220,
+      "version": "paragraph-v3"
+    },
+    "config_sha256": "9a27d581dbb27f3cd0b0d7d293f369fd023c3c949e790912eb68c67b79fb1605",
+    "done": true,
+    "format_code_sha256": "e1d385e7ba90f498bb4d35eefbaa2a5151b96e445d33f876b04ddde66ca88adc",
+    "input_sha256": "9fdacfb07ecc1757c53c5b03bd41d31358c4a0db74fea785a6a62f90cfe8bf43",
+    "last_line": 20000,
+    "next_offset": 70570716,
+    "next_shard": 20,
+    "profile_version": "format-v2",
+    "shard_records": 1000,
+    "strategy": "format",
+    "summary": {
+      "chunk_size_distribution": {
+        "0-49": 2037,
+        "100-149": 2864,
+        "150-219": 12060,
+        "220-300": 43079,
+        "50-99": 2421,
+        ">300": 22
+      },
+      "chunks": 62483,
+      "cleaned_records": 19900,
+      "cleaning_actions": {
+        "control_separator": 8,
+        "horizontal_space": 562,
+        "known_ui": 3,
+        "line_whitespace": 284,
+        "markdown_link": 2,
+        "markdown_quote": 1755,
+        "soft_hyphen": 20,
+        "unicode_space": 11119
+      },
+      "cleaning_warnings": {
+        "incomplete_markdown_link": 541,
+        "replacement_character": 3,
+        "retained_format_character": 837
+      },
+      "content_language_counts": {
+        "en": 4398,
+        "es": 150,
+        "fr": 99,
+        "sr": 4,
+        "und": 14403,
+        "vi": 9580,
+        "zh": 4770
+      },
+      "covered_non_whitespace": 37333358,
+      "document_nonfirst_children": 42585,
+      "document_overlap_positive": 30295,
+      "eligible_overlap_positive": 30295,
+      "eligible_overlap_transitions": 34706,
+      "errors": 0,
+      "excluded_non_whitespace": 185982,
+      "excluded_rule_counts": {
+        "alphabetical_navigation_tail": 17,
+        "book_pagination": 207,
+        "catalogue_header_context": 4,
+        "doctor_biography": 392,
+        "drug_taxonomy_navigation": 39,
+        "duplicate_rendered_paragraph": 18,
+        "duplicate_title_before_navigation": 52,
+        "icd_navigation": 2,
+        "related_arrow_tail": 20,
+        "related_articles_navigation": 4,
+        "related_content_tail": 4,
+        "repeated_field_toc": 8,
+        "store_navigation": 52,
+        "unsupported_audio_line": 76,
+        "wiki_navigation_footer": 4
+      },
+      "excluded_spans": 899,
+      "format_warning_counts": {
+        "content_limited": 1,
+        "damaged_bracket_review": 1721,
+        "oversized_atom_review": 22,
+        "uncertain_format": 13068
+      },
+      "indexed_non_whitespace": 37147376,
+      "ok": 19898,
+      "overlap_30_50": 20489,
+      "overlap_exception_counts": {
+        "document_start": 19898,
+        "semantic_region_or_parent_boundary": 7879,
+        "whole_atom_exceeds_capacity": 4411,
+        "whole_atom_overlap_after_merge": 9806
+      },
+      "oversized_chunks": 22,
+      "parents": 27777,
+      "profile_counts": {
+        "disease_drug_catalogue": 307,
+        "generic": 54,
+        "narrative_article": 13014,
+        "qa": 1800,
+        "research_abstract": 4482,
+        "structured_list": 1,
+        "tcm_book": 240
+      },
+      "reason_counts": {
+        "crawl_error_placeholder": 2,
+        "crawl_failed": 100
+      },
+      "records": 20000,
+      "short_chunk_reason_counts": {
+        "hard_boundary_region": 862,
+        "question_context": 352,
+        "short_document": 3220,
+        "whole_atom_budget_remainder": 24
+      },
+      "skipped": 102,
+      "source_non_whitespace": 37333358,
+      "structural_intact_chunks": 37080,
+      "unit_max": 494,
+      "unit_min": 1,
+      "unit_sum": 14061357
+    }
+  },
+  "code_hashes": {
+    "Scripts/Preprocess/chunking.py": "422c3118a0cb8e002d2df651f2efd9bfd18f278ff47629d84696af4dc967849e",
+    "Scripts/Preprocess/format_profiles.py": "94eaabc22e2675e4426e5a0d783d4dfd24873308e00356d7d8d5eef8d42645e1",
+    "Scripts/Preprocess/format_chunking.py": "f478da6aa104dfbe85ccf3e1cefec46e8bd8b5fff5a6fd86557536b2138c3230",
+    "Scripts/Preprocess/chunk_cli.py": "841295a88634ee418954284986c62d8a2b75d17093683fdd292bc6a16c6cf671",
+    "Scripts/Preprocess/chunk_audit.py": "0b7dc18f0b04ca35737e6a11561ee947fb134b69c5da5e7bdd081ebafbef61bd",
+    "Scripts/Preprocess/boilerplate.py": "ada43b03b0dc90176e999ac250778e0679cc4e2017daa76d72464db60c0ac883",
+    "Scripts/Clawler/verbatim.py": "b5b04bcf90d26d6f6e1515d38388e85e79f2bcf5da3b932723f7e4a1a497db39"
+  }
+}
