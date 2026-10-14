@@ -1,407 +1,856 @@
-{"concept_id": "MC0001", "vi": "đau đầu", "en": "headache", "zh": "头痛"}
-{"concept_id": "MC0002", "vi": "đau nửa đầu", "en": "one-sided headache", "zh": "单侧头痛"}
-{"concept_id": "MC0003", "vi": "chóng mặt", "en": "dizziness", "zh": "头晕"}
-{"concept_id": "MC0004", "vi": "hoa mắt", "en": "lightheadedness", "zh": "眼花"}
-{"concept_id": "MC0005", "vi": "choáng váng", "en": "feeling faint", "zh": "头昏"}
-{"concept_id": "MC0006", "vi": "ngất", "en": "fainting", "zh": "晕厥"}
-{"concept_id": "MC0007", "vi": "sốt", "en": "fever", "zh": "发热"}
-{"concept_id": "MC0008", "vi": "sốt nhẹ", "en": "low-grade fever", "zh": "低热"}
-{"concept_id": "MC0009", "vi": "sốt cao", "en": "high fever", "zh": "高热"}
-{"concept_id": "MC0010", "vi": "ớn lạnh", "en": "chills", "zh": "寒战"}
-{"concept_id": "MC0011", "vi": "mệt mỏi", "en": "fatigue", "zh": "疲劳"}
-{"concept_id": "MC0012", "vi": "suy nhược", "en": "weakness", "zh": "虚弱"}
-{"concept_id": "MC0013", "vi": "mất ngủ", "en": "insomnia", "zh": "失眠"}
-{"concept_id": "MC0014", "vi": "buồn ngủ ban ngày", "en": "daytime sleepiness", "zh": "日间嗜睡"}
-{"concept_id": "MC0015", "vi": "ho", "en": "cough", "zh": "咳嗽"}
-{"concept_id": "MC0016", "vi": "ho khan", "en": "dry cough", "zh": "干咳"}
-{"concept_id": "MC0017", "vi": "ho có đờm", "en": "productive cough", "zh": "咳痰"}
-{"concept_id": "MC0018", "vi": "khó thở", "en": "shortness of breath", "zh": "呼吸困难"}
-{"concept_id": "MC0019", "vi": "thở khò khè", "en": "wheezing", "zh": "喘鸣"}
-{"concept_id": "MC0020", "vi": "đau ngực", "en": "chest pain", "zh": "胸痛"}
-{"concept_id": "MC0021", "vi": "tức ngực", "en": "chest tightness", "zh": "胸闷"}
-{"concept_id": "MC0022", "vi": "đánh trống ngực", "en": "palpitations", "zh": "心悸"}
-{"concept_id": "MC0023", "vi": "nghẹt mũi", "en": "nasal congestion", "zh": "鼻塞"}
-{"concept_id": "MC0024", "vi": "sổ mũi", "en": "runny nose", "zh": "流鼻涕"}
-{"concept_id": "MC0025", "vi": "hắt hơi", "en": "sneezing", "zh": "打喷嚏"}
-{"concept_id": "MC0026", "vi": "đau họng", "en": "sore throat", "zh": "咽痛"}
-{"concept_id": "MC0027", "vi": "khàn tiếng", "en": "hoarseness", "zh": "声音嘶哑"}
-{"concept_id": "MC0028", "vi": "khô miệng", "en": "dry mouth", "zh": "口干"}
-{"concept_id": "MC0029", "vi": "khát nước nhiều", "en": "excessive thirst", "zh": "口渴明显"}
-{"concept_id": "MC0030", "vi": "buồn nôn", "en": "nausea", "zh": "恶心"}
-{"concept_id": "MC0031", "vi": "nôn", "en": "vomiting", "zh": "呕吐"}
-{"concept_id": "MC0032", "vi": "đau bụng", "en": "abdominal pain", "zh": "腹痛"}
-{"concept_id": "MC0033", "vi": "đầy hơi", "en": "bloating", "zh": "腹胀"}
-{"concept_id": "MC0034", "vi": "ợ nóng", "en": "heartburn", "zh": "烧心"}
-{"concept_id": "MC0035", "vi": "khó tiêu", "en": "indigestion", "zh": "消化不良"}
-{"concept_id": "MC0036", "vi": "tiêu chảy", "en": "diarrhea", "zh": "腹泻"}
-{"concept_id": "MC0037", "vi": "táo bón", "en": "constipation", "zh": "便秘"}
-{"concept_id": "MC0038", "vi": "chán ăn", "en": "loss of appetite", "zh": "食欲不振"}
-{"concept_id": "MC0039", "vi": "nuốt khó", "en": "difficulty swallowing", "zh": "吞咽困难"}
-{"concept_id": "MC0040", "vi": "đau khi nuốt", "en": "painful swallowing", "zh": "吞咽疼痛"}
-{"concept_id": "MC0041", "vi": "đau lưng", "en": "back pain", "zh": "背痛"}
-{"concept_id": "MC0042", "vi": "đau cổ", "en": "neck pain", "zh": "颈部疼痛"}
-{"concept_id": "MC0043", "vi": "đau vai", "en": "shoulder pain", "zh": "肩痛"}
-{"concept_id": "MC0044", "vi": "đau khớp", "en": "joint pain", "zh": "关节痛"}
-{"concept_id": "MC0045", "vi": "sưng khớp", "en": "joint swelling", "zh": "关节肿胀"}
-{"concept_id": "MC0046", "vi": "cứng khớp", "en": "joint stiffness", "zh": "关节僵硬"}
-{"concept_id": "MC0047", "vi": "yếu cơ", "en": "muscle weakness", "zh": "肌无力"}
-{"concept_id": "MC0048", "vi": "tê tay", "en": "hand numbness", "zh": "手麻"}
-{"concept_id": "MC0049", "vi": "tê chân", "en": "foot numbness", "zh": "脚麻"}
-{"concept_id": "MC0050", "vi": "chuột rút", "en": "muscle cramp", "zh": "肌肉痉挛"}
-{"concept_id": "MC0051", "vi": "phù chân", "en": "leg swelling", "zh": "腿部水肿"}
-{"concept_id": "MC0052", "vi": "phù mặt", "en": "facial swelling", "zh": "面部肿胀"}
-{"concept_id": "MC0053", "vi": "ngứa da", "en": "itchy skin", "zh": "皮肤瘙痒"}
-{"concept_id": "MC0054", "vi": "nổi mẩn", "en": "skin rash", "zh": "皮疹"}
-{"concept_id": "MC0055", "vi": "nổi mề đay", "en": "hives", "zh": "荨麻疹"}
-{"concept_id": "MC0056", "vi": "đỏ da", "en": "skin redness", "zh": "皮肤发红"}
-{"concept_id": "MC0057", "vi": "da khô", "en": "dry skin", "zh": "皮肤干燥"}
-{"concept_id": "MC0058", "vi": "rụng tóc", "en": "hair loss", "zh": "脱发"}
-{"concept_id": "MC0059", "vi": "nhìn mờ", "en": "blurred vision", "zh": "视物模糊"}
-{"concept_id": "MC0060", "vi": "đỏ mắt", "en": "red eyes", "zh": "眼红"}
-{"concept_id": "MC0061", "vi": "đau mắt", "en": "eye pain", "zh": "眼痛"}
-{"concept_id": "MC0062", "vi": "ù tai", "en": "tinnitus", "zh": "耳鸣"}
-{"concept_id": "MC0063", "vi": "giảm thính lực", "en": "hearing loss", "zh": "听力下降"}
-{"concept_id": "MC0064", "vi": "tiểu buốt", "en": "painful urination", "zh": "尿痛"}
-{"concept_id": "MC0065", "vi": "tiểu nhiều lần", "en": "frequent urination", "zh": "尿频"}
-{"concept_id": "MC0066", "vi": "tiểu đêm", "en": "nocturia", "zh": "夜尿增多"}
-{"concept_id": "MC0067", "vi": "tiểu không tự chủ", "en": "urinary incontinence", "zh": "尿失禁"}
-{"concept_id": "MC0068", "vi": "tiểu ít", "en": "reduced urine output", "zh": "尿量减少"}
-{"concept_id": "MC0069", "vi": "khô mắt", "en": "dry eyes", "zh": "眼干"}
-{"concept_id": "MC0070", "vi": "mất vị giác", "en": "loss of taste", "zh": "味觉丧失"}
-{"concept_id": "MC0071", "vi": "thay đổi khứu giác", "en": "change in sense of smell", "zh": "嗅觉改变"}
-{"concept_id": "MC0072", "vi": "run tay", "en": "hand tremor", "zh": "手抖"}
-{"concept_id": "MC0073", "vi": "mất thăng bằng", "en": "loss of balance", "zh": "平衡障碍"}
-{"concept_id": "MC0074", "vi": "giảm trí nhớ", "en": "memory decline", "zh": "记忆力下降"}
-{"concept_id": "MC0075", "vi": "khó tập trung", "en": "difficulty concentrating", "zh": "注意力不集中"}
-{"concept_id": "MC0076", "vi": "lo âu", "en": "anxiety", "zh": "焦虑"}
-{"concept_id": "MC0077", "vi": "buồn bã kéo dài", "en": "persistent sadness", "zh": "持续情绪低落"}
-{"concept_id": "MC0078", "vi": "đổ mồ hôi nhiều", "en": "excessive sweating", "zh": "多汗"}
-{"concept_id": "MC0079", "vi": "sụt cân không chủ ý", "en": "unintentional weight loss", "zh": "非意愿性体重下降"}
-{"concept_id": "MC0080", "vi": "cảm lạnh thông thường", "en": "common cold", "zh": "普通感冒"}
-{"concept_id": "MC0081", "vi": "cúm mùa", "en": "seasonal influenza", "zh": "季节性流感"}
-{"concept_id": "MC0082", "vi": "viêm họng", "en": "pharyngitis", "zh": "咽炎"}
-{"concept_id": "MC0083", "vi": "viêm amidan", "en": "tonsillitis", "zh": "扁桃体炎"}
-{"concept_id": "MC0084", "vi": "viêm xoang", "en": "sinusitis", "zh": "鼻窦炎"}
-{"concept_id": "MC0085", "vi": "viêm mũi dị ứng", "en": "allergic rhinitis", "zh": "过敏性鼻炎"}
-{"concept_id": "MC0086", "vi": "viêm phế quản", "en": "bronchitis", "zh": "支气管炎"}
-{"concept_id": "MC0087", "vi": "viêm phổi", "en": "pneumonia", "zh": "肺炎"}
-{"concept_id": "MC0088", "vi": "hen phế quản", "en": "asthma", "zh": "哮喘"}
-{"concept_id": "MC0089", "vi": "bệnh phổi tắc nghẽn mạn tính", "en": "chronic obstructive pulmonary disease", "zh": "慢性阻塞性肺疾病"}
-{"concept_id": "MC0090", "vi": "lao phổi", "en": "pulmonary tuberculosis", "zh": "肺结核"}
-{"concept_id": "MC0091", "vi": "viêm dạ dày", "en": "gastritis", "zh": "胃炎"}
-{"concept_id": "MC0092", "vi": "trào ngược dạ dày thực quản", "en": "gastroesophageal reflux disease", "zh": "胃食管反流病"}
-{"concept_id": "MC0093", "vi": "loét dạ dày", "en": "gastric ulcer", "zh": "胃溃疡"}
-{"concept_id": "MC0094", "vi": "hội chứng ruột kích thích", "en": "irritable bowel syndrome", "zh": "肠易激综合征"}
-{"concept_id": "MC0095", "vi": "viêm ruột thừa", "en": "appendicitis", "zh": "阑尾炎"}
-{"concept_id": "MC0096", "vi": "sỏi mật", "en": "gallstones", "zh": "胆结石"}
-{"concept_id": "MC0097", "vi": "viêm gan", "en": "hepatitis", "zh": "肝炎"}
-{"concept_id": "MC0098", "vi": "gan nhiễm mỡ", "en": "fatty liver disease", "zh": "脂肪肝"}
-{"concept_id": "MC0099", "vi": "xơ gan", "en": "cirrhosis", "zh": "肝硬化"}
-{"concept_id": "MC0100", "vi": "suy thận", "en": "kidney failure", "zh": "肾衰竭"}
-{"concept_id": "MC0101", "vi": "sỏi thận", "en": "kidney stones", "zh": "肾结石"}
-{"concept_id": "MC0102", "vi": "nhiễm trùng đường tiết niệu", "en": "urinary tract infection", "zh": "尿路感染"}
-{"concept_id": "MC0103", "vi": "viêm bàng quang", "en": "cystitis", "zh": "膀胱炎"}
-{"concept_id": "MC0104", "vi": "bệnh thận mạn", "en": "chronic kidney disease", "zh": "慢性肾脏病"}
-{"concept_id": "MC0105", "vi": "tăng huyết áp", "en": "hypertension", "zh": "高血压"}
-{"concept_id": "MC0106", "vi": "hạ huyết áp", "en": "hypotension", "zh": "低血压"}
-{"concept_id": "MC0107", "vi": "bệnh động mạch vành", "en": "coronary artery disease", "zh": "冠状动脉疾病"}
-{"concept_id": "MC0108", "vi": "suy tim", "en": "heart failure", "zh": "心力衰竭"}
-{"concept_id": "MC0109", "vi": "rối loạn nhịp tim", "en": "cardiac arrhythmia", "zh": "心律失常"}
-{"concept_id": "MC0110", "vi": "nhồi máu cơ tim", "en": "myocardial infarction", "zh": "心肌梗死"}
-{"concept_id": "MC0111", "vi": "đột quỵ", "en": "stroke", "zh": "卒中"}
-{"concept_id": "MC0112", "vi": "thiếu máu", "en": "anemia", "zh": "贫血"}
-{"concept_id": "MC0113", "vi": "thiếu máu thiếu sắt", "en": "iron deficiency anemia", "zh": "缺铁性贫血"}
-{"concept_id": "MC0114", "vi": "rối loạn lipid máu", "en": "dyslipidemia", "zh": "血脂异常"}
-{"concept_id": "MC0115", "vi": "đái tháo đường típ 1", "en": "type 1 diabetes", "zh": "1型糖尿病"}
-{"concept_id": "MC0116", "vi": "đái tháo đường típ 2", "en": "type 2 diabetes", "zh": "2型糖尿病"}
-{"concept_id": "MC0117", "vi": "hạ đường huyết", "en": "hypoglycemia", "zh": "低血糖"}
-{"concept_id": "MC0118", "vi": "cường giáp", "en": "hyperthyroidism", "zh": "甲状腺功能亢进"}
-{"concept_id": "MC0119", "vi": "suy giáp", "en": "hypothyroidism", "zh": "甲状腺功能减退"}
-{"concept_id": "MC0120", "vi": "bướu giáp", "en": "goiter", "zh": "甲状腺肿"}
-{"concept_id": "MC0121", "vi": "viêm khớp dạng thấp", "en": "rheumatoid arthritis", "zh": "类风湿关节炎"}
-{"concept_id": "MC0122", "vi": "thoái hóa khớp", "en": "osteoarthritis", "zh": "骨关节炎"}
-{"concept_id": "MC0123", "vi": "loãng xương", "en": "osteoporosis", "zh": "骨质疏松"}
-{"concept_id": "MC0124", "vi": "thoát vị đĩa đệm", "en": "herniated disc", "zh": "椎间盘突出"}
-{"concept_id": "MC0125", "vi": "đau thần kinh tọa", "en": "sciatica", "zh": "坐骨神经痛"}
-{"concept_id": "MC0126", "vi": "đau nửa đầu migraine", "en": "migraine", "zh": "偏头痛"}
-{"concept_id": "MC0127", "vi": "động kinh", "en": "epilepsy", "zh": "癫痫"}
-{"concept_id": "MC0128", "vi": "bệnh Parkinson", "en": "Parkinson disease", "zh": "帕金森病"}
-{"concept_id": "MC0129", "vi": "sa sút trí tuệ", "en": "dementia", "zh": "痴呆"}
-{"concept_id": "MC0130", "vi": "rối loạn lo âu", "en": "anxiety disorder", "zh": "焦虑障碍"}
-{"concept_id": "MC0131", "vi": "rối loạn giấc ngủ", "en": "sleep disorder", "zh": "睡眠障碍"}
-{"concept_id": "MC0132", "vi": "viêm da cơ địa", "en": "atopic dermatitis", "zh": "特应性皮炎"}
-{"concept_id": "MC0133", "vi": "vảy nến", "en": "psoriasis", "zh": "银屑病"}
-{"concept_id": "MC0134", "vi": "mụn trứng cá", "en": "acne", "zh": "痤疮"}
-{"concept_id": "MC0135", "vi": "nấm da", "en": "skin fungal infection", "zh": "皮肤真菌感染"}
-{"concept_id": "MC0136", "vi": "viêm kết mạc", "en": "conjunctivitis", "zh": "结膜炎"}
-{"concept_id": "MC0137", "vi": "đục thủy tinh thể", "en": "cataract", "zh": "白内障"}
-{"concept_id": "MC0138", "vi": "tăng nhãn áp", "en": "glaucoma", "zh": "青光眼"}
-{"concept_id": "MC0139", "vi": "viêm tai giữa", "en": "otitis media", "zh": "中耳炎"}
-{"concept_id": "MC0140", "vi": "sâu răng", "en": "dental caries", "zh": "龋齿"}
-{"concept_id": "MC0141", "vi": "viêm lợi", "en": "gingivitis", "zh": "牙龈炎"}
-{"concept_id": "MC0142", "vi": "viêm nha chu", "en": "periodontitis", "zh": "牙周炎"}
-{"concept_id": "MC0143", "vi": "viêm tụy", "en": "pancreatitis", "zh": "胰腺炎"}
-{"concept_id": "MC0144", "vi": "viêm túi mật", "en": "cholecystitis", "zh": "胆囊炎"}
-{"concept_id": "MC0145", "vi": "viêm đại tràng", "en": "colitis", "zh": "结肠炎"}
-{"concept_id": "MC0146", "vi": "rối loạn tiêu hóa", "en": "digestive disorder", "zh": "消化系统疾病"}
-{"concept_id": "MC0147", "vi": "nhiễm khuẩn da", "en": "bacterial skin infection", "zh": "细菌性皮肤感染"}
-{"concept_id": "MC0148", "vi": "viêm phổi do vi khuẩn", "en": "bacterial pneumonia", "zh": "细菌性肺炎"}
-{"concept_id": "MC0149", "vi": "viêm phổi do virus", "en": "viral pneumonia", "zh": "病毒性肺炎"}
-{"concept_id": "MC0150", "vi": "mất nước", "en": "dehydration", "zh": "脱水"}
-{"concept_id": "MC0151", "vi": "suy dinh dưỡng", "en": "malnutrition", "zh": "营养不良"}
-{"concept_id": "MC0152", "vi": "béo phì", "en": "obesity", "zh": "肥胖症"}
-{"concept_id": "MC0153", "vi": "thiếu vitamin D", "en": "vitamin D deficiency", "zh": "维生素D缺乏"}
-{"concept_id": "MC0154", "vi": "thiếu vitamin B12", "en": "vitamin B12 deficiency", "zh": "维生素B12缺乏"}
-{"concept_id": "MC0155", "vi": "não", "en": "brain", "zh": "大脑"}
-{"concept_id": "MC0156", "vi": "tiểu não", "en": "cerebellum", "zh": "小脑"}
-{"concept_id": "MC0157", "vi": "tủy sống", "en": "spinal cord", "zh": "脊髓"}
-{"concept_id": "MC0158", "vi": "dây thần kinh", "en": "nerve", "zh": "神经"}
-{"concept_id": "MC0159", "vi": "mắt", "en": "eye", "zh": "眼睛"}
-{"concept_id": "MC0160", "vi": "võng mạc", "en": "retina", "zh": "视网膜"}
-{"concept_id": "MC0161", "vi": "giác mạc", "en": "cornea", "zh": "角膜"}
-{"concept_id": "MC0162", "vi": "thủy tinh thể", "en": "lens of the eye", "zh": "晶状体"}
-{"concept_id": "MC0163", "vi": "tai", "en": "ear", "zh": "耳"}
-{"concept_id": "MC0164", "vi": "màng nhĩ", "en": "eardrum", "zh": "鼓膜"}
-{"concept_id": "MC0165", "vi": "mũi", "en": "nose", "zh": "鼻"}
-{"concept_id": "MC0166", "vi": "xoang mũi", "en": "nasal sinus", "zh": "鼻窦"}
-{"concept_id": "MC0167", "vi": "họng", "en": "throat", "zh": "咽喉"}
-{"concept_id": "MC0168", "vi": "thanh quản", "en": "larynx", "zh": "喉"}
-{"concept_id": "MC0169", "vi": "khí quản", "en": "trachea", "zh": "气管"}
-{"concept_id": "MC0170", "vi": "phế quản", "en": "bronchus", "zh": "支气管"}
-{"concept_id": "MC0171", "vi": "phổi", "en": "lung", "zh": "肺"}
-{"concept_id": "MC0172", "vi": "màng phổi", "en": "pleura", "zh": "胸膜"}
-{"concept_id": "MC0173", "vi": "tim", "en": "heart", "zh": "心脏"}
-{"concept_id": "MC0174", "vi": "động mạch", "en": "artery", "zh": "动脉"}
-{"concept_id": "MC0175", "vi": "tĩnh mạch", "en": "vein", "zh": "静脉"}
-{"concept_id": "MC0176", "vi": "mao mạch", "en": "capillary", "zh": "毛细血管"}
-{"concept_id": "MC0177", "vi": "máu", "en": "blood", "zh": "血液"}
-{"concept_id": "MC0178", "vi": "bạch huyết", "en": "lymph", "zh": "淋巴"}
-{"concept_id": "MC0179", "vi": "thực quản", "en": "esophagus", "zh": "食管"}
-{"concept_id": "MC0180", "vi": "dạ dày", "en": "stomach", "zh": "胃"}
-{"concept_id": "MC0181", "vi": "ruột non", "en": "small intestine", "zh": "小肠"}
-{"concept_id": "MC0182", "vi": "ruột già", "en": "large intestine", "zh": "大肠"}
-{"concept_id": "MC0183", "vi": "đại tràng", "en": "colon", "zh": "结肠"}
-{"concept_id": "MC0184", "vi": "trực tràng", "en": "rectum", "zh": "直肠"}
-{"concept_id": "MC0185", "vi": "gan", "en": "liver", "zh": "肝脏"}
-{"concept_id": "MC0186", "vi": "túi mật", "en": "gallbladder", "zh": "胆囊"}
-{"concept_id": "MC0187", "vi": "tụy", "en": "pancreas", "zh": "胰腺"}
-{"concept_id": "MC0188", "vi": "lá lách", "en": "spleen", "zh": "脾脏"}
-{"concept_id": "MC0189", "vi": "thận", "en": "kidney", "zh": "肾脏"}
-{"concept_id": "MC0190", "vi": "niệu quản", "en": "ureter", "zh": "输尿管"}
-{"concept_id": "MC0191", "vi": "bàng quang", "en": "bladder", "zh": "膀胱"}
-{"concept_id": "MC0192", "vi": "niệu đạo", "en": "urethra", "zh": "尿道"}
-{"concept_id": "MC0193", "vi": "tuyến giáp", "en": "thyroid gland", "zh": "甲状腺"}
-{"concept_id": "MC0194", "vi": "tuyến thượng thận", "en": "adrenal gland", "zh": "肾上腺"}
-{"concept_id": "MC0195", "vi": "tuyến yên", "en": "pituitary gland", "zh": "垂体"}
-{"concept_id": "MC0196", "vi": "xương sọ", "en": "skull", "zh": "颅骨"}
-{"concept_id": "MC0197", "vi": "cột sống", "en": "spine", "zh": "脊柱"}
-{"concept_id": "MC0198", "vi": "đốt sống", "en": "vertebra", "zh": "椎骨"}
-{"concept_id": "MC0199", "vi": "xương sườn", "en": "rib", "zh": "肋骨"}
-{"concept_id": "MC0200", "vi": "xương chậu", "en": "pelvis", "zh": "骨盆"}
-{"concept_id": "MC0201", "vi": "xương đùi", "en": "femur", "zh": "股骨"}
-{"concept_id": "MC0202", "vi": "xương cánh tay", "en": "humerus", "zh": "肱骨"}
-{"concept_id": "MC0203", "vi": "khớp gối", "en": "knee joint", "zh": "膝关节"}
-{"concept_id": "MC0204", "vi": "khớp vai", "en": "shoulder joint", "zh": "肩关节"}
-{"concept_id": "MC0205", "vi": "khớp háng", "en": "hip joint", "zh": "髋关节"}
-{"concept_id": "MC0206", "vi": "cơ bắp", "en": "muscle", "zh": "肌肉"}
-{"concept_id": "MC0207", "vi": "gân cơ", "en": "tendon", "zh": "肌腱"}
-{"concept_id": "MC0208", "vi": "dây chằng", "en": "ligament", "zh": "韧带"}
-{"concept_id": "MC0209", "vi": "da", "en": "skin", "zh": "皮肤"}
-{"concept_id": "MC0210", "vi": "biểu bì", "en": "epidermis", "zh": "表皮"}
-{"concept_id": "MC0211", "vi": "mô dưới da", "en": "subcutaneous tissue", "zh": "皮下组织"}
-{"concept_id": "MC0212", "vi": "màng nhầy", "en": "mucous membrane", "zh": "黏膜"}
-{"concept_id": "MC0213", "vi": "hạch bạch huyết", "en": "lymph node", "zh": "淋巴结"}
-{"concept_id": "MC0214", "vi": "xét nghiệm máu", "en": "blood test", "zh": "血液检查"}
-{"concept_id": "MC0215", "vi": "công thức máu toàn bộ", "en": "complete blood count", "zh": "全血细胞计数"}
-{"concept_id": "MC0216", "vi": "xét nghiệm đường huyết", "en": "blood glucose test", "zh": "血糖检测"}
-{"concept_id": "MC0217", "vi": "xét nghiệm HbA1c", "en": "HbA1c test", "zh": "糖化血红蛋白检测"}
-{"concept_id": "MC0218", "vi": "xét nghiệm chức năng gan", "en": "liver function test", "zh": "肝功能检查"}
-{"concept_id": "MC0219", "vi": "xét nghiệm chức năng thận", "en": "kidney function test", "zh": "肾功能检查"}
-{"concept_id": "MC0220", "vi": "xét nghiệm nước tiểu", "en": "urinalysis", "zh": "尿液分析"}
-{"concept_id": "MC0221", "vi": "xét nghiệm protein niệu", "en": "urine protein test", "zh": "尿蛋白检测"}
-{"concept_id": "MC0222", "vi": "xét nghiệm mỡ máu", "en": "lipid panel", "zh": "血脂检查"}
-{"concept_id": "MC0223", "vi": "xét nghiệm điện giải", "en": "electrolyte panel", "zh": "电解质检查"}
-{"concept_id": "MC0224", "vi": "xét nghiệm CRP", "en": "C-reactive protein test", "zh": "C反应蛋白检测"}
-{"concept_id": "MC0225", "vi": "xét nghiệm TSH", "en": "thyroid stimulating hormone test", "zh": "促甲状腺激素检测"}
-{"concept_id": "MC0226", "vi": "xét nghiệm troponin", "en": "troponin test", "zh": "肌钙蛋白检测"}
-{"concept_id": "MC0227", "vi": "xét nghiệm đông máu", "en": "coagulation tests", "zh": "凝血功能检查"}
-{"concept_id": "MC0228", "vi": "cấy máu", "en": "blood culture", "zh": "血培养"}
-{"concept_id": "MC0229", "vi": "cấy nước tiểu", "en": "urine culture", "zh": "尿培养"}
-{"concept_id": "MC0230", "vi": "xét nghiệm PCR", "en": "PCR test", "zh": "PCR检测"}
-{"concept_id": "MC0231", "vi": "xét nghiệm kháng nguyên", "en": "antigen test", "zh": "抗原检测"}
-{"concept_id": "MC0232", "vi": "xét nghiệm kháng thể", "en": "antibody test", "zh": "抗体检测"}
-{"concept_id": "MC0233", "vi": "chụp X-quang ngực", "en": "chest X-ray", "zh": "胸部X线检查"}
-{"concept_id": "MC0234", "vi": "siêu âm ổ bụng", "en": "abdominal ultrasound", "zh": "腹部超声检查"}
-{"concept_id": "MC0235", "vi": "siêu âm tim", "en": "echocardiography", "zh": "超声心动图"}
-{"concept_id": "MC0236", "vi": "điện tâm đồ", "en": "electrocardiogram", "zh": "心电图"}
-{"concept_id": "MC0237", "vi": "điện não đồ", "en": "electroencephalogram", "zh": "脑电图"}
-{"concept_id": "MC0238", "vi": "chụp cắt lớp vi tính", "en": "CT scan", "zh": "计算机断层扫描"}
-{"concept_id": "MC0239", "vi": "chụp cộng hưởng từ", "en": "MRI scan", "zh": "磁共振成像"}
-{"concept_id": "MC0240", "vi": "nội soi dạ dày", "en": "gastroscopy", "zh": "胃镜检查"}
-{"concept_id": "MC0241", "vi": "nội soi đại tràng", "en": "colonoscopy", "zh": "结肠镜检查"}
-{"concept_id": "MC0242", "vi": "đo chức năng hô hấp", "en": "pulmonary function test", "zh": "肺功能检查"}
-{"concept_id": "MC0243", "vi": "đo mật độ xương", "en": "bone density test", "zh": "骨密度检测"}
-{"concept_id": "MC0244", "vi": "đo huyết áp", "en": "blood pressure measurement", "zh": "血压测量"}
-{"concept_id": "MC0245", "vi": "đo điện tim Holter", "en": "Holter monitoring", "zh": "动态心电图监测"}
-{"concept_id": "MC0246", "vi": "kiểm tra thị lực", "en": "visual acuity test", "zh": "视力检查"}
-{"concept_id": "MC0247", "vi": "đo thính lực", "en": "hearing test", "zh": "听力检查"}
-{"concept_id": "MC0248", "vi": "xét nghiệm phân", "en": "stool test", "zh": "粪便检查"}
-{"concept_id": "MC0249", "vi": "khám lâm sàng", "en": "clinical examination", "zh": "临床检查"}
-{"concept_id": "MC0250", "vi": "khám tổng quát", "en": "general health checkup", "zh": "全面体检"}
-{"concept_id": "MC0251", "vi": "khám sức khỏe định kỳ", "en": "periodic health examination", "zh": "定期健康检查"}
-{"concept_id": "MC0252", "vi": "khám trước phẫu thuật", "en": "preoperative assessment", "zh": "术前评估"}
-{"concept_id": "MC0253", "vi": "khám chuyên khoa", "en": "specialist consultation", "zh": "专科就诊"}
-{"concept_id": "MC0254", "vi": "khám qua video", "en": "telemedicine consultation", "zh": "远程视频问诊"}
-{"concept_id": "MC0255", "vi": "đo dấu hiệu sinh tồn", "en": "vital signs assessment", "zh": "生命体征测量"}
-{"concept_id": "MC0256", "vi": "khám thần kinh", "en": "neurological examination", "zh": "神经系统检查"}
-{"concept_id": "MC0257", "vi": "khám tim mạch", "en": "cardiovascular examination", "zh": "心血管检查"}
-{"concept_id": "MC0258", "vi": "khám hô hấp", "en": "respiratory examination", "zh": "呼吸系统检查"}
-{"concept_id": "MC0259", "vi": "khám bụng", "en": "abdominal examination", "zh": "腹部查体"}
-{"concept_id": "MC0260", "vi": "đánh giá dinh dưỡng", "en": "nutritional assessment", "zh": "营养评估"}
-{"concept_id": "MC0261", "vi": "đánh giá nguy cơ té ngã", "en": "fall risk assessment", "zh": "跌倒风险评估"}
-{"concept_id": "MC0262", "vi": "đánh giá đau", "en": "pain assessment", "zh": "疼痛评估"}
-{"concept_id": "MC0263", "vi": "chăm sóc vết thương", "en": "wound care", "zh": "伤口护理"}
-{"concept_id": "MC0264", "vi": "thay băng", "en": "dressing change", "zh": "更换敷料"}
-{"concept_id": "MC0265", "vi": "khâu vết thương", "en": "wound suturing", "zh": "伤口缝合"}
-{"concept_id": "MC0266", "vi": "lấy mẫu máu", "en": "blood specimen collection", "zh": "采血"}
-{"concept_id": "MC0267", "vi": "lấy mẫu bệnh phẩm", "en": "specimen collection", "zh": "标本采集"}
-{"concept_id": "MC0268", "vi": "sinh thiết", "en": "biopsy", "zh": "活检"}
-{"concept_id": "MC0269", "vi": "nội soi chẩn đoán", "en": "diagnostic endoscopy", "zh": "诊断性内镜检查"}
-{"concept_id": "MC0270", "vi": "phẫu thuật nội soi", "en": "laparoscopic surgery", "zh": "腹腔镜手术"}
-{"concept_id": "MC0271", "vi": "phẫu thuật ngoại khoa", "en": "surgical procedure", "zh": "外科手术"}
-{"concept_id": "MC0272", "vi": "vật lý trị liệu", "en": "physical therapy", "zh": "物理治疗"}
-{"concept_id": "MC0273", "vi": "phục hồi chức năng", "en": "rehabilitation", "zh": "康复治疗"}
-{"concept_id": "MC0274", "vi": "liệu pháp hô hấp", "en": "respiratory therapy", "zh": "呼吸治疗"}
-{"concept_id": "MC0275", "vi": "thay đổi lối sống", "en": "lifestyle modification", "zh": "生活方式干预"}
-{"concept_id": "MC0276", "vi": "liệu pháp tâm lý", "en": "psychotherapy", "zh": "心理治疗"}
-{"concept_id": "MC0277", "vi": "tư vấn dinh dưỡng", "en": "nutrition counseling", "zh": "营养咨询"}
-{"concept_id": "MC0278", "vi": "đánh giá trước gây mê", "en": "preanesthetic evaluation", "zh": "麻醉前评估"}
-{"concept_id": "MC0279", "vi": "khoa nội tổng quát", "en": "general internal medicine", "zh": "普通内科"}
-{"concept_id": "MC0280", "vi": "khoa ngoại tổng quát", "en": "general surgery", "zh": "普通外科"}
-{"concept_id": "MC0281", "vi": "khoa nhi", "en": "pediatrics", "zh": "儿科"}
-{"concept_id": "MC0282", "vi": "khoa tim mạch", "en": "cardiology", "zh": "心脏内科"}
-{"concept_id": "MC0283", "vi": "khoa hô hấp", "en": "pulmonology", "zh": "呼吸内科"}
-{"concept_id": "MC0284", "vi": "khoa tiêu hóa", "en": "gastroenterology", "zh": "消化内科"}
-{"concept_id": "MC0285", "vi": "khoa thận", "en": "nephrology", "zh": "肾脏内科"}
-{"concept_id": "MC0286", "vi": "khoa nội tiết", "en": "endocrinology", "zh": "内分泌科"}
-{"concept_id": "MC0287", "vi": "khoa thần kinh", "en": "neurology", "zh": "神经内科"}
-{"concept_id": "MC0288", "vi": "khoa da liễu", "en": "dermatology", "zh": "皮肤科"}
-{"concept_id": "MC0289", "vi": "khoa mắt", "en": "ophthalmology", "zh": "眼科"}
-{"concept_id": "MC0290", "vi": "khoa tai mũi họng", "en": "otolaryngology", "zh": "耳鼻喉科"}
-{"concept_id": "MC0291", "vi": "khoa răng hàm mặt", "en": "oral and maxillofacial medicine", "zh": "口腔颌面科"}
-{"concept_id": "MC0292", "vi": "khoa cơ xương khớp", "en": "rheumatology", "zh": "风湿免疫科"}
-{"concept_id": "MC0293", "vi": "khoa chấn thương chỉnh hình", "en": "orthopedics", "zh": "骨科"}
-{"concept_id": "MC0294", "vi": "khoa phục hồi chức năng", "en": "rehabilitation medicine", "zh": "康复医学科"}
-{"concept_id": "MC0295", "vi": "khoa chẩn đoán hình ảnh", "en": "radiology", "zh": "放射科"}
-{"concept_id": "MC0296", "vi": "khoa xét nghiệm", "en": "laboratory medicine", "zh": "检验医学科"}
-{"concept_id": "MC0297", "vi": "khoa cấp cứu", "en": "emergency medicine", "zh": "急诊科"}
-{"concept_id": "MC0298", "vi": "khoa hồi sức tích cực", "en": "intensive care medicine", "zh": "重症医学科"}
-{"concept_id": "MC0299", "vi": "khoa y học gia đình", "en": "family medicine", "zh": "全科医学科"}
-{"concept_id": "MC0300", "vi": "khoa tâm thần", "en": "psychiatry", "zh": "精神科"}
-{"concept_id": "MC0301", "vi": "khoa huyết học", "en": "hematology", "zh": "血液科"}
-{"concept_id": "MC0302", "vi": "khoa ung bướu", "en": "oncology", "zh": "肿瘤科"}
-{"concept_id": "MC0303", "vi": "khoa truyền nhiễm", "en": "infectious diseases", "zh": "感染科"}
-{"concept_id": "MC0304", "vi": "khoa dị ứng miễn dịch", "en": "allergy and immunology", "zh": "过敏与免疫科"}
-{"concept_id": "MC0305", "vi": "huyết áp tâm thu", "en": "systolic blood pressure", "zh": "收缩压"}
-{"concept_id": "MC0306", "vi": "huyết áp tâm trương", "en": "diastolic blood pressure", "zh": "舒张压"}
-{"concept_id": "MC0307", "vi": "nhịp tim", "en": "heart rate", "zh": "心率"}
-{"concept_id": "MC0308", "vi": "nhịp thở", "en": "respiratory rate", "zh": "呼吸频率"}
-{"concept_id": "MC0309", "vi": "nhiệt độ cơ thể", "en": "body temperature", "zh": "体温"}
-{"concept_id": "MC0310", "vi": "độ bão hòa oxy", "en": "oxygen saturation", "zh": "血氧饱和度"}
-{"concept_id": "MC0311", "vi": "đường huyết lúc đói", "en": "fasting blood glucose", "zh": "空腹血糖"}
-{"concept_id": "MC0312", "vi": "đường huyết sau ăn", "en": "postprandial blood glucose", "zh": "餐后血糖"}
-{"concept_id": "MC0313", "vi": "nồng độ hemoglobin", "en": "hemoglobin concentration", "zh": "血红蛋白浓度"}
-{"concept_id": "MC0314", "vi": "số lượng bạch cầu", "en": "white blood cell count", "zh": "白细胞计数"}
-{"concept_id": "MC0315", "vi": "số lượng tiểu cầu", "en": "platelet count", "zh": "血小板计数"}
-{"concept_id": "MC0316", "vi": "mức creatinin", "en": "creatinine level", "zh": "肌酐水平"}
-{"concept_id": "MC0317", "vi": "mức ure máu", "en": "blood urea level", "zh": "血尿素水平"}
-{"concept_id": "MC0318", "vi": "nồng độ natri", "en": "sodium level", "zh": "钠浓度"}
-{"concept_id": "MC0319", "vi": "nồng độ kali", "en": "potassium level", "zh": "钾浓度"}
-{"concept_id": "MC0320", "vi": "nồng độ cholesterol", "en": "cholesterol level", "zh": "胆固醇水平"}
-{"concept_id": "MC0321", "vi": "nồng độ triglycerid", "en": "triglyceride level", "zh": "甘油三酯水平"}
-{"concept_id": "MC0322", "vi": "chỉ số khối cơ thể", "en": "body mass index", "zh": "身体质量指数"}
-{"concept_id": "MC0323", "vi": "vòng eo", "en": "waist circumference", "zh": "腰围"}
-{"concept_id": "MC0324", "vi": "thị lực", "en": "visual acuity", "zh": "视力"}
-{"concept_id": "MC0325", "vi": "thể tích khí thở ra gắng sức giây đầu", "en": "forced expiratory volume in one second", "zh": "第一秒用力呼气容积"}
-{"concept_id": "MC0326", "vi": "mức lọc cầu thận ước tính", "en": "estimated glomerular filtration rate", "zh": "估算肾小球滤过率"}
-{"concept_id": "MC0327", "vi": "thang điểm đau", "en": "pain score", "zh": "疼痛评分"}
-{"concept_id": "MC0328", "vi": "chỉ số nguy cơ tim mạch", "en": "cardiovascular risk score", "zh": "心血管风险评分"}
-{"concept_id": "MC0329", "vi": "tiêm chủng", "en": "vaccination", "zh": "疫苗接种"}
-{"concept_id": "MC0330", "vi": "khám sàng lọc", "en": "health screening", "zh": "健康筛查"}
-{"concept_id": "MC0331", "vi": "khám định kỳ", "en": "routine checkup", "zh": "常规体检"}
-{"concept_id": "MC0332", "vi": "rửa tay đúng cách", "en": "proper handwashing", "zh": "正确洗手"}
-{"concept_id": "MC0333", "vi": "vệ sinh răng miệng", "en": "oral hygiene", "zh": "口腔卫生"}
-{"concept_id": "MC0334", "vi": "an toàn thực phẩm", "en": "food safety", "zh": "食品安全"}
-{"concept_id": "MC0335", "vi": "vận động thể lực", "en": "physical activity", "zh": "身体活动"}
-{"concept_id": "MC0336", "vi": "ngủ đủ giấc", "en": "adequate sleep", "zh": "充足睡眠"}
-{"concept_id": "MC0337", "vi": "chế độ ăn cân bằng", "en": "balanced diet", "zh": "均衡饮食"}
-{"concept_id": "MC0338", "vi": "uống đủ nước", "en": "adequate hydration", "zh": "充足饮水"}
-{"concept_id": "MC0339", "vi": "quản lý căng thẳng", "en": "stress management", "zh": "压力管理"}
-{"concept_id": "MC0340", "vi": "phòng ngừa té ngã", "en": "fall prevention", "zh": "预防跌倒"}
-{"concept_id": "MC0341", "vi": "phòng ngừa nhiễm khuẩn", "en": "infection prevention", "zh": "感染预防"}
-{"concept_id": "MC0342", "vi": "vệ sinh môi trường", "en": "environmental hygiene", "zh": "环境卫生"}
-{"concept_id": "MC0343", "vi": "tư vấn sức khỏe", "en": "health counseling", "zh": "健康咨询"}
-{"concept_id": "MC0344", "vi": "giáo dục sức khỏe", "en": "health education", "zh": "健康教育"}
-{"concept_id": "MC0345", "vi": "sàng lọc ung thư", "en": "cancer screening", "zh": "癌症筛查"}
-{"concept_id": "MC0346", "vi": "sàng lọc tăng huyết áp", "en": "hypertension screening", "zh": "高血压筛查"}
-{"concept_id": "MC0347", "vi": "sàng lọc đái tháo đường", "en": "diabetes screening", "zh": "糖尿病筛查"}
-{"concept_id": "MC0348", "vi": "theo dõi sức khỏe tại nhà", "en": "home health monitoring", "zh": "居家健康监测"}
-{"concept_id": "MC0349", "vi": "đặt lịch khám", "en": "appointment booking", "zh": "预约挂号"}
-{"concept_id": "MC0350", "vi": "đăng ký khám bệnh", "en": "patient registration", "zh": "就诊登记"}
-{"concept_id": "MC0351", "vi": "lấy số thứ tự", "en": "queue number collection", "zh": "领取排队号码"}
-{"concept_id": "MC0352", "vi": "chờ khám", "en": "waiting for consultation", "zh": "候诊"}
-{"concept_id": "MC0353", "vi": "khai tiền sử bệnh", "en": "medical history reporting", "zh": "病史陈述"}
-{"concept_id": "MC0354", "vi": "hồ sơ bệnh án", "en": "medical record", "zh": "病历"}
-{"concept_id": "MC0355", "vi": "phiếu chỉ định", "en": "medical order form", "zh": "检查申请单"}
-{"concept_id": "MC0356", "vi": "phiếu kết quả xét nghiệm", "en": "laboratory report", "zh": "检验报告"}
-{"concept_id": "MC0357", "vi": "kết quả chẩn đoán hình ảnh", "en": "imaging report", "zh": "影像检查报告"}
-{"concept_id": "MC0358", "vi": "bảo hiểm y tế", "en": "health insurance", "zh": "医疗保险"}
-{"concept_id": "MC0359", "vi": "chuyển tuyến", "en": "referral to another facility", "zh": "转诊"}
-{"concept_id": "MC0360", "vi": "hẹn tái khám", "en": "follow-up appointment", "zh": "复诊预约"}
-{"concept_id": "MC0361", "vi": "nhập viện", "en": "hospital admission", "zh": "住院"}
-{"concept_id": "MC0362", "vi": "xuất viện", "en": "hospital discharge", "zh": "出院"}
-{"concept_id": "MC0363", "vi": "giấy ra viện", "en": "discharge summary", "zh": "出院记录"}
-{"concept_id": "MC0364", "vi": "khoa khám bệnh", "en": "outpatient department", "zh": "门诊部"}
-{"concept_id": "MC0365", "vi": "phòng cấp cứu", "en": "emergency room", "zh": "急诊室"}
-{"concept_id": "MC0366", "vi": "phòng xét nghiệm", "en": "clinical laboratory", "zh": "临床检验室"}
-{"concept_id": "MC0367", "vi": "phòng chụp X-quang", "en": "X-ray room", "zh": "X光检查室"}
-{"concept_id": "MC0368", "vi": "nhà thuốc bệnh viện", "en": "hospital pharmacy", "zh": "医院药房"}
-{"concept_id": "MC0369", "vi": "bác sĩ điều trị", "en": "attending physician", "zh": "主管医生"}
-{"concept_id": "MC0370", "vi": "điều dưỡng", "en": "nurse", "zh": "护士"}
-{"concept_id": "MC0371", "vi": "người bệnh", "en": "patient", "zh": "患者"}
-{"concept_id": "MC0372", "vi": "người nhà bệnh nhân", "en": "patient family member", "zh": "患者家属"}
-{"concept_id": "MC0373", "vi": "triệu chứng ban đầu", "en": "initial symptoms", "zh": "初始症状"}
-{"concept_id": "MC0374", "vi": "chẩn đoán sơ bộ", "en": "provisional diagnosis", "zh": "初步诊断"}
-{"concept_id": "MC0375", "vi": "chẩn đoán xác định", "en": "confirmed diagnosis", "zh": "确诊"}
-{"concept_id": "MC0376", "vi": "chẩn đoán phân biệt", "en": "differential diagnosis", "zh": "鉴别诊断"}
-{"concept_id": "MC0377", "vi": "tư vấn trước khi ra viện", "en": "discharge counseling", "zh": "出院指导"}
-{"concept_id": "MC0378", "vi": "chăm sóc sau điều trị", "en": "post-treatment care", "zh": "治疗后护理"}
-{"concept_id": "MC0018", "vi": "hụt hơi", "en": "feeling out of breath", "zh": "喘不过气"}
-{"concept_id": "MC0022", "vi": "tim đập thình thịch", "en": "heart racing", "zh": "心跳得厉害"}
-{"concept_id": "MC0085", "vi": "dị ứng mũi", "en": "nasal allergies", "zh": "鼻子过敏"}
-{"concept_id": "MC0089", "vi": "phổi tắc nghẽn mạn tính", "en": "COPD", "zh": "慢阻肺"}
-{"concept_id": "MC0092", "vi": "trào ngược dạ dày", "en": "acid reflux", "zh": "胃酸反流"}
-{"concept_id": "MC0094", "vi": "ruột kích thích", "en": "irritable bowel", "zh": "肠道易激"}
-{"concept_id": "MC0101", "vi": "sỏi ở thận", "en": "kidney stones", "zh": "肾里有结石"}
-{"concept_id": "MC0102", "vi": "viêm đường tiểu", "en": "urine infection", "zh": "尿路发炎"}
-{"concept_id": "MC0105", "vi": "cao huyết áp", "en": "high blood pressure", "zh": "血压高"}
-{"concept_id": "MC0107", "vi": "bệnh mạch vành tim", "en": "heart artery disease", "zh": "冠心病"}
-{"concept_id": "MC0109", "vi": "nhịp tim không đều", "en": "irregular heartbeat", "zh": "心跳不规律"}
-{"concept_id": "MC0110", "vi": "cơn đau tim", "en": "heart attack", "zh": "心脏病发作"}
-{"concept_id": "MC0114", "vi": "mỡ máu bất thường", "en": "abnormal blood fat levels", "zh": "血脂不正常"}
-{"concept_id": "MC0115", "vi": "tiểu đường loại 1", "en": "type 1 diabetes", "zh": "一型糖尿病"}
-{"concept_id": "MC0116", "vi": "tiểu đường loại 2", "en": "type 2 diabetes", "zh": "二型糖尿病"}
-{"concept_id": "MC0118", "vi": "tuyến giáp hoạt động quá mức", "en": "overactive thyroid", "zh": "甲状腺功能过强"}
-{"concept_id": "MC0119", "vi": "tuyến giáp hoạt động kém", "en": "underactive thyroid", "zh": "甲状腺功能低下"}
-{"concept_id": "MC0132", "vi": "chàm da", "en": "eczema", "zh": "湿疹"}
-{"concept_id": "MC0136", "vi": "đau mắt đỏ", "en": "pink eye", "zh": "红眼病"}
-{"concept_id": "MC0215", "vi": "xét nghiệm công thức máu", "en": "complete blood count", "zh": "血常规"}
-{"concept_id": "MC0236", "vi": "đo điện tim", "en": "heart tracing", "zh": "心电图检查"}
-{"concept_id": "MC0238", "vi": "chụp CT", "en": "CT scan", "zh": "做CT"}
-{"concept_id": "MC0239", "vi": "chụp MRI", "en": "MRI scan", "zh": "做核磁共振"}
-{"concept_id": "MC0290", "vi": "khoa tai mũi họng", "en": "ear, nose and throat clinic", "zh": "耳鼻喉门诊"}
-{"concept_id": "MC0295", "vi": "khoa chụp chiếu", "en": "imaging department", "zh": "影像科"}
-{"concept_id": "MC0310", "vi": "chỉ số oxy trong máu", "en": "blood oxygen level", "zh": "血氧数值"}
-{"concept_id": "MC0313", "vi": "chỉ số huyết sắc tố", "en": "hemoglobin level", "zh": "血红蛋白数值"}
-{"concept_id": "MC0320", "vi": "mỡ cholesterol trong máu", "en": "cholesterol level", "zh": "胆固醇数值"}
-{"concept_id": "MC0326", "vi": "chỉ số lọc thận", "en": "kidney filtration estimate", "zh": "肾过滤指标"}
+{"concept_id": "MC0001", "category": "symptom", "vi": "đau đầu", "en": "headache", "zh": "头痛", "icd10_code": ""}
+{"concept_id": "MC0002", "category": "symptom", "vi": "đau nửa đầu", "en": "one-sided headache", "zh": "单侧头痛", "icd10_code": ""}
+{"concept_id": "MC0003", "category": "symptom", "vi": "chóng mặt", "en": "dizziness", "zh": "头晕", "icd10_code": ""}
+{"concept_id": "MC0004", "category": "symptom", "vi": "hoa mắt", "en": "lightheadedness", "zh": "眼花", "icd10_code": ""}
+{"concept_id": "MC0005", "category": "symptom", "vi": "choáng váng", "en": "feeling faint", "zh": "头昏", "icd10_code": ""}
+{"concept_id": "MC0006", "category": "symptom", "vi": "ngất", "en": "fainting", "zh": "晕厥", "icd10_code": ""}
+{"concept_id": "MC0007", "category": "symptom", "vi": "sốt", "en": "fever", "zh": "发热", "icd10_code": ""}
+{"concept_id": "MC0008", "category": "symptom", "vi": "sốt nhẹ", "en": "low-grade fever", "zh": "低热", "icd10_code": ""}
+{"concept_id": "MC0009", "category": "symptom", "vi": "sốt cao", "en": "high fever", "zh": "高热", "icd10_code": ""}
+{"concept_id": "MC0010", "category": "symptom", "vi": "ớn lạnh", "en": "chills", "zh": "寒战", "icd10_code": ""}
+{"concept_id": "MC0011", "category": "symptom", "vi": "mệt mỏi", "en": "fatigue", "zh": "疲劳", "icd10_code": ""}
+{"concept_id": "MC0012", "category": "symptom", "vi": "suy nhược", "en": "weakness", "zh": "虚弱", "icd10_code": ""}
+{"concept_id": "MC0013", "category": "symptom", "vi": "mất ngủ", "en": "insomnia", "zh": "失眠", "icd10_code": ""}
+{"concept_id": "MC0014", "category": "symptom", "vi": "buồn ngủ ban", "en": "daytime sleepiness", "zh": "日间嗜睡", "icd10_code": ""}
+{"concept_id": "MC0015", "category": "symptom", "vi": "ho", "en": "cough", "zh": "咳嗽", "icd10_code": ""}
+{"concept_id": "MC0016", "category": "symptom", "vi": "ho khan", "en": "dry cough", "zh": "干咳", "icd10_code": ""}
+{"concept_id": "MC0017", "category": "symptom", "vi": "ho có đờm", "en": "productive cough", "zh": "咳痰", "icd10_code": ""}
+{"concept_id": "MC0018", "category": "symptom", "vi": "khó thở", "en": "shortness of breath", "zh": "呼吸困难", "icd10_code": ""}
+{"concept_id": "MC0019", "category": "symptom", "vi": "thở khò khè", "en": "wheezing", "zh": "喘鸣", "icd10_code": ""}
+{"concept_id": "MC0020", "category": "symptom", "vi": "đau ngực", "en": "chest pain", "zh": "胸痛", "icd10_code": ""}
+{"concept_id": "MC0021", "category": "symptom", "vi": "tức ngực", "en": "chest tightness", "zh": "胸闷", "icd10_code": ""}
+{"concept_id": "MC0022", "category": "symptom", "vi": "đánh trống ngực", "en": "palpitations", "zh": "心悸", "icd10_code": ""}
+{"concept_id": "MC0023", "category": "symptom", "vi": "nghẹt mũi", "en": "nasal congestion", "zh": "鼻塞", "icd10_code": ""}
+{"concept_id": "MC0024", "category": "symptom", "vi": "sổ mũi", "en": "runny nose", "zh": "流鼻涕", "icd10_code": ""}
+{"concept_id": "MC0025", "category": "symptom", "vi": "hắt hơi", "en": "sneezing", "zh": "打喷嚏", "icd10_code": ""}
+{"concept_id": "MC0026", "category": "symptom", "vi": "đau họng", "en": "sore throat", "zh": "咽痛", "icd10_code": ""}
+{"concept_id": "MC0027", "category": "symptom", "vi": "khàn tiếng", "en": "hoarseness", "zh": "声音嘶哑", "icd10_code": ""}
+{"concept_id": "MC0028", "category": "symptom", "vi": "khô miệng", "en": "dry mouth", "zh": "口干", "icd10_code": ""}
+{"concept_id": "MC0029", "category": "symptom", "vi": "khát nước", "en": "excessive thirst", "zh": "口渴明显", "icd10_code": ""}
+{"concept_id": "MC0030", "category": "symptom", "vi": "buồn nôn", "en": "nausea", "zh": "恶心", "icd10_code": ""}
+{"concept_id": "MC0031", "category": "symptom", "vi": "nôn", "en": "vomiting", "zh": "呕吐", "icd10_code": ""}
+{"concept_id": "MC0032", "category": "symptom", "vi": "đau bụng", "en": "abdominal pain", "zh": "腹痛", "icd10_code": ""}
+{"concept_id": "MC0033", "category": "symptom", "vi": "đầy hơi", "en": "bloating", "zh": "腹胀", "icd10_code": ""}
+{"concept_id": "MC0034", "category": "symptom", "vi": "ợ nóng", "en": "heartburn", "zh": "烧心", "icd10_code": ""}
+{"concept_id": "MC0035", "category": "symptom", "vi": "khó tiêu", "en": "indigestion", "zh": "消化不良", "icd10_code": ""}
+{"concept_id": "MC0036", "category": "symptom", "vi": "tiêu chảy", "en": "diarrhea", "zh": "腹泻", "icd10_code": ""}
+{"concept_id": "MC0037", "category": "symptom", "vi": "táo bón", "en": "constipation", "zh": "便秘", "icd10_code": ""}
+{"concept_id": "MC0038", "category": "symptom", "vi": "chán ăn", "en": "loss of appetite", "zh": "食欲不振", "icd10_code": ""}
+{"concept_id": "MC0039", "category": "symptom", "vi": "nuốt khó", "en": "difficulty swallowing", "zh": "吞咽困难", "icd10_code": ""}
+{"concept_id": "MC0040", "category": "symptom", "vi": "đau khi nuốt", "en": "painful swallowing", "zh": "吞咽疼痛", "icd10_code": ""}
+{"concept_id": "MC0041", "category": "symptom", "vi": "đau lưng", "en": "back pain", "zh": "背痛", "icd10_code": ""}
+{"concept_id": "MC0042", "category": "symptom", "vi": "đau cổ", "en": "neck pain", "zh": "颈部疼痛", "icd10_code": ""}
+{"concept_id": "MC0043", "category": "symptom", "vi": "đau vai", "en": "shoulder pain", "zh": "肩痛", "icd10_code": ""}
+{"concept_id": "MC0044", "category": "symptom", "vi": "đau khớp", "en": "joint pain", "zh": "关节痛", "icd10_code": ""}
+{"concept_id": "MC0045", "category": "symptom", "vi": "sưng khớp", "en": "joint swelling", "zh": "关节肿胀", "icd10_code": ""}
+{"concept_id": "MC0046", "category": "symptom", "vi": "cứng khớp", "en": "joint stiffness", "zh": "关节僵硬", "icd10_code": ""}
+{"concept_id": "MC0047", "category": "symptom", "vi": "yếu cơ", "en": "muscle weakness", "zh": "肌无力", "icd10_code": ""}
+{"concept_id": "MC0048", "category": "symptom", "vi": "tê tay", "en": "hand numbness", "zh": "手麻", "icd10_code": ""}
+{"concept_id": "MC0049", "category": "symptom", "vi": "tê chân", "en": "foot numbness", "zh": "脚麻", "icd10_code": ""}
+{"concept_id": "MC0050", "category": "symptom", "vi": "chuột rút", "en": "muscle cramp", "zh": "肌肉痉挛", "icd10_code": ""}
+{"concept_id": "MC0051", "category": "symptom", "vi": "phù chân", "en": "leg swelling", "zh": "腿部水肿", "icd10_code": ""}
+{"concept_id": "MC0052", "category": "symptom", "vi": "phù mặt", "en": "facial swelling", "zh": "面部肿胀", "icd10_code": ""}
+{"concept_id": "MC0053", "category": "symptom", "vi": "ngứa da", "en": "itchy skin", "zh": "皮肤瘙痒", "icd10_code": ""}
+{"concept_id": "MC0054", "category": "symptom", "vi": "nổi mẩn", "en": "skin rash", "zh": "皮疹", "icd10_code": ""}
+{"concept_id": "MC0055", "category": "symptom", "vi": "nổi mề đay", "en": "hives", "zh": "荨麻疹", "icd10_code": ""}
+{"concept_id": "MC0056", "category": "symptom", "vi": "đỏ da", "en": "skin redness", "zh": "皮肤发红", "icd10_code": ""}
+{"concept_id": "MC0057", "category": "symptom", "vi": "da khô", "en": "dry skin", "zh": "皮肤干燥", "icd10_code": ""}
+{"concept_id": "MC0058", "category": "symptom", "vi": "rụng tóc", "en": "hair loss", "zh": "脱发", "icd10_code": ""}
+{"concept_id": "MC0059", "category": "symptom", "vi": "nhìn mờ", "en": "blurred vision", "zh": "视物模糊", "icd10_code": ""}
+{"concept_id": "MC0060", "category": "symptom", "vi": "đỏ mắt", "en": "red eyes", "zh": "眼红", "icd10_code": ""}
+{"concept_id": "MC0061", "category": "symptom", "vi": "đau mắt", "en": "eye pain", "zh": "眼痛", "icd10_code": ""}
+{"concept_id": "MC0062", "category": "symptom", "vi": "ù tai", "en": "tinnitus", "zh": "耳鸣", "icd10_code": ""}
+{"concept_id": "MC0063", "category": "symptom", "vi": "giảm thính lực", "en": "hearing loss", "zh": "听力下降", "icd10_code": ""}
+{"concept_id": "MC0064", "category": "symptom", "vi": "tiểu buốt", "en": "painful urination", "zh": "尿痛", "icd10_code": ""}
+{"concept_id": "MC0065", "category": "symptom", "vi": "tiểu nhiều lần", "en": "frequent urination", "zh": "尿频", "icd10_code": ""}
+{"concept_id": "MC0066", "category": "symptom", "vi": "tiểu đêm", "en": "nocturia", "zh": "夜尿增多", "icd10_code": ""}
+{"concept_id": "MC0067", "category": "symptom", "vi": "tiểu không tự chủ", "en": "urinary incontinence", "zh": "尿失禁", "icd10_code": ""}
+{"concept_id": "MC0068", "category": "symptom", "vi": "tiểu ít", "en": "reduced urine output", "zh": "尿量减少", "icd10_code": ""}
+{"concept_id": "MC0069", "category": "symptom", "vi": "khô mắt", "en": "dry eyes", "zh": "眼干", "icd10_code": ""}
+{"concept_id": "MC0070", "category": "symptom", "vi": "mất vị giác", "en": "loss of taste", "zh": "味觉丧失", "icd10_code": ""}
+{"concept_id": "MC0071", "category": "symptom", "vi": "thay đổi khứu giác", "en": "change in sense of smell", "zh": "嗅觉改变", "icd10_code": ""}
+{"concept_id": "MC0072", "category": "symptom", "vi": "run tay", "en": "hand tremor", "zh": "手抖", "icd10_code": ""}
+{"concept_id": "MC0073", "category": "symptom", "vi": "mất thăng bằng", "en": "loss of balance", "zh": "平衡障碍", "icd10_code": ""}
+{"concept_id": "MC0074", "category": "symptom", "vi": "giảm trí nhớ", "en": "memory decline", "zh": "记忆力下降", "icd10_code": ""}
+{"concept_id": "MC0075", "category": "symptom", "vi": "khó tập trung", "en": "difficulty concentrating", "zh": "注意力不集中", "icd10_code": ""}
+{"concept_id": "MC0076", "category": "symptom", "vi": "lo âu", "en": "anxiety", "zh": "焦虑", "icd10_code": ""}
+{"concept_id": "MC0077", "category": "symptom", "vi": "buồn bã kéo dài", "en": "persistent sadness", "zh": "持续情绪低落", "icd10_code": ""}
+{"concept_id": "MC0078", "category": "symptom", "vi": "đổ mồ hôi", "en": "excessive sweating", "zh": "多汗", "icd10_code": ""}
+{"concept_id": "MC0079", "category": "symptom", "vi": "sụt cân không chủ ý", "en": "unintentional weight loss", "zh": "非意愿性体重下降", "icd10_code": ""}
+{"concept_id": "MC0080", "category": "condition", "vi": "cảm lạnh thông thường", "en": "common cold", "zh": "普通感冒", "icd10_code": ""}
+{"concept_id": "MC0081", "category": "condition", "vi": "cúm mùa", "en": "seasonal influenza", "zh": "季节性流感", "icd10_code": ""}
+{"concept_id": "MC0082", "category": "condition", "vi": "viêm họng", "en": "pharyngitis", "zh": "咽炎", "icd10_code": ""}
+{"concept_id": "MC0083", "category": "condition", "vi": "viêm amidan", "en": "tonsillitis", "zh": "扁桃体炎", "icd10_code": ""}
+{"concept_id": "MC0084", "category": "condition", "vi": "viêm xoang", "en": "sinusitis", "zh": "鼻窦炎", "icd10_code": ""}
+{"concept_id": "MC0085", "category": "condition", "vi": "viêm mũi dị ứng", "en": "allergic rhinitis", "zh": "过敏性鼻炎", "icd10_code": ""}
+{"concept_id": "MC0086", "category": "condition", "vi": "viêm phế quản", "en": "bronchitis", "zh": "支气管炎", "icd10_code": ""}
+{"concept_id": "MC0087", "category": "condition", "vi": "viêm phổi", "en": "pneumonia", "zh": "肺炎", "icd10_code": ""}
+{"concept_id": "MC0088", "category": "condition", "vi": "hen phế quản", "en": "asthma", "zh": "哮喘", "icd10_code": ""}
+{"concept_id": "MC0089", "category": "condition", "vi": "bệnh phổi tắc nghẽn mạn tính", "en": "chronic obstructive pulmonary disease", "zh": "慢性阻塞性肺疾病", "icd10_code": ""}
+{"concept_id": "MC0090", "category": "condition", "vi": "lao phổi", "en": "pulmonary tuberculosis", "zh": "肺结核", "icd10_code": ""}
+{"concept_id": "MC0091", "category": "condition", "vi": "viêm dạ dày", "en": "gastritis", "zh": "胃炎", "icd10_code": ""}
+{"concept_id": "MC0092", "category": "condition", "vi": "trào ngược dạ dày thực quản", "en": "gastroesophageal reflux disease", "zh": "胃食管反流病", "icd10_code": ""}
+{"concept_id": "MC0093", "category": "condition", "vi": "loét dạ dày", "en": "gastric ulcer", "zh": "胃溃疡", "icd10_code": ""}
+{"concept_id": "MC0094", "category": "condition", "vi": "hội chứng ruột kích thích", "en": "irritable bowel syndrome", "zh": "肠易激综合征", "icd10_code": ""}
+{"concept_id": "MC0095", "category": "condition", "vi": "viêm ruột thừa", "en": "appendicitis", "zh": "阑尾炎", "icd10_code": ""}
+{"concept_id": "MC0096", "category": "condition", "vi": "sỏi mật", "en": "gallstones", "zh": "胆结石", "icd10_code": ""}
+{"concept_id": "MC0097", "category": "condition", "vi": "viêm gan", "en": "hepatitis", "zh": "肝炎", "icd10_code": ""}
+{"concept_id": "MC0098", "category": "condition", "vi": "gan nhiễm mỡ", "en": "fatty liver disease", "zh": "脂肪肝", "icd10_code": ""}
+{"concept_id": "MC0099", "category": "condition", "vi": "xơ gan", "en": "cirrhosis", "zh": "肝硬化", "icd10_code": ""}
+{"concept_id": "MC0100", "category": "condition", "vi": "suy thận", "en": "kidney failure", "zh": "肾衰竭", "icd10_code": ""}
+{"concept_id": "MC0101", "category": "condition", "vi": "sỏi thận", "en": "kidney stones", "zh": "肾结石", "icd10_code": ""}
+{"concept_id": "MC0102", "category": "condition", "vi": "nhiễm trùng đường tiết niệu", "en": "urinary tract infection", "zh": "尿路感染", "icd10_code": ""}
+{"concept_id": "MC0103", "category": "condition", "vi": "viêm bàng quang", "en": "cystitis", "zh": "膀胱炎", "icd10_code": ""}
+{"concept_id": "MC0104", "category": "condition", "vi": "bệnh thận mạn", "en": "chronic kidney disease", "zh": "慢性肾脏病", "icd10_code": ""}
+{"concept_id": "MC0105", "category": "condition", "vi": "tăng huyết áp", "en": "hypertension", "zh": "高血压", "icd10_code": ""}
+{"concept_id": "MC0106", "category": "condition", "vi": "hạ huyết áp", "en": "hypotension", "zh": "低血压", "icd10_code": ""}
+{"concept_id": "MC0107", "category": "condition", "vi": "bệnh động mạch vành", "en": "coronary artery disease", "zh": "冠状动脉疾病", "icd10_code": ""}
+{"concept_id": "MC0108", "category": "condition", "vi": "suy tim", "en": "heart failure", "zh": "心力衰竭", "icd10_code": ""}
+{"concept_id": "MC0109", "category": "condition", "vi": "rối loạn nhịp tim", "en": "cardiac arrhythmia", "zh": "心律失常", "icd10_code": ""}
+{"concept_id": "MC0110", "category": "condition", "vi": "nhồi máu cơ tim", "en": "myocardial infarction", "zh": "心肌梗死", "icd10_code": ""}
+{"concept_id": "MC0111", "category": "condition", "vi": "đột quỵ", "en": "stroke", "zh": "卒中", "icd10_code": ""}
+{"concept_id": "MC0112", "category": "condition", "vi": "thiếu máu", "en": "anemia", "zh": "贫血", "icd10_code": ""}
+{"concept_id": "MC0113", "category": "condition", "vi": "thiếu máu thiếu sắt", "en": "iron deficiency anemia", "zh": "缺铁性贫血", "icd10_code": ""}
+{"concept_id": "MC0114", "category": "condition", "vi": "rối loạn lipid máu", "en": "dyslipidemia", "zh": "血脂异常", "icd10_code": ""}
+{"concept_id": "MC0115", "category": "condition", "vi": "đái tháo đường típ 1", "en": "type 1 diabetes", "zh": "1型糖尿病", "icd10_code": ""}
+{"concept_id": "MC0116", "category": "condition", "vi": "đái tháo đường típ 2", "en": "type 2 diabetes", "zh": "2型糖尿病", "icd10_code": ""}
+{"concept_id": "MC0117", "category": "condition", "vi": "hạ đường huyết", "en": "hypoglycemia", "zh": "低血糖", "icd10_code": ""}
+{"concept_id": "MC0118", "category": "condition", "vi": "cường giáp", "en": "hyperthyroidism", "zh": "甲状腺功能亢进", "icd10_code": ""}
+{"concept_id": "MC0119", "category": "condition", "vi": "suy giáp", "en": "hypothyroidism", "zh": "甲状腺功能减退", "icd10_code": ""}
+{"concept_id": "MC0120", "category": "condition", "vi": "bướu giáp", "en": "goiter", "zh": "甲状腺肿", "icd10_code": ""}
+{"concept_id": "MC0121", "category": "condition", "vi": "viêm khớp dạng thấp", "en": "rheumatoid arthritis", "zh": "类风湿关节炎", "icd10_code": ""}
+{"concept_id": "MC0122", "category": "condition", "vi": "thoái hóa khớp", "en": "osteoarthritis", "zh": "骨关节炎", "icd10_code": ""}
+{"concept_id": "MC0123", "category": "condition", "vi": "loãng xương", "en": "osteoporosis", "zh": "骨质疏松", "icd10_code": ""}
+{"concept_id": "MC0124", "category": "condition", "vi": "thoát vị đĩa đệm", "en": "herniated disc", "zh": "椎间盘突出", "icd10_code": ""}
+{"concept_id": "MC0125", "category": "condition", "vi": "đau thần kinh tọa", "en": "sciatica", "zh": "坐骨神经痛", "icd10_code": ""}
+{"concept_id": "MC0126", "category": "condition", "vi": "đau nửa đầu migraine", "en": "migraine", "zh": "偏头痛", "icd10_code": ""}
+{"concept_id": "MC0127", "category": "condition", "vi": "động kinh", "en": "epilepsy", "zh": "癫痫", "icd10_code": ""}
+{"concept_id": "MC0128", "category": "condition", "vi": "bệnh parkinson", "en": "parkinson disease", "zh": "帕金森病", "icd10_code": ""}
+{"concept_id": "MC0129", "category": "condition", "vi": "sa sút trí tuệ", "en": "dementia", "zh": "痴呆", "icd10_code": ""}
+{"concept_id": "MC0130", "category": "condition", "vi": "rối loạn lo âu", "en": "anxiety disorder", "zh": "焦虑障碍", "icd10_code": ""}
+{"concept_id": "MC0131", "category": "condition", "vi": "rối loạn giấc ngủ", "en": "sleep disorder", "zh": "睡眠障碍", "icd10_code": ""}
+{"concept_id": "MC0132", "category": "condition", "vi": "viêm da cơ địa", "en": "atopic dermatitis", "zh": "特应性皮炎", "icd10_code": ""}
+{"concept_id": "MC0133", "category": "condition", "vi": "vảy nến", "en": "psoriasis", "zh": "银屑病", "icd10_code": ""}
+{"concept_id": "MC0134", "category": "condition", "vi": "mụn trứng cá", "en": "acne", "zh": "痤疮", "icd10_code": ""}
+{"concept_id": "MC0135", "category": "condition", "vi": "nấm da", "en": "skin fungal infection", "zh": "皮肤真菌感染", "icd10_code": ""}
+{"concept_id": "MC0136", "category": "condition", "vi": "viêm kết mạc", "en": "conjunctivitis", "zh": "结膜炎", "icd10_code": ""}
+{"concept_id": "MC0137", "category": "condition", "vi": "đục thủy tinh thể", "en": "cataract", "zh": "白内障", "icd10_code": ""}
+{"concept_id": "MC0138", "category": "condition", "vi": "tăng nhãn áp", "en": "glaucoma", "zh": "青光眼", "icd10_code": ""}
+{"concept_id": "MC0139", "category": "condition", "vi": "viêm tai", "en": "otitis media", "zh": "中耳炎", "icd10_code": ""}
+{"concept_id": "MC0140", "category": "condition", "vi": "sâu răng", "en": "dental caries", "zh": "龋齿", "icd10_code": ""}
+{"concept_id": "MC0141", "category": "condition", "vi": "viêm lợi", "en": "gingivitis", "zh": "牙龈炎", "icd10_code": ""}
+{"concept_id": "MC0142", "category": "condition", "vi": "viêm nha chu", "en": "periodontitis", "zh": "牙周炎", "icd10_code": ""}
+{"concept_id": "MC0143", "category": "condition", "vi": "viêm tụy", "en": "pancreatitis", "zh": "胰腺炎", "icd10_code": ""}
+{"concept_id": "MC0144", "category": "condition", "vi": "viêm túi mật", "en": "cholecystitis", "zh": "胆囊炎", "icd10_code": ""}
+{"concept_id": "MC0145", "category": "condition", "vi": "viêm đại tràng", "en": "colitis", "zh": "结肠炎", "icd10_code": ""}
+{"concept_id": "MC0146", "category": "condition", "vi": "rối loạn tiêu hóa", "en": "digestive disorder", "zh": "消化系统疾病", "icd10_code": ""}
+{"concept_id": "MC0147", "category": "condition", "vi": "nhiễm khuẩn da", "en": "bacterial skin infection", "zh": "细菌性皮肤感染", "icd10_code": ""}
+{"concept_id": "MC0148", "category": "condition", "vi": "viêm phổi do vi khuẩn", "en": "bacterial pneumonia", "zh": "细菌性肺炎", "icd10_code": ""}
+{"concept_id": "MC0149", "category": "condition", "vi": "viêm phổi do virus", "en": "viral pneumonia", "zh": "病毒性肺炎", "icd10_code": ""}
+{"concept_id": "MC0150", "category": "condition", "vi": "mất nước", "en": "dehydration", "zh": "脱水", "icd10_code": ""}
+{"concept_id": "MC0151", "category": "condition", "vi": "suy dinh dưỡng", "en": "malnutrition", "zh": "营养不良", "icd10_code": ""}
+{"concept_id": "MC0152", "category": "condition", "vi": "béo phì", "en": "obesity", "zh": "肥胖症", "icd10_code": ""}
+{"concept_id": "MC0153", "category": "condition", "vi": "thiếu vitamin d", "en": "vitamin d deficiency", "zh": "维生素D缺乏", "icd10_code": ""}
+{"concept_id": "MC0154", "category": "condition", "vi": "thiếu vitamin b12", "en": "vitamin b12 deficiency", "zh": "维生素B12缺乏", "icd10_code": ""}
+{"concept_id": "MC0155", "category": "anatomy", "vi": "não", "en": "brain", "zh": "大脑", "icd10_code": ""}
+{"concept_id": "MC0156", "category": "anatomy", "vi": "tiểu não", "en": "cerebellum", "zh": "小脑", "icd10_code": ""}
+{"concept_id": "MC0157", "category": "anatomy", "vi": "tủy sống", "en": "spinal cord", "zh": "脊髓", "icd10_code": ""}
+{"concept_id": "MC0158", "category": "anatomy", "vi": "dây thần kinh", "en": "nerve", "zh": "神经", "icd10_code": ""}
+{"concept_id": "MC0159", "category": "anatomy", "vi": "mắt", "en": "eye", "zh": "眼睛", "icd10_code": ""}
+{"concept_id": "MC0160", "category": "anatomy", "vi": "võng mạc", "en": "retina", "zh": "视网膜", "icd10_code": ""}
+{"concept_id": "MC0161", "category": "anatomy", "vi": "giác mạc", "en": "cornea", "zh": "角膜", "icd10_code": ""}
+{"concept_id": "MC0162", "category": "anatomy", "vi": "thủy tinh thể", "en": "lens of the eye", "zh": "晶状体", "icd10_code": ""}
+{"concept_id": "MC0163", "category": "anatomy", "vi": "tai", "en": "ear", "zh": "耳", "icd10_code": ""}
+{"concept_id": "MC0164", "category": "anatomy", "vi": "màng nhĩ", "en": "eardrum", "zh": "鼓膜", "icd10_code": ""}
+{"concept_id": "MC0165", "category": "anatomy", "vi": "mũi", "en": "nose", "zh": "鼻", "icd10_code": ""}
+{"concept_id": "MC0166", "category": "anatomy", "vi": "xoang mũi", "en": "nasal sinus", "zh": "鼻窦", "icd10_code": ""}
+{"concept_id": "MC0167", "category": "anatomy", "vi": "họng", "en": "throat", "zh": "咽喉", "icd10_code": ""}
+{"concept_id": "MC0168", "category": "anatomy", "vi": "thanh quản", "en": "larynx", "zh": "喉", "icd10_code": ""}
+{"concept_id": "MC0169", "category": "anatomy", "vi": "khí quản", "en": "trachea", "zh": "气管", "icd10_code": ""}
+{"concept_id": "MC0170", "category": "anatomy", "vi": "phế quản", "en": "bronchus", "zh": "支气管", "icd10_code": ""}
+{"concept_id": "MC0171", "category": "anatomy", "vi": "phổi", "en": "lung", "zh": "肺", "icd10_code": ""}
+{"concept_id": "MC0172", "category": "anatomy", "vi": "màng phổi", "en": "pleura", "zh": "胸膜", "icd10_code": ""}
+{"concept_id": "MC0173", "category": "anatomy", "vi": "tim", "en": "heart", "zh": "心脏", "icd10_code": ""}
+{"concept_id": "MC0174", "category": "anatomy", "vi": "động mạch", "en": "artery", "zh": "动脉", "icd10_code": ""}
+{"concept_id": "MC0175", "category": "anatomy", "vi": "tĩnh mạch", "en": "vein", "zh": "静脉", "icd10_code": ""}
+{"concept_id": "MC0176", "category": "anatomy", "vi": "mao mạch", "en": "capillary", "zh": "毛细血管", "icd10_code": ""}
+{"concept_id": "MC0177", "category": "anatomy", "vi": "máu", "en": "blood", "zh": "血液", "icd10_code": ""}
+{"concept_id": "MC0178", "category": "anatomy", "vi": "bạch huyết", "en": "lymph", "zh": "淋巴", "icd10_code": ""}
+{"concept_id": "MC0179", "category": "anatomy", "vi": "thực quản", "en": "esophagus", "zh": "食管", "icd10_code": ""}
+{"concept_id": "MC0180", "category": "anatomy", "vi": "dạ dày", "en": "stomach", "zh": "胃", "icd10_code": ""}
+{"concept_id": "MC0181", "category": "anatomy", "vi": "ruột non", "en": "small intestine", "zh": "小肠", "icd10_code": ""}
+{"concept_id": "MC0182", "category": "anatomy", "vi": "ruột già", "en": "large intestine", "zh": "大肠", "icd10_code": ""}
+{"concept_id": "MC0183", "category": "anatomy", "vi": "đại tràng", "en": "colon", "zh": "结肠", "icd10_code": ""}
+{"concept_id": "MC0184", "category": "anatomy", "vi": "trực tràng", "en": "rectum", "zh": "直肠", "icd10_code": ""}
+{"concept_id": "MC0185", "category": "anatomy", "vi": "gan", "en": "liver", "zh": "肝脏", "icd10_code": ""}
+{"concept_id": "MC0186", "category": "anatomy", "vi": "túi mật", "en": "gallbladder", "zh": "胆囊", "icd10_code": ""}
+{"concept_id": "MC0187", "category": "anatomy", "vi": "tụy", "en": "pancreas", "zh": "胰腺", "icd10_code": ""}
+{"concept_id": "MC0188", "category": "anatomy", "vi": "lá lách", "en": "spleen", "zh": "脾脏", "icd10_code": ""}
+{"concept_id": "MC0189", "category": "anatomy", "vi": "thận", "en": "kidney", "zh": "肾脏", "icd10_code": ""}
+{"concept_id": "MC0190", "category": "anatomy", "vi": "niệu quản", "en": "ureter", "zh": "输尿管", "icd10_code": ""}
+{"concept_id": "MC0191", "category": "anatomy", "vi": "bàng quang", "en": "bladder", "zh": "膀胱", "icd10_code": ""}
+{"concept_id": "MC0192", "category": "anatomy", "vi": "niệu đạo", "en": "urethra", "zh": "尿道", "icd10_code": ""}
+{"concept_id": "MC0193", "category": "anatomy", "vi": "tuyến giáp", "en": "thyroid gland", "zh": "甲状腺", "icd10_code": ""}
+{"concept_id": "MC0194", "category": "anatomy", "vi": "tuyến thượng thận", "en": "adrenal gland", "zh": "肾上腺", "icd10_code": ""}
+{"concept_id": "MC0195", "category": "anatomy", "vi": "tuyến yên", "en": "pituitary gland", "zh": "垂体", "icd10_code": ""}
+{"concept_id": "MC0196", "category": "anatomy", "vi": "xương sọ", "en": "skull", "zh": "颅骨", "icd10_code": ""}
+{"concept_id": "MC0197", "category": "anatomy", "vi": "cột sống", "en": "spine", "zh": "脊柱", "icd10_code": ""}
+{"concept_id": "MC0198", "category": "anatomy", "vi": "đốt sống", "en": "vertebra", "zh": "椎骨", "icd10_code": ""}
+{"concept_id": "MC0199", "category": "anatomy", "vi": "xương sườn", "en": "rib", "zh": "肋骨", "icd10_code": ""}
+{"concept_id": "MC0200", "category": "anatomy", "vi": "xương chậu", "en": "pelvis", "zh": "骨盆", "icd10_code": ""}
+{"concept_id": "MC0201", "category": "anatomy", "vi": "xương đùi", "en": "femur", "zh": "股骨", "icd10_code": ""}
+{"concept_id": "MC0202", "category": "anatomy", "vi": "xương cánh tay", "en": "humerus", "zh": "肱骨", "icd10_code": ""}
+{"concept_id": "MC0203", "category": "anatomy", "vi": "khớp gối", "en": "knee joint", "zh": "膝关节", "icd10_code": ""}
+{"concept_id": "MC0204", "category": "anatomy", "vi": "khớp vai", "en": "shoulder joint", "zh": "肩关节", "icd10_code": ""}
+{"concept_id": "MC0205", "category": "anatomy", "vi": "khớp háng", "en": "hip joint", "zh": "髋关节", "icd10_code": ""}
+{"concept_id": "MC0206", "category": "anatomy", "vi": "cơ bắp", "en": "muscle", "zh": "肌肉", "icd10_code": ""}
+{"concept_id": "MC0207", "category": "anatomy", "vi": "gân cơ", "en": "tendon", "zh": "肌腱", "icd10_code": ""}
+{"concept_id": "MC0208", "category": "anatomy", "vi": "dây chằng", "en": "ligament", "zh": "韧带", "icd10_code": ""}
+{"concept_id": "MC0209", "category": "anatomy", "vi": "da", "en": "skin", "zh": "皮肤", "icd10_code": ""}
+{"concept_id": "MC0210", "category": "anatomy", "vi": "biểu bì", "en": "epidermis", "zh": "表皮", "icd10_code": ""}
+{"concept_id": "MC0211", "category": "anatomy", "vi": "mô dưới da", "en": "subcutaneous tissue", "zh": "皮下组织", "icd10_code": ""}
+{"concept_id": "MC0212", "category": "anatomy", "vi": "màng nhầy", "en": "mucous membrane", "zh": "黏膜", "icd10_code": ""}
+{"concept_id": "MC0213", "category": "anatomy", "vi": "hạch bạch huyết", "en": "lymph node", "zh": "淋巴结", "icd10_code": ""}
+{"concept_id": "MC0214", "category": "test", "vi": "xét nghiệm máu", "en": "blood test", "zh": "血液检查", "icd10_code": ""}
+{"concept_id": "MC0215", "category": "test", "vi": "công thức máu toàn bộ", "en": "complete blood count", "zh": "全血细胞计数", "icd10_code": ""}
+{"concept_id": "MC0216", "category": "test", "vi": "xét nghiệm đường huyết", "en": "blood glucose test", "zh": "血糖检测", "icd10_code": ""}
+{"concept_id": "MC0217", "category": "test", "vi": "xét nghiệm hba1c", "en": "hba1c test", "zh": "糖化血红蛋白检测", "icd10_code": ""}
+{"concept_id": "MC0218", "category": "test", "vi": "xét nghiệm chức năng gan", "en": "liver function test", "zh": "肝功能检查", "icd10_code": ""}
+{"concept_id": "MC0219", "category": "test", "vi": "xét nghiệm chức năng thận", "en": "kidney function test", "zh": "肾功能检查", "icd10_code": ""}
+{"concept_id": "MC0220", "category": "test", "vi": "xét nghiệm nước tiểu", "en": "urinalysis", "zh": "尿液分析", "icd10_code": ""}
+{"concept_id": "MC0221", "category": "test", "vi": "xét nghiệm protein niệu", "en": "urine protein test", "zh": "尿蛋白检测", "icd10_code": ""}
+{"concept_id": "MC0222", "category": "test", "vi": "xét nghiệm mỡ máu", "en": "lipid panel", "zh": "血脂检查", "icd10_code": ""}
+{"concept_id": "MC0223", "category": "test", "vi": "xét nghiệm điện giải", "en": "electrolyte panel", "zh": "电解质检查", "icd10_code": ""}
+{"concept_id": "MC0224", "category": "test", "vi": "xét nghiệm crp", "en": "c-reactive protein test", "zh": "C反应蛋白检测", "icd10_code": ""}
+{"concept_id": "MC0225", "category": "test", "vi": "xét nghiệm tsh", "en": "thyroid stimulating hormone test", "zh": "促甲状腺激素检测", "icd10_code": ""}
+{"concept_id": "MC0226", "category": "test", "vi": "xét nghiệm troponin", "en": "troponin test", "zh": "肌钙蛋白检测", "icd10_code": ""}
+{"concept_id": "MC0227", "category": "test", "vi": "xét nghiệm đông máu", "en": "coagulation tests", "zh": "凝血功能检查", "icd10_code": ""}
+{"concept_id": "MC0228", "category": "test", "vi": "cấy máu", "en": "blood culture", "zh": "血培养", "icd10_code": ""}
+{"concept_id": "MC0229", "category": "test", "vi": "cấy nước tiểu", "en": "urine culture", "zh": "尿培养", "icd10_code": ""}
+{"concept_id": "MC0230", "category": "test", "vi": "xét nghiệm pcr", "en": "pcr test", "zh": "PCR检测", "icd10_code": ""}
+{"concept_id": "MC0231", "category": "test", "vi": "xét nghiệm kháng nguyên", "en": "antigen test", "zh": "抗原检测", "icd10_code": ""}
+{"concept_id": "MC0232", "category": "test", "vi": "xét nghiệm kháng thể", "en": "antibody test", "zh": "抗体检测", "icd10_code": ""}
+{"concept_id": "MC0233", "category": "test", "vi": "chụp x quang ngực", "en": "chest x-ray", "zh": "胸部X线检查", "icd10_code": ""}
+{"concept_id": "MC0234", "category": "test", "vi": "siêu âm ổ bụng", "en": "abdominal ultrasound", "zh": "腹部超声检查", "icd10_code": ""}
+{"concept_id": "MC0235", "category": "test", "vi": "siêu âm tim", "en": "echocardiography", "zh": "超声心动图", "icd10_code": ""}
+{"concept_id": "MC0236", "category": "test", "vi": "điện tâm đồ", "en": "electrocardiogram", "zh": "心电图", "icd10_code": ""}
+{"concept_id": "MC0237", "category": "test", "vi": "điện não đồ", "en": "electroencephalogram", "zh": "脑电图", "icd10_code": ""}
+{"concept_id": "MC0238", "category": "test", "vi": "chụp cắt lớp vi tính", "en": "ct scan", "zh": "计算机断层扫描", "icd10_code": ""}
+{"concept_id": "MC0239", "category": "test", "vi": "chụp cộng hưởng", "en": "mri scan", "zh": "磁共振成像", "icd10_code": ""}
+{"concept_id": "MC0240", "category": "test", "vi": "nội soi dạ dày", "en": "gastroscopy", "zh": "胃镜检查", "icd10_code": ""}
+{"concept_id": "MC0241", "category": "test", "vi": "nội soi đại tràng", "en": "colonoscopy", "zh": "结肠镜检查", "icd10_code": ""}
+{"concept_id": "MC0242", "category": "test", "vi": "đo chức năng hô hấp", "en": "pulmonary function test", "zh": "肺功能检查", "icd10_code": ""}
+{"concept_id": "MC0243", "category": "test", "vi": "đo mật độ xương", "en": "bone density test", "zh": "骨密度检测", "icd10_code": ""}
+{"concept_id": "MC0244", "category": "test", "vi": "đo huyết áp", "en": "blood pressure measurement", "zh": "血压测量", "icd10_code": ""}
+{"concept_id": "MC0245", "category": "test", "vi": "đo điện tim holter", "en": "holter monitoring", "zh": "动态心电图监测", "icd10_code": ""}
+{"concept_id": "MC0246", "category": "test", "vi": "kiểm tra thị lực", "en": "visual acuity test", "zh": "视力检查", "icd10_code": ""}
+{"concept_id": "MC0247", "category": "test", "vi": "đo thính lực", "en": "hearing test", "zh": "听力检查", "icd10_code": ""}
+{"concept_id": "MC0248", "category": "test", "vi": "xét nghiệm phân", "en": "stool test", "zh": "粪便检查", "icd10_code": ""}
+{"concept_id": "MC0249", "category": "procedure", "vi": "khám lâm sàng", "en": "clinical examination", "zh": "临床检查", "icd10_code": ""}
+{"concept_id": "MC0250", "category": "procedure", "vi": "khám tổng quát", "en": "general health checkup", "zh": "全面体检", "icd10_code": ""}
+{"concept_id": "MC0251", "category": "procedure", "vi": "khám sức khỏe định kỳ", "en": "periodic health examination", "zh": "定期健康检查", "icd10_code": ""}
+{"concept_id": "MC0252", "category": "procedure", "vi": "khám trước phẫu thuật", "en": "preoperative assessment", "zh": "术前评估", "icd10_code": ""}
+{"concept_id": "MC0253", "category": "procedure", "vi": "khám chuyên khoa", "en": "specialist consultation", "zh": "专科就诊", "icd10_code": ""}
+{"concept_id": "MC0254", "category": "procedure", "vi": "khám qua video", "en": "telemedicine consultation", "zh": "远程视频问诊", "icd10_code": ""}
+{"concept_id": "MC0255", "category": "procedure", "vi": "đo dấu hiệu sinh tồn", "en": "vital signs assessment", "zh": "生命体征测量", "icd10_code": ""}
+{"concept_id": "MC0256", "category": "procedure", "vi": "khám thần kinh", "en": "neurological examination", "zh": "神经系统检查", "icd10_code": ""}
+{"concept_id": "MC0257", "category": "procedure", "vi": "khám tim mạch", "en": "cardiovascular examination", "zh": "心血管检查", "icd10_code": ""}
+{"concept_id": "MC0258", "category": "procedure", "vi": "khám hô hấp", "en": "respiratory examination", "zh": "呼吸系统检查", "icd10_code": ""}
+{"concept_id": "MC0259", "category": "procedure", "vi": "khám bụng", "en": "abdominal examination", "zh": "腹部查体", "icd10_code": ""}
+{"concept_id": "MC0260", "category": "procedure", "vi": "đánh giá dinh dưỡng", "en": "nutritional assessment", "zh": "营养评估", "icd10_code": ""}
+{"concept_id": "MC0261", "category": "procedure", "vi": "đánh giá nguy cơ té ngã", "en": "fall risk assessment", "zh": "跌倒风险评估", "icd10_code": ""}
+{"concept_id": "MC0262", "category": "procedure", "vi": "đánh giá đau", "en": "pain assessment", "zh": "疼痛评估", "icd10_code": ""}
+{"concept_id": "MC0263", "category": "procedure", "vi": "chăm sóc vết thương", "en": "wound care", "zh": "伤口护理", "icd10_code": ""}
+{"concept_id": "MC0264", "category": "procedure", "vi": "thay băng", "en": "dressing change", "zh": "更换敷料", "icd10_code": ""}
+{"concept_id": "MC0265", "category": "procedure", "vi": "khâu vết thương", "en": "wound suturing", "zh": "伤口缝合", "icd10_code": ""}
+{"concept_id": "MC0266", "category": "procedure", "vi": "lấy mẫu máu", "en": "blood specimen collection", "zh": "采血", "icd10_code": ""}
+{"concept_id": "MC0267", "category": "procedure", "vi": "lấy mẫu bệnh phẩm", "en": "specimen collection", "zh": "标本采集", "icd10_code": ""}
+{"concept_id": "MC0268", "category": "procedure", "vi": "sinh thiết", "en": "biopsy", "zh": "活检", "icd10_code": ""}
+{"concept_id": "MC0269", "category": "procedure", "vi": "nội soi chẩn đoán", "en": "diagnostic endoscopy", "zh": "诊断性内镜检查", "icd10_code": ""}
+{"concept_id": "MC0270", "category": "procedure", "vi": "phẫu thuật nội soi", "en": "laparoscopic surgery", "zh": "腹腔镜手术", "icd10_code": ""}
+{"concept_id": "MC0271", "category": "procedure", "vi": "phẫu thuật ngoại khoa", "en": "surgical procedure", "zh": "外科手术", "icd10_code": ""}
+{"concept_id": "MC0272", "category": "procedure", "vi": "vật lý trị liệu", "en": "physical therapy", "zh": "物理治疗", "icd10_code": ""}
+{"concept_id": "MC0273", "category": "procedure", "vi": "phục hồi chức năng", "en": "rehabilitation", "zh": "康复治疗", "icd10_code": ""}
+{"concept_id": "MC0274", "category": "procedure", "vi": "liệu pháp hô hấp", "en": "respiratory therapy", "zh": "呼吸治疗", "icd10_code": ""}
+{"concept_id": "MC0275", "category": "procedure", "vi": "thay đổi lối sống", "en": "lifestyle modification", "zh": "生活方式干预", "icd10_code": ""}
+{"concept_id": "MC0276", "category": "procedure", "vi": "liệu pháp tâm lý", "en": "psychotherapy", "zh": "心理治疗", "icd10_code": ""}
+{"concept_id": "MC0277", "category": "procedure", "vi": "tư vấn dinh dưỡng", "en": "nutrition counseling", "zh": "营养咨询", "icd10_code": ""}
+{"concept_id": "MC0278", "category": "procedure", "vi": "đánh giá trước gây mê", "en": "preanesthetic evaluation", "zh": "麻醉前评估", "icd10_code": ""}
+{"concept_id": "MC0279", "category": "specialty", "vi": "khoa nội tổng quát", "en": "general internal medicine", "zh": "普通内科", "icd10_code": ""}
+{"concept_id": "MC0280", "category": "specialty", "vi": "khoa ngoại tổng quát", "en": "general surgery", "zh": "普通外科", "icd10_code": ""}
+{"concept_id": "MC0281", "category": "specialty", "vi": "khoa nhi", "en": "pediatrics", "zh": "儿科", "icd10_code": ""}
+{"concept_id": "MC0282", "category": "specialty", "vi": "khoa tim mạch", "en": "cardiology", "zh": "心脏内科", "icd10_code": ""}
+{"concept_id": "MC0283", "category": "specialty", "vi": "khoa hô hấp", "en": "pulmonology", "zh": "呼吸内科", "icd10_code": ""}
+{"concept_id": "MC0284", "category": "specialty", "vi": "khoa tiêu hóa", "en": "gastroenterology", "zh": "消化内科", "icd10_code": ""}
+{"concept_id": "MC0285", "category": "specialty", "vi": "khoa thận", "en": "nephrology", "zh": "肾脏内科", "icd10_code": ""}
+{"concept_id": "MC0286", "category": "specialty", "vi": "khoa nội tiết", "en": "endocrinology", "zh": "内分泌科", "icd10_code": ""}
+{"concept_id": "MC0287", "category": "specialty", "vi": "khoa thần kinh", "en": "neurology", "zh": "神经内科", "icd10_code": ""}
+{"concept_id": "MC0288", "category": "specialty", "vi": "khoa da liễu", "en": "dermatology", "zh": "皮肤科", "icd10_code": ""}
+{"concept_id": "MC0289", "category": "specialty", "vi": "khoa mắt", "en": "ophthalmology", "zh": "眼科", "icd10_code": ""}
+{"concept_id": "MC0290", "category": "specialty", "vi": "khoa tai mũi họng", "en": "otolaryngology", "zh": "耳鼻喉科", "icd10_code": ""}
+{"concept_id": "MC0291", "category": "specialty", "vi": "khoa răng hàm mặt", "en": "oral and maxillofacial medicine", "zh": "口腔颌面科", "icd10_code": ""}
+{"concept_id": "MC0292", "category": "specialty", "vi": "khoa cơ xương khớp", "en": "rheumatology", "zh": "风湿免疫科", "icd10_code": ""}
+{"concept_id": "MC0293", "category": "specialty", "vi": "khoa chấn thương chỉnh hình", "en": "orthopedics", "zh": "骨科", "icd10_code": ""}
+{"concept_id": "MC0294", "category": "specialty", "vi": "khoa phục hồi chức năng", "en": "rehabilitation medicine", "zh": "康复医学科", "icd10_code": ""}
+{"concept_id": "MC0295", "category": "specialty", "vi": "khoa chẩn đoán hình ảnh", "en": "radiology", "zh": "放射科", "icd10_code": ""}
+{"concept_id": "MC0296", "category": "specialty", "vi": "khoa xét nghiệm", "en": "laboratory medicine", "zh": "检验医学科", "icd10_code": ""}
+{"concept_id": "MC0297", "category": "specialty", "vi": "khoa cấp cứu", "en": "emergency medicine", "zh": "急诊科", "icd10_code": ""}
+{"concept_id": "MC0298", "category": "specialty", "vi": "khoa hồi sức tích cực", "en": "intensive care medicine", "zh": "重症医学科", "icd10_code": ""}
+{"concept_id": "MC0299", "category": "specialty", "vi": "khoa y học gia đình", "en": "family medicine", "zh": "全科医学科", "icd10_code": ""}
+{"concept_id": "MC0300", "category": "specialty", "vi": "khoa tâm thần", "en": "psychiatry", "zh": "精神科", "icd10_code": ""}
+{"concept_id": "MC0301", "category": "specialty", "vi": "khoa huyết học", "en": "hematology", "zh": "血液科", "icd10_code": ""}
+{"concept_id": "MC0302", "category": "specialty", "vi": "khoa ung bướu", "en": "oncology", "zh": "肿瘤科", "icd10_code": ""}
+{"concept_id": "MC0303", "category": "specialty", "vi": "khoa truyền nhiễm", "en": "infectious diseases", "zh": "感染科", "icd10_code": ""}
+{"concept_id": "MC0304", "category": "specialty", "vi": "khoa dị ứng miễn dịch", "en": "allergy and immunology", "zh": "过敏与免疫科", "icd10_code": ""}
+{"concept_id": "MC0305", "category": "measure", "vi": "huyết áp tâm thu", "en": "systolic blood pressure", "zh": "收缩压", "icd10_code": ""}
+{"concept_id": "MC0306", "category": "measure", "vi": "huyết áp tâm trương", "en": "diastolic blood pressure", "zh": "舒张压", "icd10_code": ""}
+{"concept_id": "MC0307", "category": "measure", "vi": "nhịp tim", "en": "heart rate", "zh": "心率", "icd10_code": ""}
+{"concept_id": "MC0308", "category": "measure", "vi": "nhịp thở", "en": "respiratory rate", "zh": "呼吸频率", "icd10_code": ""}
+{"concept_id": "MC0309", "category": "measure", "vi": "nhiệt độ cơ thể", "en": "body temperature", "zh": "体温", "icd10_code": ""}
+{"concept_id": "MC0310", "category": "measure", "vi": "độ bão hòa oxy", "en": "oxygen saturation", "zh": "血氧饱和度", "icd10_code": ""}
+{"concept_id": "MC0311", "category": "measure", "vi": "đường huyết lúc đói", "en": "fasting blood glucose", "zh": "空腹血糖", "icd10_code": ""}
+{"concept_id": "MC0312", "category": "measure", "vi": "đường huyết sau ăn", "en": "postprandial blood glucose", "zh": "餐后血糖", "icd10_code": ""}
+{"concept_id": "MC0313", "category": "measure", "vi": "nồng độ hemoglobin", "en": "hemoglobin concentration", "zh": "血红蛋白浓度", "icd10_code": ""}
+{"concept_id": "MC0314", "category": "measure", "vi": "số lượng bạch cầu", "en": "white blood cell count", "zh": "白细胞计数", "icd10_code": ""}
+{"concept_id": "MC0315", "category": "measure", "vi": "số lượng tiểu cầu", "en": "platelet count", "zh": "血小板计数", "icd10_code": ""}
+{"concept_id": "MC0316", "category": "measure", "vi": "mức creatinin", "en": "creatinine level", "zh": "肌酐水平", "icd10_code": ""}
+{"concept_id": "MC0317", "category": "measure", "vi": "mức ure máu", "en": "blood urea level", "zh": "血尿素水平", "icd10_code": ""}
+{"concept_id": "MC0318", "category": "measure", "vi": "nồng độ natri", "en": "sodium level", "zh": "钠浓度", "icd10_code": ""}
+{"concept_id": "MC0319", "category": "measure", "vi": "nồng độ kali", "en": "potassium level", "zh": "钾浓度", "icd10_code": ""}
+{"concept_id": "MC0320", "category": "measure", "vi": "nồng độ cholesterol", "en": "cholesterol level", "zh": "胆固醇水平", "icd10_code": ""}
+{"concept_id": "MC0321", "category": "measure", "vi": "nồng độ triglycerid", "en": "triglyceride level", "zh": "甘油三酯水平", "icd10_code": ""}
+{"concept_id": "MC0322", "category": "measure", "vi": "số khối cơ thể", "en": "body mass index", "zh": "身体质量指数", "icd10_code": ""}
+{"concept_id": "MC0323", "category": "measure", "vi": "vòng eo", "en": "waist circumference", "zh": "腰围", "icd10_code": ""}
+{"concept_id": "MC0324", "category": "measure", "vi": "thị lực", "en": "visual acuity", "zh": "视力", "icd10_code": ""}
+{"concept_id": "MC0325", "category": "measure", "vi": "thể tích khí thở ra gắng sức giây đầu", "en": "forced expiratory volume in one second", "zh": "第一秒用力呼气容积", "icd10_code": ""}
+{"concept_id": "MC0326", "category": "measure", "vi": "mức lọc cầu thận ước tính", "en": "estimated glomerular filtration rate", "zh": "估算肾小球滤过率", "icd10_code": ""}
+{"concept_id": "MC0327", "category": "measure", "vi": "thang điểm đau", "en": "pain score", "zh": "疼痛评分", "icd10_code": ""}
+{"concept_id": "MC0328", "category": "measure", "vi": "số nguy cơ tim mạch", "en": "cardiovascular risk score", "zh": "心血管风险评分", "icd10_code": ""}
+{"concept_id": "MC0329", "category": "prevention", "vi": "tiêm chủng", "en": "vaccination", "zh": "疫苗接种", "icd10_code": ""}
+{"concept_id": "MC0330", "category": "prevention", "vi": "khám sàng lọc", "en": "health screening", "zh": "健康筛查", "icd10_code": ""}
+{"concept_id": "MC0331", "category": "prevention", "vi": "khám định kỳ", "en": "routine checkup", "zh": "常规体检", "icd10_code": ""}
+{"concept_id": "MC0332", "category": "prevention", "vi": "rửa tay đúng cách", "en": "proper handwashing", "zh": "正确洗手", "icd10_code": ""}
+{"concept_id": "MC0333", "category": "prevention", "vi": "vệ sinh răng miệng", "en": "oral hygiene", "zh": "口腔卫生", "icd10_code": ""}
+{"concept_id": "MC0334", "category": "prevention", "vi": "an toàn thực phẩm", "en": "food safety", "zh": "食品安全", "icd10_code": ""}
+{"concept_id": "MC0335", "category": "prevention", "vi": "vận động thể lực", "en": "physical activity", "zh": "身体活动", "icd10_code": ""}
+{"concept_id": "MC0336", "category": "prevention", "vi": "ngủ đủ giấc", "en": "adequate sleep", "zh": "充足睡眠", "icd10_code": ""}
+{"concept_id": "MC0337", "category": "prevention", "vi": "chế độ ăn cân bằng", "en": "balanced diet", "zh": "均衡饮食", "icd10_code": ""}
+{"concept_id": "MC0338", "category": "prevention", "vi": "đủ nước", "en": "adequate hydration", "zh": "充足饮水", "icd10_code": ""}
+{"concept_id": "MC0339", "category": "prevention", "vi": "quản lý căng thẳng", "en": "stress management", "zh": "压力管理", "icd10_code": ""}
+{"concept_id": "MC0340", "category": "prevention", "vi": "phòng ngừa té ngã", "en": "fall prevention", "zh": "预防跌倒", "icd10_code": ""}
+{"concept_id": "MC0341", "category": "prevention", "vi": "phòng ngừa nhiễm khuẩn", "en": "infection prevention", "zh": "感染预防", "icd10_code": ""}
+{"concept_id": "MC0342", "category": "prevention", "vi": "vệ sinh môi trường", "en": "environmental hygiene", "zh": "环境卫生", "icd10_code": ""}
+{"concept_id": "MC0343", "category": "prevention", "vi": "tư vấn sức khỏe", "en": "health counseling", "zh": "健康咨询", "icd10_code": ""}
+{"concept_id": "MC0344", "category": "prevention", "vi": "giáo dục sức khỏe", "en": "health education", "zh": "健康教育", "icd10_code": ""}
+{"concept_id": "MC0345", "category": "prevention", "vi": "sàng lọc ung thư", "en": "cancer screening", "zh": "癌症筛查", "icd10_code": ""}
+{"concept_id": "MC0346", "category": "prevention", "vi": "sàng lọc tăng huyết áp", "en": "hypertension screening", "zh": "高血压筛查", "icd10_code": ""}
+{"concept_id": "MC0347", "category": "prevention", "vi": "sàng lọc đái tháo đường", "en": "diabetes screening", "zh": "糖尿病筛查", "icd10_code": ""}
+{"concept_id": "MC0348", "category": "prevention", "vi": "dõi sức khỏe tại nhà", "en": "home health monitoring", "zh": "居家健康监测", "icd10_code": ""}
+{"concept_id": "MC0349", "category": "workflow", "vi": "đặt lịch khám", "en": "appointment booking", "zh": "预约挂号", "icd10_code": ""}
+{"concept_id": "MC0350", "category": "workflow", "vi": "đăng ký khám bệnh", "en": "registration", "zh": "就诊登记", "icd10_code": ""}
+{"concept_id": "MC0351", "category": "workflow", "vi": "lấy số thứ tự", "en": "queue number collection", "zh": "领取排队号码", "icd10_code": ""}
+{"concept_id": "MC0352", "category": "workflow", "vi": "chờ khám", "en": "waiting for consultation", "zh": "候诊", "icd10_code": ""}
+{"concept_id": "MC0353", "category": "workflow", "vi": "khai tiền sử bệnh", "en": "medical history reporting", "zh": "病史陈述", "icd10_code": ""}
+{"concept_id": "MC0354", "category": "workflow", "vi": "hồ sơ bệnh án", "en": "medical record", "zh": "病历", "icd10_code": ""}
+{"concept_id": "MC0355", "category": "workflow", "vi": "phiếu chỉ định", "en": "medical order form", "zh": "检查申请单", "icd10_code": ""}
+{"concept_id": "MC0356", "category": "workflow", "vi": "phiếu kết quả xét nghiệm", "en": "laboratory", "zh": "检验报告", "icd10_code": ""}
+{"concept_id": "MC0357", "category": "workflow", "vi": "kết quả chẩn đoán hình ảnh", "en": "imaging", "zh": "影像检查报告", "icd10_code": ""}
+{"concept_id": "MC0358", "category": "workflow", "vi": "bảo hiểm y tế", "en": "health insurance", "zh": "医疗保险", "icd10_code": ""}
+{"concept_id": "MC0359", "category": "workflow", "vi": "chuyển tuyến", "en": "referral to another facility", "zh": "转诊", "icd10_code": ""}
+{"concept_id": "MC0360", "category": "workflow", "vi": "hẹn tái khám", "en": "follow-up appointment", "zh": "复诊预约", "icd10_code": ""}
+{"concept_id": "MC0361", "category": "workflow", "vi": "nhập viện", "en": "hospital admission", "zh": "住院", "icd10_code": ""}
+{"concept_id": "MC0362", "category": "workflow", "vi": "xuất viện", "en": "hospital discharge", "zh": "出院", "icd10_code": ""}
+{"concept_id": "MC0363", "category": "workflow", "vi": "giấy ra viện", "en": "discharge summary", "zh": "出院记录", "icd10_code": ""}
+{"concept_id": "MC0364", "category": "workflow", "vi": "khoa khám bệnh", "en": "outpatient department", "zh": "门诊部", "icd10_code": ""}
+{"concept_id": "MC0365", "category": "workflow", "vi": "phòng cấp cứu", "en": "emergency room", "zh": "急诊室", "icd10_code": ""}
+{"concept_id": "MC0366", "category": "workflow", "vi": "phòng xét nghiệm", "en": "clinical laboratory", "zh": "临床检验室", "icd10_code": ""}
+{"concept_id": "MC0367", "category": "workflow", "vi": "phòng chụp x quang", "en": "x-ray room", "zh": "X光检查室", "icd10_code": ""}
+{"concept_id": "MC0368", "category": "workflow", "vi": "nhà thuốc bệnh viện", "en": "hospital pharmacy", "zh": "医院药房", "icd10_code": ""}
+{"concept_id": "MC0369", "category": "workflow", "vi": "bác sĩ điều trị", "en": "attending physician", "zh": "主管医生", "icd10_code": ""}
+{"concept_id": "MC0370", "category": "workflow", "vi": "điều dưỡng", "en": "nurse", "zh": "护士", "icd10_code": ""}
+{"concept_id": "MC0371", "category": "workflow", "vi": "người bệnh", "en": "patient", "zh": "患者", "icd10_code": ""}
+{"concept_id": "MC0372", "category": "workflow", "vi": "người nhà bệnh nhân", "en": "family member", "zh": "患者家属", "icd10_code": ""}
+{"concept_id": "MC0373", "category": "workflow", "vi": "triệu chứng ban đầu", "en": "symptoms", "zh": "初始症状", "icd10_code": ""}
+{"concept_id": "MC0374", "category": "workflow", "vi": "chẩn đoán sơ bộ", "en": "provisional diagnosis", "zh": "初步诊断", "icd10_code": ""}
+{"concept_id": "MC0375", "category": "workflow", "vi": "chẩn đoán xác định", "en": "confirmed diagnosis", "zh": "确诊", "icd10_code": ""}
+{"concept_id": "MC0376", "category": "workflow", "vi": "chẩn đoán phân biệt", "en": "differential diagnosis", "zh": "鉴别诊断", "icd10_code": ""}
+{"concept_id": "MC0377", "category": "workflow", "vi": "tư vấn trước khi ra viện", "en": "discharge counseling", "zh": "出院指导", "icd10_code": ""}
+{"concept_id": "MC0378", "category": "workflow", "vi": "chăm sóc sau điều", "en": "post-treatment care", "zh": "治疗后护理", "icd10_code": ""}
+{"concept_id": "MX0001", "category": "icd10_disease", "vi": "tiêu chảy và viêm dạ dày ruột nghi do nhiễm trùng", "en": "diarrhoea and gastroenteritis of presumed infectious origin", "zh": "推定传染性腹泻和胃肠炎", "icd10_code": "A09"}
+{"concept_id": "MX0002", "category": "icd10_disease", "vi": "lao hô hấp được xác nhận bằng xét nghiệm", "en": "bacteriologically or histologically confirmed respiratory tuberculosis", "zh": "经细菌学或组织学证实的呼吸系统结核", "icd10_code": "A15"}
+{"concept_id": "MX0003", "category": "icd10_disease", "vi": "lao hô hấp chưa được xác nhận bằng xét nghiệm", "en": "respiratory tuberculosis not bacteriologically or histologically confirmed", "zh": "未经细菌学或组织学证实的呼吸系统结核", "icd10_code": "A16"}
+{"concept_id": "MX0004", "category": "icd10_disease", "vi": "nhiễm khuẩn huyết", "en": "sepsis", "zh": "其他败血症", "icd10_code": "A41"}
+{"concept_id": "MX0005", "category": "icd10_disease", "vi": "nhiễm khuẩn vị trí không xác định", "en": "bacterial infection of unspecified site", "zh": "未特指部位的细菌感染", "icd10_code": "A49"}
+{"concept_id": "MX0006", "category": "icd10_disease", "vi": "viêm gan vi rút mạn tính", "en": "chronic viral hepatitis", "zh": "慢性病毒性肝炎", "icd10_code": "B18"}
+{"concept_id": "MX0007", "category": "icd10_disease", "vi": "nhiễm nấm candida", "en": "candidiasis", "zh": "念珠菌病", "icd10_code": "B37"}
+{"concept_id": "MX0008", "category": "icd10_disease", "vi": "zona thần kinh", "en": "herpes zoster", "zh": "带状疱疹", "icd10_code": "B02"}
+{"concept_id": "MX0009", "category": "icd10_disease", "vi": "mụn cóc do vi rút", "en": "viral warts", "zh": "病毒性疣", "icd10_code": "B07"}
+{"concept_id": "MX0010", "category": "icd10_disease", "vi": "u ác tính dạ dày", "en": "malignant neoplasm of stomach", "zh": "胃恶性肿瘤", "icd10_code": "C16"}
+{"concept_id": "MX0011", "category": "icd10_disease", "vi": "u ác tính đại tràng", "en": "malignant neoplasm of colon", "zh": "结肠恶性肿瘤", "icd10_code": "C18"}
+{"concept_id": "MX0012", "category": "icd10_disease", "vi": "u ác tính trực tràng", "en": "malignant neoplasm of rectum", "zh": "直肠恶性肿瘤", "icd10_code": "C20"}
+{"concept_id": "MX0013", "category": "icd10_disease", "vi": "u ác tính gan và đường mật trong gan", "en": "malignant neoplasm of liver and intrahepatic bile ducts", "zh": "肝和肝内胆管恶性肿瘤", "icd10_code": "C22"}
+{"concept_id": "MX0014", "category": "icd10_disease", "vi": "u ác tính tụy", "en": "malignant neoplasm of pancreas", "zh": "胰腺恶性肿瘤", "icd10_code": "C25"}
+{"concept_id": "MX0015", "category": "icd10_disease", "vi": "u ác tính phế quản và phổi", "en": "malignant neoplasm of bronchus and lung", "zh": "支气管和肺恶性肿瘤", "icd10_code": "C34"}
+{"concept_id": "MX0016", "category": "icd10_disease", "vi": "u ác tính vú", "en": "malignant neoplasm of breast", "zh": "乳腺恶性肿瘤", "icd10_code": "C50"}
+{"concept_id": "MX0017", "category": "icd10_disease", "vi": "u ác tính cổ tử cung", "en": "malignant neoplasm of cervix uteri", "zh": "宫颈恶性肿瘤", "icd10_code": "C53"}
+{"concept_id": "MX0018", "category": "icd10_disease", "vi": "u ác tính buồng trứng", "en": "malignant neoplasm of ovary", "zh": "卵巢恶性肿瘤", "icd10_code": "C56"}
+{"concept_id": "MX0019", "category": "icd10_disease", "vi": "u ác tính tuyến tiền liệt", "en": "malignant neoplasm of prostate", "zh": "前列腺恶性肿瘤", "icd10_code": "C61"}
+{"concept_id": "MX0020", "category": "icd10_disease", "vi": "u ác tính thận trừ bể thận", "en": "malignant neoplasm of kidney except renal pelvis", "zh": "肾恶性肿瘤（不包括肾盂）", "icd10_code": "C64"}
+{"concept_id": "MX0021", "category": "icd10_disease", "vi": "u ác tính bàng quang", "en": "malignant neoplasm of bladder", "zh": "膀胱恶性肿瘤", "icd10_code": "C67"}
+{"concept_id": "MX0022", "category": "icd10_disease", "vi": "u ác tính não", "en": "malignant neoplasm of brain", "zh": "脑恶性肿瘤", "icd10_code": "C71"}
+{"concept_id": "MX0023", "category": "icd10_disease", "vi": "u ác tính tuyến giáp", "en": "malignant neoplasm of thyroid gland", "zh": "甲状腺恶性肿瘤", "icd10_code": "C73"}
+{"concept_id": "MX0024", "category": "icd10_disease", "vi": "u lympho hodgkin", "en": "hodgkin lymphoma", "zh": "霍奇金淋巴瘤", "icd10_code": "C81"}
+{"concept_id": "MX0025", "category": "icd10_disease", "vi": "u lympho không hodgkin thể không nang", "en": "non-follicular lymphoma", "zh": "非滤泡性淋巴瘤", "icd10_code": "C83"}
+{"concept_id": "MX0026", "category": "icd10_disease", "vi": "đa u tủy và u tương bào", "en": "multiple myeloma and malignant plasma cell neoplasms", "zh": "多发性骨髓瘤和恶性浆细胞肿瘤", "icd10_code": "C90"}
+{"concept_id": "MX0027", "category": "icd10_disease", "vi": "bệnh bạch cầu lympho", "en": "lymphoid leukaemia", "zh": "淋巴细胞白血病", "icd10_code": "C91"}
+{"concept_id": "MX0028", "category": "icd10_disease", "vi": "bệnh bạch cầu dòng tủy", "en": "myeloid leukaemia", "zh": "髓系白血病", "icd10_code": "C92"}
+{"concept_id": "MX0029", "category": "icd10_disease", "vi": "u lành tính đại tràng trực tràng và hậu môn", "en": "benign neoplasm of colon rectum anus and anal canal", "zh": "结肠直肠肛门及肛管良性肿瘤", "icd10_code": "D12"}
+{"concept_id": "MX0030", "category": "icd10_disease", "vi": "u cơ trơn tử cung", "en": "leiomyoma of uterus", "zh": "子宫平滑肌瘤", "icd10_code": "D25"}
+{"concept_id": "MX0031", "category": "icd10_disease", "vi": "thiếu máu thiếu sắt", "en": "iron deficiency anaemia", "zh": "缺铁性贫血", "icd10_code": "D50"}
+{"concept_id": "MX0032", "category": "icd10_disease", "vi": "thiếu máu thiếu vitamin b12", "en": "vitamin b12 deficiency anaemia", "zh": "维生素B12缺乏性贫血", "icd10_code": "D51"}
+{"concept_id": "MX0033", "category": "icd10_disease", "vi": "thalassemia", "en": "thalassaemia", "zh": "地中海贫血", "icd10_code": "D56"}
+{"concept_id": "MX0034", "category": "icd10_disease", "vi": "thiếu máu bất sản", "en": "aplastic anaemias", "zh": "其他再生障碍性贫血", "icd10_code": "D61"}
+{"concept_id": "MX0035", "category": "icd10_disease", "vi": "xuất huyết ban xuất huyết và bệnh xuất huyết khác", "en": "purpura and other haemorrhagic conditions", "zh": "紫癜及其他出血性疾病", "icd10_code": "D69"}
+{"concept_id": "MX0036", "category": "icd10_disease", "vi": "suy giáp", "en": "hypothyroidism", "zh": "其他甲状腺功能减退症", "icd10_code": "E03"}
+{"concept_id": "MX0037", "category": "icd10_disease", "vi": "nhiễm độc giáp", "en": "thyrotoxicosis", "zh": "甲状腺毒症", "icd10_code": "E05"}
+{"concept_id": "MX0038", "category": "icd10_disease", "vi": "viêm tuyến giáp", "en": "thyroiditis", "zh": "甲状腺炎", "icd10_code": "E06"}
+{"concept_id": "MX0039", "category": "icd10_disease", "vi": "đái tháo đường típ 1", "en": "type 1 diabetes mellitus", "zh": "1型糖尿病", "icd10_code": "E10"}
+{"concept_id": "MX0040", "category": "icd10_disease", "vi": "đái tháo đường típ 2", "en": "type 2 diabetes mellitus", "zh": "2型糖尿病", "icd10_code": "E11"}
+{"concept_id": "MX0041", "category": "icd10_disease", "vi": "đái tháo đường không xác định", "en": "diabetes mellitus", "zh": "未特指的糖尿病", "icd10_code": "E14"}
+{"concept_id": "MX0042", "category": "icd10_disease", "vi": "cường cận giáp và rối loạn tuyến cận giáp khác", "en": "hyperparathyroidism and other parathyroid disorders", "zh": "甲状旁腺功能亢进及其他甲状旁腺疾病", "icd10_code": "E21"}
+{"concept_id": "MX0043", "category": "icd10_disease", "vi": "hội chứng cushing", "en": "cushing syndrome", "zh": "库欣综合征", "icd10_code": "E24"}
+{"concept_id": "MX0044", "category": "icd10_disease", "vi": "rối loạn tuyến thượng thận", "en": "disorders of adrenal gland", "zh": "其他肾上腺疾病", "icd10_code": "E27"}
+{"concept_id": "MX0045", "category": "icd10_disease", "vi": "béo phì", "en": "obesity", "zh": "肥胖症", "icd10_code": "E66"}
+{"concept_id": "MX0046", "category": "icd10_disease", "vi": "rối loạn chuyển hóa lipoprotein và lipid máu", "en": "disorders of lipoprotein metabolism and other lipidaemias", "zh": "脂蛋白代谢紊乱及其他高脂血症", "icd10_code": "E78"}
+{"concept_id": "MX0047", "category": "icd10_disease", "vi": "tâm thần phân liệt", "en": "schizophrenia", "zh": "精神分裂症", "icd10_code": "F20"}
+{"concept_id": "MX0048", "category": "icd10_disease", "vi": "rối loạn cảm xúc lưỡng cực", "en": "bipolar affective disorder", "zh": "双相情感障碍", "icd10_code": "F31"}
+{"concept_id": "MX0049", "category": "icd10_disease", "vi": "giai đoạn trầm cảm", "en": "depressive episode", "zh": "抑郁发作", "icd10_code": "F32"}
+{"concept_id": "MX0050", "category": "icd10_disease", "vi": "rối loạn lo âu", "en": "anxiety disorders", "zh": "其他焦虑障碍", "icd10_code": "F41"}
+{"concept_id": "MX0051", "category": "icd10_disease", "vi": "rối loạn ám ảnh cưỡng chế", "en": "obsessive-compulsive disorder", "zh": "强迫症", "icd10_code": "F42"}
+{"concept_id": "MX0052", "category": "icd10_disease", "vi": "rối loạn phát triển lan tỏa", "en": "pervasive developmental disorders", "zh": "广泛性发育障碍", "icd10_code": "F84"}
+{"concept_id": "MX0053", "category": "icd10_disease", "vi": "bệnh parkinson", "en": "parkinson disease", "zh": "帕金森病", "icd10_code": "G20"}
+{"concept_id": "MX0054", "category": "icd10_disease", "vi": "bệnh đa xơ cứng", "en": "multiple sclerosis", "zh": "多发性硬化", "icd10_code": "G35"}
+{"concept_id": "MX0055", "category": "icd10_disease", "vi": "động kinh", "en": "epilepsy", "zh": "癫痫", "icd10_code": "G40"}
+{"concept_id": "MX0056", "category": "icd10_disease", "vi": "đau nửa đầu migraine", "en": "migraine", "zh": "偏头痛", "icd10_code": "G43"}
+{"concept_id": "MX0057", "category": "icd10_disease", "vi": "hội chứng đau đầu", "en": "headache syndromes", "zh": "其他头痛综合征", "icd10_code": "G44"}
+{"concept_id": "MX0058", "category": "icd10_disease", "vi": "rối loạn giấc ngủ", "en": "sleep disorders", "zh": "睡眠障碍", "icd10_code": "G47"}
+{"concept_id": "MX0059", "category": "icd10_disease", "vi": "bệnh lý đơn dây thần kinh chi trên", "en": "mononeuropathies of upper limb", "zh": "上肢单神经病", "icd10_code": "G56"}
+{"concept_id": "MX0060", "category": "icd10_disease", "vi": "bệnh đa dây thần kinh do viêm", "en": "inflammatory polyneuropathy", "zh": "炎性多发性神经病", "icd10_code": "G61"}
+{"concept_id": "MX0061", "category": "icd10_disease", "vi": "nhược cơ và bệnh lý thần kinh cơ khác", "en": "myasthenia gravis and other myoneural disorders", "zh": "重症肌无力及其他肌神经疾病", "icd10_code": "G70"}
+{"concept_id": "MX0062", "category": "icd10_disease", "vi": "viêm kết mạc", "en": "conjunctivitis", "zh": "结膜炎", "icd10_code": "H10"}
+{"concept_id": "MX0063", "category": "icd10_disease", "vi": "đục thủy tinh thể do tuổi", "en": "senile cataract", "zh": "老年性白内障", "icd10_code": "H25"}
+{"concept_id": "MX0064", "category": "icd10_disease", "vi": "glôcôm", "en": "glaucoma", "zh": "青光眼", "icd10_code": "H40"}
+{"concept_id": "MX0065", "category": "icd10_disease", "vi": "rối loạn khúc xạ và điều tiết", "en": "disorders of refraction and accommodation", "zh": "屈光和调节障碍", "icd10_code": "H52"}
+{"concept_id": "MX0066", "category": "icd10_disease", "vi": "viêm tai giữa mủ và không xác định", "en": "suppurative and unspecified otitis media", "zh": "化脓性和未特指的中耳炎", "icd10_code": "H66"}
+{"concept_id": "MX0067", "category": "icd10_disease", "vi": "rối loạn chức năng tiền đình", "en": "disorders of vestibular function", "zh": "前庭功能障碍", "icd10_code": "H81"}
+{"concept_id": "MX0068", "category": "icd10_disease", "vi": "tăng huyết áp nguyên phát", "en": "essential primary hypertension", "zh": "原发性高血压", "icd10_code": "I10"}
+{"concept_id": "MX0069", "category": "icd10_disease", "vi": "đau thắt ngực", "en": "angina pectoris", "zh": "心绞痛", "icd10_code": "I20"}
+{"concept_id": "MX0070", "category": "icd10_disease", "vi": "nhồi máu cơ tim cấp", "en": "acute myocardial infarction", "zh": "急性心肌梗死", "icd10_code": "I21"}
+{"concept_id": "MX0071", "category": "icd10_disease", "vi": "bệnh tim thiếu máu cục bộ mạn", "en": "chronic ischaemic heart disease", "zh": "慢性缺血性心脏病", "icd10_code": "I25"}
+{"concept_id": "MX0072", "category": "icd10_disease", "vi": "thuyên tắc phổi", "en": "pulmonary embolism", "zh": "肺栓塞", "icd10_code": "I26"}
+{"concept_id": "MX0073", "category": "icd10_disease", "vi": "bệnh van động mạch chủ không do thấp", "en": "nonrheumatic aortic valve disorders", "zh": "非风湿性主动脉瓣疾病", "icd10_code": "I35"}
+{"concept_id": "MX0074", "category": "icd10_disease", "vi": "bệnh cơ tim", "en": "cardiomyopathy", "zh": "心肌病", "icd10_code": "I42"}
+{"concept_id": "MX0075", "category": "icd10_disease", "vi": "rung nhĩ và cuồng nhĩ", "en": "atrial fibrillation and flutter", "zh": "心房颤动和扑动", "icd10_code": "I48"}
+{"concept_id": "MX0076", "category": "icd10_disease", "vi": "rối loạn nhịp tim", "en": "cardiac arrhythmias", "zh": "其他心律失常", "icd10_code": "I49"}
+{"concept_id": "MX0077", "category": "icd10_disease", "vi": "suy tim", "en": "heart failure", "zh": "心力衰竭", "icd10_code": "I50"}
+{"concept_id": "MX0078", "category": "icd10_disease", "vi": "xuất huyết dưới nhện", "en": "subarachnoid haemorrhage", "zh": "蛛网膜下腔出血", "icd10_code": "I60"}
+{"concept_id": "MX0079", "category": "icd10_disease", "vi": "xuất huyết trong não", "en": "intracerebral haemorrhage", "zh": "脑内出血", "icd10_code": "I61"}
+{"concept_id": "MX0080", "category": "icd10_disease", "vi": "nhồi máu não", "en": "cerebral infarction", "zh": "脑梗死", "icd10_code": "I63"}
+{"concept_id": "MX0081", "category": "icd10_disease", "vi": "tắc và hẹp động mạch trước não không gây nhồi máu não", "en": "occlusion and stenosis of precerebral arteries not resulting in cerebral infarction", "zh": "未引起脑梗死的入脑前动脉闭塞和狭窄", "icd10_code": "I65"}
+{"concept_id": "MX0082", "category": "icd10_disease", "vi": "bệnh mạch máu não", "en": "cerebrovascular diseases", "zh": "其他脑血管疾病", "icd10_code": "I67"}
+{"concept_id": "MX0083", "category": "icd10_disease", "vi": "xơ vữa động mạch", "en": "atherosclerosis", "zh": "动脉粥样硬化", "icd10_code": "I70"}
+{"concept_id": "MX0084", "category": "icd10_disease", "vi": "phình và bóc tách động mạch chủ", "en": "aortic aneurysm and dissection", "zh": "主动脉动脉瘤和夹层", "icd10_code": "I71"}
+{"concept_id": "MX0085", "category": "icd10_disease", "vi": "bệnh mạch máu ngoại vi", "en": "peripheral vascular diseases", "zh": "其他外周血管疾病", "icd10_code": "I73"}
+{"concept_id": "MX0086", "category": "icd10_disease", "vi": "viêm tĩnh mạch và viêm tĩnh mạch huyết khối", "en": "phlebitis and thrombophlebitis", "zh": "静脉炎和血栓性静脉炎", "icd10_code": "I80"}
+{"concept_id": "MX0087", "category": "icd10_disease", "vi": "giãn tĩnh mạch chi", "en": "varicose veins of lower extremities", "zh": "下肢静脉曲张", "icd10_code": "I83"}
+{"concept_id": "MX0088", "category": "icd10_disease", "vi": "viêm xoang cấp", "en": "acute sinusitis", "zh": "急性鼻窦炎", "icd10_code": "J01"}
+{"concept_id": "MX0089", "category": "icd10_disease", "vi": "viêm họng cấp", "en": "acute pharyngitis", "zh": "急性咽炎", "icd10_code": "J02"}
+{"concept_id": "MX0090", "category": "icd10_disease", "vi": "viêm amidan cấp", "en": "acute tonsillitis", "zh": "急性扁桃体炎", "icd10_code": "J03"}
+{"concept_id": "MX0091", "category": "icd10_disease", "vi": "nhiễm trùng hô hấp trên cấp nhiều vị trí", "en": "acute upper respiratory infections of multiple and unspecified sites", "zh": "多部位和未特指的急性上呼吸道感染", "icd10_code": "J06"}
+{"concept_id": "MX0092", "category": "icd10_disease", "vi": "viêm phổi không rõ tác nhân", "en": "pneumonia organism", "zh": "病原体未特指的肺炎", "icd10_code": "J18"}
+{"concept_id": "MX0093", "category": "icd10_disease", "vi": "viêm mũi vận mạch và dị ứng", "en": "vasomotor and allergic rhinitis", "zh": "血管运动性和过敏性鼻炎", "icd10_code": "J30"}
+{"concept_id": "MX0094", "category": "icd10_disease", "vi": "bệnh phổi tắc nghẽn mạn tính khác", "en": "chronic obstructive pulmonary disease", "zh": "其他慢性阻塞性肺疾病", "icd10_code": "J44"}
+{"concept_id": "MX0095", "category": "icd10_disease", "vi": "hen phế quản", "en": "asthma", "zh": "哮喘", "icd10_code": "J45"}
+{"concept_id": "MX0096", "category": "icd10_disease", "vi": "giãn phế quản", "en": "bronchiectasis", "zh": "支气管扩张症", "icd10_code": "J47"}
+{"concept_id": "MX0097", "category": "icd10_disease", "vi": "hội chứng suy hô hấp cấp tiến triển", "en": "acute respiratory distress syndrome", "zh": "急性呼吸窘迫综合征", "icd10_code": "J80"}
+{"concept_id": "MX0098", "category": "icd10_disease", "vi": "bệnh phổi kẽ", "en": "interstitial pulmonary diseases", "zh": "其他间质性肺疾病", "icd10_code": "J84"}
+{"concept_id": "MX0099", "category": "icd10_disease", "vi": "tràn dịch màng phổi chưa phân loại nơi khác", "en": "pleural effusion not elsewhere classified", "zh": "胸腔积液（未另分类）", "icd10_code": "J90"}
+{"concept_id": "MX0100", "category": "icd10_disease", "vi": "bệnh trào ngược dạ dày thực quản", "en": "gastro-oesophageal reflux disease", "zh": "胃食管反流病", "icd10_code": "K21"}
+{"concept_id": "MX0101", "category": "icd10_disease", "vi": "loét dạ dày", "en": "gastric ulcer", "zh": "胃溃疡", "icd10_code": "K25"}
+{"concept_id": "MX0102", "category": "icd10_disease", "vi": "loét tá tràng", "en": "duodenal ulcer", "zh": "十二指肠溃疡", "icd10_code": "K26"}
+{"concept_id": "MX0103", "category": "icd10_disease", "vi": "viêm dạ dày và tá tràng", "en": "gastritis and duodenitis", "zh": "胃炎和十二指肠炎", "icd10_code": "K29"}
+{"concept_id": "MX0104", "category": "icd10_disease", "vi": "viêm ruột thừa cấp", "en": "acute appendicitis", "zh": "急性阑尾炎", "icd10_code": "K35"}
+{"concept_id": "MX0105", "category": "icd10_disease", "vi": "thoát vị bẹn", "en": "inguinal hernia", "zh": "腹股沟疝", "icd10_code": "K40"}
+{"concept_id": "MX0106", "category": "icd10_disease", "vi": "bệnh crohn", "en": "crohn disease", "zh": "克罗恩病", "icd10_code": "K50"}
+{"concept_id": "MX0107", "category": "icd10_disease", "vi": "viêm loét đại tràng", "en": "ulcerative colitis", "zh": "溃疡性结肠炎", "icd10_code": "K51"}
+{"concept_id": "MX0108", "category": "icd10_disease", "vi": "viêm dạ dày ruột và viêm đại tràng không nhiễm trùng khác", "en": "noninfective gastroenteritis and colitis", "zh": "其他非感染性胃肠炎和结肠炎", "icd10_code": "K52"}
+{"concept_id": "MX0109", "category": "icd10_disease", "vi": "liệt ruột và tắc ruột không do thoát vị", "en": "paralytic ileus and intestinal obstruction without hernia", "zh": "麻痹性肠梗阻和非疝性肠梗阻", "icd10_code": "K56"}
+{"concept_id": "MX0110", "category": "icd10_disease", "vi": "bệnh túi thừa ruột", "en": "diverticular disease of intestine", "zh": "肠憩室病", "icd10_code": "K57"}
+{"concept_id": "MX0111", "category": "icd10_disease", "vi": "hội chứng ruột kích thích", "en": "irritable bowel syndrome", "zh": "肠易激综合征", "icd10_code": "K58"}
+{"concept_id": "MX0112", "category": "icd10_disease", "vi": "bệnh gan do rượu", "en": "alcoholic liver disease", "zh": "酒精性肝病", "icd10_code": "K70"}
+{"concept_id": "MX0113", "category": "icd10_disease", "vi": "xơ hóa và xơ gan", "en": "fibrosis and cirrhosis of liver", "zh": "肝纤维化和肝硬化", "icd10_code": "K74"}
+{"concept_id": "MX0114", "category": "icd10_disease", "vi": "bệnh gan", "en": "diseases of liver", "zh": "其他肝病", "icd10_code": "K76"}
+{"concept_id": "MX0115", "category": "icd10_disease", "vi": "sỏi mật", "en": "cholelithiasis", "zh": "胆石症", "icd10_code": "K80"}
+{"concept_id": "MX0116", "category": "icd10_disease", "vi": "viêm túi mật", "en": "cholecystitis", "zh": "胆囊炎", "icd10_code": "K81"}
+{"concept_id": "MX0117", "category": "icd10_disease", "vi": "viêm tụy cấp", "en": "acute pancreatitis", "zh": "急性胰腺炎", "icd10_code": "K85"}
+{"concept_id": "MX0118", "category": "icd10_disease", "vi": "viêm da cơ địa", "en": "atopic dermatitis", "zh": "特应性皮炎", "icd10_code": "L20"}
+{"concept_id": "MX0119", "category": "icd10_disease", "vi": "bệnh vảy nến", "en": "psoriasis", "zh": "银屑病", "icd10_code": "L40"}
+{"concept_id": "MX0120", "category": "icd10_disease", "vi": "mày đay", "en": "urticaria", "zh": "荨麻疹", "icd10_code": "L50"}
+{"concept_id": "MX0121", "category": "icd10_disease", "vi": "trứng cá", "en": "acne", "zh": "痤疮", "icd10_code": "L70"}
+{"concept_id": "MX0122", "category": "icd10_disease", "vi": "viêm khớp dạng thấp có yếu tố dạng thấp", "en": "seropositive rheumatoid arthritis", "zh": "血清阳性类风湿关节炎", "icd10_code": "M05"}
+{"concept_id": "MX0123", "category": "icd10_disease", "vi": "viêm khớp dạng thấp khác", "en": "rheumatoid arthritis", "zh": "其他类风湿关节炎", "icd10_code": "M06"}
+{"concept_id": "MX0124", "category": "icd10_disease", "vi": "gút", "en": "gout", "zh": "痛风", "icd10_code": "M10"}
+{"concept_id": "MX0125", "category": "icd10_disease", "vi": "thoái hóa khớp háng", "en": "coxarthrosis", "zh": "髋关节骨关节炎", "icd10_code": "M16"}
+{"concept_id": "MX0126", "category": "icd10_disease", "vi": "thoái hóa khớp gối", "en": "gonarthrosis", "zh": "膝关节骨关节炎", "icd10_code": "M17"}
+{"concept_id": "MX0127", "category": "icd10_disease", "vi": "lupus ban đỏ hệ thống", "en": "systemic lupus erythematosus", "zh": "系统性红斑狼疮", "icd10_code": "M32"}
+{"concept_id": "MX0128", "category": "icd10_disease", "vi": "viêm cột sống dính khớp", "en": "ankylosing spondylitis", "zh": "强直性脊柱炎", "icd10_code": "M45"}
+{"concept_id": "MX0129", "category": "icd10_disease", "vi": "đau lưng", "en": "dorsalgia", "zh": "背痛", "icd10_code": "M54"}
+{"concept_id": "MX0130", "category": "icd10_disease", "vi": "loãng xương không kèm gãy xương bệnh lý", "en": "osteoporosis without pathological fracture", "zh": "未伴病理性骨折的骨质疏松症", "icd10_code": "M81"}
+{"concept_id": "MX0131", "category": "icd10_disease", "vi": "hội chứng viêm thận mạn", "en": "chronic nephritic syndrome", "zh": "慢性肾炎综合征", "icd10_code": "N03"}
+{"concept_id": "MX0132", "category": "icd10_disease", "vi": "hội chứng thận hư", "en": "nephrotic syndrome", "zh": "肾病综合征", "icd10_code": "N04"}
+{"concept_id": "MX0133", "category": "icd10_disease", "vi": "viêm thận kẽ ống thận cấp", "en": "acute tubulo-interstitial nephritis", "zh": "急性肾小管间质性肾炎", "icd10_code": "N10"}
+{"concept_id": "MX0134", "category": "icd10_disease", "vi": "suy thận cấp", "en": "acute kidney failure", "zh": "急性肾衰竭", "icd10_code": "N17"}
+{"concept_id": "MX0135", "category": "icd10_disease", "vi": "bệnh thận mạn", "en": "chronic kidney disease", "zh": "慢性肾脏病", "icd10_code": "N18"}
+{"concept_id": "MX0136", "category": "icd10_disease", "vi": "sỏi thận và niệu quản", "en": "calculus of kidney and ureter", "zh": "肾和输尿管结石", "icd10_code": "N20"}
+{"concept_id": "MX0137", "category": "icd10_disease", "vi": "viêm bàng quang", "en": "cystitis", "zh": "膀胱炎", "icd10_code": "N30"}
+{"concept_id": "MX0138", "category": "icd10_disease", "vi": "rối loạn khác của hệ tiết niệu", "en": "disorders of urinary system", "zh": "泌尿系统其他疾病", "icd10_code": "N39"}
+{"concept_id": "MX0139", "category": "icd10_disease", "vi": "tăng sản tuyến tiền liệt", "en": "hyperplasia of prostate", "zh": "前列腺增生", "icd10_code": "N40"}
+{"concept_id": "MX0140", "category": "icd10_disease", "vi": "lạc nội mạc tử cung", "en": "endometriosis", "zh": "子宫内膜异位症", "icd10_code": "N80"}
+{"concept_id": "MX0141", "category": "icd10_disease", "vi": "tăng huyết áp thai kỳ không protein niệu đáng kể", "en": "gestational hypertension without significant proteinuria", "zh": "妊娠期高血压（无明显蛋白尿）", "icd10_code": "O13"}
+{"concept_id": "MX0142", "category": "icd10_disease", "vi": "tiền sản giật", "en": "pre-eclampsia", "zh": "先兆子痫", "icd10_code": "O14"}
+{"concept_id": "MX0143", "category": "icd10_disease", "vi": "đái tháo đường trong thai kỳ", "en": "diabetes mellitus in pregnancy", "zh": "妊娠期糖尿病", "icd10_code": "O24"}
+{"concept_id": "MX0144", "category": "icd10_disease", "vi": "rối loạn liên quan thời gian thai nghén ngắn và cân nặng sơ sinh thấp", "en": "disorders related to short gestation and low birth weight", "zh": "与孕期短和出生体重低有关的疾病", "icd10_code": "P07"}
+{"concept_id": "MX0145", "category": "icd10_disease", "vi": "dị tật bẩm sinh vách tim", "en": "congenital malformations of cardiac septa", "zh": "心脏间隔先天性畸形", "icd10_code": "Q21"}
+{"concept_id": "MX0146", "category": "icd10_disease", "vi": "bệnh thận nang", "en": "cystic kidney disease", "zh": "囊性肾病", "icd10_code": "Q61"}
+{"concept_id": "MX0147", "category": "icd10_disease", "vi": "bất thường nhịp tim", "en": "abnormalities of heart beat", "zh": "心搏异常", "icd10_code": "R00"}
+{"concept_id": "MX0148", "category": "icd10_disease", "vi": "bất thường về hô hấp", "en": "abnormalities of breathing", "zh": "呼吸异常", "icd10_code": "R06"}
+{"concept_id": "MX0149", "category": "icd10_disease", "vi": "đau họng và ngực", "en": "pain in throat and chest", "zh": "咽和胸部疼痛", "icd10_code": "R07"}
+{"concept_id": "MX0150", "category": "icd10_disease", "vi": "đau bụng và vùng chậu", "en": "abdominal and pelvic pain", "zh": "腹痛和盆腔痛", "icd10_code": "R10"}
+{"concept_id": "MX0151", "category": "icd10_disease", "vi": "buồn nôn và nôn", "en": "nausea and vomiting", "zh": "恶心和呕吐", "icd10_code": "R11"}
+{"concept_id": "MX0152", "category": "icd10_disease", "vi": "chóng mặt và choáng váng", "en": "dizziness and giddiness", "zh": "头晕和眩晕", "icd10_code": "R42"}
+{"concept_id": "MX0153", "category": "icd10_disease", "vi": "sốt không rõ nguyên nhân", "en": "fever of other and unknown origin", "zh": "其他和原因不明的发热", "icd10_code": "R50"}
+{"concept_id": "MX0154", "category": "icd10_disease", "vi": "đau đầu", "en": "headache", "zh": "头痛", "icd10_code": "R51"}
+{"concept_id": "MX0155", "category": "icd10_disease", "vi": "ngất và trụy", "en": "syncope and collapse", "zh": "晕厥和虚脱", "icd10_code": "R55"}
+{"concept_id": "MX0156", "category": "specialist_disease", "vi": "u lympho tế bào b lan tỏa lớn", "en": "diffuse large b-cell lymphoma", "zh": "弥漫性大B细胞淋巴瘤", "icd10_code": ""}
+{"concept_id": "MX0157", "category": "specialist_disease", "vi": "bệnh bạch cầu cấp dòng tủy", "en": "acute myeloid leukaemia", "zh": "急性髓系白血病", "icd10_code": ""}
+{"concept_id": "MX0158", "category": "specialist_disease", "vi": "bệnh bạch cầu cấp dòng lympho", "en": "acute lymphoblastic leukaemia", "zh": "急性淋巴细胞白血病", "icd10_code": ""}
+{"concept_id": "MX0159", "category": "specialist_disease", "vi": "hội chứng rối loạn sinh tủy", "en": "myelodysplastic syndrome", "zh": "骨髓增生异常综合征", "icd10_code": ""}
+{"concept_id": "MX0160", "category": "specialist_disease", "vi": "tăng sinh tủy mạn", "en": "myeloproliferative neoplasm", "zh": "骨髓增殖性肿瘤", "icd10_code": ""}
+{"concept_id": "MX0161", "category": "specialist_disease", "vi": "ung thư phổi không tế bào nhỏ", "en": "non-small cell lung cancer", "zh": "非小细胞肺癌", "icd10_code": ""}
+{"concept_id": "MX0162", "category": "specialist_disease", "vi": "ung thư phổi tế bào nhỏ", "en": "small cell lung cancer", "zh": "小细胞肺癌", "icd10_code": ""}
+{"concept_id": "MX0163", "category": "specialist_disease", "vi": "ung thư vú bộ ba âm tính", "en": "triple-negative breast cancer", "zh": "三阴性乳腺癌", "icd10_code": ""}
+{"concept_id": "MX0164", "category": "specialist_disease", "vi": "ung thư vú dương tính her2", "en": "her2-positive breast cancer", "zh": "HER2阳性乳腺癌", "icd10_code": ""}
+{"concept_id": "MX0165", "category": "specialist_disease", "vi": "ung thư biểu mô tế bào gan", "en": "hepatocellular carcinoma", "zh": "肝细胞癌", "icd10_code": ""}
+{"concept_id": "MX0166", "category": "specialist_disease", "vi": "ung thư biểu mô tế bào thận", "en": "renal cell carcinoma", "zh": "肾细胞癌", "icd10_code": ""}
+{"concept_id": "MX0167", "category": "specialist_disease", "vi": "ung thư biểu mô tế bào vảy", "en": "squamous cell carcinoma", "zh": "鳞状细胞癌", "icd10_code": ""}
+{"concept_id": "MX0168", "category": "specialist_disease", "vi": "ung thư biểu mô tuyến", "en": "adenocarcinoma", "zh": "腺癌", "icd10_code": ""}
+{"concept_id": "MX0169", "category": "specialist_disease", "vi": "ung thư tuyến giáp thể nhú", "en": "papillary thyroid carcinoma", "zh": "甲状腺乳头状癌", "icd10_code": ""}
+{"concept_id": "MX0170", "category": "specialist_disease", "vi": "ung thư tuyến giáp thể nang", "en": "follicular thyroid carcinoma", "zh": "甲状腺滤泡癌", "icd10_code": ""}
+{"concept_id": "MX0171", "category": "specialist_disease", "vi": "u nguyên bào thần kinh đệm", "en": "glioblastoma", "zh": "胶质母细胞瘤", "icd10_code": ""}
+{"concept_id": "MX0172", "category": "specialist_disease", "vi": "u màng não", "en": "meningioma", "zh": "脑膜瘤", "icd10_code": ""}
+{"concept_id": "MX0173", "category": "specialist_disease", "vi": "u tuyến yên", "en": "pituitary adenoma", "zh": "垂体腺瘤", "icd10_code": ""}
+{"concept_id": "MX0174", "category": "specialist_disease", "vi": "u tuyến thượng thận", "en": "adrenal neoplasm", "zh": "肾上腺肿瘤", "icd10_code": ""}
+{"concept_id": "MX0175", "category": "specialist_disease", "vi": "hội chứng kháng phospholipid", "en": "antiphospholipid syndrome", "zh": "抗磷脂综合征", "icd10_code": ""}
+{"concept_id": "MX0176", "category": "specialist_disease", "vi": "xơ cứng bì hệ thống", "en": "systemic sclerosis", "zh": "系统性硬化症", "icd10_code": ""}
+{"concept_id": "MX0177", "category": "specialist_disease", "vi": "viêm da cơ", "en": "dermatomyositis", "zh": "皮肌炎", "icd10_code": ""}
+{"concept_id": "MX0178", "category": "specialist_disease", "vi": "viêm đa cơ", "en": "polymyositis", "zh": "多发性肌炎", "icd10_code": ""}
+{"concept_id": "MX0179", "category": "specialist_disease", "vi": "viêm mạch liên quan anca", "en": "anca-associated vasculitis", "zh": "ANCA相关性血管炎", "icd10_code": ""}
+{"concept_id": "MX0180", "category": "specialist_disease", "vi": "u hạt kèm viêm đa mạch", "en": "granulomatosis with polyangiitis", "zh": "肉芽肿性多血管炎", "icd10_code": ""}
+{"concept_id": "MX0181", "category": "specialist_disease", "vi": "hội chứng sjögren", "en": "sjögren syndrome", "zh": "干燥综合征", "icd10_code": ""}
+{"concept_id": "MX0182", "category": "specialist_disease", "vi": "bệnh behçet", "en": "behçet disease", "zh": "白塞病", "icd10_code": ""}
+{"concept_id": "MX0183", "category": "specialist_disease", "vi": "bệnh sarcoidosis", "en": "sarcoidosis", "zh": "结节病", "icd10_code": ""}
+{"concept_id": "MX0184", "category": "specialist_disease", "vi": "bệnh amyloidosis", "en": "amyloidosis", "zh": "淀粉样变性", "icd10_code": ""}
+{"concept_id": "MX0185", "category": "specialist_disease", "vi": "hội chứng ehlers danlos", "en": "ehlers-danlos syndrome", "zh": "埃勒斯-当洛斯综合征", "icd10_code": ""}
+{"concept_id": "MX0186", "category": "specialist_disease", "vi": "hội chứng marfan", "en": "marfan syndrome", "zh": "马凡综合征", "icd10_code": ""}
+{"concept_id": "MX0187", "category": "specialist_disease", "vi": "bệnh fabry", "en": "fabry disease", "zh": "法布里病", "icd10_code": ""}
+{"concept_id": "MX0188", "category": "specialist_disease", "vi": "bệnh gaucher", "en": "gaucher disease", "zh": "戈谢病", "icd10_code": ""}
+{"concept_id": "MX0189", "category": "specialist_disease", "vi": "bệnh wilson", "en": "wilson disease", "zh": "威尔逊病", "icd10_code": ""}
+{"concept_id": "MX0190", "category": "specialist_disease", "vi": "bệnh huntington", "en": "huntington disease", "zh": "亨廷顿病", "icd10_code": ""}
+{"concept_id": "MX0191", "category": "specialist_disease", "vi": "xơ cứng teo cơ một bên", "en": "amyotrophic lateral sclerosis", "zh": "肌萎缩侧索硬化", "icd10_code": ""}
+{"concept_id": "MX0192", "category": "specialist_disease", "vi": "bệnh alzheimer", "en": "alzheimer disease", "zh": "阿尔茨海默病", "icd10_code": ""}
+{"concept_id": "MX0193", "category": "specialist_disease", "vi": "viêm não tự miễn", "en": "autoimmune encephalitis", "zh": "自身免疫性脑炎", "icd10_code": ""}
+{"concept_id": "MX0194", "category": "specialist_disease", "vi": "viêm não kháng thụ thể nmda", "en": "anti-nmda receptor encephalitis", "zh": "抗NMDA受体脑炎", "icd10_code": ""}
+{"concept_id": "MX0195", "category": "specialist_disease", "vi": "bệnh lý thần kinh ngoại biên", "en": "peripheral neuropathy", "zh": "周围神经病", "icd10_code": ""}
+{"concept_id": "MX0196", "category": "specialist_disease", "vi": "bệnh lý thần kinh do đái tháo đường", "en": "diabetic neuropathy", "zh": "糖尿病神经病变", "icd10_code": ""}
+{"concept_id": "MX0197", "category": "specialist_disease", "vi": "bệnh võng mạc đái tháo đường", "en": "diabetic retinopathy", "zh": "糖尿病视网膜病变", "icd10_code": ""}
+{"concept_id": "MX0198", "category": "specialist_disease", "vi": "bệnh thận đái tháo đường", "en": "diabetic kidney disease", "zh": "糖尿病肾病", "icd10_code": ""}
+{"concept_id": "MX0199", "category": "specialist_disease", "vi": "bệnh tim bẩm sinh tím", "en": "cyanotic congenital heart disease", "zh": "发绀型先天性心脏病", "icd10_code": ""}
+{"concept_id": "MX0200", "category": "specialist_disease", "vi": "bệnh cơ tim phì đại", "en": "hypertrophic cardiomyopathy", "zh": "肥厚型心肌病", "icd10_code": ""}
+{"concept_id": "MX0201", "category": "specialist_disease", "vi": "bệnh cơ tim giãn", "en": "dilated cardiomyopathy", "zh": "扩张型心肌病", "icd10_code": ""}
+{"concept_id": "MX0202", "category": "specialist_disease", "vi": "viêm nội tâm mạc nhiễm khuẩn", "en": "infective endocarditis", "zh": "感染性心内膜炎", "icd10_code": ""}
+{"concept_id": "MX0203", "category": "specialist_disease", "vi": "tăng áp động mạch phổi", "en": "pulmonary arterial hypertension", "zh": "肺动脉高压", "icd10_code": ""}
+{"concept_id": "MX0204", "category": "specialist_disease", "vi": "tăng áp phổi do bệnh tim trái", "en": "pulmonary hypertension due to left heart disease", "zh": "左心疾病相关肺高压", "icd10_code": ""}
+{"concept_id": "MX0205", "category": "specialist_disease", "vi": "hội chứng vành cấp", "en": "acute coronary syndrome", "zh": "急性冠脉综合征", "icd10_code": ""}
+{"concept_id": "MX0206", "category": "specialist_disease", "vi": "nhồi máu cơ tim st chênh lên", "en": "st-elevation myocardial infarction", "zh": "ST段抬高型心肌梗死", "icd10_code": ""}
+{"concept_id": "MX0207", "category": "specialist_disease", "vi": "nhồi máu cơ tim không st chênh lên", "en": "non-st-elevation myocardial infarction", "zh": "非ST段抬高型心肌梗死", "icd10_code": ""}
+{"concept_id": "MX0208", "category": "specialist_disease", "vi": "sốc tim", "en": "cardiogenic shock", "zh": "心源性休克", "icd10_code": ""}
+{"concept_id": "MX0209", "category": "specialist_disease", "vi": "rung thất", "en": "ventricular fibrillation", "zh": "心室颤动", "icd10_code": ""}
+{"concept_id": "MX0210", "category": "specialist_disease", "vi": "nhịp nhanh thất", "en": "ventricular tachycardia", "zh": "室性心动过速", "icd10_code": ""}
+{"concept_id": "MX0211", "category": "specialist_disease", "vi": "nhịp nhanh trên thất", "en": "supraventricular tachycardia", "zh": "室上性心动过速", "icd10_code": ""}
+{"concept_id": "MX0212", "category": "specialist_disease", "vi": "block nhĩ thất", "en": "atrioventricular block", "zh": "房室传导阻滞", "icd10_code": ""}
+{"concept_id": "MX0213", "category": "specialist_disease", "vi": "hội chứng qt dài", "en": "long qt syndrome", "zh": "长QT综合征", "icd10_code": ""}
+{"concept_id": "MX0214", "category": "specialist_disease", "vi": "hội chứng brugada", "en": "brugada syndrome", "zh": "布鲁加达综合征", "icd10_code": ""}
+{"concept_id": "MX0215", "category": "specialist_disease", "vi": "bóc tách động mạch chủ cấp", "en": "acute aortic dissection", "zh": "急性主动脉夹层", "icd10_code": ""}
+{"concept_id": "MX0216", "category": "specialist_disease", "vi": "hội chứng động mạch vành mạn tính", "en": "chronic coronary syndrome", "zh": "慢性冠状动脉综合征", "icd10_code": ""}
+{"concept_id": "MX0217", "category": "specialist_disease", "vi": "bệnh động mạch ngoại biên", "en": "peripheral artery disease", "zh": "外周动脉疾病", "icd10_code": ""}
+{"concept_id": "MX0218", "category": "specialist_disease", "vi": "huyết khối tĩnh mạch sâu", "en": "deep vein thrombosis", "zh": "深静脉血栓形成", "icd10_code": ""}
+{"concept_id": "MX0219", "category": "specialist_disease", "vi": "tắc mạch phổi nguy cơ cao", "en": "high-risk pulmonary embolism", "zh": "高危肺栓塞", "icd10_code": ""}
+{"concept_id": "MX0220", "category": "specialist_disease", "vi": "viêm phổi liên quan thở máy", "en": "ventilator-associated pneumonia", "zh": "呼吸机相关性肺炎", "icd10_code": ""}
+{"concept_id": "MX0221", "category": "specialist_disease", "vi": "viêm phổi mắc phải tại cộng đồng", "en": "community-acquired pneumonia", "zh": "社区获得性肺炎", "icd10_code": ""}
+{"concept_id": "MX0222", "category": "specialist_disease", "vi": "viêm phổi mắc phải tại bệnh viện", "en": "hospital-acquired pneumonia", "zh": "医院获得性肺炎", "icd10_code": ""}
+{"concept_id": "MX0223", "category": "specialist_disease", "vi": "xơ phổi vô căn", "en": "idiopathic pulmonary fibrosis", "zh": "特发性肺纤维化", "icd10_code": ""}
+{"concept_id": "MX0224", "category": "specialist_disease", "vi": "bệnh phổi kẽ", "en": "interstitial lung disease", "zh": "间质性肺病", "icd10_code": ""}
+{"concept_id": "MX0225", "category": "specialist_disease", "vi": "bệnh phổi hạn chế", "en": "restrictive lung disease", "zh": "限制性肺疾病", "icd10_code": ""}
+{"concept_id": "MX0226", "category": "specialist_disease", "vi": "tắc nghẽn đường thở", "en": "upper airway obstruction", "zh": "上气道梗阻", "icd10_code": ""}
+{"concept_id": "MX0227", "category": "specialist_disease", "vi": "ngưng thở khi ngủ do tắc nghẽn", "en": "obstructive sleep apnoea", "zh": "阻塞性睡眠呼吸暂停", "icd10_code": ""}
+{"concept_id": "MX0228", "category": "specialist_disease", "vi": "tràn khí màng phổi", "en": "pneumothorax", "zh": "气胸", "icd10_code": ""}
+{"concept_id": "MX0229", "category": "specialist_disease", "vi": "phù phổi cấp", "en": "acute pulmonary oedema", "zh": "急性肺水肿", "icd10_code": ""}
+{"concept_id": "MX0230", "category": "specialist_disease", "vi": "suy hô hấp tăng carbon dioxide", "en": "hypercapnic respiratory failure", "zh": "高碳酸血症性呼吸衰竭", "icd10_code": ""}
+{"concept_id": "MX0231", "category": "specialist_disease", "vi": "suy hô hấp giảm oxy máu", "en": "hypoxaemic respiratory failure", "zh": "低氧血症性呼吸衰竭", "icd10_code": ""}
+{"concept_id": "MX0232", "category": "specialist_disease", "vi": "rối loạn chức năng đa cơ quan", "en": "multiple organ dysfunction syndrome", "zh": "多器官功能障碍综合征", "icd10_code": ""}
+{"concept_id": "MX0233", "category": "specialist_disease", "vi": "sốc nhiễm khuẩn", "en": "septic shock", "zh": "感染性休克", "icd10_code": ""}
+{"concept_id": "MX0234", "category": "specialist_disease", "vi": "bệnh não gan", "en": "hepatic encephalopathy", "zh": "肝性脑病", "icd10_code": ""}
+{"concept_id": "MX0235", "category": "specialist_disease", "vi": "cổ trướng", "en": "ascites", "zh": "腹水", "icd10_code": ""}
+{"concept_id": "MX0236", "category": "specialist_disease", "vi": "tăng áp lực tĩnh mạch cửa", "en": "portal hypertension", "zh": "门静脉高压", "icd10_code": ""}
+{"concept_id": "MX0237", "category": "specialist_disease", "vi": "giãn tĩnh mạch thực quản", "en": "oesophageal varices", "zh": "食管静脉曲张", "icd10_code": ""}
+{"concept_id": "MX0238", "category": "specialist_disease", "vi": "xuất huyết tiêu hóa", "en": "upper gastrointestinal bleeding", "zh": "上消化道出血", "icd10_code": ""}
+{"concept_id": "MX0239", "category": "specialist_disease", "vi": "viêm tụy hoại tử", "en": "necrotizing pancreatitis", "zh": "坏死性胰腺炎", "icd10_code": ""}
+{"concept_id": "MX0240", "category": "specialist_disease", "vi": "viêm đường mật cấp", "en": "acute cholangitis", "zh": "急性胆管炎", "icd10_code": ""}
+{"concept_id": "MX0241", "category": "specialist_disease", "vi": "viêm gan tự miễn", "en": "autoimmune hepatitis", "zh": "自身免疫性肝炎", "icd10_code": ""}
+{"concept_id": "MX0242", "category": "specialist_disease", "vi": "viêm đường mật xơ hóa nguyên phát", "en": "primary sclerosing cholangitis", "zh": "原发性硬化性胆管炎", "icd10_code": ""}
+{"concept_id": "MX0243", "category": "specialist_disease", "vi": "viêm đường mật nguyên phát", "en": "primary biliary cholangitis", "zh": "原发性胆汁性胆管炎", "icd10_code": ""}
+{"concept_id": "MX0244", "category": "specialist_disease", "vi": "bệnh celiac", "en": "coeliac disease", "zh": "乳糜泻", "icd10_code": ""}
+{"concept_id": "MX0245", "category": "specialist_disease", "vi": "viêm đại tràng vi thể", "en": "microscopic colitis", "zh": "显微镜下结肠炎", "icd10_code": ""}
+{"concept_id": "MX0246", "category": "specialist_disease", "vi": "hội chứng ruột ngắn", "en": "short bowel syndrome", "zh": "短肠综合征", "icd10_code": ""}
+{"concept_id": "MX0247", "category": "specialist_disease", "vi": "thiếu máu cục bộ mạc treo", "en": "mesenteric ischaemia", "zh": "肠系膜缺血", "icd10_code": ""}
+{"concept_id": "MX0248", "category": "specialist_disease", "vi": "liệt dạ dày", "en": "gastroparesis", "zh": "胃轻瘫", "icd10_code": ""}
+{"concept_id": "MX0249", "category": "specialist_disease", "vi": "rối loạn nuốt vùng hầu họng", "en": "oropharyngeal dysphagia", "zh": "口咽性吞咽困难", "icd10_code": ""}
+{"concept_id": "MX0250", "category": "specialist_disease", "vi": "bệnh thận iga", "en": "iga nephropathy", "zh": "IgA肾病", "icd10_code": ""}
+{"concept_id": "MX0251", "category": "specialist_disease", "vi": "viêm cầu thận tiến triển nhanh", "en": "rapidly progressive glomerulonephritis", "zh": "快速进展性肾小球肾炎", "icd10_code": ""}
+{"concept_id": "MX0252", "category": "specialist_disease", "vi": "bệnh thận đa nang di truyền trội", "en": "autosomal dominant polycystic kidney disease", "zh": "常染色体显性多囊肾病", "icd10_code": ""}
+{"concept_id": "MX0253", "category": "specialist_disease", "vi": "bệnh thận mạn giai đoạn cuối", "en": "end-stage kidney disease", "zh": "终末期肾病", "icd10_code": ""}
+{"concept_id": "MX0254", "category": "specialist_disease", "vi": "toan hóa ống thận", "en": "renal tubular acidosis", "zh": "肾小管性酸中毒", "icd10_code": ""}
+{"concept_id": "MX0255", "category": "specialist_disease", "vi": "hẹp động mạch thận", "en": "renal artery stenosis", "zh": "肾动脉狭窄", "icd10_code": ""}
+{"concept_id": "MX0256", "category": "specialist_disease", "vi": "tắc nghẽn đường tiết niệu", "en": "urinary tract obstruction", "zh": "尿路梗阻", "icd10_code": ""}
+{"concept_id": "MX0257", "category": "specialist_disease", "vi": "viêm bể thận", "en": "pyelonephritis", "zh": "肾盂肾炎", "icd10_code": ""}
+{"concept_id": "MX0258", "category": "specialist_disease", "vi": "hội chứng buồng trứng đa nang", "en": "polycystic ovary syndrome", "zh": "多囊卵巢综合征", "icd10_code": ""}
+{"concept_id": "MX0259", "category": "specialist_disease", "vi": "suy buồng trứng sớm", "en": "primary ovarian insufficiency", "zh": "原发性卵巢功能不全", "icd10_code": ""}
+{"concept_id": "MX0260", "category": "specialist_disease", "vi": "nhau tiền đạo", "en": "placenta praevia", "zh": "前置胎盘", "icd10_code": ""}
+{"concept_id": "MX0261", "category": "specialist_disease", "vi": "nhau bong non", "en": "placental abruption", "zh": "胎盘早剥", "icd10_code": ""}
+{"concept_id": "MX0262", "category": "specialist_disease", "vi": "thai chậm tăng trưởng trong tử cung", "en": "fetal growth restriction", "zh": "胎儿生长受限", "icd10_code": ""}
+{"concept_id": "MX0263", "category": "specialist_disease", "vi": "sinh non", "en": "preterm birth", "zh": "早产", "icd10_code": ""}
+{"concept_id": "MX0265", "category": "specialist_disease", "vi": "hội chứng hellp", "en": "hellp syndrome", "zh": "HELLP综合征", "icd10_code": ""}
+{"concept_id": "MX0266", "category": "specialist_disease", "vi": "nhiễm trùng sơ sinh", "en": "neonatal infection", "zh": "新生儿感染", "icd10_code": ""}
+{"concept_id": "MX0267", "category": "specialist_disease", "vi": "bệnh màng trong sơ sinh", "en": "neonatal respiratory distress syndrome", "zh": "新生儿呼吸窘迫综合征", "icd10_code": ""}
+{"concept_id": "MX0268", "category": "specialist_disease", "vi": "bệnh tim bẩm sinh", "en": "congenital heart disease", "zh": "先天性心脏病", "icd10_code": ""}
+{"concept_id": "MX0269", "category": "specialist_disease", "vi": "bệnh chuyển hóa bẩm sinh", "en": "inborn errors of metabolism", "zh": "先天性代谢异常", "icd10_code": ""}
+{"concept_id": "MX0270", "category": "specialist_disease", "vi": "bệnh xơ nang", "en": "cystic fibrosis", "zh": "囊性纤维化", "icd10_code": ""}
+{"concept_id": "MX0271", "category": "specialist_disease", "vi": "thiếu hụt alpha 1 antitrypsin", "en": "alpha-1 antitrypsin deficiency", "zh": "α1抗胰蛋白酶缺乏症", "icd10_code": ""}
+{"concept_id": "MX0272", "category": "specialist_disease", "vi": "bệnh lý ty thể", "en": "mitochondrial disease", "zh": "线粒体疾病", "icd10_code": ""}
+{"concept_id": "MX0273", "category": "specialist_disease", "vi": "loạn dưỡng cơ duchenne", "en": "duchenne muscular dystrophy", "zh": "杜氏肌营养不良", "icd10_code": ""}
+{"concept_id": "MX0274", "category": "specialist_disease", "vi": "teo cơ tủy sống", "en": "spinal muscular atrophy", "zh": "脊髓性肌萎缩症", "icd10_code": ""}
+{"concept_id": "MX0275", "category": "specialist_disease", "vi": "rối loạn phổ tự kỷ", "en": "autism spectrum disorder", "zh": "孤独症谱系障碍", "icd10_code": ""}
+{"concept_id": "MX0276", "category": "specialist_disease", "vi": "rối loạn tăng động giảm chú ý", "en": "attention-deficit/hyperactivity disorder", "zh": "注意缺陷多动障碍", "icd10_code": ""}
+{"concept_id": "MX0277", "category": "specialist_disease", "vi": "rối loạn căng thẳng sau sang chấn", "en": "post-traumatic stress disorder", "zh": "创伤后应激障碍", "icd10_code": ""}
+{"concept_id": "MX0278", "category": "specialist_disease", "vi": "rối loạn hoảng sợ", "en": "panic disorder", "zh": "惊恐障碍", "icd10_code": ""}
+{"concept_id": "MX0279", "category": "specialist_disease", "vi": "rối loạn ăn", "en": "eating disorder", "zh": "进食障碍", "icd10_code": ""}
+{"concept_id": "MX0280", "category": "advanced_medical_term", "vi": "sinh thiết kim lõi", "en": "core needle biopsy", "zh": "粗针穿刺活检", "icd10_code": ""}
+{"concept_id": "MX0281", "category": "advanced_medical_term", "vi": "sinh thiết cắt bỏ", "en": "excisional biopsy", "zh": "切除活检", "icd10_code": ""}
+{"concept_id": "MX0282", "category": "advanced_medical_term", "vi": "hóa mô miễn dịch", "en": "immunohistochemistry", "zh": "免疫组织化学", "icd10_code": ""}
+{"concept_id": "MX0283", "category": "advanced_medical_term", "vi": "lai tại chỗ huỳnh quang", "en": "fluorescence in situ hybridization", "zh": "荧光原位杂交", "icd10_code": ""}
+{"concept_id": "MX0284", "category": "advanced_medical_term", "vi": "giải trình tự thế hệ mới", "en": "next-generation sequencing", "zh": "下一代测序", "icd10_code": ""}
+{"concept_id": "MX0285", "category": "advanced_medical_term", "vi": "giải trình tự toàn bộ hệ gen", "en": "whole genome sequencing", "zh": "全基因组测序", "icd10_code": ""}
+{"concept_id": "MX0286", "category": "advanced_medical_term", "vi": "giải trình tự toàn bộ vùng mã hóa", "en": "whole exome sequencing", "zh": "全外显子组测序", "icd10_code": ""}
+{"concept_id": "MX0287", "category": "advanced_medical_term", "vi": "xét nghiệm pcr thời gian thực", "en": "real-time pcr", "zh": "实时聚合酶链式反应", "icd10_code": ""}
+{"concept_id": "MX0288", "category": "advanced_medical_term", "vi": "phản ứng chuỗi polymerase", "en": "polymerase chain reaction", "zh": "聚合酶链式反应", "icd10_code": ""}
+{"concept_id": "MX0289", "category": "advanced_medical_term", "vi": "độ nhạy chẩn đoán", "en": "diagnostic sensitivity", "zh": "诊断敏感度", "icd10_code": ""}
+{"concept_id": "MX0290", "category": "advanced_medical_term", "vi": "độ đặc hiệu chẩn đoán", "en": "diagnostic specificity", "zh": "诊断特异度", "icd10_code": ""}
+{"concept_id": "MX0291", "category": "advanced_medical_term", "vi": "giá trị tiên đoán dương", "en": "positive predictive value", "zh": "阳性预测值", "icd10_code": ""}
+{"concept_id": "MX0292", "category": "advanced_medical_term", "vi": "giá trị tiên đoán âm", "en": "negative predictive value", "zh": "阴性预测值", "icd10_code": ""}
+{"concept_id": "MX0293", "category": "advanced_medical_term", "vi": "tỷ số khả dĩ dương", "en": "positive likelihood ratio", "zh": "阳性似然比", "icd10_code": ""}
+{"concept_id": "MX0294", "category": "advanced_medical_term", "vi": "tỷ số khả dĩ âm", "en": "negative likelihood ratio", "zh": "阴性似然比", "icd10_code": ""}
+{"concept_id": "MX0295", "category": "advanced_medical_term", "vi": "đường cong roc", "en": "receiver operating characteristic curve", "zh": "受试者工作特征曲线", "icd10_code": ""}
+{"concept_id": "MX0296", "category": "advanced_medical_term", "vi": "diện tích dưới đường cong roc", "en": "area under the roc curve", "zh": "ROC曲线下面积", "icd10_code": ""}
+{"concept_id": "MX0297", "category": "advanced_medical_term", "vi": "ngưỡng chẩn đoán", "en": "diagnostic threshold", "zh": "诊断阈值", "icd10_code": ""}
+{"concept_id": "MX0298", "category": "advanced_medical_term", "vi": "tiêu chuẩn vàng chẩn đoán", "en": "diagnostic reference standard", "zh": "诊断参考标准", "icd10_code": ""}
+{"concept_id": "MX0299", "category": "advanced_medical_term", "vi": "xét nghiệm khẳng định", "en": "confirmatory test", "zh": "确证试验", "icd10_code": ""}
+{"concept_id": "MX0300", "category": "advanced_medical_term", "vi": "sàng lọc quần thể", "en": "population screening", "zh": "人群筛查", "icd10_code": ""}
+{"concept_id": "MX0301", "category": "advanced_medical_term", "vi": "chẩn đoán phân biệt", "en": "differential diagnosis", "zh": "鉴别诊断", "icd10_code": ""}
+{"concept_id": "MX0302", "category": "advanced_medical_term", "vi": "dấu ấn sinh học", "en": "biomarker", "zh": "生物标志物", "icd10_code": ""}
+{"concept_id": "MX0303", "category": "advanced_medical_term", "vi": "dấu ấn khối u", "en": "tumour marker", "zh": "肿瘤标志物", "icd10_code": ""}
+{"concept_id": "MX0304", "category": "advanced_medical_term", "vi": "đột biến gen egfr", "en": "egfr mutation", "zh": "EGFR基因突变", "icd10_code": ""}
+{"concept_id": "MX0305", "category": "advanced_medical_term", "vi": "tái sắp xếp gen alk", "en": "alk rearrangement", "zh": "ALK基因重排", "icd10_code": ""}
+{"concept_id": "MX0306", "category": "advanced_medical_term", "vi": "biểu hiện pd l1", "en": "pd-l1 expression", "zh": "PD-L1表达", "icd10_code": ""}
+{"concept_id": "MX0307", "category": "advanced_medical_term", "vi": "mất ổn định vi vệ tinh", "en": "microsatellite instability", "zh": "微卫星不稳定性", "icd10_code": ""}
+{"concept_id": "MX0308", "category": "advanced_medical_term", "vi": "thiếu hụt sửa chữa bắt cặp sai dna", "en": "mismatch repair deficiency", "zh": "错配修复缺陷", "icd10_code": ""}
+{"concept_id": "MX0309", "category": "advanced_medical_term", "vi": "gánh nặng đột biến khối u", "en": "tumour mutational burden", "zh": "肿瘤突变负荷", "icd10_code": ""}
+{"concept_id": "MX0310", "category": "advanced_medical_term", "vi": "dna khối u lưu hành", "en": "circulating tumour dna", "zh": "循环肿瘤DNA", "icd10_code": ""}
+{"concept_id": "MX0311", "category": "advanced_medical_term", "vi": "sinh thiết lỏng", "en": "liquid biopsy", "zh": "液体活检", "icd10_code": ""}
+{"concept_id": "MX0312", "category": "advanced_medical_term", "vi": "tổn thương tiền ung thư", "en": "precancerous lesion", "zh": "癌前病变", "icd10_code": ""}
+{"concept_id": "MX0313", "category": "advanced_medical_term", "vi": "loạn sản biểu mô", "en": "epithelial dysplasia", "zh": "上皮不典型增生", "icd10_code": ""}
+{"concept_id": "MX0314", "category": "advanced_medical_term", "vi": "dị sản ruột", "en": "intestinal metaplasia", "zh": "肠上皮化生", "icd10_code": ""}
+{"concept_id": "MX0315", "category": "advanced_medical_term", "vi": "xâm lấn mạch bạch huyết", "en": "lymphovascular invasion", "zh": "淋巴血管侵犯", "icd10_code": ""}
+{"concept_id": "MX0316", "category": "advanced_medical_term", "vi": "xâm lấn quanh thần kinh", "en": "perineural invasion", "zh": "神经周围侵犯", "icd10_code": ""}
+{"concept_id": "MX0317", "category": "advanced_medical_term", "vi": "di căn hạch vùng", "en": "regional lymph node metastasis", "zh": "区域淋巴结转移", "icd10_code": ""}
+{"concept_id": "MX0318", "category": "advanced_medical_term", "vi": "di căn xa", "en": "distant metastasis", "zh": "远处转移", "icd10_code": ""}
+{"concept_id": "MX0319", "category": "advanced_medical_term", "vi": "giai đoạn tnm", "en": "tnm staging", "zh": "TNM分期", "icd10_code": ""}
+{"concept_id": "MX0320", "category": "advanced_medical_term", "vi": "độ mô học", "en": "histologic grade", "zh": "组织学分级", "icd10_code": ""}
+{"concept_id": "MX0321", "category": "advanced_medical_term", "vi": "bờ diện cắt âm tính", "en": "negative surgical margin", "zh": "手术切缘阴性", "icd10_code": ""}
+{"concept_id": "MX0322", "category": "advanced_medical_term", "vi": "bệnh tồn dư tối thiểu", "en": "minimal residual disease", "zh": "微小残留病", "icd10_code": ""}
+{"concept_id": "MX0323", "category": "advanced_medical_term", "vi": "đáp ứng bệnh hoàn toàn", "en": "complete response", "zh": "完全缓解", "icd10_code": ""}
+{"concept_id": "MX0324", "category": "advanced_medical_term", "vi": "đáp ứng bệnh một phần", "en": "partial response", "zh": "部分缓解", "icd10_code": ""}
+{"concept_id": "MX0325", "category": "advanced_medical_term", "vi": "bệnh tiến triển", "en": "progressive disease", "zh": "疾病进展", "icd10_code": ""}
+{"concept_id": "MX0326", "category": "advanced_medical_term", "vi": "thời gian sống thêm không tiến triển", "en": "progression-free survival", "zh": "无进展生存期", "icd10_code": ""}
+{"concept_id": "MX0327", "category": "advanced_medical_term", "vi": "thời gian sống thêm toàn bộ", "en": "overall survival", "zh": "总生存期", "icd10_code": ""}
+{"concept_id": "MX0328", "category": "advanced_medical_term", "vi": "nghiên cứu đoàn hệ", "en": "cohort", "zh": "队列研究", "icd10_code": ""}
+{"concept_id": "MX0329", "category": "advanced_medical_term", "vi": "nghiên cứu bệnh chứng", "en": "case-control", "zh": "病例对照研究", "icd10_code": ""}
+{"concept_id": "MX0330", "category": "advanced_medical_term", "vi": "thử nghiệm lâm sàng ngẫu nhiên", "en": "randomized clinical trial", "zh": "随机临床试验", "icd10_code": ""}
+{"concept_id": "MX0331", "category": "advanced_medical_term", "vi": "phân tích tổng hợp", "en": "meta-analysis", "zh": "荟萃分析", "icd10_code": ""}
+{"concept_id": "MX0332", "category": "advanced_medical_term", "vi": "tổng quan hệ thống", "en": "systematic review", "zh": "系统评价", "icd10_code": ""}
+{"concept_id": "MX0333", "category": "advanced_medical_term", "vi": "nguy cơ tương đối", "en": "relative risk", "zh": "相对危险度", "icd10_code": ""}
+{"concept_id": "MX0334", "category": "advanced_medical_term", "vi": "tỷ số chênh", "en": "odds ratio", "zh": "比值比", "icd10_code": ""}
+{"concept_id": "MX0335", "category": "advanced_medical_term", "vi": "tỷ số nguy cơ tức thời", "en": "hazard ratio", "zh": "风险比", "icd10_code": ""}
+{"concept_id": "MX0336", "category": "advanced_medical_term", "vi": "khoảng tin cậy", "en": "confidence interval", "zh": "置信区间", "icd10_code": ""}
+{"concept_id": "MX0337", "category": "advanced_medical_term", "vi": "sai lệch chọn mẫu", "en": "selection bias", "zh": "选择偏倚", "icd10_code": ""}
+{"concept_id": "MX0338", "category": "advanced_medical_term", "vi": "yếu tố gây nhiễu", "en": "confounding factor", "zh": "混杂因素", "icd10_code": ""}
+{"concept_id": "MX0339", "category": "advanced_medical_term", "vi": "phân tích độ nhạy", "en": "sensitivity analysis", "zh": "敏感性分析", "icd10_code": ""}
+{"concept_id": "MX0340", "category": "advanced_medical_term", "vi": "hiệu chỉnh đa biến", "en": "multivariable adjustment", "zh": "多变量调整", "icd10_code": ""}
+{"concept_id": "MX0341", "category": "advanced_medical_term", "vi": "tăng men gan", "en": "elevated liver enzymes", "zh": "肝酶升高", "icd10_code": ""}
+{"concept_id": "MX0342", "category": "advanced_medical_term", "vi": "men alanine aminotransferase", "en": "alanine aminotransferase", "zh": "丙氨酸氨基转移酶", "icd10_code": ""}
+{"concept_id": "MX0343", "category": "advanced_medical_term", "vi": "men aspartate aminotransferase", "en": "aspartate aminotransferase", "zh": "天冬氨酸氨基转移酶", "icd10_code": ""}
+{"concept_id": "MX0344", "category": "advanced_medical_term", "vi": "bilirubin toàn phần", "en": "total bilirubin", "zh": "总胆红素", "icd10_code": ""}
+{"concept_id": "MX0345", "category": "advanced_medical_term", "vi": "albumin huyết thanh", "en": "serum albumin", "zh": "血清白蛋白", "icd10_code": ""}
+{"concept_id": "MX0346", "category": "advanced_medical_term", "vi": "creatinin huyết thanh", "en": "serum creatinine", "zh": "血清肌酐", "icd10_code": ""}
+{"concept_id": "MX0347", "category": "advanced_medical_term", "vi": "mức lọc cầu thận ước tính", "en": "estimated glomerular filtration rate", "zh": "估算肾小球滤过率", "icd10_code": ""}
+{"concept_id": "MX0348", "category": "advanced_medical_term", "vi": "tỷ số albumin creatinin niệu", "en": "urine albumin-to-creatinine ratio", "zh": "尿白蛋白肌酐比", "icd10_code": ""}
+{"concept_id": "MX0349", "category": "advanced_medical_term", "vi": "cystatin c", "en": "cystatin c", "zh": "胱抑素C", "icd10_code": ""}
+{"concept_id": "MX0350", "category": "advanced_medical_term", "vi": "hemoglobin glycat hóa hba1c", "en": "glycated haemoglobin hba1c", "zh": "糖化血红蛋白HbA1c", "icd10_code": ""}
+{"concept_id": "MX0351", "category": "advanced_medical_term", "vi": "glucose huyết tương lúc đói", "en": "fasting plasma glucose", "zh": "空腹血浆葡萄糖", "icd10_code": ""}
+{"concept_id": "MX0352", "category": "advanced_medical_term", "vi": "nghiệm pháp dung nạp glucose", "en": "oral glucose tolerance test", "zh": "口服葡萄糖耐量试验", "icd10_code": ""}
+{"concept_id": "MX0353", "category": "advanced_medical_term", "vi": "hormone kích thích tuyến giáp", "en": "thyroid-stimulating hormone", "zh": "促甲状腺激素", "icd10_code": ""}
+{"concept_id": "MX0354", "category": "advanced_medical_term", "vi": "thyroxine tự", "en": "free thyroxine", "zh": "游离甲状腺素", "icd10_code": ""}
+{"concept_id": "MX0355", "category": "advanced_medical_term", "vi": "cortisol huyết thanh", "en": "serum cortisol", "zh": "血清皮质醇", "icd10_code": ""}
+{"concept_id": "MX0356", "category": "advanced_medical_term", "vi": "hormone kích thích vỏ thượng thận", "en": "adrenocorticotropic hormone", "zh": "促肾上腺皮质激素", "icd10_code": ""}
+{"concept_id": "MX0357", "category": "advanced_medical_term", "vi": "natri lợi niệu típ b", "en": "b-type natriuretic peptide", "zh": "B型利钠肽", "icd10_code": ""}
+{"concept_id": "MX0358", "category": "advanced_medical_term", "vi": "nt probnp", "en": "n-terminal pro-b-type natriuretic peptide", "zh": "N末端脑钠肽前体", "icd10_code": ""}
+{"concept_id": "MX0359", "category": "advanced_medical_term", "vi": "troponin tim độ nhạy cao", "en": "high-sensitivity cardiac troponin", "zh": "高敏心肌肌钙蛋白", "icd10_code": ""}
+{"concept_id": "MX0360", "category": "advanced_medical_term", "vi": "d dimer", "en": "d-dimer", "zh": "D-二聚体", "icd10_code": ""}
+{"concept_id": "MX0361", "category": "advanced_medical_term", "vi": "protein phản ứng c", "en": "c-reactive protein", "zh": "C反应蛋白", "icd10_code": ""}
+{"concept_id": "MX0362", "category": "advanced_medical_term", "vi": "procalcitonin", "en": "procalcitonin", "zh": "降钙素原", "icd10_code": ""}
+{"concept_id": "MX0363", "category": "advanced_medical_term", "vi": "tốc độ máu lắng", "en": "erythrocyte sedimentation rate", "zh": "红细胞沉降率", "icd10_code": ""}
+{"concept_id": "MX0364", "category": "advanced_medical_term", "vi": "lactate máu", "en": "blood lactate", "zh": "血乳酸", "icd10_code": ""}
+{"concept_id": "MX0365", "category": "advanced_medical_term", "vi": "khí máu động mạch", "en": "arterial blood gas analysis", "zh": "动脉血气分析", "icd10_code": ""}
+{"concept_id": "MX0366", "category": "advanced_medical_term", "vi": "độ bão hòa oxy ngoại vi", "en": "peripheral oxygen saturation", "zh": "外周血氧饱和度", "icd10_code": ""}
+{"concept_id": "MX0367", "category": "advanced_medical_term", "vi": "áp lực riêng phần oxy động mạch", "en": "arterial oxygen partial pressure", "zh": "动脉氧分压", "icd10_code": ""}
+{"concept_id": "MX0368", "category": "advanced_medical_term", "vi": "áp lực riêng phần carbon dioxide động mạch", "en": "arterial carbon dioxide partial pressure", "zh": "动脉二氧化碳分压", "icd10_code": ""}
+{"concept_id": "MX0369", "category": "advanced_medical_term", "vi": "tỷ số pao2 fio2", "en": "pao2 to fio2 ratio", "zh": "氧合指数PaO2/FiO2", "icd10_code": ""}
+{"concept_id": "MX0370", "category": "advanced_medical_term", "vi": "độ thanh thải creatinin", "en": "creatinine clearance", "zh": "肌酐清除率", "icd10_code": ""}
+{"concept_id": "MX0371", "category": "advanced_medical_term", "vi": "thang điểm sofa", "en": "sequential organ failure assessment", "zh": "序贯器官衰竭评估", "icd10_code": ""}
+{"concept_id": "MX0372", "category": "advanced_medical_term", "vi": "thang điểm apache ii", "en": "acute physiology and chronic health evaluation ii", "zh": "急性生理学及慢性健康状况评分II", "icd10_code": ""}
+{"concept_id": "MX0373", "category": "advanced_medical_term", "vi": "thang điểm glasgow", "en": "glasgow coma scale", "zh": "格拉斯哥昏迷评分", "icd10_code": ""}
+{"concept_id": "MX0374", "category": "advanced_medical_term", "vi": "thang điểm nihss", "en": "nih stroke scale", "zh": "美国国立卫生研究院卒中量表", "icd10_code": ""}
+{"concept_id": "MX0375", "category": "advanced_medical_term", "vi": "thang điểm cha2ds2 vasc", "en": "cha2ds2-vasc score", "zh": "CHA2DS2-VASc评分", "icd10_code": ""}
+{"concept_id": "MX0376", "category": "advanced_medical_term", "vi": "điện tâm đồ 12 chuyển đạo", "en": "12-lead electrocardiogram", "zh": "十二导联心电图", "icd10_code": ""}
+{"concept_id": "MX0377", "category": "advanced_medical_term", "vi": "siêu âm tim qua thành ngực", "en": "transthoracic echocardiography", "zh": "经胸超声心动图", "icd10_code": ""}
+{"concept_id": "MX0378", "category": "advanced_medical_term", "vi": "siêu âm tim qua thực quản", "en": "transoesophageal echocardiography", "zh": "经食管超声心动图", "icd10_code": ""}
+{"concept_id": "MX0379", "category": "advanced_medical_term", "vi": "phân suất tống máu thất trái", "en": "left ventricular ejection fraction", "zh": "左室射血分数", "icd10_code": ""}
+{"concept_id": "MX0380", "category": "advanced_medical_term", "vi": "cộng hưởng từ tim", "en": "cardiac magnetic resonance imaging", "zh": "心脏磁共振成像", "icd10_code": ""}
+{"concept_id": "MX0381", "category": "advanced_medical_term", "vi": "chụp cắt lớp vi tính mạch vành", "en": "coronary ct angiography", "zh": "冠状动脉CT血管成像", "icd10_code": ""}
+{"concept_id": "MX0382", "category": "advanced_medical_term", "vi": "chụp mạch vành qua ống thông", "en": "invasive coronary angiography", "zh": "有创冠状动脉造影", "icd10_code": ""}
+{"concept_id": "MX0383", "category": "advanced_medical_term", "vi": "đánh giá phân suất dự trữ lưu lượng", "en": "fractional flow reserve", "zh": "血流储备分数", "icd10_code": ""}
+{"concept_id": "MX0384", "category": "advanced_medical_term", "vi": "dõi điện tâm đồ holter", "en": "holter electrocardiography", "zh": "动态心电图监测", "icd10_code": ""}
+{"concept_id": "MX0385", "category": "advanced_medical_term", "vi": "đo điện não đồ", "en": "electroencephalography", "zh": "脑电图", "icd10_code": ""}
+{"concept_id": "MX0386", "category": "advanced_medical_term", "vi": "điện cơ đồ", "en": "electromyography", "zh": "肌电图", "icd10_code": ""}
+{"concept_id": "MX0387", "category": "advanced_medical_term", "vi": "đo dẫn truyền thần kinh", "en": "nerve conduction", "zh": "神经传导检查", "icd10_code": ""}
+{"concept_id": "MX0388", "category": "advanced_medical_term", "vi": "cộng hưởng từ khuếch tán", "en": "diffusion-weighted mri", "zh": "弥散加权磁共振成像", "icd10_code": ""}
+{"concept_id": "MX0389", "category": "advanced_medical_term", "vi": "chụp tưới máu não", "en": "cerebral perfusion imaging", "zh": "脑灌注成像", "icd10_code": ""}
+{"concept_id": "MX0390", "category": "advanced_medical_term", "vi": "chụp cắt lớp vi tính có cản quang", "en": "contrast-enhanced computed tomography", "zh": "增强计算机断层扫描", "icd10_code": ""}
+{"concept_id": "MX0391", "category": "advanced_medical_term", "vi": "nội soi đại tràng", "en": "colonoscopy", "zh": "结肠镜检查", "icd10_code": ""}
+{"concept_id": "MX0392", "category": "advanced_medical_term", "vi": "nội soi dạ dày tá tràng", "en": "upper gastrointestinal endoscopy", "zh": "上消化道内镜检查", "icd10_code": ""}
+{"concept_id": "MX0393", "category": "advanced_medical_term", "vi": "nội soi siêu âm", "en": "endoscopic ultrasonography", "zh": "超声内镜检查", "icd10_code": ""}
+{"concept_id": "MX0394", "category": "advanced_medical_term", "vi": "chụp mật tụy cộng hưởng", "en": "magnetic resonance cholangiopancreatography", "zh": "磁共振胰胆管成像", "icd10_code": ""}
+{"concept_id": "MX0395", "category": "advanced_medical_term", "vi": "chụp mật tụy ngược dòng qua nội soi", "en": "endoscopic retrograde cholangiopancreatography", "zh": "内镜逆行胰胆管造影", "icd10_code": ""}
+{"concept_id": "MX0396", "category": "advanced_medical_term", "vi": "sinh thiết gan", "en": "liver biopsy", "zh": "肝活检", "icd10_code": ""}
+{"concept_id": "MX0397", "category": "advanced_medical_term", "vi": "đo độ đàn hồi gan", "en": "liver elastography", "zh": "肝脏弹性成像", "icd10_code": ""}
+{"concept_id": "MX0398", "category": "advanced_medical_term", "vi": "chẩn đoán hình ảnh hạt nhân", "en": "nuclear medicine imaging", "zh": "核医学成像", "icd10_code": ""}
+{"concept_id": "MX0399", "category": "advanced_medical_term", "vi": "chụp pet ct", "en": "pet-ct imaging", "zh": "正电子发射断层扫描/CT", "icd10_code": ""}
+{"concept_id": "MX0400", "category": "advanced_medical_term", "vi": "chụp xạ hình xương", "en": "bone scintigraphy", "zh": "骨显像", "icd10_code": ""}
+{"concept_id": "MX0401", "category": "advanced_medical_term", "vi": "xét nghiệm miễn dịch dòng chảy", "en": "flow cytometry", "zh": "流式细胞术", "icd10_code": ""}
+{"concept_id": "MX0402", "category": "advanced_medical_term", "vi": "xét nghiệm kháng thể kháng nhân", "en": "antinuclear antibody testing", "zh": "抗核抗体检测", "icd10_code": ""}
+{"concept_id": "MX0403", "category": "advanced_medical_term", "vi": "kháng thể kháng dna chuỗi kép", "en": "anti-double-stranded dna antibodies", "zh": "抗双链DNA抗体", "icd10_code": ""}
+{"concept_id": "MX0404", "category": "advanced_medical_term", "vi": "kháng thể kháng ccp", "en": "anti-cyclic citrullinated peptide antibodies", "zh": "抗环瓜氨酸肽抗体", "icd10_code": ""}
+{"concept_id": "MX0405", "category": "advanced_medical_term", "vi": "kháng thể kháng bào tương bạch cầu trung tính", "en": "antineutrophil cytoplasmic antibodies", "zh": "抗中性粒细胞胞质抗体", "icd10_code": ""}
+{"concept_id": "MX0406", "category": "advanced_medical_term", "vi": "kháng thể kháng tuyến giáp", "en": "antithyroid antibodies", "zh": "抗甲状腺抗体", "icd10_code": ""}
+{"concept_id": "MX0407", "category": "advanced_medical_term", "vi": "y học chính xác", "en": "precision medicine", "zh": "精准医学", "icd10_code": ""}
+{"concept_id": "MX0408", "category": "advanced_medical_term", "vi": "y học cá thể hóa", "en": "personalized medicine", "zh": "个体化医学", "icd10_code": ""}
+{"concept_id": "MX0409", "category": "advanced_medical_term", "vi": "hội chẩn đa chuyên khoa", "en": "multidisciplinary team consultation", "zh": "多学科团队会诊", "icd10_code": ""}
+{"concept_id": "MX0410", "category": "advanced_medical_term", "vi": "đánh giá nguy cơ lâm sàng", "en": "clinical risk assessment", "zh": "临床风险评估", "icd10_code": ""}
+{"concept_id": "MX0411", "category": "advanced_medical_term", "vi": "phân tầng nguy cơ", "en": "risk stratification", "zh": "风险分层", "icd10_code": ""}
+{"concept_id": "MX0412", "category": "advanced_medical_term", "vi": "dõi bệnh dài hạn", "en": "longitudinal disease monitoring", "zh": "疾病纵向监测", "icd10_code": ""}
+{"concept_id": "MX0413", "category": "advanced_medical_term", "vi": "đánh giá kết cục lâm sàng", "en": "clinical outcome assessment", "zh": "临床结局评估", "icd10_code": ""}
+{"concept_id": "MX0414", "category": "advanced_medical_term", "vi": "bệnh đồng", "en": "comorbidity", "zh": "共病", "icd10_code": ""}
+{"concept_id": "MX0415", "category": "advanced_medical_term", "vi": "chẩn đoán chính", "en": "principal diagnosis", "zh": "主要诊断", "icd10_code": ""}
+{"concept_id": "MX0416", "category": "advanced_medical_term", "vi": "chẩn đoán thứ cấp", "en": "secondary diagnosis", "zh": "次要诊断", "icd10_code": ""}
+{"concept_id": "MX0417", "category": "advanced_medical_term", "vi": "biến chứng bệnh", "en": "disease complication", "zh": "疾病并发症", "icd10_code": ""}
+{"concept_id": "MX0418", "category": "advanced_medical_term", "vi": "tái phát bệnh", "en": "disease recurrence", "zh": "疾病复发", "icd10_code": ""}
+{"concept_id": "MX0419", "category": "advanced_medical_term", "vi": "tiên lượng bệnh", "en": "disease prognosis", "zh": "疾病预后", "icd10_code": ""}
+{"concept_id": "MX0420", "category": "advanced_medical_term", "vi": "mức độ nặng của bệnh", "en": "disease", "zh": "疾病严重程度", "icd10_code": ""}
+{"concept_id": "MX0421", "category": "advanced_medical_term", "vi": "bệnh cảnh lâm sàng", "en": "clinical presentation", "zh": "临床表现", "icd10_code": ""}
+{"concept_id": "MX0422", "category": "advanced_medical_term", "vi": "cơ chế bệnh sinh", "en": "pathogenesis", "zh": "发病机制", "icd10_code": ""}
+{"concept_id": "MX0423", "category": "advanced_medical_term", "vi": "sinh lý bệnh", "en": "pathophysiology", "zh": "病理生理学", "icd10_code": ""}
+{"concept_id": "MX0424", "category": "advanced_medical_term", "vi": "bệnh nguyên", "en": "aetiology", "zh": "病因学", "icd10_code": ""}
+{"concept_id": "MX0425", "category": "advanced_medical_term", "vi": "sinh bệnh học phân tử", "en": "molecular pathogenesis", "zh": "分子发病机制", "icd10_code": ""}
+{"concept_id": "MX0426", "category": "advanced_medical_term", "vi": "biến thể gen gây bệnh", "en": "pathogenic genetic variant", "zh": "致病性基因变异", "icd10_code": ""}
+{"concept_id": "MX0427", "category": "advanced_medical_term", "vi": "biến thể chưa rõ ý nghĩa", "en": "variant of uncertain significance", "zh": "临床意义未明变异", "icd10_code": ""}
+{"concept_id": "MX0428", "category": "advanced_medical_term", "vi": "mất đoạn nhiễm sắc thể", "en": "chromosomal deletion", "zh": "染色体缺失", "icd10_code": ""}
+{"concept_id": "MX0429", "category": "advanced_medical_term", "vi": "lặp đoạn nhiễm sắc thể", "en": "chromosomal duplication", "zh": "染色体重复", "icd10_code": ""}
+{"concept_id": "MX0430", "category": "advanced_medical_term", "vi": "dị hợp tử kép", "en": "compound heterozygosity", "zh": "复合杂合", "icd10_code": ""}
+{"concept_id": "MX0431", "category": "advanced_medical_term", "vi": "di truyền trội nhiễm sắc thể thường", "en": "autosomal dominant inheritance", "zh": "常染色体显性遗传", "icd10_code": ""}
+{"concept_id": "MX0432", "category": "advanced_medical_term", "vi": "di truyền lặn nhiễm sắc thể thường", "en": "autosomal recessive inheritance", "zh": "常染色体隐性遗传", "icd10_code": ""}
+{"concept_id": "MX0433", "category": "advanced_medical_term", "vi": "di truyền liên kết nhiễm sắc thể x", "en": "x-linked inheritance", "zh": "X连锁遗传", "icd10_code": ""}
+{"concept_id": "MX0434", "category": "advanced_medical_term", "vi": "tính thấm của gen", "en": "genetic penetrance", "zh": "遗传外显率", "icd10_code": ""}
+{"concept_id": "MX0435", "category": "advanced_medical_term", "vi": "mức độ biểu hiện biến thiên", "en": "variable expressivity", "zh": "表现度可变", "icd10_code": ""}
+{"concept_id": "MX0436", "category": "advanced_medical_term", "vi": "biểu sinh học", "en": "epigenetics", "zh": "表观遗传学", "icd10_code": ""}
+{"concept_id": "MX0437", "category": "advanced_medical_term", "vi": "methyl hóa dna", "en": "dna methylation", "zh": "DNA甲基化", "icd10_code": ""}
+{"concept_id": "MX0438", "category": "advanced_medical_term", "vi": "điều hòa biểu hiện gen", "en": "gene expression regulation", "zh": "基因表达调控", "icd10_code": ""}
+{"concept_id": "MX0439", "category": "advanced_medical_term", "vi": "tín hiệu truyền tin nội bào", "en": "intracellular signalling", "zh": "细胞内信号传导", "icd10_code": ""}
+{"concept_id": "MX0440", "category": "advanced_medical_term", "vi": "chết tế bào theo chương trình", "en": "apoptosis", "zh": "细胞凋亡", "icd10_code": ""}
+{"concept_id": "MX0441", "category": "advanced_medical_term", "vi": "chết tế bào hoại tử", "en": "necrosis", "zh": "细胞坏死", "icd10_code": ""}
+{"concept_id": "MX0442", "category": "advanced_medical_term", "vi": "tự thực bào", "en": "autophagy", "zh": "细胞自噬", "icd10_code": ""}
+{"concept_id": "MX0443", "category": "advanced_medical_term", "vi": "stress oxy hóa", "en": "oxidative stress", "zh": "氧化应激", "icd10_code": ""}
+{"concept_id": "MX0444", "category": "advanced_medical_term", "vi": "rối loạn chức năng ty thể", "en": "mitochondrial dysfunction", "zh": "线粒体功能障碍", "icd10_code": ""}
+{"concept_id": "MX0445", "category": "advanced_medical_term", "vi": "phản ứng viêm toàn thân", "en": "systemic inflammatory response", "zh": "全身炎症反应", "icd10_code": ""}
+{"concept_id": "MX0446", "category": "advanced_medical_term", "vi": "rối loạn điều hòa miễn dịch", "en": "immune dysregulation", "zh": "免疫失调", "icd10_code": ""}
+{"concept_id": "MX0447", "category": "advanced_medical_term", "vi": "đáp ứng miễn dịch bẩm sinh", "en": "innate immune response", "zh": "先天免疫反应", "icd10_code": ""}
+{"concept_id": "MX0448", "category": "advanced_medical_term", "vi": "đáp ứng miễn dịch thích ứng", "en": "adaptive immune response", "zh": "适应性免疫反应", "icd10_code": ""}
+{"concept_id": "MX0449", "category": "advanced_medical_term", "vi": "dung nạp miễn dịch", "en": "immune tolerance", "zh": "免疫耐受", "icd10_code": ""}
+{"concept_id": "MX0450", "category": "advanced_medical_term", "vi": "tự miễn dịch", "en": "autoimmunity", "zh": "自身免疫", "icd10_code": ""}
+{"concept_id": "MX0451", "category": "advanced_medical_term", "vi": "suy giảm miễn dịch", "en": "immunodeficiency", "zh": "免疫缺陷", "icd10_code": ""}
+{"concept_id": "MX0452", "category": "advanced_medical_term", "vi": "sinh mạch trong khối u", "en": "tumour angiogenesis", "zh": "肿瘤血管生成", "icd10_code": ""}
+{"concept_id": "MX0453", "category": "advanced_medical_term", "vi": "chuyển dạng biểu mô trung mô", "en": "epithelial-mesenchymal transition", "zh": "上皮间质转化", "icd10_code": ""}
+{"concept_id": "MX0454", "category": "advanced_medical_term", "vi": "vi môi trường khối u", "en": "tumour microenvironment", "zh": "肿瘤微环境", "icd10_code": ""}
+{"concept_id": "MX0455", "category": "advanced_medical_term", "vi": "tế bào miễn dịch xâm nhập khối u", "en": "tumour-infiltrating lymphocytes", "zh": "肿瘤浸润淋巴细胞", "icd10_code": ""}
+{"concept_id": "MX0456", "category": "advanced_medical_term", "vi": "tái cấu trúc mô", "en": "tissue remodelling", "zh": "组织重塑", "icd10_code": ""}
+{"concept_id": "MX0457", "category": "advanced_medical_term", "vi": "xơ hóa mô", "en": "tissue fibrosis", "zh": "组织纤维化", "icd10_code": ""}
+{"concept_id": "MX0458", "category": "advanced_medical_term", "vi": "tổn thương thiếu máu tái tưới máu", "en": "ischaemia-reperfusion injury", "zh": "缺血再灌注损伤", "icd10_code": ""}
+{"concept_id": "MX0459", "category": "advanced_medical_term", "vi": "thiếu oxy mô", "en": "tissue hypoxia", "zh": "组织缺氧", "icd10_code": ""}
+{"concept_id": "MX0460", "category": "advanced_medical_term", "vi": "mất cân bằng nội môi", "en": "homeostatic imbalance", "zh": "内稳态失衡", "icd10_code": ""}
+{"concept_id": "MX0461", "category": "advanced_medical_term", "vi": "toan chuyển hóa", "en": "metabolic acidosis", "zh": "代谢性酸中毒", "icd10_code": ""}
+{"concept_id": "MX0462", "category": "advanced_medical_term", "vi": "kiềm chuyển hóa", "en": "metabolic alkalosis", "zh": "代谢性碱中毒", "icd10_code": ""}
+{"concept_id": "MX0463", "category": "advanced_medical_term", "vi": "toan hô hấp", "en": "respiratory acidosis", "zh": "呼吸性酸中毒", "icd10_code": ""}
+{"concept_id": "MX0464", "category": "advanced_medical_term", "vi": "kiềm hô hấp", "en": "respiratory alkalosis", "zh": "呼吸性碱中毒", "icd10_code": ""}
+{"concept_id": "MX0465", "category": "advanced_medical_term", "vi": "rối loạn điện giải", "en": "electrolyte imbalance", "zh": "电解质紊乱", "icd10_code": ""}
+{"concept_id": "MX0466", "category": "advanced_medical_term", "vi": "hạ natri máu", "en": "hyponatraemia", "zh": "低钠血症", "icd10_code": ""}
+{"concept_id": "MX0467", "category": "advanced_medical_term", "vi": "tăng natri máu", "en": "hypernatraemia", "zh": "高钠血症", "icd10_code": ""}
+{"concept_id": "MX0468", "category": "advanced_medical_term", "vi": "hạ kali máu", "en": "hypokalaemia", "zh": "低钾血症", "icd10_code": ""}
+{"concept_id": "MX0469", "category": "advanced_medical_term", "vi": "tăng kali máu", "en": "hyperkalaemia", "zh": "高钾血症", "icd10_code": ""}
+{"concept_id": "MX0470", "category": "advanced_medical_term", "vi": "tăng canxi máu", "en": "hypercalcaemia", "zh": "高钙血症", "icd10_code": ""}
+{"concept_id": "MX0471", "category": "advanced_medical_term", "vi": "hạ canxi máu", "en": "hypocalcaemia", "zh": "低钙血症", "icd10_code": ""}
+{"concept_id": "MX0472", "category": "advanced_medical_term", "vi": "hạ magiê máu", "en": "hypomagnesaemia", "zh": "低镁血症", "icd10_code": ""}
+{"concept_id": "MX0473", "category": "advanced_medical_term", "vi": "tăng axit uric máu", "en": "hyperuricaemia", "zh": "高尿酸血症", "icd10_code": ""}
+{"concept_id": "MX0474", "category": "advanced_medical_term", "vi": "tăng lactate máu", "en": "hyperlactataemia", "zh": "高乳酸血症", "icd10_code": ""}
+{"concept_id": "MX0475", "category": "advanced_medical_term", "vi": "đông máu nội mạch lan tỏa", "en": "disseminated intravascular coagulation", "zh": "弥散性血管内凝血", "icd10_code": ""}
+{"concept_id": "MX0476", "category": "advanced_medical_term", "vi": "giảm tiểu cầu", "en": "thrombocytopenia", "zh": "血小板减少症", "icd10_code": ""}
+{"concept_id": "MX0477", "category": "advanced_medical_term", "vi": "giảm bạch cầu trung tính", "en": "neutropenia", "zh": "中性粒细胞减少症", "icd10_code": ""}
+{"concept_id": "MX0478", "category": "advanced_medical_term", "vi": "giảm lympho bào", "en": "lymphopenia", "zh": "淋巴细胞减少症", "icd10_code": ""}
+{"concept_id": "MX0479", "category": "advanced_medical_term", "vi": "tăng bạch cầu ái toan", "en": "eosinophilia", "zh": "嗜酸性粒细胞增多", "icd10_code": ""}
