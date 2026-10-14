@@ -122,7 +122,7 @@ class QueryBridge:
                 language="vi",
                 variant_key="original",
                 tokens_map={
-                    "contents": distilled_contents,
+                    "contents": vi_analysis.get("contents", q_text),
                     "surface": vi_analysis.get("surface", q_text),
                     "medical_exact": vi_analysis.get("medical_exact", ""),
                     "concepts": concepts_val,
@@ -176,7 +176,7 @@ class QueryBridge:
                     language="vi",
                     variant_key="alias_expanded",
                     tokens_map={
-                        "contents": distill_medical_query(exp_analysis.get("contents", expanded_text)),
+                        "contents": exp_analysis.get("contents", expanded_text),
                         "surface": exp_analysis.get("surface", expanded_text),
                         "medical_exact": exp_analysis.get("medical_exact", ""),
                         "concepts": exp_analysis.get("concepts", concepts_val),
