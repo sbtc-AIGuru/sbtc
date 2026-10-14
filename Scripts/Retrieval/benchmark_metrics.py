@@ -6,10 +6,29 @@ Theo chuẩn đánh giá Information Retrieval và chuẩn hóa đối soát c�
 
 from __future__ import annotations
 
+import io
 import json
+import os
+import sys
 import time
+import urllib.request
 from pathlib import Path
 from typing import Any, Dict, List, Mapping, Sequence, Set, Tuple
+
+# Đảm bảo JAVA_HOME được nhận diện chính xác
+if "JAVA_HOME" not in os.environ:
+    conda_jvm = Path(sys.executable).resolve().parent.parent / "lib" / "jvm"
+    if conda_jvm.is_dir():
+        os.environ["JAVA_HOME"] = str(conda_jvm)
+
+# Bảo vệ offline cho pyserini không phụ thuộc vào internet
+from collections import defaultdict
+try:
+    import pyserini.prebuilt_index_info as pinfo
+    pinfo._LazyLucenePrebuiltInvertedIndexJson._load = lambda self: defaultdict(lambda: {"urls": [], "md5": ""})
+    pinfo._LazyLucenePrebuiltInvertedIndexJson.__getitem__ = lambda self, key: {"urls": [], "md5": ""}
+except Exception:
+    pass
 
 import pyarrow.parquet as pq
 

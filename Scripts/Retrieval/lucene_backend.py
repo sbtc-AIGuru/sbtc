@@ -32,6 +32,15 @@ class LuceneSearchBackend:
         if self._is_initialized:
             return
 
+        # Bảo vệ offline: Không tải metadata prebuilt index từ GitHub qua internet
+        from collections import defaultdict
+        try:
+            import pyserini.prebuilt_index_info as pinfo
+            pinfo._LazyLucenePrebuiltInvertedIndexJson._load = lambda self: defaultdict(lambda: {"urls": [], "md5": ""})
+            pinfo._LazyLucenePrebuiltInvertedIndexJson.__getitem__ = lambda self, key: {"urls": [], "md5": ""}
+        except Exception:
+            pass
+
         from pyserini.analysis import JWhiteSpaceAnalyzer
         from pyserini.search.lucene._searcher import LuceneSearcher
 
