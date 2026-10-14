@@ -33,13 +33,14 @@ except Exception:
 import pyarrow.parquet as pq
 
 from sbtc.Scripts.Retrieval.config import BM25Config
-from sbtc.Scripts.Retrieval.evaluation import btc_tokens, lcs_tokens_length
+from sbtc.Scripts.Retrieval.evaluation import btc_tokens, compute_f_beta, lcs_tokens_length
 from sbtc.Scripts.Retrieval.fusion import CandidateFusion
 from sbtc.Scripts.Retrieval.lexicon import MedicalLexicon
 from sbtc.Scripts.Retrieval.lucene_backend import LuceneSearchBackend
 from sbtc.Scripts.Retrieval.models import QueryInput, SearchHit
 from sbtc.Scripts.Retrieval.query_bridge import QueryBridge
 from sbtc.Scripts.Retrieval.query_builder import LuceneQueryBuilder
+from sbtc.Scripts.Retrieval.selectors import create_selector
 from sbtc.Scripts.Retrieval.text_store import SourcePointerTextStore
 
 
@@ -191,6 +192,7 @@ def run_benchmark(
     backend = LuceneSearchBackend(config, q_builder)
     backend.initialize()
     fusion = CandidateFusion(rrf_k=config.budgets.rrf_k)
+    selector = create_selector(config.budgets)
 
     print(f"Đã nạp {len(queries)} queries từ {queries_path}")
     print(f"Đo đạc trên Top-{top_k} ranked candidates...")
@@ -208,6 +210,13 @@ def run_benchmark(
     doc_macro_metrics["MAP"] = 0.0
     chunk_macro_metrics["MRR"] = 0.0
     chunk_macro_metrics["MAP"] = 0.0
+
+    macro_sub_doc_p = 0.0
+    macro_sub_doc_r = 0.0
+    macro_sub_doc_f2 = 0.0
+    macro_sub_chunk_p = 0.0
+    macro_sub_chunk_r = 0.0
+    macro_sub_chunk_f2 = 0.0
 
     start_time = time.time()
 
@@ -259,11 +268,52 @@ def run_benchmark(
         for m_k, val in q_chunk_m.items():
             chunk_macro_metrics[m_k] += val
 
+        # 3. Đo lường thực tế bài nộp qua Selector (áp dụng 4 quy tắc tương hỗ)
+        sub_item = selector.select(q.id, fused_docs, fused_chunks, text_store)
+        pred_docs = set(int(d) for d in sub_item.relevant_docs if d.isdigit())
+        tp_d = len(pred_docs.intersection(gt_docs))
+        dp = tp_d / len(pred_docs) if pred_docs else 0.0
+        dr = tp_d / len(gt_docs) if gt_docs else 0.0
+        df2 = compute_f_beta(dp, dr, beta=2.0)
+        macro_sub_doc_p += dp
+        macro_sub_doc_r += dr
+        macro_sub_doc_f2 += df2
+
+        pred_sub_chunks = []
+        for sc in sub_item.relevant_chunks:
+            s_toks = btc_tokens(sc.chunk_text)
+            pred_sub_chunks.append({"doc_id": int(sc.doc_id), "tokens": s_toks})
+
+        correct_sub_chunks = 0
+        matched_gt_indices = set()
+        for pc in pred_sub_chunks:
+            for g_idx, gc in enumerate(gt_chunks):
+                if pc["doc_id"] == gc["doc_id"]:
+                    lcs = lcs_tokens_length(pc["tokens"], gc["tokens"])
+                    if lcs / len(gc["tokens"]) >= 0.40:
+                        correct_sub_chunks += 1
+                        matched_gt_indices.add(g_idx)
+                        break
+
+        cp = correct_sub_chunks / len(pred_sub_chunks) if pred_sub_chunks else 0.0
+        cr = len(matched_gt_indices) / len(gt_chunks) if gt_chunks else 0.0
+        cf2 = compute_f_beta(cp, cr, beta=2.0)
+        macro_sub_chunk_p += cp
+        macro_sub_chunk_r += cr
+        macro_sub_chunk_f2 += cf2
+
     num_q = len(queries)
     for m_k in doc_macro_metrics:
         doc_macro_metrics[m_k] /= num_q
     for m_k in chunk_macro_metrics:
         chunk_macro_metrics[m_k] /= num_q
+
+    macro_sub_doc_p /= num_q
+    macro_sub_doc_r /= num_q
+    macro_sub_doc_f2 /= num_q
+    macro_sub_chunk_p /= num_q
+    macro_sub_chunk_r /= num_q
+    macro_sub_chunk_f2 /= num_q
 
     backend.close()
     text_store.close()
@@ -271,7 +321,7 @@ def run_benchmark(
     elapsed = time.time() - start_time
     print(f"\nThời gian thực thi: {elapsed:.2f}s ({num_q / elapsed:.2f} QPS)")
     print("\n" + "=" * 70)
-    print("BẢNG TỔNG HỢP CHỈ SỐ XẾP HẠNG TÀI LIỆU (DOCUMENT LEVEL)")
+    print("BẢNG TỔNG HỢP CHỈ SỐ XẾP HẠNG TÀI LIỆU (DOCUMENT CANDIDATES)")
     print("-" * 70)
     print(f"  MRR (Mean Reciprocal Rank): {doc_macro_metrics['MRR']:.4f}")
     print(f"  MAP (Mean Average Precision): {doc_macro_metrics['MAP']:.4f}")
@@ -282,7 +332,7 @@ def run_benchmark(
         print(f"  Top-{k:<2}:  Precision@{k:<2} = {p_val:.4f} ({p_val*100:5.2f}%)  |  Recall@{k:<2} = {r_val:.4f} ({r_val*100:5.2f}%)")
 
     print("\n" + "=" * 70)
-    print("BẢNG TỔNG HỢP CHỈ SỐ XẾP HẠNG ĐOẠN VĂN (CHUNK LEVEL - LCS >= 40%)")
+    print("BẢNG TỔNG HỢP CHỈ SỐ XẾP HẠNG ĐOẠN VĂN (CHUNK CANDIDATES - LCS >= 40%)")
     print("-" * 70)
     print(f"  MRR (Mean Reciprocal Rank): {chunk_macro_metrics['MRR']:.4f}")
     print(f"  MAP (Mean Average Precision): {chunk_macro_metrics['MAP']:.4f}")
@@ -291,6 +341,12 @@ def run_benchmark(
         p_val = chunk_macro_metrics[f"P@{k}"]
         r_val = chunk_macro_metrics[f"R@{k}"]
         print(f"  Top-{k:<2}:  Precision@{k:<2} = {p_val:.4f} ({p_val*100:5.2f}%)  |  Recall@{k:<2} = {r_val:.4f} ({r_val*100:5.2f}%)")
+
+    print("\n" + "=" * 70)
+    print("BẢNG ĐÁNH GIÁ KẾT QUẢ NỘP BÀI THỰC TẾ (SUBMISSION) CHUẨN BTC VỚI F2")
+    print("-" * 70)
+    print(f"  Document Level:  Precision = {macro_sub_doc_p:.4f} ({macro_sub_doc_p*100:5.2f}%)  |  Recall = {macro_sub_doc_r:.4f} ({macro_sub_doc_r*100:5.2f}%)  |  F2 = {macro_sub_doc_f2:.4f}")
+    print(f"  Chunk Level:     Precision = {macro_sub_chunk_p:.4f} ({macro_sub_chunk_p*100:5.2f}%)  |  Recall = {macro_sub_chunk_r:.4f} ({macro_sub_chunk_r*100:5.2f}%)  |  F2 = {macro_sub_chunk_f2:.4f}")
     print("=" * 70)
 
 

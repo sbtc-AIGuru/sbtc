@@ -141,76 +141,89 @@ class AdaptiveBudgetSelector:
         candidate_chunks: Sequence[SearchHit],
         text_store: SourcePointerTextStore,
     ) -> SubmissionItem:
-        """Thực hiện lựa chọn động theo tỷ lệ điểm so với top-1."""
-        # 1. Chọn tài liệu động
-        selected_docs: List[str] = []
-        seen_doc_ids: Set[int] = set()
+        """Thực hiện lựa chọn động tối ưu hóa F2 với 4 quy tắc tương hỗ Doc-Chunk."""
+        if not candidate_docs and not candidate_chunks:
+            return SubmissionItem(id=query_id, relevant_docs=[], relevant_chunks=[])
 
-        if candidate_docs:
-            top_doc_score = candidate_docs[0].score
-            doc_min_score = top_doc_score * self.config.doc_score_ratio
+        top_doc_score = candidate_docs[0].score if candidate_docs else 0.0
+        doc_min_score = top_doc_score * self.config.doc_score_ratio
 
-            for d_hit in candidate_docs:
-                if d_hit.doc_id <= 0:
-                    continue
-                # Nếu điểm tụt quá ngưỡng và đã đạt số lượng tối thiểu, dừng lấy
-                if d_hit.score < doc_min_score and len(selected_docs) >= self.config.min_selected_docs:
+        top_chunk_score = candidate_chunks[0].score if candidate_chunks else 0.0
+        chunk_min_score = top_chunk_score * self.config.chunk_score_ratio
+
+        # Map doc_id -> score của candidate_docs để tra cứu nhanh
+        doc_score_map: Dict[int, float] = {d.doc_id: d.score for d in candidate_docs if d.doc_id > 0}
+
+        # -------------------------------------------------------------
+        # Bước 1: Chọn tài liệu sơ bộ theo ngưỡng động
+        # -------------------------------------------------------------
+        initial_docs: List[int] = []
+        for d_hit in candidate_docs:
+            if d_hit.doc_id <= 0:
+                continue
+            if d_hit.score < doc_min_score and len(initial_docs) >= self.config.min_selected_docs:
+                break
+            if d_hit.doc_id not in initial_docs:
+                initial_docs.append(d_hit.doc_id)
+                if len(initial_docs) >= self.config.max_selected_docs:
                     break
-                if d_hit.doc_id not in seen_doc_ids:
-                    seen_doc_ids.add(d_hit.doc_id)
-                    selected_docs.append(str(d_hit.doc_id))
-                    if len(selected_docs) >= self.config.max_selected_docs:
-                        break
 
-        # 2. Chọn Chunks sơ bộ theo ngưỡng động
+        initial_docs_set = set(initial_docs)
+
+        # -------------------------------------------------------------
+        # Bước 2: Chọn Chunks sơ bộ kết hợp QUY TẮC 2 (Low Chunk & Missing Doc -> Drop)
+        # -------------------------------------------------------------
         candidate_chunk_ids: List[str] = []
         doc_raw_counts: Dict[int, int] = {}
+        chunk_hit_map: Dict[str, SearchHit] = {}
 
-        if candidate_chunks:
-            top_chunk_score = candidate_chunks[0].score
-            chunk_min_score = top_chunk_score * self.config.chunk_score_ratio
+        for c_hit in candidate_chunks:
+            if not c_hit.chunk_id:
+                continue
+            chunk_hit_map[c_hit.chunk_id] = c_hit
+            doc_id = c_hit.doc_id
 
-            for c_hit in candidate_chunks:
-                if not c_hit.chunk_id:
+            # Ngưỡng sàn cơ bản
+            if c_hit.score < chunk_min_score and len(candidate_chunk_ids) >= self.config.min_selected_chunks:
+                break
+
+            # QUY TẮC 2: Nếu điểm chunk mấp mé thấp (< 70% top_chunk_score)
+            # MÀ doc_id của nó không nằm trong initial_docs_set -> LOẠI BỎ!
+            if top_chunk_score > 0 and (c_hit.score < top_chunk_score * 0.70):
+                if doc_id not in initial_docs_set:
                     continue
-                # Nếu điểm tụt quá ngưỡng và đã gom đủ chunk tối thiểu
-                if c_hit.score < chunk_min_score and len(candidate_chunk_ids) >= self.config.min_selected_chunks:
-                    break
-                doc_id = c_hit.doc_id
-                curr_count = doc_raw_counts.get(doc_id, 0)
-                if curr_count < self.config.max_chunks_per_doc * 2:
-                    candidate_chunk_ids.append(c_hit.chunk_id)
-                    doc_raw_counts[doc_id] = curr_count + 1
-                    if len(candidate_chunk_ids) >= self.config.max_selected_chunks * 2:
-                        break
 
-        # 3. Hydrate chunk nguyên bản từ SQLite TextStore
+            curr_count = doc_raw_counts.get(doc_id, 0)
+            if curr_count < self.config.max_chunks_per_doc * 2:
+                candidate_chunk_ids.append(c_hit.chunk_id)
+                doc_raw_counts[doc_id] = curr_count + 1
+                if len(candidate_chunk_ids) >= self.config.max_selected_chunks * 2:
+                    break
+
+        # -------------------------------------------------------------
+        # Bước 3: Hydrate Chunks nguyên bản từ SQLite TextStore
+        # -------------------------------------------------------------
         hydrated_chunks_map = text_store.get_many(candidate_chunk_ids)
 
-        # 4. Phạt overlap, dedup nội dung và áp dụng per-doc cap chính thức
+        # -------------------------------------------------------------
+        # Bước 4: Lọc Overlap, Dedup và Per-doc Cap cho Chunks
+        # -------------------------------------------------------------
         selected_submission_chunks: List[SubmissionChunk] = []
         doc_spans: Dict[int, List[Tuple[int, int]]] = {}
         doc_btc_texts: Dict[int, Set[str]] = {}
         doc_accepted_counts: Dict[int, int] = {}
 
-        for cid in candidate_chunk_ids:
-            if cid not in hydrated_chunks_map:
-                continue
-            orig = hydrated_chunks_map[cid]
-            doc_id = orig.doc_id
+        def try_accept_chunk(orig: OriginalChunk) -> bool:
+            """Hàm kiểm tra và nhận một chunk nếu thỏa mãn không overlap và per-doc cap."""
+            d_id = orig.doc_id
+            if doc_accepted_counts.get(d_id, 0) >= self.config.max_chunks_per_doc:
+                return False
 
-            # Áp dụng per-doc cap
-            if doc_accepted_counts.get(doc_id, 0) >= self.config.max_chunks_per_doc:
-                continue
-
-            # Kiểm tra dedup theo normalized BTC text trong cùng doc
             norm_tokens = " ".join(btc_tokens(orig.chunk_text))
-            if norm_tokens in doc_btc_texts.setdefault(doc_id, set()):
-                continue
+            if norm_tokens in doc_btc_texts.setdefault(d_id, set()):
+                return False
 
-            # Kiểm tra overlap interval char spans
-            is_heavy_overlap = False
-            spans = doc_spans.setdefault(doc_id, [])
+            spans = doc_spans.setdefault(d_id, [])
             for s_start, s_end in spans:
                 overlap_start = max(orig.start_char, s_start)
                 overlap_end = min(orig.end_char, s_end)
@@ -218,17 +231,11 @@ class AdaptiveBudgetSelector:
                     overlap_len = overlap_end - overlap_start
                     chunk_len = orig.end_char - orig.start_char
                     if chunk_len > 0 and (overlap_len / chunk_len) > self.config.overlap_penalty_threshold:
-                        is_heavy_overlap = True
-                        break
+                        return False
 
-            if is_heavy_overlap:
-                continue
-
-            # Đạt điều kiện chọn
             spans.append((orig.start_char, orig.end_char))
-            doc_btc_texts[doc_id].add(norm_tokens)
-            doc_accepted_counts[doc_id] = doc_accepted_counts.get(doc_id, 0) + 1
-
+            doc_btc_texts[d_id].add(norm_tokens)
+            doc_accepted_counts[d_id] = doc_accepted_counts.get(d_id, 0) + 1
             selected_submission_chunks.append(
                 SubmissionChunk(
                     doc_id=str(orig.doc_id),
@@ -236,23 +243,91 @@ class AdaptiveBudgetSelector:
                     chunk_order=orig.chunk_order,
                 )
             )
+            return True
 
-            if len(selected_submission_chunks) >= self.config.max_selected_chunks:
-                break
+        for cid in candidate_chunk_ids:
+            if cid in hydrated_chunks_map:
+                try_accept_chunk(hydrated_chunks_map[cid])
+                if len(selected_submission_chunks) >= self.config.max_selected_chunks:
+                    break
 
-        # 5. Bổ sung các doc_id từ chunks được chọn vào relevant_docs nếu chưa có
+        # -------------------------------------------------------------
+        # QUY TẮC 4: High Doc & Zero Chunk -> Tìm chunk cao nhất trong doc đó
+        # Nếu một doc có điểm rất cao (top_1 hoặc >= 85% top_doc_score)
+        # mà chưa có chunk nào trong selected_submission_chunks:
+        # -------------------------------------------------------------
+        if top_doc_score > 0 and len(selected_submission_chunks) < self.config.max_selected_chunks:
+            for d_hit in candidate_docs:
+                if d_hit.doc_id <= 0:
+                    continue
+                is_high_doc = (d_hit.rank == 1) or (d_hit.score >= top_doc_score * 0.85)
+                if not is_high_doc:
+                    break
+
+                d_id = d_hit.doc_id
+                if doc_accepted_counts.get(d_id, 0) == 0:
+                    # Tìm chunk cao nhất của chính doc này trong candidate_chunks
+                    best_fallback_cid = None
+                    for c_hit in candidate_chunks:
+                        if c_hit.doc_id == d_id and c_hit.chunk_id:
+                            best_fallback_cid = c_hit.chunk_id
+                            break
+
+                    if best_fallback_cid:
+                        if best_fallback_cid not in hydrated_chunks_map:
+                            h_map = text_store.get_many([best_fallback_cid])
+                            if best_fallback_cid in h_map:
+                                try_accept_chunk(h_map[best_fallback_cid])
+                        else:
+                            try_accept_chunk(hydrated_chunks_map[best_fallback_cid])
+
+        # -------------------------------------------------------------
+        # QUY TẮC 1: High Chunk -> Thêm Doc vào danh sách
+        # -------------------------------------------------------------
+        final_selected_docs: List[str] = []
+        final_seen_doc_ids: Set[int] = set()
+
+        # Ưu tiên các doc_id có chunk được chọn
         for sc in selected_submission_chunks:
             if sc.doc_id != "0":
-                did_int = int(sc.doc_id)
-                if did_int not in seen_doc_ids:
-                    seen_doc_ids.add(did_int)
-                    selected_docs.append(sc.doc_id)
-                    if len(selected_docs) >= self.config.max_selected_docs:
+                d_int = int(sc.doc_id)
+                if d_int not in final_seen_doc_ids:
+                    final_seen_doc_ids.add(d_int)
+                    final_selected_docs.append(sc.doc_id)
+                    if len(final_selected_docs) >= self.config.max_selected_docs:
                         break
+
+        # -------------------------------------------------------------
+        # QUY TẮC 3: Mediocre Doc & Zero Chunk -> LOẠI BỎ!
+        # -------------------------------------------------------------
+        if len(final_selected_docs) < self.config.max_selected_docs:
+            for d_id in initial_docs:
+                if d_id in final_seen_doc_ids:
+                    continue
+
+                d_score = doc_score_map.get(d_id, 0.0)
+                has_chunk = doc_accepted_counts.get(d_id, 0) > 0
+                is_high_score = (d_score >= top_doc_score * 0.75)
+
+                # Nếu doc trung bình/thấp (< 75% top) và không có chunk nào -> LOẠI ĐI!
+                if not is_high_score and not has_chunk:
+                    continue
+
+                final_seen_doc_ids.add(d_id)
+                final_selected_docs.append(str(d_id))
+                if len(final_selected_docs) >= self.config.max_selected_docs:
+                    break
+
+        # Bảo đảm luôn có ít nhất min_selected_docs
+        if len(final_selected_docs) < self.config.min_selected_docs and candidate_docs:
+            top_d = candidate_docs[0].doc_id
+            if top_d > 0 and top_d not in final_seen_doc_ids:
+                final_seen_doc_ids.add(top_d)
+                final_selected_docs.append(str(top_d))
 
         return SubmissionItem(
             id=query_id,
-            relevant_docs=selected_docs,
+            relevant_docs=final_selected_docs,
             relevant_chunks=selected_submission_chunks,
         )
 
