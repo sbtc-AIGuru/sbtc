@@ -1,4 +1,4 @@
-"""Stream merged.json into Document and Chunk with bounded insert batches."""
+"""Stream JSONL or line-oriented JSON arrays into Document and individual Chunk rows."""
 
 from __future__ import annotations
 
@@ -11,8 +11,28 @@ from typing import Any
 from .postgre_db import PostgreManager
 
 
+def iter_jsonl_documents(path: Path) -> Iterator[dict[str, Any]]:
+    """Read one document per nonempty line without loading the complete dataset."""
+    with path.open(encoding="utf-8-sig") as source:
+        for line_number, line in enumerate(source, start=1):
+            if not line.strip():
+                continue
+            try:
+                record = json.loads(line)
+            except json.JSONDecodeError as error:
+                raise ValueError(
+                    f"Invalid document JSON at {path}:{line_number}",
+                ) from error
+            if not isinstance(record, dict):
+                raise ValueError(f"Expected document object at {path}:{line_number}")
+            yield record
+
+
 def iter_merged_documents(path: Path) -> Iterator[dict[str, Any]]:
-    """Read the exported JSON array with one document per line."""
+    """Read JSONL/NDJSON or the original JSON array with one document per line."""
+    if path.suffix.lower() in {".jsonl", ".ndjson"}:
+        yield from iter_jsonl_documents(path)
+        return
     with path.open(encoding="utf-8") as source:
         if source.readline().strip() != "[":
             raise ValueError("Expected '[' on the first line of merged.json")
@@ -80,6 +100,7 @@ def main() -> None:
     parser.add_argument(
         "--data-path", type=Path,
         default=Path(__file__).resolve().parents[3] / "data" / "merged.json",
+        help="Input .jsonl/.ndjson file or original line-oriented .json array",
     )
     parser.add_argument("--batch-documents", type=int, default=100)
     parser.add_argument("--max-batch-chunks", type=int, default=5_000)
