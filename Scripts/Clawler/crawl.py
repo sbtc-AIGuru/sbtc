@@ -99,8 +99,11 @@ async def _run_job(args: argparse.Namespace, output: Path) -> None:
     next_request_at = started
     min_free_bytes = int(args.min_free_memory_gb * 1024**3)
     recycle_limit = args.browser_recycle_after if args.fetch_mode != "http" else None
+    max_runtime = getattr(args, "max_runtime_seconds", 0)
 
-    with JsonlWriter(output) as writer:
+    with JsonlWriter(
+        output, skip_failed_on_resume=getattr(args, "skip_failed_on_resume", False)
+    ) as writer:
         completed = writer.completed_ids
         completed_rows = getattr(writer, "completed_rows", None)
         legacy_completed = getattr(writer, "legacy_completed_ids", completed)
@@ -110,6 +113,12 @@ async def _run_job(args: argparse.Namespace, output: Path) -> None:
                 return True
             return legacy_completed.get(record.id) == record.url
         while True:
+            if max_runtime and (monotonic() - started) >= max_runtime:
+                print(
+                    f"[Time Guard] Reached max runtime limit ({max_runtime}s). Saving progress...",
+                    flush=True,
+                )
+                break
             while len(waiting) < in_flight_limit and not source_finished:
                 batch = next(batches, None)
                 if batch is None:
@@ -149,6 +158,10 @@ async def _run_job(args: argparse.Namespace, output: Path) -> None:
                             len(active) < in_flight_limit
                             and not recycle_requested
                         ):
+                            if max_runtime and (monotonic() - started) >= max_runtime:
+                                source_finished = True
+                                waiting.clear()
+                                break
                             if not waiting and not source_finished:
                                 batch = next(batches, None)
                                 if batch is None:
@@ -364,6 +377,10 @@ def main() -> None:
     parser.add_argument("--fetch-mode", choices=("auto", "browser", "http"), default="auto")
     parser.add_argument("--host-policy-file", type=Path)
     parser.add_argument(
+        "--skip-failed-on-resume", action="store_true",
+        help="Skip previously recorded failed URLs when resuming the same output",
+    )
+    parser.add_argument(
         "--max-consecutive-blocked", type=int, default=0,
         help="Stop after this many consecutive blocked URLs; 0 disables the guard",
     )
@@ -375,6 +392,10 @@ def main() -> None:
         help="Completed browser URLs before restarting Chromium",
     )
     parser.add_argument("--min-free-memory-gb", type=float, default=DEFAULT_MIN_FREE_MEMORY_GB)
+    parser.add_argument(
+        "--max-runtime-seconds", type=int, default=0,
+        help="Maximum total wall runtime in seconds before gracefully draining and exiting",
+    )
     parser.add_argument("--input", type=Path, default=Path("data/links_corpus.parquet"))
     parser.add_argument("--output", type=Path)
     args = parser.parse_args()

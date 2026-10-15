@@ -6,7 +6,6 @@ import re
 from urllib.parse import urljoin, urlsplit, urlunsplit
 
 from bs4 import BeautifulSoup, Tag
-from crawl4ai import DefaultMarkdownGenerator
 
 
 MAX_ARTICLE_PAGES = 40
@@ -71,6 +70,8 @@ def remove_wujue_pager(body: Tag) -> None:
 
 def wujue_page_markdown(url: str, html: str, include_title: bool) -> str:
     """Convert the selected article region through Crawl4AI's Markdown generator."""
+    from crawl4ai import DefaultMarkdownGenerator
+
     soup = BeautifulSoup(html, "lxml")
     title = soup.select_one("#article-main_left .main_articletitle h1")
     body = soup.select_one("#article-main_left .art-text")

@@ -32,6 +32,8 @@ ARTICLE_LAYOUTS: dict[str, tuple[tuple[str, tuple[str, ...]], ...]] = {
     "baovinhlong.com.vn": (("h1.head_title", ("#content",)),),
     "ask.familydoctor.com.cn": ((".quest-title", (".quest-info .illness-pics", ".answer-words")),),
     "120ask.com": (("#d_askH1", ("#d_msCon", ".b_answerbox .b_answerli .b_anscont_cont")),),
+    "bachmai.gov.vn": (("#content-post > h3.h3", ("#content-post > .content-editor",)),),
+    "baoangiang.com.vn": ((".detail-title h1", ("#newscontents",)),),
     "cnkang.com": (
         (".detail h1.detaila", (".detail .detailc",)),
         (".endContent h1, h1#h1title, h1", ("#endText",)),
@@ -44,6 +46,15 @@ ARTICLE_LAYOUTS: dict[str, tuple[tuple[str, tuple[str, ...]], ...]] = {
     "suckhoedoisong.vn": (
         ("h1.detail-title, .detail-title, h1", (".detail-content",)),
     ),
+    "suckhoeviet.org.vn": ((
+        ".article-detail-body-right > h1",
+        (".article-detail-body-right > .article-detail-desc",
+         ".article-detail-body-right > .__MASTERCMS_CONTENT"),
+    ),),
+    "tamanhhospital.vn": ((
+        ".post_info.box_detail_post .title",
+        (".post_info.box_detail_post:has(> p)",),
+    ),),
     "a-hospital.com": (
         ("h1.firstHeading, h1", ("#bodyContent",)),
         ("h1.firstHeading, h1", ("#content",)),
@@ -106,8 +117,14 @@ ARTICLE_LAYOUTS: dict[str, tuple[tuple[str, tuple[str, ...]], ...]] = {
     "thanhnien.vn": (
         ("h1.detail-title, h1", (".detail-content, .detail-cmain",)),
     ),
+    "vietnamnet.vn": (
+        (".content-detail h1", (".content-detail .main-content",)),
+    ),
+    "vinmec.com": (
+        (".post-detail .post-header h1", ("#main-article",)),
+    ),
     "zydcd.com": (
-        ("h1.title, h1, .title", (".content, #content, .text, #text",)),
+        (".panel.panel-danger > .panel-heading h1", (".panel.panel-danger > .panel-body.info_txt:not(:empty)",)),
     ),
 }
 MIN_BODY_CHARACTERS = 40

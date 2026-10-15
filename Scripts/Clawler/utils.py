@@ -101,7 +101,9 @@ def load_completed_ids(
                 record = json.loads(line.decode("utf-8"))
                 if not isinstance(record, dict):
                     raise ValueError("JSONL record must be an object")
-                if record.get("success", True) and record.get("text"):
+                if (record.get("success", True) and record.get("text")) or (
+                    include_failed and record.get("success") is False
+                ):
                     completed[int(record["id"])] = str(record["url"])
                     if row_completion is not None and "row_index" in record:
                         row_completion[int(record["row_index"])] = (int(record["id"]), str(record["url"]))
@@ -135,8 +137,9 @@ def save_results(output: Path, results: list[dict[str, object]]) -> None:
 class JsonlWriter:
     """Hold a single writer lock and flush each completed result to JSONL."""
 
-    def __init__(self, output: Path) -> None:
+    def __init__(self, output: Path, skip_failed_on_resume: bool = False) -> None:
         self.output = output
+        self.skip_failed_on_resume = skip_failed_on_resume
         self.completed_ids: dict[int, str] = {}
         self.completed_rows: dict[int, tuple[int, str]] = {}
         self.legacy_completed_ids: dict[int, str] = {}
@@ -165,6 +168,7 @@ class JsonlWriter:
         if self._handle is None:
             raise RuntimeError("JSONL writer is not open")
         self._handle.write(json.dumps(result, ensure_ascii=False) + "\n")
+        self._handle.flush()
 
     def __exit__(self, exc_type: object, exc: object, traceback: object) -> None:
         if self._handle is not None:

@@ -60,6 +60,27 @@ class TestIntegrationPipeline(unittest.TestCase):
             self.assertEqual(len(completed_after), 3)
             self.assertIn(585, completed_after)
 
+    def test_resume_can_skip_recorded_failures(self):
+        """A local shard can resume without retrying already failed URLs."""
+        with TemporaryDirectory() as tmp_dir:
+            out_file = Path(tmp_dir) / "crawl.jsonl"
+            with JsonlWriter(out_file) as writer:
+                writer.write({
+                    "id": 583, "url": "https://a.com", "text": "Article",
+                    "success": True,
+                })
+                writer.write({
+                    "id": 584, "url": "https://b.com", "text": "",
+                    "success": False, "error": "HTTP 404",
+                })
+
+            with JsonlWriter(out_file, skip_failed_on_resume=True) as writer:
+                self.assertEqual(writer.completed_ids, {
+                    583: "https://a.com", 584: "https://b.com",
+                })
+
+            self.assertEqual(load_completed_ids(out_file), {583: "https://a.com"})
+
     def test_compact_canonical_order(self):
         """Test compact.py orders shuffled/retried JSONL into strict Parquet sequence."""
         source_path = PROJECT_ROOT / "data/links_corpus.parquet"
