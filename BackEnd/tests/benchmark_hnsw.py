@@ -107,15 +107,23 @@ class MemoryMonitor:
 
 def validate_index(index: faiss.Index, metadata: dict) -> None:
     """Check full ID coverage and cosine prerequisites before any benchmark."""
-    if not isinstance(index, faiss.IndexHNSWFlat) or index.metric_type != faiss.METRIC_INNER_PRODUCT:
-        raise ValueError('Expected a normalized inner-product IndexHNSWFlat')
+    if (not isinstance(index, (faiss.IndexHNSWFlat, faiss.IndexHNSWPQ))
+            or not index.is_trained or index.metric_type != faiss.METRIC_INNER_PRODUCT):
+        raise ValueError('Expected a trained inner-product HNSWFlat or HNSWPQ index')
+    compressed = isinstance(index, faiss.IndexHNSWPQ)
+    if compressed:
+        storage = faiss.downcast_index(index.storage)
+        if (storage.pq.M != 64 or storage.pq.nbits != 8 or storage.code_size != 64
+                or storage.metric_type != faiss.METRIC_INNER_PRODUCT):
+            raise ValueError('Expected PQ64 with 8-bit codes and inner-product storage')
     if index.ntotal <= max(KS) or len(metadata) != index.ntotal:
         raise ValueError('Metadata count differs from index or corpus is too small')
     if any(str(vector_id) not in metadata for vector_id in range(index.ntotal)):
         raise ValueError('Metadata must cover every sequential HNSW vector ID')
     for vector_id in np.linspace(0, index.ntotal - 1, min(1_000, index.ntotal), dtype=int):
         vector = index.reconstruct(int(vector_id))
-        if not np.isfinite(vector).all() or not np.isclose(np.linalg.norm(vector), 1, atol=1e-3):
+        if (not np.isfinite(vector).all() or np.linalg.norm(vector) <= 1e-12
+                or (not compressed and not np.isclose(np.linalg.norm(vector), 1, atol=1e-3))):
             raise ValueError(f'Stored vector is not finite and L2 normalized: {vector_id}')
 
 
@@ -174,11 +182,32 @@ def bootstrap_interval(values: np.ndarray, seed: int = 42) -> list[float]:
 
 def build_exact_index(index: faiss.IndexHNSWFlat) -> faiss.IndexFlatIP:
     """Copy original uncompressed stored vectors in bounded reconstruction blocks."""
+    if not isinstance(index, faiss.IndexHNSWFlat):
+        raise ValueError('Exact ground truth must use uncompressed vectors, not PQ reconstructions')
     exact = faiss.IndexFlatIP(index.d)
     for start in range(0, index.ntotal, 8_192):
         vectors = index.reconstruct_n(start, min(8_192, index.ntotal - start))
         exact.add(vectors)
     return exact
+
+
+def validate_reference(reference: faiss.Index, index: faiss.Index, metadata: dict) -> None:
+    """Require an uncompressed, normalized reference with the same ordered vector IDs."""
+    if not isinstance(reference, faiss.IndexHNSWFlat):
+        raise ValueError('The reference must be an uncompressed HNSWFlat index')
+    if reference.ntotal != index.ntotal or reference.d != index.d:
+        raise ValueError('Reference and tested index counts/dimensions differ')
+    validate_index(reference, metadata)
+
+
+def reference_scores(reference: faiss.IndexHNSWFlat, queries: np.ndarray, ids: np.ndarray) -> np.ndarray:
+    """Rescore returned IDs using original vectors, never compare PQ scores to raw scores."""
+    storage = faiss.downcast_index(reference.storage)
+    vectors = faiss.rev_swig_ptr(storage.get_xb(), storage.ntotal * storage.d).reshape(-1, storage.d)
+    valid = (ids >= 0) & (ids < reference.ntotal)
+    selected = vectors[np.where(valid, ids, 0)]
+    scores = np.einsum('qd,qkd->qk', queries, selected)
+    return np.where(valid, scores, -np.inf)
 
 
 def load_gpu_encoder(args: argparse.Namespace, index: faiss.IndexHNSWFlat) -> tuple[dict, dict]:
@@ -287,6 +316,8 @@ def main() -> None:
     parser.add_argument('--embedding-batch-size', type=int, default=16)
     parser.add_argument('--ef-search', type=int, nargs='+', default=[16, 32, 64, 128, 256, 512])
     parser.add_argument('--memory-only', action='store_true')
+    parser.add_argument('--reference-index', type=Path, help='Original HNSWFlat corpus for PQ ground truth')
+    parser.add_argument('--reference-metadata', type=Path, default=ROOT / 'BackEnd/tests/metadata.json')
     args = parser.parse_args()
     if args.output.exists():
         parser.error('Output must be a new directory; existing files will not be overwritten')
@@ -302,12 +333,25 @@ def main() -> None:
     started = perf_counter()
     input_hashes = {'index': sha256(args.index), 'metadata': sha256(args.metadata),
                     'queries': sha256(args.queries), 'notebook': sha256(NOTEBOOK)}
+    if args.reference_index:
+        input_hashes['reference_index'] = sha256(args.reference_index)
+        input_hashes['reference_metadata'] = sha256(args.reference_metadata)
+        if input_hashes['metadata'] != input_hashes['reference_metadata']:
+            raise ValueError('Metadata must match the original reference byte-for-byte to align every ID')
     subprocess.run([
         sys.executable, str(Path(__file__).resolve()), '--memory-only',
         '--index', str(args.index), '--metadata', str(args.metadata),
         '--threads', str(args.threads), '--output', str(args.output / 'memory_only'),
     ], check=True)
     isolated_memory = json.loads((args.output / 'memory_only/memory.json').read_text())
+    reference_memory = None
+    if args.reference_index:
+        subprocess.run([
+            sys.executable, str(Path(__file__).resolve()), '--memory-only',
+            '--index', str(args.reference_index), '--metadata', str(args.reference_metadata),
+            '--threads', str(args.threads), '--output', str(args.output / 'reference_memory_only'),
+        ], check=True)
+        reference_memory = json.loads((args.output / 'reference_memory_only/memory.json').read_text())
     query_records = json.loads(args.queries.read_text())
     if len(query_records) != 50 or len({record['query_id'] for record in query_records}) != 50:
         raise ValueError('Expected exactly 50 unique authored queries')
@@ -316,7 +360,11 @@ def main() -> None:
     latency_samples = []
     with MemoryMonitor() as monitor:
         index, metadata = load_inputs(args, monitor)
+        compressed = isinstance(index, faiss.IndexHNSWPQ)
+        if compressed and not args.reference_index:
+            raise ValueError('PQ accuracy requires --reference-index; reconstructed PQ vectors are not ground truth')
         original_ef = index.hnsw.efSearch
+        reference = None
         for record in query_records:
             source = metadata.get(str(record['source_vector_id']))
             if source is None or source['doc_id'] != record['source_doc_id']:
@@ -340,26 +388,46 @@ def main() -> None:
                 encoder['encode_texts']([text])
                 singleton_embedding_times.append((perf_counter() - t) * 1_000)
         np.save(args.output / 'query_vectors.npy', query_vectors)
+        with monitor.phase('build_exact_reference'):
+            exact_started = perf_counter()
+            if args.reference_index:
+                reference = faiss.read_index(str(args.reference_index))
+                validate_reference(reference, index, metadata)
+                # Keep the owning HNSW reference alive while searching its raw FlatIP storage.
+                exact = faiss.downcast_index(reference.storage)
+            else:
+                exact = build_exact_index(index)
+            exact_build_seconds = perf_counter() - exact_started
         with monitor.phase('model_index_compatibility'):
             source_vectors = encoder['encode_texts']([
                 metadata[str(record['source_vector_id'])]['chunk_text'] for record in query_records
             ])
-            stored_vectors = np.stack([index.reconstruct(record['source_vector_id']) for record in query_records])
+            raw_index = reference if reference is not None else index
+            stored_vectors = np.stack([raw_index.reconstruct(record['source_vector_id']) for record in query_records])
             agreement = np.sum(source_vectors * stored_vectors, axis=1)
             if np.min(agreement) < 0.99:
                 raise ValueError(f'GTE/index embedding mismatch: minimum cosine {np.min(agreement)}')
-        with monitor.phase('build_exact_reference'):
-            exact_started = perf_counter()
-            exact = build_exact_index(index)
-            exact_build_seconds = perf_counter() - exact_started
+        pq_agreement = None
+        if compressed:
+            reconstructed = np.stack([index.reconstruct(record['source_vector_id']) for record in query_records])
+            cosine = np.sum(source_vectors * reconstructed, axis=1) / np.linalg.norm(reconstructed, axis=1)
+            pq_agreement = {'min': float(cosine.min()), 'mean': float(cosine.mean()), 'max': float(cosine.max())}
+            del reconstructed
         print('Exact reference ready; sweeping efSearch', flush=True)
         with monitor.phase('exact_search'):
             exact_scores, exact_ids = exact.search(query_vectors, max(KS))
             exact_latency, raw_exact = latency_benchmark(exact, query_vectors, min(5, args.repeats), 42)
             latency_samples.extend({'engine': 'exact', 'ef_search': 0, **record} for record in raw_exact)
+        pq_exact_scores = pq_exact_ids = None
+        pq_exhaustive = None
+        if compressed:
+            with monitor.phase('exhaustive_pq_search'):
+                pq_exact_scores, pq_exact_ids = faiss.downcast_index(index.storage).search(query_vectors, max(KS))
+                pq_exhaustive = {f'recall@{k}': recall_at_k(pq_exact_ids, exact_ids, k) for k in KS}
         source_ids = np.array([record['source_vector_id'] for record in query_records])
         source_docs = np.array([record['source_doc_id'] for record in query_records])
         rows = []
+        reference_rows = []
         per_query_results = []
         ef_values = sorted(set(args.ef_search) | {original_ef})
         for ef in ef_values:
@@ -370,7 +438,10 @@ def main() -> None:
                 for k in KS:
                     scores, ids = found_by_k[k]
                     row[f'recall@{k}'] = recall_at_k(ids, exact_ids, k)
-                    row[f'score_admissibility@{k}'] = score_admissibility(scores, ids, exact_scores, k)
+                    comparable_scores = reference_scores(reference, query_vectors, ids) if compressed else scores
+                    row[f'score_admissibility@{k}'] = score_admissibility(comparable_scores, ids, exact_scores, k)
+                    if compressed:
+                        row[f'recall_vs_exhaustive_pq@{k}'] = recall_at_k(ids, pq_exact_ids, k)
                 scores10, ids10 = found_by_k[10]
                 qrecall = per_query_recall(ids10, exact_ids, 10)
                 row['recall@10_bootstrap_95_ci'] = bootstrap_interval(qrecall)
@@ -380,7 +451,8 @@ def main() -> None:
                     any(metadata[str(int(v))]['doc_id'] == int(doc) for v in found if v >= 0)
                     for found, doc in zip(ids10, source_docs)
                 ]))
-                row['mean_top1_score_regret'] = float(np.maximum(exact_scores[:, 0] - found_by_k[1][0][:, 0], 0).mean())
+                top1_scores = reference_scores(reference, query_vectors, found_by_k[1][1]) if compressed else found_by_k[1][0]
+                row['mean_top1_score_regret'] = float(np.maximum(exact_scores[:, 0] - top1_scores[:, 0], 0).mean())
                 latency, raw = latency_benchmark(index, query_vectors, args.repeats, 42)
                 row['search_top10_latency'] = latency
                 latency_samples.extend({'engine': 'hnsw', 'ef_search': ef, **record} for record in raw)
@@ -394,9 +466,26 @@ def main() -> None:
                         'exact_scores': exact_scores[position, :10].tolist(),
                     })
             print(f'efSearch={ef}: Recall@10={row["recall@10"]:.2%}; p95={latency["p95_ms"]:.3f}ms', flush=True)
+            if reference is not None:
+                with monitor.phase(f'reference_hnsw_ef_{ef}'):
+                    previous_ef = reference.hnsw.efSearch
+                    reference.hnsw.efSearch = ef
+                    try:
+                        reference_row = {'ef_search': ef}
+                        for k in KS:
+                            _, found = reference.search(query_vectors, k)
+                            reference_row[f'recall@{k}'] = recall_at_k(found, exact_ids, k)
+                        reference_latency, raw_reference = latency_benchmark(reference, query_vectors, args.repeats, 42)
+                        reference_row['search_top10_latency'] = reference_latency
+                        reference_rows.append(reference_row)
+                        latency_samples.extend({'engine': 'hnsw_flat', 'ef_search': ef, **r} for r in raw_reference)
+                    finally:
+                        reference.hnsw.efSearch = previous_ef
         index.hnsw.efSearch = original_ef
         # The reference is an audit tool; remove it before measuring serving RAM/end-to-end latency.
-        del exact, source_vectors, stored_vectors
+        del exact, raw_index, source_vectors, stored_vectors
+        if reference is not None:
+            del reference
         gc.collect()
         monitor.mark('serving_ready_without_exact_reference')
         with monitor.phase('end_to_end'):
@@ -448,6 +537,17 @@ def main() -> None:
             'end_to_end_top10_latency': statistics([r['latency_ms'] for r in e2e_samples]),
             'isolated_index_metadata_ram': isolated_memory, 'full_benchmark_ram': ram,
             'gpu_vram': gpu_memory, 'rows': rows, 'input_sha256_before': input_hashes,
+            'pq': ({'subquantizers': faiss.downcast_index(index.storage).pq.M,
+                    'bits': faiss.downcast_index(index.storage).pq.nbits,
+                    'bytes_per_vector': faiss.downcast_index(index.storage).code_size,
+                    'sample_reconstruction_cosine': pq_agreement,
+                    'exhaustive_pq_recall_vs_raw_exact': pq_exhaustive} if compressed else None),
+            'reference': ({'index_path': str(args.reference_index),
+                           'metadata_path': str(args.reference_metadata),
+                           'disk_bytes': args.reference_index.stat().st_size,
+                           'metadata_byte_identical': True,
+                           'isolated_index_metadata_ram': reference_memory,
+                           'hnsw_rows': reference_rows} if args.reference_index else None),
             'elapsed_seconds': perf_counter() - started,
             'limitations': [
                 '50 authored questions informed by sampled corpus chunks; not independent production traffic or human relevance labels.',
@@ -462,8 +562,18 @@ def main() -> None:
                 'GTE matches 50 stored source embeddings by cosine; original uploaded build environment is unknown.',
             ],
         }
+        if compressed:
+            report['limitations'] += [
+                'PQ recall ground truth uses the original HNSWFlat vectors, not reconstructed PQ vectors.',
+                'PQ scores are approximate inner products, not exact cosine; score admissibility rescores IDs with raw vectors.',
+                'Recall vs exhaustive PQ separates graph misses from quantization ranking changes.',
+                'Full benchmark RAM temporarily includes the original HNSWFlat reference; serving RAM is sampled after releasing it.',
+            ]
     report['input_sha256_after'] = {'index': sha256(args.index), 'metadata': sha256(args.metadata),
                                     'queries': sha256(args.queries), 'notebook': sha256(NOTEBOOK)}
+    if args.reference_index:
+        report['input_sha256_after']['reference_index'] = sha256(args.reference_index)
+        report['input_sha256_after']['reference_metadata'] = sha256(args.reference_metadata)
     if report['input_sha256_after'] != input_hashes:
         raise RuntimeError('A benchmark input changed while running')
     write_json(args.output / 'report.json', report)

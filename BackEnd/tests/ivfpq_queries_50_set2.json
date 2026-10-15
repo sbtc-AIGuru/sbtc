@@ -1,0 +1,452 @@
+[
+  {
+    "query_id": "q51",
+    "text": "Quy trình hỗ trợ trẻ bị ảnh hưởng bởi HIV/AIDS gồm các bước tiếp nhận, xác định nhu cầu và đánh giá như thế nào?",
+    "source_vector_id": 51837,
+    "source_doc_id": 113961,
+    "source_sampling_seed": 43,
+    "query_kind": "corpus_informed_paraphrase",
+    "human_relevance_label": false
+  },
+  {
+    "query_id": "q52",
+    "text": "Tìm bài tử vi khuyên tuổi Tuất bớt dành thời gian cho công việc để quan tâm đến gia đình và người yêu.",
+    "source_vector_id": 67027,
+    "source_doc_id": 116412,
+    "source_sampling_seed": 43,
+    "query_kind": "corpus_informed_paraphrase",
+    "human_relevance_label": false
+  },
+  {
+    "query_id": "q53",
+    "text": "Bài viết lý giải vì sao bệnh lây truyền qua đường tình dục khó được phát hiện và việc trì hoãn sinh con có thể liên quan đến hiếm muộn?",
+    "source_vector_id": 53194,
+    "source_doc_id": 114285,
+    "source_sampling_seed": 43,
+    "query_kind": "corpus_informed_paraphrase",
+    "human_relevance_label": false
+  },
+  {
+    "query_id": "q54",
+    "text": "Bài viết phân biệt khí hư màu vàng xanh có bọt, màu trắng sệt và màu xám có mùi tanh như thế nào?",
+    "source_vector_id": 31607,
+    "source_doc_id": 108747,
+    "source_sampling_seed": 43,
+    "query_kind": "corpus_informed_paraphrase",
+    "human_relevance_label": false
+  },
+  {
+    "query_id": "q55",
+    "text": "Cơ chế gợi nhớ của trí nhớ ngắn hạn và trí nhớ dài hạn khác nhau ra sao?",
+    "source_vector_id": 32665,
+    "source_doc_id": 108996,
+    "source_sampling_seed": 43,
+    "query_kind": "corpus_informed_paraphrase",
+    "human_relevance_label": false
+  },
+  {
+    "query_id": "q56",
+    "text": "Vinamilk hỗ trợ tài chính và dinh dưỡng cho đội tuyển bóng đá nữ Việt Nam chuẩn bị SEA Games như thế nào?",
+    "source_vector_id": 26490,
+    "source_doc_id": 107549,
+    "source_sampling_seed": 43,
+    "query_kind": "corpus_informed_paraphrase",
+    "human_relevance_label": false
+  },
+  {
+    "query_id": "q57",
+    "text": "Hạn chế rượu bia và tiêm phòng viêm gan B được bài viết nhắc đến thế nào trong phòng ngừa ung thư gan?",
+    "source_vector_id": 36951,
+    "source_doc_id": 110061,
+    "source_sampling_seed": 43,
+    "query_kind": "corpus_informed_paraphrase",
+    "human_relevance_label": false
+  },
+  {
+    "query_id": "q58",
+    "text": "Trà xanh được dùng trong mặt nạ chăm sóc da dầu, da khô và da nhạy cảm với những mục đích gì?",
+    "source_vector_id": 95887,
+    "source_doc_id": 120678,
+    "source_sampling_seed": 43,
+    "query_kind": "corpus_informed_paraphrase",
+    "human_relevance_label": false
+  },
+  {
+    "query_id": "q59",
+    "text": "Tử vi tuổi Sửu ngày 6 tháng 12 năm 2021 nhận xét gì về công việc, hợp tác và thời gian dành cho gia đình?",
+    "source_vector_id": 64126,
+    "source_doc_id": 116179,
+    "source_sampling_seed": 43,
+    "query_kind": "corpus_informed_paraphrase",
+    "human_relevance_label": false
+  },
+  {
+    "query_id": "q60",
+    "text": "Bài trắc nghiệm sở thích món tráng miệng mô tả người thích trái cây và người chọn kem có tính cách gì?",
+    "source_vector_id": 16028,
+    "source_doc_id": 104842,
+    "source_sampling_seed": 43,
+    "query_kind": "corpus_informed_paraphrase",
+    "human_relevance_label": false
+  },
+  {
+    "query_id": "q61",
+    "text": "Vì sao đánh răng buổi sáng có thể gây nôn khan và bài viết đề xuất thay đổi cách chải răng như thế nào?",
+    "source_vector_id": 15230,
+    "source_doc_id": 104632,
+    "source_sampling_seed": 43,
+    "query_kind": "corpus_informed_paraphrase",
+    "human_relevance_label": false
+  },
+  {
+    "query_id": "q62",
+    "text": "Tìm bài viết về Kim Thính có ghi sản phẩm không phải thuốc và không thay thế thuốc chữa bệnh.",
+    "source_vector_id": 13526,
+    "source_doc_id": 104230,
+    "source_sampling_seed": 43,
+    "query_kind": "corpus_informed_paraphrase",
+    "human_relevance_label": false
+  },
+  {
+    "query_id": "q63",
+    "text": "Người được phỏng vấn trong bài về Ích Thận Vương mô tả thay đổi về tiểu đêm và chỉ số creatinine sau khi dùng sản phẩm thế nào?",
+    "source_vector_id": 55134,
+    "source_doc_id": 114757,
+    "source_sampling_seed": 43,
+    "query_kind": "corpus_informed_paraphrase",
+    "human_relevance_label": false
+  },
+  {
+    "query_id": "q64",
+    "text": "Bài viết nêu những yếu tố làm chân mẹ bầu sưng phù và cách kê chân cao khi ngồi làm việc ra sao?",
+    "source_vector_id": 43023,
+    "source_doc_id": 111614,
+    "source_sampling_seed": 43,
+    "query_kind": "corpus_informed_paraphrase",
+    "human_relevance_label": false
+  },
+  {
+    "query_id": "q65",
+    "text": "Sữa rửa mặt tạo bọt làm sạch lỗ chân lông như thế nào và vì sao cần chọn loại phù hợp với da?",
+    "source_vector_id": 98129,
+    "source_doc_id": 120911,
+    "source_sampling_seed": 43,
+    "query_kind": "corpus_informed_paraphrase",
+    "human_relevance_label": false
+  },
+  {
+    "query_id": "q66",
+    "text": "Nghiên cứu tại Carnegie Mellon so sánh tâm trạng của các cặp đôi tăng gấp đôi tần suất quan hệ với nhóm giữ nguyên ra sao?",
+    "source_vector_id": 45843,
+    "source_doc_id": 112465,
+    "source_sampling_seed": 43,
+    "query_kind": "corpus_informed_paraphrase",
+    "human_relevance_label": false
+  },
+  {
+    "query_id": "q67",
+    "text": "Để hạn chế trẻ nôn trớ khi bú bình và ăn, bài viết lưu ý gì về núm vú, chia bữa và quần áo?",
+    "source_vector_id": 18530,
+    "source_doc_id": 105591,
+    "source_sampling_seed": 43,
+    "query_kind": "corpus_informed_paraphrase",
+    "human_relevance_label": false
+  },
+  {
+    "query_id": "q68",
+    "text": "Bài viết về magie giải thích hạn chế của việc ăn nhiều socola đen và gợi ý những thực phẩm nào khác?",
+    "source_vector_id": 70917,
+    "source_doc_id": 117009,
+    "source_sampling_seed": 43,
+    "query_kind": "corpus_informed_paraphrase",
+    "human_relevance_label": false
+  },
+  {
+    "query_id": "q69",
+    "text": "Tìm bài tử vi nhắc Bọ Cạp bình tĩnh giải quyết trục trặc tình cảm và tránh mua sắm không cần thiết sau khi tăng lương.",
+    "source_vector_id": 60822,
+    "source_doc_id": 115726,
+    "source_sampling_seed": 43,
+    "query_kind": "corpus_informed_paraphrase",
+    "human_relevance_label": false
+  },
+  {
+    "query_id": "q70",
+    "text": "Lao phổi do vi khuẩn khác với suy kiệt vì làm việc quá sức ở nguyên nhân và cách xử lý như thế nào theo bài viết?",
+    "source_vector_id": 12285,
+    "source_doc_id": 103952,
+    "source_sampling_seed": 43,
+    "query_kind": "corpus_informed_paraphrase",
+    "human_relevance_label": false
+  },
+  {
+    "query_id": "q71",
+    "text": "Paraben được thêm vào mỹ phẩm để làm gì và những loại paraben thường gặp là gì?",
+    "source_vector_id": 96229,
+    "source_doc_id": 120718,
+    "source_sampling_seed": 43,
+    "query_kind": "corpus_informed_paraphrase",
+    "human_relevance_label": false
+  },
+  {
+    "query_id": "q72",
+    "text": "Nội soi tán sỏi qua da có ưu điểm gì so với mổ hở trong trường hợp sỏi san hô lấp đầy bể thận?",
+    "source_vector_id": 33584,
+    "source_doc_id": 109213,
+    "source_sampling_seed": 43,
+    "query_kind": "corpus_informed_paraphrase",
+    "human_relevance_label": false
+  },
+  {
+    "query_id": "q73",
+    "text": "Bài gợi ý quà tặng theo cung hoàng đạo khuyên chọn quà cho nữ Ma Kết và Bảo Bình như thế nào?",
+    "source_vector_id": 29133,
+    "source_doc_id": 108154,
+    "source_sampling_seed": 43,
+    "query_kind": "corpus_informed_paraphrase",
+    "human_relevance_label": false
+  },
+  {
+    "query_id": "q74",
+    "text": "Vì sao trời lạnh và thói quen tắm nước nóng có thể khiến da khô ngứa vào mùa đông?",
+    "source_vector_id": 31746,
+    "source_doc_id": 108782,
+    "source_sampling_seed": 43,
+    "query_kind": "corpus_informed_paraphrase",
+    "human_relevance_label": false
+  },
+  {
+    "query_id": "q75",
+    "text": "Bộ Y tế đề nghị Hiệp hội bệnh viện tư nhân tham gia góp ý văn bản chính sách và bàn về tổng mức thanh toán bảo hiểm y tế như thế nào?",
+    "source_vector_id": 14760,
+    "source_doc_id": 104516,
+    "source_sampling_seed": 43,
+    "query_kind": "corpus_informed_paraphrase",
+    "human_relevance_label": false
+  },
+  {
+    "query_id": "q76",
+    "text": "Tử vi tuổi Hợi ngày 27 tháng 9 năm 2021 dự báo những bước tiến nào trong công việc?",
+    "source_vector_id": 63963,
+    "source_doc_id": 116165,
+    "source_sampling_seed": 43,
+    "query_kind": "corpus_informed_paraphrase",
+    "human_relevance_label": false
+  },
+  {
+    "query_id": "q77",
+    "text": "Trung tâm Vú kỹ thuật cao Mammocare tại Bệnh viện Đa khoa Hà Nội hợp tác với Siemens Healthineers để hướng tới mục tiêu gì?",
+    "source_vector_id": 49213,
+    "source_doc_id": 113302,
+    "source_sampling_seed": 43,
+    "query_kind": "corpus_informed_paraphrase",
+    "human_relevance_label": false
+  },
+  {
+    "query_id": "q78",
+    "text": "Làm nước ép dưa leo với mật ong và chanh cần nguyên liệu và trình tự nào nếu chỉ có máy xay sinh tố?",
+    "source_vector_id": 90843,
+    "source_doc_id": 120166,
+    "source_sampling_seed": 43,
+    "query_kind": "corpus_informed_paraphrase",
+    "human_relevance_label": false
+  },
+  {
+    "query_id": "q79",
+    "text": "Tử vi tuổi Mùi ngày 22 tháng 10 năm 2020 nói gì về cơ hội thăng tiến và sự ghen tị nơi làm việc?",
+    "source_vector_id": 66700,
+    "source_doc_id": 116385,
+    "source_sampling_seed": 43,
+    "query_kind": "corpus_informed_paraphrase",
+    "human_relevance_label": false
+  },
+  {
+    "query_id": "q80",
+    "text": "Những dưỡng chất trong hạt óc chó được bài viết liên hệ với trí nhớ và chức năng não ở người cao tuổi như thế nào?",
+    "source_vector_id": 87901,
+    "source_doc_id": 119863,
+    "source_sampling_seed": 43,
+    "query_kind": "corpus_informed_paraphrase",
+    "human_relevance_label": false
+  },
+  {
+    "query_id": "q81",
+    "text": "Bài viết khuyên bà bầu kiểm tra nguồn gốc, thành phần và hàm lượng khi lựa chọn vitamin tổng hợp như thế nào?",
+    "source_vector_id": 70618,
+    "source_doc_id": 116939,
+    "source_sampling_seed": 43,
+    "query_kind": "corpus_informed_paraphrase",
+    "human_relevance_label": false
+  },
+  {
+    "query_id": "q82",
+    "text": "Tử vi tuổi Mùi ngày 25 tháng 2 năm 2021 đề cập cơ hội tăng lương và tiền tích góp ra sao?",
+    "source_vector_id": 66809,
+    "source_doc_id": 116394,
+    "source_sampling_seed": 43,
+    "query_kind": "corpus_informed_paraphrase",
+    "human_relevance_label": false
+  },
+  {
+    "query_id": "q83",
+    "text": "Phần sơ chế nguyên liệu hướng dẫn chuẩn bị thịt gà xay, nấm đông cô và hành lá như thế nào?",
+    "source_vector_id": 85692,
+    "source_doc_id": 119636,
+    "source_sampling_seed": 43,
+    "query_kind": "corpus_informed_paraphrase",
+    "human_relevance_label": false
+  },
+  {
+    "query_id": "q84",
+    "text": "Buồng trứng đa nang được bài viết về cặp vợ chồng chưa có con sau ba năm đề cập như thế nào?",
+    "source_vector_id": 49700,
+    "source_doc_id": 113423,
+    "source_sampling_seed": 43,
+    "query_kind": "corpus_informed_paraphrase",
+    "human_relevance_label": false
+  },
+  {
+    "query_id": "q85",
+    "text": "Bài viết giải thích mối liên hệ giữa nhiệt độ, áp suất không khí và đau đầu khi thời tiết thay đổi ra sao?",
+    "source_vector_id": 71153,
+    "source_doc_id": 117059,
+    "source_sampling_seed": 43,
+    "query_kind": "corpus_informed_paraphrase",
+    "human_relevance_label": false
+  },
+  {
+    "query_id": "q86",
+    "text": "Tìm cách nấu cháo với gừng, hành lá và tía tô được đề cập trong bài về món ăn dân gian khi cảm cúm.",
+    "source_vector_id": 56339,
+    "source_doc_id": 115043,
+    "source_sampling_seed": 43,
+    "query_kind": "corpus_informed_paraphrase",
+    "human_relevance_label": false
+  },
+  {
+    "query_id": "q87",
+    "text": "Tử vi tuổi Sửu ngày 1 tháng 9 năm 2021 nói gì về sự giúp đỡ từ đồng nghiệp và chuyện tình cảm?",
+    "source_vector_id": 65302,
+    "source_doc_id": 116275,
+    "source_sampling_seed": 43,
+    "query_kind": "corpus_informed_paraphrase",
+    "human_relevance_label": false
+  },
+  {
+    "query_id": "q88",
+    "text": "Bài viết phân biệt nước tiểu đổi màu do thức ăn, thuốc và bệnh lý như thế nào?",
+    "source_vector_id": 46171,
+    "source_doc_id": 112547,
+    "source_sampling_seed": 43,
+    "query_kind": "corpus_informed_paraphrase",
+    "human_relevance_label": false
+  },
+  {
+    "query_id": "q89",
+    "text": "Lycopene trong cà chua liên quan gì đến tim mạch và vì sao bài viết gợi ý ăn cà chua cùng chất béo tốt?",
+    "source_vector_id": 87835,
+    "source_doc_id": 119858,
+    "source_sampling_seed": 43,
+    "query_kind": "corpus_informed_paraphrase",
+    "human_relevance_label": false
+  },
+  {
+    "query_id": "q90",
+    "text": "Bộ Y tế đặt những yêu cầu nào về đạo đức, an toàn người bệnh và hiệu quả khi áp dụng kỹ thuật y khoa mới?",
+    "source_vector_id": 56793,
+    "source_doc_id": 115149,
+    "source_sampling_seed": 43,
+    "query_kind": "corpus_informed_paraphrase",
+    "human_relevance_label": false
+  },
+  {
+    "query_id": "q91",
+    "text": "Tử vi tuổi Mùi ngày 8 tháng 7 năm 2019 khuyên gì về kế hoạch chi tiêu và nhận xét ra sao về tình duyên?",
+    "source_vector_id": 62753,
+    "source_doc_id": 116010,
+    "source_sampling_seed": 43,
+    "query_kind": "corpus_informed_paraphrase",
+    "human_relevance_label": false
+  },
+  {
+    "query_id": "q92",
+    "text": "GM Diet gồm những thực phẩm nào trong ngày thứ bảy và bài viết nêu hạn chế gì về bằng chứng hiệu quả?",
+    "source_vector_id": 82995,
+    "source_doc_id": 119353,
+    "source_sampling_seed": 43,
+    "query_kind": "corpus_informed_paraphrase",
+    "human_relevance_label": false
+  },
+  {
+    "query_id": "q93",
+    "text": "Theo bài viết, ngủ sớm ảnh hưởng như thế nào đến tâm trạng, sự kiên nhẫn và cách giao tiếp?",
+    "source_vector_id": 28189,
+    "source_doc_id": 107947,
+    "source_sampling_seed": 43,
+    "query_kind": "corpus_informed_paraphrase",
+    "human_relevance_label": false
+  },
+  {
+    "query_id": "q94",
+    "text": "Beta carotene trong khoai lang chuyển hóa thành chất gì và được bài viết nhắc đến thế nào đối với làn da?",
+    "source_vector_id": 95778,
+    "source_doc_id": 120668,
+    "source_sampling_seed": 43,
+    "query_kind": "corpus_informed_paraphrase",
+    "human_relevance_label": false
+  },
+  {
+    "query_id": "q95",
+    "text": "Vì sao bài viết về viêm tụy cấp tái phát nhấn mạnh kiểm soát triglyceride và tái khám mỡ máu định kỳ?",
+    "source_vector_id": 40183,
+    "source_doc_id": 110853,
+    "source_sampling_seed": 43,
+    "query_kind": "corpus_informed_paraphrase",
+    "human_relevance_label": false
+  },
+  {
+    "query_id": "q96",
+    "text": "Bài về khàn tiếng giới thiệu Tiêu Khiết Thanh là loại sản phẩm gì và có ghi thay thế thuốc chữa bệnh không?",
+    "source_vector_id": 21066,
+    "source_doc_id": 106217,
+    "source_sampling_seed": 43,
+    "query_kind": "corpus_informed_paraphrase",
+    "human_relevance_label": false
+  },
+  {
+    "query_id": "q97",
+    "text": "Bổ sung rau củ và trái cây vào bữa sáng hoặc món canh được bài viết gợi ý thế nào để hỗ trợ kiểm soát cân nặng?",
+    "source_vector_id": 80012,
+    "source_doc_id": 119024,
+    "source_sampling_seed": 43,
+    "query_kind": "corpus_informed_paraphrase",
+    "human_relevance_label": false
+  },
+  {
+    "query_id": "q98",
+    "text": "Hoạt động chăm sóc người cao tuổi tại xã phường gồm theo dõi sức khỏe cá nhân và câu lạc bộ cộng đồng như thế nào?",
+    "source_vector_id": 76549,
+    "source_doc_id": 118292,
+    "source_sampling_seed": 43,
+    "query_kind": "corpus_informed_paraphrase",
+    "human_relevance_label": false
+  },
+  {
+    "query_id": "q99",
+    "text": "Bài viết nêu những vấn đề gì khi người có cơ địa dị ứng hoặc bệnh dạ dày ăn dứa?",
+    "source_vector_id": 43722,
+    "source_doc_id": 111839,
+    "source_sampling_seed": 43,
+    "query_kind": "corpus_informed_paraphrase",
+    "human_relevance_label": false
+  },
+  {
+    "query_id": "q100",
+    "text": "Bài viết năm 2023 về biến thể BA.2.86 nêu số đột biến so với XBB.1.5 và bằng chứng lúc đó về mức độ lây lan, bệnh nặng như thế nào?",
+    "source_vector_id": 14401,
+    "source_doc_id": 104429,
+    "source_sampling_seed": 43,
+    "query_kind": "corpus_informed_paraphrase",
+    "human_relevance_label": false
+  }
+]

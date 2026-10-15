@@ -231,6 +231,52 @@ def test_reader_is_lazy(tmp_path):
         next(reader)
 
 
+@pytest.mark.parametrize("extension", [".jsonl", ".ndjson"])
+def test_jsonl_import_stores_individual_chunks_and_preserves_metadata(manager, tmp_path, extension):
+    records = [sample_document(i) for i in range(1, 4)]
+    records[1].update(status="skipped", parents=[], children=[], reason="no_content")
+    path = tmp_path / f"merged{extension}"
+    path.write_text("\ufeff\n" + "\n\n".join(
+        json.dumps(record, ensure_ascii=False) for record in records
+    ) + "\n", encoding="utf-8")
+
+    assert list(iter_merged_documents(path)) == records
+    assert import_documents(manager, path, batch_documents=1) == (3, 4)
+    for record in records:
+        assert manager.get_document(record["doc_id"]) == record
+        for child in record["children"]:
+            assert manager.get_chunk(child["chunk_id"]) == child
+
+
+def test_jsonl_limit_does_not_read_later_invalid_record(manager, tmp_path):
+    record = sample_document()
+    path = tmp_path / "merged.jsonl"
+    path.write_text(json.dumps(record) + "\ninvalid-json\n", encoding="utf-8")
+    assert import_documents(manager, path, limit=1) == (1, 2)
+    assert manager.get_document(record["doc_id"]) == record
+
+
+@pytest.mark.parametrize("invalid", ["invalid-json", "[]", "null", "42"])
+def test_jsonl_invalid_record_reports_line_and_preserves_committed_batch(manager, tmp_path, invalid):
+    record = sample_document()
+    path = tmp_path / "merged.jsonl"
+    path.write_text(json.dumps(record) + "\n\n" + invalid + "\n", encoding="utf-8")
+    with pytest.raises(ValueError, match=r"merged\.jsonl:3"):
+        import_documents(manager, path, batch_documents=1)
+    assert manager.get_document(record["doc_id"]) == record
+
+
+def test_real_datav2_records_round_trip_as_individual_chunks(manager):
+    path = PROJECT_ROOT / "datav2" / "merged.jsonl"
+    if not path.exists():
+        pytest.skip("Local datav2/merged.jsonl dataset is not available")
+    records = list(islice(iter_merged_documents(path), 100))
+    expected_chunks = sum(len(record["children"]) for record in records)
+    assert import_documents(manager, path, batch_documents=20, limit=100) == (100, expected_chunks)
+    for record in records:
+        assert manager.get_document(record["doc_id"]) == record
+
+
 def test_real_merged_records_round_trip(manager):
     path = PROJECT_ROOT / "data" / "merged.json"
     if not path.exists():

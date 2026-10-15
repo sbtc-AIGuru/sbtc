@@ -8,7 +8,7 @@ Tham khảo cách tổ chức model, engine và session từ các file PostgreSQ
 
 Chỉ có hai bảng `document` và `chunk`, tương ứng hai model `Document`, `Chunk`.
 
-| Model | Dữ liệu từ `merged.json` |
+| Model | Dữ liệu từ `merged.json` hoặc `merged.jsonl` |
 | --- | --- |
 | `Document` | `doc_id`, `url`, `status`, `parents`, `strategy`, `version`, `doc_type`, `classification_reason`, `classification_confidence`, `raw_sha256`, `source_sha256`, `source_length`, `source_units`, `excluded_spans`, `coverage`, `structural_boundary_rate`, `input_line`, `reason` |
 | `Chunk` | `chunk_id`, `doc_id`, `parent_id`, `chunk_order`, `start_char`, `end_char`, `chunk_text`, `unit_count`, `oversized_reason`, `boundary_type`, `short_chunk_reason`, `overlap_units`, `overlap_exception`, `retrieval_eligible` |
@@ -50,9 +50,9 @@ Importer tạo bảng chưa tồn tại bằng `Base.metadata.create_all()`, kh�
 database, xóa bảng hay migrate schema hiện có. Có thể dùng `postgre_script.sql`
 để tạo schema tương đương trong database trống thay cho `init_db()`.
 
-File đầu vào phải giữ định dạng `merged.json` hiện tại: dấu `[` và `]` trên dòng
-riêng, mỗi tài liệu JSON trên một dòng. Import đọc từng tài liệu và commit theo
-batch, không nạp toàn bộ file 24,6 GB vào RAM.
+Script hỗ trợ `.jsonl`/`.ndjson` với mỗi dòng là một tài liệu JSON, và định dạng
+`merged.json` cũ với dấu `[` và `]` trên dòng riêng, mỗi tài liệu JSON trên một
+dòng. Import đọc từng tài liệu và commit theo batch, không nạp toàn bộ file vào RAM.
 
 ```bash
 # Thử trên một database trống riêng với 100 tài liệu.
@@ -63,6 +63,45 @@ python -m BackEnd.app.Database.import_merged \
   --data-path data/merged.json --batch-documents 100 --max-batch-chunks 5000
 ```
 
+### Import bộ dữ liệu datav2 theo từng chunk
+
+Chạy từ `/home/nhminh/AI_Project/sbtc`, sau khi cấu hình `DATABASE_URL`:
+
+```bash
+source ~/miniconda3/etc/profile.d/conda.sh
+conda activate DL_Env
+python -m BackEnd.app.Database.import_merged \
+  --data-path /home/nhminh/AI_Project/sbtc/datav2/merged.jsonl \
+  --batch-documents 100 \
+  --max-batch-chunks 5000
+```
+
+Mỗi phần tử `children[]` được ghi thành **một dòng riêng trong bảng `chunk`**,
+với `chunk_id` là khóa chính, `chunk_text` là nội dung và `doc_id` liên kết về
+bảng `document`. Một tài liệu có nhiều children sẽ tạo nhiều dòng chunk.
+Metadata mới của datav2 như `boundary_reason`, `section_paths`,
+`content_languages` và `protected_span_checks` được giữ trong `chunk.extra_data`;
+metadata cấp tài liệu được giữ trong các cột tương ứng hoặc `document.extra_data`.
+Không lọc bỏ chunk có `retrieval_eligible=false`.
+
+Nếu nhập vào hai bảng trống và hoàn tất toàn bộ datav2, số lượng dự kiến là
+**1.220.598 document**, **4.342.218 chunk** và **1.632.801 parent** trong
+`document.parents`. Có thể kiểm tra sau khi nhập:
+
+```sql
+SELECT COUNT(*) AS documents FROM document;
+SELECT COUNT(*) AS chunks FROM chunk;
+
+SELECT c.chunk_id, c.doc_id, d.url, c.parent_id, c.chunk_text,
+       c.retrieval_eligible, c.extra_data
+FROM chunk AS c
+JOIN document AS d ON d.doc_id = c.doc_id
+ORDER BY c.doc_id, c.source_position
+LIMIT 10;
+```
+
+Các số lượng này áp dụng cho datav2; bộ `data/merged.json` cũ có số lượng khác.
+
 Một tài liệu luôn được import cùng toàn bộ children trong một transaction; tài
 liệu lớn có thể vượt `max-batch-chunks`. RAM phụ thuộc kích thước batch và tài
 liệu lớn nhất. Các lệnh INSERT được chia thành nhóm tối đa 1.000 row.
@@ -72,7 +111,7 @@ ID trùng gây lỗi và rollback **batch đang chạy**, không ghi đè dữ l
 database rồi import đầy đủ; dùng database trống riêng cho mỗi lần. Script này
 chưa cung cấp chức năng resume hoặc tự bỏ qua ID đã tồn tại.
 
-Theo kiểm tra toàn bộ file hiện tại, nếu import đầy đủ thành công sẽ có:
+Với bộ `data/merged.json` cũ, theo kiểm tra toàn bộ file, nếu import đầy đủ thành công sẽ có:
 
 - **3.472.347 document**, gồm 142.164 tài liệu `skipped`.
 - **19.157.144 chunk**.

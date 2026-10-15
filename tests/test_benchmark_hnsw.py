@@ -12,6 +12,8 @@ from BackEnd.tests.benchmark_hnsw import (
     latency_benchmark,
     per_query_recall,
     score_admissibility,
+    reference_scores,
+    validate_reference,
     validate_index,
     write_json,
 )
@@ -106,3 +108,33 @@ def test_reports_do_not_overwrite_existing_files(tmp_path: Path) -> None:
     with pytest.raises(FileExistsError):
         write_json(path, {"replacement": True})
     assert path.read_text().find('"existing": true') != -1
+
+
+def test_pq_requires_raw_ground_truth_and_rescores_original_vectors() -> None:
+    previous_threads = faiss.omp_get_max_threads()
+    faiss.omp_set_num_threads(1)
+    try:
+        vectors = np.random.default_rng(19).normal(size=(512, 64)).astype(np.float32)
+        faiss.normalize_L2(vectors)
+        pq = faiss.IndexHNSWPQ(64, 64, 8, 8, faiss.METRIC_INNER_PRODUCT)
+        storage = faiss.downcast_index(pq.storage)
+        storage.pq.cp.niter = 3
+        storage.pq.cp.min_points_per_centroid = 1
+        pq.train(vectors)
+        pq.add(vectors)
+        raw = faiss.IndexHNSWFlat(64, 8, faiss.METRIC_INNER_PRODUCT)
+        raw.add(vectors)
+        metadata = {str(i): {"doc_id": i} for i in range(len(vectors))}
+        validate_index(pq, metadata)
+        validate_reference(raw, pq, metadata)
+        with pytest.raises(ValueError, match="not PQ reconstructions"):
+            build_exact_index(pq)
+        with pytest.raises(ValueError, match="uncompressed"):
+            validate_reference(pq, pq, metadata)
+        ids = np.array([[0, 1, -1], [4, 2, 3]])
+        scored = reference_scores(raw, vectors[:2], ids)
+        assert scored[0, 2] == -np.inf
+        for row, col in [(0, 0), (0, 1), (1, 0), (1, 1), (1, 2)]:
+            assert scored[row, col] == pytest.approx(vectors[row] @ vectors[ids[row, col]], abs=1e-6)
+    finally:
+        faiss.omp_set_num_threads(previous_threads)
