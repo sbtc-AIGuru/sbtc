@@ -4,9 +4,10 @@ from __future__ import annotations
 
 import asyncio
 from dataclasses import dataclass
+import random
 import re
-from time import monotonic
-from urllib.parse import urlsplit
+from time import monotonic, time
+from urllib.parse import urlsplit, urlunsplit
 
 from crawl4ai import AsyncWebCrawler, CrawlerRunConfig
 
@@ -17,9 +18,13 @@ from pagination import (
     wujue_page_markdown,
     wujue_page_number,
 )
-from quality import ARTICLE_LAYOUTS, http_article_error
+from quality import article_content_issue, article_metadata, http_article_error, minimum_article_characters
 from utils import SourceRecord
 from verbatim import clean_to_verbatim
+from fetch_policy import (
+    DeferredRequest, active_controller, attempt_trace, classify_error,
+    default_policy, error_status, record_attempt, retry_after_seconds,
+)
 
 
 MAX_BROWSER_RETRIES = 3
@@ -42,10 +47,10 @@ BOILERPLATE_PATTERNS = (
 )
 
 
-def is_boilerplate_text(text: str) -> bool:
+def is_boilerplate_text(text: str, minimum_characters: int = 40) -> bool:
     """Determine whether cleaned text is empty, too short, or merely a boilerplate disclaimer/error."""
     stripped = text.strip()
-    if len(stripped) < 40:
+    if len(stripped) < minimum_characters:
         return True
     if len(stripped) < 250:
         for pat in BOILERPLATE_PATTERNS:
@@ -99,8 +104,6 @@ def is_browser_disconnected(error: str) -> bool:
 
 def page_error(text: str) -> str | None:
     """Recognize short browser challenge or application error pages."""
-    if len(text) > 600:
-        return None
     content = text.lstrip("# \n").lower()
     if (
         content.startswith(("checking your browser", "this will only take a few seconds", "just a moment"))
@@ -108,6 +111,8 @@ def page_error(text: str) -> str | None:
         or "security service to protect against malicious bots" in content
         or "attention required! | cloudflare" in content
         or "verify you are human" in content
+        or "请完成安全验证" in content
+        or "访问过于频繁" in content
     ):
         return "Browser verification page instead of article content"
     if content.startswith("application error:"):
@@ -130,12 +135,15 @@ def homepage_redirect_error(url: str, result: object) -> str | None:
 
 def http_fetch_url(record: SourceRecord) -> str:
     """Avoid slower HTTP-to-HTTPS redirects while preserving the source URL."""
+    parsed = urlsplit(record.url)
+    if parsed.hostname == "ask.familydoctor.com.cn" and parsed.path.startswith("/q/"):
+        # The legacy question host redirects to this public canonical host.
+        return urlunsplit(("https", "www.familydoctor.com.cn", parsed.path, parsed.query, parsed.fragment))
     if record.url.startswith("http://"):
         host = (urlsplit(record.url).hostname or "").removeprefix("www.")
         if (
-            host in {"cnkang.com", "familydoctor.com.cn", "120ask.com", "zhongyibaodian.net"}
+            host in {"cnkang.com", "120ask.com", "zhongyibaodian.net"}
             or host.endswith(".39.net")
-            or host.endswith(".familydoctor.com.cn")
             or host.endswith(".120ask.com")
         ):
             return "https://" + record.url[len("http://") :]
@@ -151,29 +159,47 @@ async def _fetch_with_strategy(
     config: CrawlerRunConfig,
     strategy: str,
 ) -> tuple[str | None, str, int, object | None]:
-    """Retry one strategy without occupying a concurrency slot during backoff."""
+    """Pace every actual request and avoid retrying source denials in a burst."""
     max_retries = MAX_HTTP_RETRIES if strategy == "http" else MAX_BROWSER_RETRIES
+    controller = active_controller.get()
+    if controller is not None:
+        _, policy = controller.policy(record.url)
+        max_retries = min(max_retries, policy.max_attempts - 1)
     error_message = "Unknown crawl error"
+    attempts = 0
     for attempt in range(max_retries + 1):
         status: int | None = None
+        retry_after = None
+        final_url = request_url
+        request_started = monotonic()
+        requested = False
         try:
-            async with semaphore:
+            admission = controller.request(record.url, semaphore) if controller else semaphore
+            async with admission:
+                request_started = monotonic()
+                requested = True
+                attempts += 1
                 result = await asyncio.wait_for(
                     crawler.arun(url=request_url, config=config),
                     timeout=REQUEST_TIMEOUT_SECONDS,
                 )
-            status = getattr(result, "status_code", None)
+            status = getattr(result, "redirected_status_code", None) or getattr(result, "status_code", None)
+            headers = getattr(result, "response_headers", None) or {}
+            retry_after = next((str(value) for key, value in headers.items() if key.lower() == "retry-after"), None)
+            final_url = getattr(result, "redirected_url", None) or request_url
             redirect_error = homepage_redirect_error(record.url, result)
             if redirect_error:
-                return None, redirect_error, attempt + 1, None
-            content_error = None
-            if getattr(result, "success", False):
-                for text in get_markdown_candidates(result):
+                error_message = redirect_error
+                return None, error_message, attempts, None
+            content_error = article_content_issue(domain, result, record.url) if status == 200 else None
+            if getattr(result, "success", False) and (status is None or status < 400):
+                for text in get_markdown_candidates(result) if content_error is None else ():
                     content_error = page_error(text)
-                    if content_error is None and strategy == "http":
+                    if content_error is None:
                         content_error = http_article_error(domain, result, text)
                     if content_error is None:
-                        return text, "", attempt + 1, result
+                        error_message = ""
+                        return text, "", attempts, result
             error_message = content_error or str(getattr(result, "error_message", "") or "")
             if not error_message:
                 error_message = "Empty Markdown" if getattr(result, "success", False) else f"HTTP {status or 'unknown'}"
@@ -185,6 +211,13 @@ async def _fetch_with_strategy(
                 break
             if not is_transient_status(status):
                 break
+            if classify_error(status, error_message) in {"unsupported_content", "robots_denied", "configuration_error"}:
+                break
+            if controller is not None and (status == 429 or retry_after is not None):
+                break
+        except DeferredRequest as error:
+            error_message = f"DeferredRequest: {error}"
+            break
         except Exception as error:
             error_message = f"{type(error).__name__}: {error}"
             status = getattr(error, "status_code", None) or _status_from_error(error_message)
@@ -192,9 +225,26 @@ async def _fetch_with_strategy(
                 break
             if not is_transient_status(status):
                 break
+            if classify_error(status, error_message) in {"unsupported_content", "robots_denied", "configuration_error"}:
+                break
+        finally:
+            if requested:
+                if controller is not None:
+                    controller.observe(record.url, status, error_message, retry_after)
+                record_attempt({
+                    "row_index": record.row_index, "id": record.id,
+                    "source_url": record.url,
+                    "request_url": request_url, "final_url": final_url,
+                    "mode": strategy, "status_code": status,
+                    "error_kind": classify_error(status, error_message),
+                    "error": error_message, "retry_after": retry_after,
+                    "elapsed_seconds": monotonic() - request_started,
+                    "finished_at": time(),
+                })
         if attempt < max_retries:
-            await asyncio.sleep(2**attempt)
-    return None, error_message, attempt + 1, None
+            server_wait = retry_after_seconds(retry_after)
+            await asyncio.sleep(max(server_wait or 0.0, 2**attempt * random.uniform(0.75, 1.25)))
+    return None, error_message, attempts, None
 
 
 async def _fetch_wujue_subpage(
@@ -294,7 +344,7 @@ async def _complete_wujue_article(
     return "\n\n".join(parts), "", attempts, used_browser, len(pages)
 
 
-async def crawl_one(
+async def _crawl_one(
     record: SourceRecord,
     browser: AsyncWebCrawler | None,
     http: AsyncWebCrawler | None,
@@ -313,12 +363,15 @@ async def crawl_one(
         "text": "",
     }
     try:
-        domain = (urlsplit(record.url).hostname or "").removeprefix("www.")
+        domain = (urlsplit(record.url).hostname or "").lower().removeprefix("www.")
     except ValueError as error:
         domain = ""
         validation_error = f"Invalid URL: {error}"
     else:
-        validation_error = None if record.url.startswith(("http://", "https://")) else "Missing or unsupported URL"
+        validation_error = None if domain and record.url.startswith(("http://", "https://")) else "Missing or unsupported URL"
+        parsed = urlsplit(record.url)
+        if validation_error is None and not parsed.path.strip("/") and not parsed.query:
+            validation_error = "Invalid URL: source points to a homepage, not an article"
     if validation_error:
         payload.update(success=False, error=validation_error)
         return CrawlOutcome(record, payload, "none", monotonic() - started, 0, False)
@@ -328,7 +381,10 @@ async def crawl_one(
         config = domain_configs["nhathuoclongchau.com.vn/benh"]
     if config is None and domain.endswith(".39.net"):
         config = domain_configs["39.net"]
+    if config is None and domain.endswith(".familydoctor.com.cn"):
+        config = domain_configs.get("familydoctor.com.cn")
     config = config or run_config
+    minimum_characters = minimum_article_characters(domain)
 
     attempts = 0
     http_error = ""
@@ -366,16 +422,21 @@ async def crawl_one(
                 except Exception as error:
                     http_error = f"Text cleaning failed: {type(error).__name__}: {error}"
                 else:
-                    if is_boilerplate_text(verbatim_text):
+                    if is_boilerplate_text(verbatim_text, minimum_characters):
                         http_error = "Empty or boilerplate text after cleaning"
                     else:
                         payload.update(text=verbatim_text, success=True)
+                        payload.update(article_metadata(domain, result))
                         return CrawlOutcome(
                             record, payload, "browser" if used_browser else "http",
                             monotonic() - started, attempts, used_browser,
                             "Wujue numbered page required Chromium" if used_browser else "",
                         )
-        if fetch_mode == "http":
+        trace = attempt_trace.get() or []
+        status = trace[-1]["status_code"] if trace else error_status(http_error)
+        if fetch_mode == "http" or classify_error(status, http_error) in {
+            "rate_limited", "access_denied", "challenge", "not_found", "deferred", "invalid_url", "robots_denied", "unsupported_content", "configuration_error", "server_error",
+        }:
             payload.update(success=False, text="", error=http_error)
             return CrawlOutcome(record, payload, "http", monotonic() - started, attempts, False)
 
@@ -406,8 +467,9 @@ async def crawl_one(
                 browser_error = f"Text cleaning failed: {type(error).__name__}: {error}"
                 text = None
             else:
-                if not is_boilerplate_text(verbatim_text):
+                if not is_boilerplate_text(verbatim_text, minimum_characters):
                     payload.update(text=verbatim_text, success=True)
+                    payload.update(article_metadata(domain, result))
                 else:
                     browser_error = "Empty or boilerplate text after cleaning"
                     text = None
@@ -418,3 +480,53 @@ async def crawl_one(
         record, payload, "browser", monotonic() - started, attempts,
         http_attempted, http_error,
     )
+
+
+async def crawl_one(
+    record: SourceRecord,
+    browser: AsyncWebCrawler | None,
+    http: AsyncWebCrawler | None,
+    browser_semaphore: asyncio.Semaphore,
+    http_semaphore: asyncio.Semaphore,
+    run_config: CrawlerRunConfig,
+    domain_configs: dict[str, CrawlerRunConfig],
+    fetch_mode: str,
+) -> CrawlOutcome:
+    """Attach bounded request diagnostics to the final document outcome."""
+    trace: list[dict[str, object]] = []
+    token = attempt_trace.set(trace)
+    try:
+        if fetch_mode == "auto":
+            controller = active_controller.get()
+            try:
+                host = (urlsplit(record.url).hostname or "").lower().removeprefix("www.")
+            except ValueError:
+                host = ""
+            policy = controller.policy(record.url)[1] if controller is not None and host else default_policy(host)
+            preferred = policy.fetch_mode if policy.fetch_mode != "auto" else default_policy(host).fetch_mode
+            if preferred != "auto":
+                fetch_mode = preferred
+        outcome = await _crawl_one(
+            record, browser, http, browser_semaphore, http_semaphore,
+            run_config, domain_configs, fetch_mode,
+        )
+        payload = outcome.payload
+        last = trace[-1] if trace else {}
+        status = last.get("status_code") or error_status(str(payload.get("error", "")))
+        kind = "success" if payload.get("success") else classify_error(status, str(payload.get("error", "")))
+        payload.update(
+            mode=outcome.mode, attempts=outcome.attempts,
+            status_code=status, error_kind=kind,
+            elapsed_seconds=outcome.elapsed_seconds,
+            used_fallback=outcome.used_fallback,
+            final_url=last.get("final_url", record.url),
+        )
+        controller = active_controller.get()
+        if controller is not None and not payload.get("success"):
+            payload["next_retry_at"] = max(time() + 60, controller.retry_at(record.url))
+            state, _ = controller.state(record.url)
+            payload["source_retry_at"] = controller.retry_at(record.url) if state.cooldown_until > monotonic() else 0
+            payload["source_interval_seconds"] = state.interval
+        return outcome
+    finally:
+        attempt_trace.reset(token)
