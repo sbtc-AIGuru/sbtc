@@ -1,0 +1,13 @@
+run_dir = "artifacts/retrieval/recall-first-full"
+input_dir = "data_final/chunks_format_v3_final"
+# Empty scope explicitly disables test-only scope for production build.
+scope = ""
+# User selected 1,220,598 URLs on 2026-10-15; file SHA256 recorded in README.
+corpus = "newcorpus/links_corpus_vi_en_zh.parquet"
+k1 = 0.8
+b = 0.4
+threads = 2
+per_language_docs = 300
+per_language_chunks = 1000
+max_docs = 1000
+max_chunks = 3000

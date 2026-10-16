@@ -1,0 +1,6 @@
+# Isolated taxonomy toolchain; does not replace Retrieval/requirements.txt.
+requests==2.34.2
+opencc-python-reimplemented==0.1.7
+pyahocorasick==2.2.0
+# User approved 2026-10-17: read original NHC .xls without format conversion.
+xlrd==2.0.2

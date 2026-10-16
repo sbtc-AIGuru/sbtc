@@ -1,0 +1,1907 @@
+{
+  "metadata": {
+    "version": "curated-20261015-vncore-communicable-v1",
+    "production_ready": false,
+    "description": "12 team-authored seed concepts plus 80 code-grounded Vietnamese-English communicable-disease concepts from VN Core FHIR 0.10.0. Chinese labels are not inferred. Source attribution/notices are recorded; independent resource-rights review remains pending.",
+    "added_source_snapshot": {
+      "source_id": "vi_fhir_communicable_disease",
+      "canonical": "http://fhir.hl7.org.vn/core/CodeSystem/vn-communicable-disease-cs",
+      "version": "0.10.0",
+      "sha256": "5f1160ec05482c195805c127246fa5265bb19099c0614bea123d3ebc5c9fda05",
+      "selected_concepts": 80,
+      "excluded_codes": [
+        "A15"
+      ],
+      "attribution": "Omi HealthTech / VN Core FHIR Community Initiative",
+      "copyright_notice": "Bộ Y tế Việt Nam — QĐ 1965/QĐ-BYT ngày 01/7/2026, Phụ lục: Danh mục bệnh truyền nhiễm thuộc các nhóm bệnh truyền nhiễm (khoản 4 Điều 15 Luật Phòng bệnh 114/2025/QH15).",
+      "rights_status": "CC-BY-4.0 declared at package level; independent resource-level review pending"
+    }
+  },
+  "concepts": [
+    {
+      "concept_id": "local:diabetes",
+      "type": "disease",
+      "labels": {
+        "vi": [
+          "đái tháo đường",
+          "tiểu đường"
+        ],
+        "en": [
+          "diabetes mellitus",
+          "diabetes"
+        ],
+        "zh": [
+          "糖尿病"
+        ]
+      },
+      "aliases": {
+        "vi": [
+          "ĐTĐ"
+        ]
+      },
+      "source": "user-supplied terminology 2026-10-15; team translation seed",
+      "license": "team-authored"
+    },
+    {
+      "concept_id": "local:hypertension",
+      "type": "disease",
+      "labels": {
+        "vi": [
+          "tăng huyết áp"
+        ],
+        "en": [
+          "hypertension"
+        ],
+        "zh": [
+          "高血压"
+        ]
+      },
+      "aliases": {
+        "vi": [
+          "THA"
+        ]
+      },
+      "source": "user-supplied terminology 2026-10-15; team translation seed",
+      "license": "team-authored"
+    },
+    {
+      "concept_id": "local:chronic_kidney_disease",
+      "type": "disease",
+      "labels": {
+        "vi": [
+          "suy thận mạn"
+        ],
+        "en": [
+          "chronic kidney disease",
+          "chronic renal failure"
+        ],
+        "zh": [
+          "慢性肾病",
+          "慢性肾衰竭"
+        ]
+      },
+      "source": "user-supplied terminology 2026-10-15; team translation seed",
+      "license": "team-authored"
+    },
+    {
+      "concept_id": "local:renal_failure",
+      "type": "disease",
+      "labels": {
+        "vi": [
+          "suy thận"
+        ],
+        "en": [
+          "renal failure",
+          "kidney failure"
+        ],
+        "zh": [
+          "肾衰竭"
+        ]
+      },
+      "source": "user-supplied terminology 2026-10-15; team translation seed",
+      "license": "team-authored"
+    },
+    {
+      "concept_id": "local:pneumonia",
+      "type": "disease",
+      "labels": {
+        "vi": [
+          "viêm phổi"
+        ],
+        "en": [
+          "pneumonia"
+        ],
+        "zh": [
+          "肺炎"
+        ]
+      },
+      "source": "user-supplied terminology 2026-10-15; team translation seed",
+      "license": "team-authored"
+    },
+    {
+      "concept_id": "local:community_pneumonia",
+      "type": "disease",
+      "labels": {
+        "vi": [
+          "viêm phổi mắc phải cộng đồng"
+        ],
+        "en": [
+          "community-acquired pneumonia"
+        ],
+        "zh": [
+          "社区获得性肺炎"
+        ]
+      },
+      "aliases": {
+        "vi": [
+          "VKPCĐ"
+        ],
+        "en": [
+          "CAP"
+        ]
+      },
+      "ambiguous_aliases": [
+        "CAP"
+      ],
+      "source": "user-supplied terminology 2026-10-15; team translation seed; intentionally no unverified MeSH ID",
+      "license": "team-authored"
+    },
+    {
+      "concept_id": "local:myocardial_infarction",
+      "type": "disease",
+      "labels": {
+        "vi": [
+          "nhồi máu cơ tim"
+        ],
+        "en": [
+          "myocardial infarction"
+        ],
+        "zh": [
+          "心肌梗死"
+        ]
+      },
+      "aliases": {
+        "en": [
+          "MI"
+        ]
+      },
+      "ambiguous_aliases": [
+        "MI"
+      ],
+      "source": "user-supplied terminology 2026-10-15; team translation seed",
+      "license": "team-authored"
+    },
+    {
+      "concept_id": "local:copd",
+      "type": "disease",
+      "labels": {
+        "vi": [
+          "bệnh phổi tắc nghẽn mạn tính"
+        ],
+        "en": [
+          "chronic obstructive pulmonary disease",
+          "COPD"
+        ],
+        "zh": [
+          "慢性阻塞性肺疾病",
+          "慢阻肺"
+        ]
+      },
+      "aliases": {
+        "en": [
+          "COLD"
+        ]
+      },
+      "ambiguous_aliases": [
+        "COLD"
+      ],
+      "source": "user-supplied terminology 2026-10-15; team translation seed",
+      "license": "team-authored"
+    },
+    {
+      "concept_id": "local:stroke",
+      "type": "disease",
+      "labels": {
+        "vi": [
+          "đột quỵ",
+          "tai biến mạch máu não"
+        ],
+        "en": [
+          "stroke"
+        ],
+        "zh": [
+          "脑卒中"
+        ]
+      },
+      "source": "user-supplied terminology 2026-10-15; team translation seed",
+      "license": "team-authored"
+    },
+    {
+      "concept_id": "local:paracetamol",
+      "type": "drug",
+      "labels": {
+        "vi": [
+          "paracetamol"
+        ],
+        "en": [
+          "paracetamol",
+          "acetaminophen"
+        ],
+        "zh": [
+          "对乙酰氨基酚"
+        ]
+      },
+      "source": "user-supplied INN example 2026-10-15; team translation seed",
+      "license": "team-authored"
+    },
+    {
+      "concept_id": "local:metformin",
+      "type": "drug",
+      "labels": {
+        "vi": [
+          "metformin"
+        ],
+        "en": [
+          "metformin"
+        ],
+        "zh": [
+          "二甲双胍"
+        ]
+      },
+      "source": "user-supplied INN example 2026-10-15; team translation seed",
+      "license": "team-authored"
+    },
+    {
+      "concept_id": "local:amoxicillin",
+      "type": "drug",
+      "labels": {
+        "vi": [
+          "amoxicillin"
+        ],
+        "en": [
+          "amoxicillin"
+        ],
+        "zh": [
+          "阿莫西林"
+        ]
+      },
+      "source": "user-supplied INN example 2026-10-15; team translation seed",
+      "license": "team-authored"
+    },
+    {
+      "concept_id": "vncore:vn-communicable-disease:A01",
+      "type": "communicable_disease",
+      "code_system": "http://fhir.hl7.org.vn/core/CodeSystem/vn-communicable-disease-cs",
+      "code": "A01",
+      "labels": {
+        "vi": [
+          "Bệnh bại liệt"
+        ],
+        "en": [
+          "Poliomyelitis"
+        ]
+      },
+      "source": "VN Core FHIR 0.10.0; http://fhir.hl7.org.vn/core/CodeSystem/vn-communicable-disease-cs#A01; source SHA-256 5f1160ec05482c195805c127246fa5265bb19099c0614bea123d3ebc5c9fda05",
+      "license": "CC-BY-4.0 declared at package level; attribution required to Omi HealthTech / VN Core FHIR Community Initiative; resource-level rights review remains pending.",
+      "rights_status": "package_license_declared; source_notice_preserved; independent_rights_review_pending",
+      "aliases": {
+        "vi": [
+          "bại liệt"
+        ]
+      }
+    },
+    {
+      "concept_id": "vncore:vn-communicable-disease:A02",
+      "type": "communicable_disease",
+      "code_system": "http://fhir.hl7.org.vn/core/CodeSystem/vn-communicable-disease-cs",
+      "code": "A02",
+      "labels": {
+        "vi": [
+          "Bệnh dịch hạch"
+        ],
+        "en": [
+          "Plague"
+        ]
+      },
+      "source": "VN Core FHIR 0.10.0; http://fhir.hl7.org.vn/core/CodeSystem/vn-communicable-disease-cs#A02; source SHA-256 5f1160ec05482c195805c127246fa5265bb19099c0614bea123d3ebc5c9fda05",
+      "license": "CC-BY-4.0 declared at package level; attribution required to Omi HealthTech / VN Core FHIR Community Initiative; resource-level rights review remains pending.",
+      "rights_status": "package_license_declared; source_notice_preserved; independent_rights_review_pending",
+      "aliases": {
+        "vi": [
+          "dịch hạch"
+        ]
+      }
+    },
+    {
+      "concept_id": "vncore:vn-communicable-disease:A03",
+      "type": "communicable_disease",
+      "code_system": "http://fhir.hl7.org.vn/core/CodeSystem/vn-communicable-disease-cs",
+      "code": "A03",
+      "labels": {
+        "vi": [
+          "Bệnh do vi rút cúm A(H5N1)"
+        ],
+        "en": [
+          "Influenza A(H5N1)"
+        ]
+      },
+      "source": "VN Core FHIR 0.10.0; http://fhir.hl7.org.vn/core/CodeSystem/vn-communicable-disease-cs#A03; source SHA-256 5f1160ec05482c195805c127246fa5265bb19099c0614bea123d3ebc5c9fda05",
+      "license": "CC-BY-4.0 declared at package level; attribution required to Omi HealthTech / VN Core FHIR Community Initiative; resource-level rights review remains pending.",
+      "rights_status": "package_license_declared; source_notice_preserved; independent_rights_review_pending",
+      "aliases": {
+        "en": [
+          "H5N1"
+        ]
+      }
+    },
+    {
+      "concept_id": "vncore:vn-communicable-disease:A04",
+      "type": "communicable_disease",
+      "code_system": "http://fhir.hl7.org.vn/core/CodeSystem/vn-communicable-disease-cs",
+      "code": "A04",
+      "labels": {
+        "vi": [
+          "Bệnh do vi rút cúm A(H5N6)"
+        ],
+        "en": [
+          "Influenza A(H5N6)"
+        ]
+      },
+      "source": "VN Core FHIR 0.10.0; http://fhir.hl7.org.vn/core/CodeSystem/vn-communicable-disease-cs#A04; source SHA-256 5f1160ec05482c195805c127246fa5265bb19099c0614bea123d3ebc5c9fda05",
+      "license": "CC-BY-4.0 declared at package level; attribution required to Omi HealthTech / VN Core FHIR Community Initiative; resource-level rights review remains pending.",
+      "rights_status": "package_license_declared; source_notice_preserved; independent_rights_review_pending",
+      "aliases": {
+        "en": [
+          "H5N6"
+        ]
+      }
+    },
+    {
+      "concept_id": "vncore:vn-communicable-disease:A05",
+      "type": "communicable_disease",
+      "code_system": "http://fhir.hl7.org.vn/core/CodeSystem/vn-communicable-disease-cs",
+      "code": "A05",
+      "labels": {
+        "vi": [
+          "Bệnh do vi rút cúm A(H7N9)"
+        ],
+        "en": [
+          "Influenza A(H7N9)"
+        ]
+      },
+      "source": "VN Core FHIR 0.10.0; http://fhir.hl7.org.vn/core/CodeSystem/vn-communicable-disease-cs#A05; source SHA-256 5f1160ec05482c195805c127246fa5265bb19099c0614bea123d3ebc5c9fda05",
+      "license": "CC-BY-4.0 declared at package level; attribution required to Omi HealthTech / VN Core FHIR Community Initiative; resource-level rights review remains pending.",
+      "rights_status": "package_license_declared; source_notice_preserved; independent_rights_review_pending",
+      "aliases": {
+        "en": [
+          "H7N9"
+        ]
+      }
+    },
+    {
+      "concept_id": "vncore:vn-communicable-disease:A06",
+      "type": "communicable_disease",
+      "code_system": "http://fhir.hl7.org.vn/core/CodeSystem/vn-communicable-disease-cs",
+      "code": "A06",
+      "labels": {
+        "vi": [
+          "Bệnh do vi rút cúm A(H9N2)"
+        ],
+        "en": [
+          "Influenza A(H9N2)"
+        ]
+      },
+      "source": "VN Core FHIR 0.10.0; http://fhir.hl7.org.vn/core/CodeSystem/vn-communicable-disease-cs#A06; source SHA-256 5f1160ec05482c195805c127246fa5265bb19099c0614bea123d3ebc5c9fda05",
+      "license": "CC-BY-4.0 declared at package level; attribution required to Omi HealthTech / VN Core FHIR Community Initiative; resource-level rights review remains pending.",
+      "rights_status": "package_license_declared; source_notice_preserved; independent_rights_review_pending",
+      "aliases": {
+        "en": [
+          "H9N2"
+        ]
+      }
+    },
+    {
+      "concept_id": "vncore:vn-communicable-disease:A07",
+      "type": "communicable_disease",
+      "code_system": "http://fhir.hl7.org.vn/core/CodeSystem/vn-communicable-disease-cs",
+      "code": "A07",
+      "labels": {
+        "vi": [
+          "Bệnh do vi rút Ebola"
+        ],
+        "en": [
+          "Ebola virus disease (Ebola hemorrhagic fever)"
+        ]
+      },
+      "source": "VN Core FHIR 0.10.0; http://fhir.hl7.org.vn/core/CodeSystem/vn-communicable-disease-cs#A07; source SHA-256 5f1160ec05482c195805c127246fa5265bb19099c0614bea123d3ebc5c9fda05",
+      "license": "CC-BY-4.0 declared at package level; attribution required to Omi HealthTech / VN Core FHIR Community Initiative; resource-level rights review remains pending.",
+      "rights_status": "package_license_declared; source_notice_preserved; independent_rights_review_pending",
+      "aliases": {
+        "en": [
+          "Ebola hemorrhagic fever"
+        ]
+      }
+    },
+    {
+      "concept_id": "vncore:vn-communicable-disease:A08",
+      "type": "communicable_disease",
+      "code_system": "http://fhir.hl7.org.vn/core/CodeSystem/vn-communicable-disease-cs",
+      "code": "A08",
+      "labels": {
+        "vi": [
+          "Bệnh do vi rút Lassa"
+        ],
+        "en": [
+          "Lassa virus disease (Lassa hemorrhagic fever)"
+        ]
+      },
+      "source": "VN Core FHIR 0.10.0; http://fhir.hl7.org.vn/core/CodeSystem/vn-communicable-disease-cs#A08; source SHA-256 5f1160ec05482c195805c127246fa5265bb19099c0614bea123d3ebc5c9fda05",
+      "license": "CC-BY-4.0 declared at package level; attribution required to Omi HealthTech / VN Core FHIR Community Initiative; resource-level rights review remains pending.",
+      "rights_status": "package_license_declared; source_notice_preserved; independent_rights_review_pending",
+      "aliases": {
+        "en": [
+          "Lassa hemorrhagic fever"
+        ]
+      }
+    },
+    {
+      "concept_id": "vncore:vn-communicable-disease:A09",
+      "type": "communicable_disease",
+      "code_system": "http://fhir.hl7.org.vn/core/CodeSystem/vn-communicable-disease-cs",
+      "code": "A09",
+      "labels": {
+        "vi": [
+          "Bệnh do vi rút Marburg"
+        ],
+        "en": [
+          "Marburg virus disease (Marburg hemorrhagic fever)"
+        ]
+      },
+      "source": "VN Core FHIR 0.10.0; http://fhir.hl7.org.vn/core/CodeSystem/vn-communicable-disease-cs#A09; source SHA-256 5f1160ec05482c195805c127246fa5265bb19099c0614bea123d3ebc5c9fda05",
+      "license": "CC-BY-4.0 declared at package level; attribution required to Omi HealthTech / VN Core FHIR Community Initiative; resource-level rights review remains pending.",
+      "rights_status": "package_license_declared; source_notice_preserved; independent_rights_review_pending",
+      "aliases": {
+        "en": [
+          "Marburg hemorrhagic fever"
+        ]
+      }
+    },
+    {
+      "concept_id": "vncore:vn-communicable-disease:A10",
+      "type": "communicable_disease",
+      "code_system": "http://fhir.hl7.org.vn/core/CodeSystem/vn-communicable-disease-cs",
+      "code": "A10",
+      "labels": {
+        "vi": [
+          "Bệnh do vi rút Nipah"
+        ],
+        "en": [
+          "Nipah virus disease"
+        ]
+      },
+      "source": "VN Core FHIR 0.10.0; http://fhir.hl7.org.vn/core/CodeSystem/vn-communicable-disease-cs#A10; source SHA-256 5f1160ec05482c195805c127246fa5265bb19099c0614bea123d3ebc5c9fda05",
+      "license": "CC-BY-4.0 declared at package level; attribution required to Omi HealthTech / VN Core FHIR Community Initiative; resource-level rights review remains pending.",
+      "rights_status": "package_license_declared; source_notice_preserved; independent_rights_review_pending"
+    },
+    {
+      "concept_id": "vncore:vn-communicable-disease:A11",
+      "type": "communicable_disease",
+      "code_system": "http://fhir.hl7.org.vn/core/CodeSystem/vn-communicable-disease-cs",
+      "code": "A11",
+      "labels": {
+        "vi": [
+          "Bệnh nhiễm vi rút tây sông Nin"
+        ],
+        "en": [
+          "West Nile virus infection"
+        ]
+      },
+      "source": "VN Core FHIR 0.10.0; http://fhir.hl7.org.vn/core/CodeSystem/vn-communicable-disease-cs#A11; source SHA-256 5f1160ec05482c195805c127246fa5265bb19099c0614bea123d3ebc5c9fda05",
+      "license": "CC-BY-4.0 declared at package level; attribution required to Omi HealthTech / VN Core FHIR Community Initiative; resource-level rights review remains pending.",
+      "rights_status": "package_license_declared; source_notice_preserved; independent_rights_review_pending"
+    },
+    {
+      "concept_id": "vncore:vn-communicable-disease:A12",
+      "type": "communicable_disease",
+      "code_system": "http://fhir.hl7.org.vn/core/CodeSystem/vn-communicable-disease-cs",
+      "code": "A12",
+      "labels": {
+        "vi": [
+          "Bệnh sốt vàng"
+        ],
+        "en": [
+          "Yellow fever"
+        ]
+      },
+      "source": "VN Core FHIR 0.10.0; http://fhir.hl7.org.vn/core/CodeSystem/vn-communicable-disease-cs#A12; source SHA-256 5f1160ec05482c195805c127246fa5265bb19099c0614bea123d3ebc5c9fda05",
+      "license": "CC-BY-4.0 declared at package level; attribution required to Omi HealthTech / VN Core FHIR Community Initiative; resource-level rights review remains pending.",
+      "rights_status": "package_license_declared; source_notice_preserved; independent_rights_review_pending",
+      "aliases": {
+        "vi": [
+          "sốt vàng"
+        ]
+      }
+    },
+    {
+      "concept_id": "vncore:vn-communicable-disease:A13",
+      "type": "communicable_disease",
+      "code_system": "http://fhir.hl7.org.vn/core/CodeSystem/vn-communicable-disease-cs",
+      "code": "A13",
+      "labels": {
+        "vi": [
+          "Hội chứng suy hô hấp cấp tính nặng (SARS)"
+        ],
+        "en": [
+          "Severe Acute Respiratory Syndrome (SARS)"
+        ]
+      },
+      "source": "VN Core FHIR 0.10.0; http://fhir.hl7.org.vn/core/CodeSystem/vn-communicable-disease-cs#A13; source SHA-256 5f1160ec05482c195805c127246fa5265bb19099c0614bea123d3ebc5c9fda05",
+      "license": "CC-BY-4.0 declared at package level; attribution required to Omi HealthTech / VN Core FHIR Community Initiative; resource-level rights review remains pending.",
+      "rights_status": "package_license_declared; source_notice_preserved; independent_rights_review_pending",
+      "aliases": {
+        "en": [
+          "SARS"
+        ]
+      }
+    },
+    {
+      "concept_id": "vncore:vn-communicable-disease:A14",
+      "type": "communicable_disease",
+      "code_system": "http://fhir.hl7.org.vn/core/CodeSystem/vn-communicable-disease-cs",
+      "code": "A14",
+      "labels": {
+        "vi": [
+          "Hội chứng viêm đường hô hấp vùng Trung Đông do vi rút corona (MERS-CoV)"
+        ],
+        "en": [
+          "Middle East Respiratory Syndrome (MERS-CoV)"
+        ]
+      },
+      "source": "VN Core FHIR 0.10.0; http://fhir.hl7.org.vn/core/CodeSystem/vn-communicable-disease-cs#A14; source SHA-256 5f1160ec05482c195805c127246fa5265bb19099c0614bea123d3ebc5c9fda05",
+      "license": "CC-BY-4.0 declared at package level; attribution required to Omi HealthTech / VN Core FHIR Community Initiative; resource-level rights review remains pending.",
+      "rights_status": "package_license_declared; source_notice_preserved; independent_rights_review_pending",
+      "aliases": {
+        "en": [
+          "MERS-CoV"
+        ]
+      }
+    },
+    {
+      "concept_id": "vncore:vn-communicable-disease:B01",
+      "type": "communicable_disease",
+      "code_system": "http://fhir.hl7.org.vn/core/CodeSystem/vn-communicable-disease-cs",
+      "code": "B01",
+      "labels": {
+        "vi": [
+          "Bệnh bạch hầu"
+        ],
+        "en": [
+          "Diphtheria"
+        ]
+      },
+      "source": "VN Core FHIR 0.10.0; http://fhir.hl7.org.vn/core/CodeSystem/vn-communicable-disease-cs#B01; source SHA-256 5f1160ec05482c195805c127246fa5265bb19099c0614bea123d3ebc5c9fda05",
+      "license": "CC-BY-4.0 declared at package level; attribution required to Omi HealthTech / VN Core FHIR Community Initiative; resource-level rights review remains pending.",
+      "rights_status": "package_license_declared; source_notice_preserved; independent_rights_review_pending",
+      "aliases": {
+        "vi": [
+          "bạch hầu"
+        ]
+      }
+    },
+    {
+      "concept_id": "vncore:vn-communicable-disease:B02",
+      "type": "communicable_disease",
+      "code_system": "http://fhir.hl7.org.vn/core/CodeSystem/vn-communicable-disease-cs",
+      "code": "B02",
+      "labels": {
+        "vi": [
+          "Bệnh COVID-19"
+        ],
+        "en": [
+          "COVID-19"
+        ]
+      },
+      "source": "VN Core FHIR 0.10.0; http://fhir.hl7.org.vn/core/CodeSystem/vn-communicable-disease-cs#B02; source SHA-256 5f1160ec05482c195805c127246fa5265bb19099c0614bea123d3ebc5c9fda05",
+      "license": "CC-BY-4.0 declared at package level; attribution required to Omi HealthTech / VN Core FHIR Community Initiative; resource-level rights review remains pending.",
+      "rights_status": "package_license_declared; source_notice_preserved; independent_rights_review_pending",
+      "aliases": {
+        "vi": [
+          "COVID-19"
+        ]
+      }
+    },
+    {
+      "concept_id": "vncore:vn-communicable-disease:B03",
+      "type": "communicable_disease",
+      "code_system": "http://fhir.hl7.org.vn/core/CodeSystem/vn-communicable-disease-cs",
+      "code": "B03",
+      "labels": {
+        "vi": [
+          "Bệnh cúm"
+        ],
+        "en": [
+          "Influenza"
+        ]
+      },
+      "source": "VN Core FHIR 0.10.0; http://fhir.hl7.org.vn/core/CodeSystem/vn-communicable-disease-cs#B03; source SHA-256 5f1160ec05482c195805c127246fa5265bb19099c0614bea123d3ebc5c9fda05",
+      "license": "CC-BY-4.0 declared at package level; attribution required to Omi HealthTech / VN Core FHIR Community Initiative; resource-level rights review remains pending.",
+      "rights_status": "package_license_declared; source_notice_preserved; independent_rights_review_pending",
+      "aliases": {
+        "vi": [
+          "cúm"
+        ]
+      }
+    },
+    {
+      "concept_id": "vncore:vn-communicable-disease:B04",
+      "type": "communicable_disease",
+      "code_system": "http://fhir.hl7.org.vn/core/CodeSystem/vn-communicable-disease-cs",
+      "code": "B04",
+      "labels": {
+        "vi": [
+          "Bệnh dại"
+        ],
+        "en": [
+          "Rabies"
+        ]
+      },
+      "source": "VN Core FHIR 0.10.0; http://fhir.hl7.org.vn/core/CodeSystem/vn-communicable-disease-cs#B04; source SHA-256 5f1160ec05482c195805c127246fa5265bb19099c0614bea123d3ebc5c9fda05",
+      "license": "CC-BY-4.0 declared at package level; attribution required to Omi HealthTech / VN Core FHIR Community Initiative; resource-level rights review remains pending.",
+      "rights_status": "package_license_declared; source_notice_preserved; independent_rights_review_pending",
+      "aliases": {
+        "vi": [
+          "dại"
+        ]
+      }
+    },
+    {
+      "concept_id": "vncore:vn-communicable-disease:B05",
+      "type": "communicable_disease",
+      "code_system": "http://fhir.hl7.org.vn/core/CodeSystem/vn-communicable-disease-cs",
+      "code": "B05",
+      "labels": {
+        "vi": [
+          "Bệnh đậu mùa khỉ (Mpox)"
+        ],
+        "en": [
+          "Mpox (Monkeypox)"
+        ]
+      },
+      "source": "VN Core FHIR 0.10.0; http://fhir.hl7.org.vn/core/CodeSystem/vn-communicable-disease-cs#B05; source SHA-256 5f1160ec05482c195805c127246fa5265bb19099c0614bea123d3ebc5c9fda05",
+      "license": "CC-BY-4.0 declared at package level; attribution required to Omi HealthTech / VN Core FHIR Community Initiative; resource-level rights review remains pending.",
+      "rights_status": "package_license_declared; source_notice_preserved; independent_rights_review_pending",
+      "aliases": {
+        "vi": [
+          "đậu mùa khỉ (Mpox)"
+        ],
+        "en": [
+          "Monkeypox"
+        ]
+      }
+    },
+    {
+      "concept_id": "vncore:vn-communicable-disease:B06",
+      "type": "communicable_disease",
+      "code_system": "http://fhir.hl7.org.vn/core/CodeSystem/vn-communicable-disease-cs",
+      "code": "B06",
+      "labels": {
+        "vi": [
+          "Bệnh do Haemophilus influenzae"
+        ],
+        "en": [
+          "Haemophilus influenzae disease"
+        ]
+      },
+      "source": "VN Core FHIR 0.10.0; http://fhir.hl7.org.vn/core/CodeSystem/vn-communicable-disease-cs#B06; source SHA-256 5f1160ec05482c195805c127246fa5265bb19099c0614bea123d3ebc5c9fda05",
+      "license": "CC-BY-4.0 declared at package level; attribution required to Omi HealthTech / VN Core FHIR Community Initiative; resource-level rights review remains pending.",
+      "rights_status": "package_license_declared; source_notice_preserved; independent_rights_review_pending"
+    },
+    {
+      "concept_id": "vncore:vn-communicable-disease:B07",
+      "type": "communicable_disease",
+      "code_system": "http://fhir.hl7.org.vn/core/CodeSystem/vn-communicable-disease-cs",
+      "code": "B07",
+      "labels": {
+        "vi": [
+          "Bệnh do nhiễm Listeria"
+        ],
+        "en": [
+          "Listeriosis"
+        ]
+      },
+      "source": "VN Core FHIR 0.10.0; http://fhir.hl7.org.vn/core/CodeSystem/vn-communicable-disease-cs#B07; source SHA-256 5f1160ec05482c195805c127246fa5265bb19099c0614bea123d3ebc5c9fda05",
+      "license": "CC-BY-4.0 declared at package level; attribution required to Omi HealthTech / VN Core FHIR Community Initiative; resource-level rights review remains pending.",
+      "rights_status": "package_license_declared; source_notice_preserved; independent_rights_review_pending"
+    },
+    {
+      "concept_id": "vncore:vn-communicable-disease:B08",
+      "type": "communicable_disease",
+      "code_system": "http://fhir.hl7.org.vn/core/CodeSystem/vn-communicable-disease-cs",
+      "code": "B08",
+      "labels": {
+        "vi": [
+          "Bệnh do nhiễm nocardia"
+        ],
+        "en": [
+          "Nocardiosis"
+        ]
+      },
+      "source": "VN Core FHIR 0.10.0; http://fhir.hl7.org.vn/core/CodeSystem/vn-communicable-disease-cs#B08; source SHA-256 5f1160ec05482c195805c127246fa5265bb19099c0614bea123d3ebc5c9fda05",
+      "license": "CC-BY-4.0 declared at package level; attribution required to Omi HealthTech / VN Core FHIR Community Initiative; resource-level rights review remains pending.",
+      "rights_status": "package_license_declared; source_notice_preserved; independent_rights_review_pending"
+    },
+    {
+      "concept_id": "vncore:vn-communicable-disease:B09",
+      "type": "communicable_disease",
+      "code_system": "http://fhir.hl7.org.vn/core/CodeSystem/vn-communicable-disease-cs",
+      "code": "B09",
+      "labels": {
+        "vi": [
+          "Bệnh do nhiễm vi rút Chikungunya"
+        ],
+        "en": [
+          "Chikungunya virus disease"
+        ]
+      },
+      "source": "VN Core FHIR 0.10.0; http://fhir.hl7.org.vn/core/CodeSystem/vn-communicable-disease-cs#B09; source SHA-256 5f1160ec05482c195805c127246fa5265bb19099c0614bea123d3ebc5c9fda05",
+      "license": "CC-BY-4.0 declared at package level; attribution required to Omi HealthTech / VN Core FHIR Community Initiative; resource-level rights review remains pending.",
+      "rights_status": "package_license_declared; source_notice_preserved; independent_rights_review_pending"
+    },
+    {
+      "concept_id": "vncore:vn-communicable-disease:B10",
+      "type": "communicable_disease",
+      "code_system": "http://fhir.hl7.org.vn/core/CodeSystem/vn-communicable-disease-cs",
+      "code": "B10",
+      "labels": {
+        "vi": [
+          "Bệnh do phế cầu"
+        ],
+        "en": [
+          "Pneumococcal disease"
+        ]
+      },
+      "source": "VN Core FHIR 0.10.0; http://fhir.hl7.org.vn/core/CodeSystem/vn-communicable-disease-cs#B10; source SHA-256 5f1160ec05482c195805c127246fa5265bb19099c0614bea123d3ebc5c9fda05",
+      "license": "CC-BY-4.0 declared at package level; attribution required to Omi HealthTech / VN Core FHIR Community Initiative; resource-level rights review remains pending.",
+      "rights_status": "package_license_declared; source_notice_preserved; independent_rights_review_pending"
+    },
+    {
+      "concept_id": "vncore:vn-communicable-disease:B11",
+      "type": "communicable_disease",
+      "code_system": "http://fhir.hl7.org.vn/core/CodeSystem/vn-communicable-disease-cs",
+      "code": "B11",
+      "labels": {
+        "vi": [
+          "Bệnh do vi rút Adeno khác"
+        ],
+        "en": [
+          "Other adenovirus disease"
+        ]
+      },
+      "source": "VN Core FHIR 0.10.0; http://fhir.hl7.org.vn/core/CodeSystem/vn-communicable-disease-cs#B11; source SHA-256 5f1160ec05482c195805c127246fa5265bb19099c0614bea123d3ebc5c9fda05",
+      "license": "CC-BY-4.0 declared at package level; attribution required to Omi HealthTech / VN Core FHIR Community Initiative; resource-level rights review remains pending.",
+      "rights_status": "package_license_declared; source_notice_preserved; independent_rights_review_pending"
+    },
+    {
+      "concept_id": "vncore:vn-communicable-disease:B12",
+      "type": "communicable_disease",
+      "code_system": "http://fhir.hl7.org.vn/core/CodeSystem/vn-communicable-disease-cs",
+      "code": "B12",
+      "labels": {
+        "vi": [
+          "Bệnh do vi rút gây ra hội chứng suy giảm miễn dịch mắc phải ở người (HIV/AIDS)"
+        ],
+        "en": [
+          "HIV/AIDS"
+        ]
+      },
+      "source": "VN Core FHIR 0.10.0; http://fhir.hl7.org.vn/core/CodeSystem/vn-communicable-disease-cs#B12; source SHA-256 5f1160ec05482c195805c127246fa5265bb19099c0614bea123d3ebc5c9fda05",
+      "license": "CC-BY-4.0 declared at package level; attribution required to Omi HealthTech / VN Core FHIR Community Initiative; resource-level rights review remains pending.",
+      "rights_status": "package_license_declared; source_notice_preserved; independent_rights_review_pending"
+    },
+    {
+      "concept_id": "vncore:vn-communicable-disease:B13",
+      "type": "communicable_disease",
+      "code_system": "http://fhir.hl7.org.vn/core/CodeSystem/vn-communicable-disease-cs",
+      "code": "B13",
+      "labels": {
+        "vi": [
+          "Bệnh do vi rút Hanta"
+        ],
+        "en": [
+          "Hantavirus disease"
+        ]
+      },
+      "source": "VN Core FHIR 0.10.0; http://fhir.hl7.org.vn/core/CodeSystem/vn-communicable-disease-cs#B13; source SHA-256 5f1160ec05482c195805c127246fa5265bb19099c0614bea123d3ebc5c9fda05",
+      "license": "CC-BY-4.0 declared at package level; attribution required to Omi HealthTech / VN Core FHIR Community Initiative; resource-level rights review remains pending.",
+      "rights_status": "package_license_declared; source_notice_preserved; independent_rights_review_pending"
+    },
+    {
+      "concept_id": "vncore:vn-communicable-disease:B14",
+      "type": "communicable_disease",
+      "code_system": "http://fhir.hl7.org.vn/core/CodeSystem/vn-communicable-disease-cs",
+      "code": "B14",
+      "labels": {
+        "vi": [
+          "Bệnh do vi rút hợp bào (RSV)"
+        ],
+        "en": [
+          "Respiratory Syncytial Virus (RSV) disease"
+        ]
+      },
+      "source": "VN Core FHIR 0.10.0; http://fhir.hl7.org.vn/core/CodeSystem/vn-communicable-disease-cs#B14; source SHA-256 5f1160ec05482c195805c127246fa5265bb19099c0614bea123d3ebc5c9fda05",
+      "license": "CC-BY-4.0 declared at package level; attribution required to Omi HealthTech / VN Core FHIR Community Initiative; resource-level rights review remains pending.",
+      "rights_status": "package_license_declared; source_notice_preserved; independent_rights_review_pending"
+    },
+    {
+      "concept_id": "vncore:vn-communicable-disease:B15",
+      "type": "communicable_disease",
+      "code_system": "http://fhir.hl7.org.vn/core/CodeSystem/vn-communicable-disease-cs",
+      "code": "B15",
+      "labels": {
+        "vi": [
+          "Bệnh do vi rút HPV (Human Papilloma Virus) ở người"
+        ],
+        "en": [
+          "Human Papilloma Virus (HPV) disease"
+        ]
+      },
+      "source": "VN Core FHIR 0.10.0; http://fhir.hl7.org.vn/core/CodeSystem/vn-communicable-disease-cs#B15; source SHA-256 5f1160ec05482c195805c127246fa5265bb19099c0614bea123d3ebc5c9fda05",
+      "license": "CC-BY-4.0 declared at package level; attribution required to Omi HealthTech / VN Core FHIR Community Initiative; resource-level rights review remains pending.",
+      "rights_status": "package_license_declared; source_notice_preserved; independent_rights_review_pending"
+    },
+    {
+      "concept_id": "vncore:vn-communicable-disease:B16",
+      "type": "communicable_disease",
+      "code_system": "http://fhir.hl7.org.vn/core/CodeSystem/vn-communicable-disease-cs",
+      "code": "B16",
+      "labels": {
+        "vi": [
+          "Bệnh ho gà"
+        ],
+        "en": [
+          "Pertussis (Whooping cough)"
+        ]
+      },
+      "source": "VN Core FHIR 0.10.0; http://fhir.hl7.org.vn/core/CodeSystem/vn-communicable-disease-cs#B16; source SHA-256 5f1160ec05482c195805c127246fa5265bb19099c0614bea123d3ebc5c9fda05",
+      "license": "CC-BY-4.0 declared at package level; attribution required to Omi HealthTech / VN Core FHIR Community Initiative; resource-level rights review remains pending.",
+      "rights_status": "package_license_declared; source_notice_preserved; independent_rights_review_pending",
+      "aliases": {
+        "vi": [
+          "ho gà"
+        ],
+        "en": [
+          "Whooping cough"
+        ]
+      }
+    },
+    {
+      "concept_id": "vncore:vn-communicable-disease:B17",
+      "type": "communicable_disease",
+      "code_system": "http://fhir.hl7.org.vn/core/CodeSystem/vn-communicable-disease-cs",
+      "code": "B17",
+      "labels": {
+        "vi": [
+          "Bệnh lao"
+        ],
+        "en": [
+          "Tuberculosis"
+        ]
+      },
+      "source": "VN Core FHIR 0.10.0; http://fhir.hl7.org.vn/core/CodeSystem/vn-communicable-disease-cs#B17; source SHA-256 5f1160ec05482c195805c127246fa5265bb19099c0614bea123d3ebc5c9fda05",
+      "license": "CC-BY-4.0 declared at package level; attribution required to Omi HealthTech / VN Core FHIR Community Initiative; resource-level rights review remains pending.",
+      "rights_status": "package_license_declared; source_notice_preserved; independent_rights_review_pending",
+      "aliases": {
+        "vi": [
+          "lao"
+        ]
+      }
+    },
+    {
+      "concept_id": "vncore:vn-communicable-disease:B18",
+      "type": "communicable_disease",
+      "code_system": "http://fhir.hl7.org.vn/core/CodeSystem/vn-communicable-disease-cs",
+      "code": "B18",
+      "labels": {
+        "vi": [
+          "Bệnh Legionnaire"
+        ],
+        "en": [
+          "Legionnaires' disease"
+        ]
+      },
+      "source": "VN Core FHIR 0.10.0; http://fhir.hl7.org.vn/core/CodeSystem/vn-communicable-disease-cs#B18; source SHA-256 5f1160ec05482c195805c127246fa5265bb19099c0614bea123d3ebc5c9fda05",
+      "license": "CC-BY-4.0 declared at package level; attribution required to Omi HealthTech / VN Core FHIR Community Initiative; resource-level rights review remains pending.",
+      "rights_status": "package_license_declared; source_notice_preserved; independent_rights_review_pending",
+      "aliases": {
+        "vi": [
+          "Legionnaire"
+        ]
+      }
+    },
+    {
+      "concept_id": "vncore:vn-communicable-disease:B19",
+      "type": "communicable_disease",
+      "code_system": "http://fhir.hl7.org.vn/core/CodeSystem/vn-communicable-disease-cs",
+      "code": "B19",
+      "labels": {
+        "vi": [
+          "Bệnh liên cầu lợn ở người"
+        ],
+        "en": [
+          "Streptococcus suis infection in humans"
+        ]
+      },
+      "source": "VN Core FHIR 0.10.0; http://fhir.hl7.org.vn/core/CodeSystem/vn-communicable-disease-cs#B19; source SHA-256 5f1160ec05482c195805c127246fa5265bb19099c0614bea123d3ebc5c9fda05",
+      "license": "CC-BY-4.0 declared at package level; attribution required to Omi HealthTech / VN Core FHIR Community Initiative; resource-level rights review remains pending.",
+      "rights_status": "package_license_declared; source_notice_preserved; independent_rights_review_pending",
+      "aliases": {
+        "vi": [
+          "liên cầu lợn ở người"
+        ]
+      }
+    },
+    {
+      "concept_id": "vncore:vn-communicable-disease:B20",
+      "type": "communicable_disease",
+      "code_system": "http://fhir.hl7.org.vn/core/CodeSystem/vn-communicable-disease-cs",
+      "code": "B20",
+      "labels": {
+        "vi": [
+          "Bệnh lỵ trực khuẩn"
+        ],
+        "en": [
+          "Bacillary dysentery (Shigellosis)"
+        ]
+      },
+      "source": "VN Core FHIR 0.10.0; http://fhir.hl7.org.vn/core/CodeSystem/vn-communicable-disease-cs#B20; source SHA-256 5f1160ec05482c195805c127246fa5265bb19099c0614bea123d3ebc5c9fda05",
+      "license": "CC-BY-4.0 declared at package level; attribution required to Omi HealthTech / VN Core FHIR Community Initiative; resource-level rights review remains pending.",
+      "rights_status": "package_license_declared; source_notice_preserved; independent_rights_review_pending",
+      "aliases": {
+        "vi": [
+          "lỵ trực khuẩn"
+        ],
+        "en": [
+          "Shigellosis"
+        ]
+      }
+    },
+    {
+      "concept_id": "vncore:vn-communicable-disease:B21",
+      "type": "communicable_disease",
+      "code_system": "http://fhir.hl7.org.vn/core/CodeSystem/vn-communicable-disease-cs",
+      "code": "B21",
+      "labels": {
+        "vi": [
+          "Bệnh mắt hột"
+        ],
+        "en": [
+          "Trachoma"
+        ]
+      },
+      "source": "VN Core FHIR 0.10.0; http://fhir.hl7.org.vn/core/CodeSystem/vn-communicable-disease-cs#B21; source SHA-256 5f1160ec05482c195805c127246fa5265bb19099c0614bea123d3ebc5c9fda05",
+      "license": "CC-BY-4.0 declared at package level; attribution required to Omi HealthTech / VN Core FHIR Community Initiative; resource-level rights review remains pending.",
+      "rights_status": "package_license_declared; source_notice_preserved; independent_rights_review_pending",
+      "aliases": {
+        "vi": [
+          "mắt hột"
+        ]
+      }
+    },
+    {
+      "concept_id": "vncore:vn-communicable-disease:B22",
+      "type": "communicable_disease",
+      "code_system": "http://fhir.hl7.org.vn/core/CodeSystem/vn-communicable-disease-cs",
+      "code": "B22",
+      "labels": {
+        "vi": [
+          "Bệnh melioidosis (Whitmore)"
+        ],
+        "en": [
+          "Melioidosis (Whitmore's disease)"
+        ]
+      },
+      "source": "VN Core FHIR 0.10.0; http://fhir.hl7.org.vn/core/CodeSystem/vn-communicable-disease-cs#B22; source SHA-256 5f1160ec05482c195805c127246fa5265bb19099c0614bea123d3ebc5c9fda05",
+      "license": "CC-BY-4.0 declared at package level; attribution required to Omi HealthTech / VN Core FHIR Community Initiative; resource-level rights review remains pending.",
+      "rights_status": "package_license_declared; source_notice_preserved; independent_rights_review_pending",
+      "aliases": {
+        "vi": [
+          "melioidosis (Whitmore)"
+        ],
+        "en": [
+          "Whitmore's disease"
+        ]
+      }
+    },
+    {
+      "concept_id": "vncore:vn-communicable-disease:B23",
+      "type": "communicable_disease",
+      "code_system": "http://fhir.hl7.org.vn/core/CodeSystem/vn-communicable-disease-cs",
+      "code": "B23",
+      "labels": {
+        "vi": [
+          "Bệnh nhiễm leptospira"
+        ],
+        "en": [
+          "Leptospirosis"
+        ]
+      },
+      "source": "VN Core FHIR 0.10.0; http://fhir.hl7.org.vn/core/CodeSystem/vn-communicable-disease-cs#B23; source SHA-256 5f1160ec05482c195805c127246fa5265bb19099c0614bea123d3ebc5c9fda05",
+      "license": "CC-BY-4.0 declared at package level; attribution required to Omi HealthTech / VN Core FHIR Community Initiative; resource-level rights review remains pending.",
+      "rights_status": "package_license_declared; source_notice_preserved; independent_rights_review_pending"
+    },
+    {
+      "concept_id": "vncore:vn-communicable-disease:B24",
+      "type": "communicable_disease",
+      "code_system": "http://fhir.hl7.org.vn/core/CodeSystem/vn-communicable-disease-cs",
+      "code": "B24",
+      "labels": {
+        "vi": [
+          "Bệnh nhiễm trùng do não mô cầu"
+        ],
+        "en": [
+          "Meningococcal disease"
+        ]
+      },
+      "source": "VN Core FHIR 0.10.0; http://fhir.hl7.org.vn/core/CodeSystem/vn-communicable-disease-cs#B24; source SHA-256 5f1160ec05482c195805c127246fa5265bb19099c0614bea123d3ebc5c9fda05",
+      "license": "CC-BY-4.0 declared at package level; attribution required to Omi HealthTech / VN Core FHIR Community Initiative; resource-level rights review remains pending.",
+      "rights_status": "package_license_declared; source_notice_preserved; independent_rights_review_pending"
+    },
+    {
+      "concept_id": "vncore:vn-communicable-disease:B25",
+      "type": "communicable_disease",
+      "code_system": "http://fhir.hl7.org.vn/core/CodeSystem/vn-communicable-disease-cs",
+      "code": "B25",
+      "labels": {
+        "vi": [
+          "Bệnh nhiễm vi rút Zika"
+        ],
+        "en": [
+          "Zika virus disease"
+        ]
+      },
+      "source": "VN Core FHIR 0.10.0; http://fhir.hl7.org.vn/core/CodeSystem/vn-communicable-disease-cs#B25; source SHA-256 5f1160ec05482c195805c127246fa5265bb19099c0614bea123d3ebc5c9fda05",
+      "license": "CC-BY-4.0 declared at package level; attribution required to Omi HealthTech / VN Core FHIR Community Initiative; resource-level rights review remains pending.",
+      "rights_status": "package_license_declared; source_notice_preserved; independent_rights_review_pending"
+    },
+    {
+      "concept_id": "vncore:vn-communicable-disease:B26",
+      "type": "communicable_disease",
+      "code_system": "http://fhir.hl7.org.vn/core/CodeSystem/vn-communicable-disease-cs",
+      "code": "B26",
+      "labels": {
+        "vi": [
+          "Bệnh quai bị"
+        ],
+        "en": [
+          "Mumps"
+        ]
+      },
+      "source": "VN Core FHIR 0.10.0; http://fhir.hl7.org.vn/core/CodeSystem/vn-communicable-disease-cs#B26; source SHA-256 5f1160ec05482c195805c127246fa5265bb19099c0614bea123d3ebc5c9fda05",
+      "license": "CC-BY-4.0 declared at package level; attribution required to Omi HealthTech / VN Core FHIR Community Initiative; resource-level rights review remains pending.",
+      "rights_status": "package_license_declared; source_notice_preserved; independent_rights_review_pending",
+      "aliases": {
+        "vi": [
+          "quai bị"
+        ]
+      }
+    },
+    {
+      "concept_id": "vncore:vn-communicable-disease:B27",
+      "type": "communicable_disease",
+      "code_system": "http://fhir.hl7.org.vn/core/CodeSystem/vn-communicable-disease-cs",
+      "code": "B27",
+      "labels": {
+        "vi": [
+          "Bệnh rubella"
+        ],
+        "en": [
+          "Rubella"
+        ]
+      },
+      "source": "VN Core FHIR 0.10.0; http://fhir.hl7.org.vn/core/CodeSystem/vn-communicable-disease-cs#B27; source SHA-256 5f1160ec05482c195805c127246fa5265bb19099c0614bea123d3ebc5c9fda05",
+      "license": "CC-BY-4.0 declared at package level; attribution required to Omi HealthTech / VN Core FHIR Community Initiative; resource-level rights review remains pending.",
+      "rights_status": "package_license_declared; source_notice_preserved; independent_rights_review_pending",
+      "aliases": {
+        "vi": [
+          "rubella"
+        ]
+      }
+    },
+    {
+      "concept_id": "vncore:vn-communicable-disease:B28",
+      "type": "communicable_disease",
+      "code_system": "http://fhir.hl7.org.vn/core/CodeSystem/vn-communicable-disease-cs",
+      "code": "B28",
+      "labels": {
+        "vi": [
+          "Bệnh sởi"
+        ],
+        "en": [
+          "Measles"
+        ]
+      },
+      "source": "VN Core FHIR 0.10.0; http://fhir.hl7.org.vn/core/CodeSystem/vn-communicable-disease-cs#B28; source SHA-256 5f1160ec05482c195805c127246fa5265bb19099c0614bea123d3ebc5c9fda05",
+      "license": "CC-BY-4.0 declared at package level; attribution required to Omi HealthTech / VN Core FHIR Community Initiative; resource-level rights review remains pending.",
+      "rights_status": "package_license_declared; source_notice_preserved; independent_rights_review_pending",
+      "aliases": {
+        "vi": [
+          "sởi"
+        ]
+      }
+    },
+    {
+      "concept_id": "vncore:vn-communicable-disease:B29",
+      "type": "communicable_disease",
+      "code_system": "http://fhir.hl7.org.vn/core/CodeSystem/vn-communicable-disease-cs",
+      "code": "B29",
+      "labels": {
+        "vi": [
+          "Bệnh sốt rét"
+        ],
+        "en": [
+          "Malaria"
+        ]
+      },
+      "source": "VN Core FHIR 0.10.0; http://fhir.hl7.org.vn/core/CodeSystem/vn-communicable-disease-cs#B29; source SHA-256 5f1160ec05482c195805c127246fa5265bb19099c0614bea123d3ebc5c9fda05",
+      "license": "CC-BY-4.0 declared at package level; attribution required to Omi HealthTech / VN Core FHIR Community Initiative; resource-level rights review remains pending.",
+      "rights_status": "package_license_declared; source_notice_preserved; independent_rights_review_pending",
+      "aliases": {
+        "vi": [
+          "sốt rét"
+        ]
+      }
+    },
+    {
+      "concept_id": "vncore:vn-communicable-disease:B30",
+      "type": "communicable_disease",
+      "code_system": "http://fhir.hl7.org.vn/core/CodeSystem/vn-communicable-disease-cs",
+      "code": "B30",
+      "labels": {
+        "vi": [
+          "Bệnh sốt xuất huyết Dengue"
+        ],
+        "en": [
+          "Dengue hemorrhagic fever"
+        ]
+      },
+      "source": "VN Core FHIR 0.10.0; http://fhir.hl7.org.vn/core/CodeSystem/vn-communicable-disease-cs#B30; source SHA-256 5f1160ec05482c195805c127246fa5265bb19099c0614bea123d3ebc5c9fda05",
+      "license": "CC-BY-4.0 declared at package level; attribution required to Omi HealthTech / VN Core FHIR Community Initiative; resource-level rights review remains pending.",
+      "rights_status": "package_license_declared; source_notice_preserved; independent_rights_review_pending",
+      "aliases": {
+        "vi": [
+          "sốt xuất huyết Dengue"
+        ]
+      }
+    },
+    {
+      "concept_id": "vncore:vn-communicable-disease:B31",
+      "type": "communicable_disease",
+      "code_system": "http://fhir.hl7.org.vn/core/CodeSystem/vn-communicable-disease-cs",
+      "code": "B31",
+      "labels": {
+        "vi": [
+          "Bệnh tả"
+        ],
+        "en": [
+          "Cholera"
+        ]
+      },
+      "source": "VN Core FHIR 0.10.0; http://fhir.hl7.org.vn/core/CodeSystem/vn-communicable-disease-cs#B31; source SHA-256 5f1160ec05482c195805c127246fa5265bb19099c0614bea123d3ebc5c9fda05",
+      "license": "CC-BY-4.0 declared at package level; attribution required to Omi HealthTech / VN Core FHIR Community Initiative; resource-level rights review remains pending.",
+      "rights_status": "package_license_declared; source_notice_preserved; independent_rights_review_pending",
+      "aliases": {
+        "vi": [
+          "tả"
+        ]
+      }
+    },
+    {
+      "concept_id": "vncore:vn-communicable-disease:B32",
+      "type": "communicable_disease",
+      "code_system": "http://fhir.hl7.org.vn/core/CodeSystem/vn-communicable-disease-cs",
+      "code": "B32",
+      "labels": {
+        "vi": [
+          "Bệnh tay - chân - miệng"
+        ],
+        "en": [
+          "Hand, foot and mouth disease"
+        ]
+      },
+      "source": "VN Core FHIR 0.10.0; http://fhir.hl7.org.vn/core/CodeSystem/vn-communicable-disease-cs#B32; source SHA-256 5f1160ec05482c195805c127246fa5265bb19099c0614bea123d3ebc5c9fda05",
+      "license": "CC-BY-4.0 declared at package level; attribution required to Omi HealthTech / VN Core FHIR Community Initiative; resource-level rights review remains pending.",
+      "rights_status": "package_license_declared; source_notice_preserved; independent_rights_review_pending",
+      "aliases": {
+        "vi": [
+          "tay - chân - miệng"
+        ]
+      }
+    },
+    {
+      "concept_id": "vncore:vn-communicable-disease:B33",
+      "type": "communicable_disease",
+      "code_system": "http://fhir.hl7.org.vn/core/CodeSystem/vn-communicable-disease-cs",
+      "code": "B33",
+      "labels": {
+        "vi": [
+          "Bệnh than"
+        ],
+        "en": [
+          "Anthrax"
+        ]
+      },
+      "source": "VN Core FHIR 0.10.0; http://fhir.hl7.org.vn/core/CodeSystem/vn-communicable-disease-cs#B33; source SHA-256 5f1160ec05482c195805c127246fa5265bb19099c0614bea123d3ebc5c9fda05",
+      "license": "CC-BY-4.0 declared at package level; attribution required to Omi HealthTech / VN Core FHIR Community Initiative; resource-level rights review remains pending.",
+      "rights_status": "package_license_declared; source_notice_preserved; independent_rights_review_pending",
+      "aliases": {
+        "vi": [
+          "than"
+        ]
+      }
+    },
+    {
+      "concept_id": "vncore:vn-communicable-disease:B34",
+      "type": "communicable_disease",
+      "code_system": "http://fhir.hl7.org.vn/core/CodeSystem/vn-communicable-disease-cs",
+      "code": "B34",
+      "labels": {
+        "vi": [
+          "Bệnh thương hàn"
+        ],
+        "en": [
+          "Typhoid fever"
+        ]
+      },
+      "source": "VN Core FHIR 0.10.0; http://fhir.hl7.org.vn/core/CodeSystem/vn-communicable-disease-cs#B34; source SHA-256 5f1160ec05482c195805c127246fa5265bb19099c0614bea123d3ebc5c9fda05",
+      "license": "CC-BY-4.0 declared at package level; attribution required to Omi HealthTech / VN Core FHIR Community Initiative; resource-level rights review remains pending.",
+      "rights_status": "package_license_declared; source_notice_preserved; independent_rights_review_pending",
+      "aliases": {
+        "vi": [
+          "thương hàn"
+        ]
+      }
+    },
+    {
+      "concept_id": "vncore:vn-communicable-disease:B35",
+      "type": "communicable_disease",
+      "code_system": "http://fhir.hl7.org.vn/core/CodeSystem/vn-communicable-disease-cs",
+      "code": "B35",
+      "labels": {
+        "vi": [
+          "Bệnh thuỷ đậu"
+        ],
+        "en": [
+          "Varicella (Chickenpox)"
+        ]
+      },
+      "source": "VN Core FHIR 0.10.0; http://fhir.hl7.org.vn/core/CodeSystem/vn-communicable-disease-cs#B35; source SHA-256 5f1160ec05482c195805c127246fa5265bb19099c0614bea123d3ebc5c9fda05",
+      "license": "CC-BY-4.0 declared at package level; attribution required to Omi HealthTech / VN Core FHIR Community Initiative; resource-level rights review remains pending.",
+      "rights_status": "package_license_declared; source_notice_preserved; independent_rights_review_pending",
+      "aliases": {
+        "vi": [
+          "thuỷ đậu"
+        ],
+        "en": [
+          "Chickenpox"
+        ]
+      }
+    },
+    {
+      "concept_id": "vncore:vn-communicable-disease:B36",
+      "type": "communicable_disease",
+      "code_system": "http://fhir.hl7.org.vn/core/CodeSystem/vn-communicable-disease-cs",
+      "code": "B36",
+      "labels": {
+        "vi": [
+          "Bệnh tiêu chảy do vi rút Rota"
+        ],
+        "en": [
+          "Rotavirus diarrhea"
+        ]
+      },
+      "source": "VN Core FHIR 0.10.0; http://fhir.hl7.org.vn/core/CodeSystem/vn-communicable-disease-cs#B36; source SHA-256 5f1160ec05482c195805c127246fa5265bb19099c0614bea123d3ebc5c9fda05",
+      "license": "CC-BY-4.0 declared at package level; attribution required to Omi HealthTech / VN Core FHIR Community Initiative; resource-level rights review remains pending.",
+      "rights_status": "package_license_declared; source_notice_preserved; independent_rights_review_pending",
+      "aliases": {
+        "vi": [
+          "tiêu chảy do vi rút Rota"
+        ]
+      }
+    },
+    {
+      "concept_id": "vncore:vn-communicable-disease:B37",
+      "type": "communicable_disease",
+      "code_system": "http://fhir.hl7.org.vn/core/CodeSystem/vn-communicable-disease-cs",
+      "code": "B37",
+      "labels": {
+        "vi": [
+          "Bệnh uốn ván"
+        ],
+        "en": [
+          "Tetanus"
+        ]
+      },
+      "source": "VN Core FHIR 0.10.0; http://fhir.hl7.org.vn/core/CodeSystem/vn-communicable-disease-cs#B37; source SHA-256 5f1160ec05482c195805c127246fa5265bb19099c0614bea123d3ebc5c9fda05",
+      "license": "CC-BY-4.0 declared at package level; attribution required to Omi HealthTech / VN Core FHIR Community Initiative; resource-level rights review remains pending.",
+      "rights_status": "package_license_declared; source_notice_preserved; independent_rights_review_pending",
+      "aliases": {
+        "vi": [
+          "uốn ván"
+        ]
+      }
+    },
+    {
+      "concept_id": "vncore:vn-communicable-disease:B38",
+      "type": "communicable_disease",
+      "code_system": "http://fhir.hl7.org.vn/core/CodeSystem/vn-communicable-disease-cs",
+      "code": "B38",
+      "labels": {
+        "vi": [
+          "Bệnh viêm gan vi rút A"
+        ],
+        "en": [
+          "Viral hepatitis A"
+        ]
+      },
+      "source": "VN Core FHIR 0.10.0; http://fhir.hl7.org.vn/core/CodeSystem/vn-communicable-disease-cs#B38; source SHA-256 5f1160ec05482c195805c127246fa5265bb19099c0614bea123d3ebc5c9fda05",
+      "license": "CC-BY-4.0 declared at package level; attribution required to Omi HealthTech / VN Core FHIR Community Initiative; resource-level rights review remains pending.",
+      "rights_status": "package_license_declared; source_notice_preserved; independent_rights_review_pending",
+      "aliases": {
+        "vi": [
+          "viêm gan vi rút A"
+        ]
+      }
+    },
+    {
+      "concept_id": "vncore:vn-communicable-disease:B39",
+      "type": "communicable_disease",
+      "code_system": "http://fhir.hl7.org.vn/core/CodeSystem/vn-communicable-disease-cs",
+      "code": "B39",
+      "labels": {
+        "vi": [
+          "Bệnh viêm gan vi rút B"
+        ],
+        "en": [
+          "Viral hepatitis B"
+        ]
+      },
+      "source": "VN Core FHIR 0.10.0; http://fhir.hl7.org.vn/core/CodeSystem/vn-communicable-disease-cs#B39; source SHA-256 5f1160ec05482c195805c127246fa5265bb19099c0614bea123d3ebc5c9fda05",
+      "license": "CC-BY-4.0 declared at package level; attribution required to Omi HealthTech / VN Core FHIR Community Initiative; resource-level rights review remains pending.",
+      "rights_status": "package_license_declared; source_notice_preserved; independent_rights_review_pending",
+      "aliases": {
+        "vi": [
+          "viêm gan vi rút B"
+        ]
+      }
+    },
+    {
+      "concept_id": "vncore:vn-communicable-disease:B40",
+      "type": "communicable_disease",
+      "code_system": "http://fhir.hl7.org.vn/core/CodeSystem/vn-communicable-disease-cs",
+      "code": "B40",
+      "labels": {
+        "vi": [
+          "Bệnh viêm gan vi rút C"
+        ],
+        "en": [
+          "Viral hepatitis C"
+        ]
+      },
+      "source": "VN Core FHIR 0.10.0; http://fhir.hl7.org.vn/core/CodeSystem/vn-communicable-disease-cs#B40; source SHA-256 5f1160ec05482c195805c127246fa5265bb19099c0614bea123d3ebc5c9fda05",
+      "license": "CC-BY-4.0 declared at package level; attribution required to Omi HealthTech / VN Core FHIR Community Initiative; resource-level rights review remains pending.",
+      "rights_status": "package_license_declared; source_notice_preserved; independent_rights_review_pending",
+      "aliases": {
+        "vi": [
+          "viêm gan vi rút C"
+        ]
+      }
+    },
+    {
+      "concept_id": "vncore:vn-communicable-disease:B41",
+      "type": "communicable_disease",
+      "code_system": "http://fhir.hl7.org.vn/core/CodeSystem/vn-communicable-disease-cs",
+      "code": "B41",
+      "labels": {
+        "vi": [
+          "Bệnh viêm gan vi rút D"
+        ],
+        "en": [
+          "Viral hepatitis D"
+        ]
+      },
+      "source": "VN Core FHIR 0.10.0; http://fhir.hl7.org.vn/core/CodeSystem/vn-communicable-disease-cs#B41; source SHA-256 5f1160ec05482c195805c127246fa5265bb19099c0614bea123d3ebc5c9fda05",
+      "license": "CC-BY-4.0 declared at package level; attribution required to Omi HealthTech / VN Core FHIR Community Initiative; resource-level rights review remains pending.",
+      "rights_status": "package_license_declared; source_notice_preserved; independent_rights_review_pending",
+      "aliases": {
+        "vi": [
+          "viêm gan vi rút D"
+        ]
+      }
+    },
+    {
+      "concept_id": "vncore:vn-communicable-disease:B42",
+      "type": "communicable_disease",
+      "code_system": "http://fhir.hl7.org.vn/core/CodeSystem/vn-communicable-disease-cs",
+      "code": "B42",
+      "labels": {
+        "vi": [
+          "Bệnh viêm gan vi rút E"
+        ],
+        "en": [
+          "Viral hepatitis E"
+        ]
+      },
+      "source": "VN Core FHIR 0.10.0; http://fhir.hl7.org.vn/core/CodeSystem/vn-communicable-disease-cs#B42; source SHA-256 5f1160ec05482c195805c127246fa5265bb19099c0614bea123d3ebc5c9fda05",
+      "license": "CC-BY-4.0 declared at package level; attribution required to Omi HealthTech / VN Core FHIR Community Initiative; resource-level rights review remains pending.",
+      "rights_status": "package_license_declared; source_notice_preserved; independent_rights_review_pending",
+      "aliases": {
+        "vi": [
+          "viêm gan vi rút E"
+        ]
+      }
+    },
+    {
+      "concept_id": "vncore:vn-communicable-disease:B43",
+      "type": "communicable_disease",
+      "code_system": "http://fhir.hl7.org.vn/core/CodeSystem/vn-communicable-disease-cs",
+      "code": "B43",
+      "labels": {
+        "vi": [
+          "Bệnh viêm kết mạc do vi rút Adeno"
+        ],
+        "en": [
+          "Adenoviral conjunctivitis"
+        ]
+      },
+      "source": "VN Core FHIR 0.10.0; http://fhir.hl7.org.vn/core/CodeSystem/vn-communicable-disease-cs#B43; source SHA-256 5f1160ec05482c195805c127246fa5265bb19099c0614bea123d3ebc5c9fda05",
+      "license": "CC-BY-4.0 declared at package level; attribution required to Omi HealthTech / VN Core FHIR Community Initiative; resource-level rights review remains pending.",
+      "rights_status": "package_license_declared; source_notice_preserved; independent_rights_review_pending",
+      "aliases": {
+        "vi": [
+          "viêm kết mạc do vi rút Adeno"
+        ]
+      }
+    },
+    {
+      "concept_id": "vncore:vn-communicable-disease:B44",
+      "type": "communicable_disease",
+      "code_system": "http://fhir.hl7.org.vn/core/CodeSystem/vn-communicable-disease-cs",
+      "code": "B44",
+      "labels": {
+        "vi": [
+          "Bệnh viêm não Nhật Bản"
+        ],
+        "en": [
+          "Japanese encephalitis"
+        ]
+      },
+      "source": "VN Core FHIR 0.10.0; http://fhir.hl7.org.vn/core/CodeSystem/vn-communicable-disease-cs#B44; source SHA-256 5f1160ec05482c195805c127246fa5265bb19099c0614bea123d3ebc5c9fda05",
+      "license": "CC-BY-4.0 declared at package level; attribution required to Omi HealthTech / VN Core FHIR Community Initiative; resource-level rights review remains pending.",
+      "rights_status": "package_license_declared; source_notice_preserved; independent_rights_review_pending",
+      "aliases": {
+        "vi": [
+          "viêm não Nhật Bản"
+        ]
+      }
+    },
+    {
+      "concept_id": "vncore:vn-communicable-disease:B45",
+      "type": "communicable_disease",
+      "code_system": "http://fhir.hl7.org.vn/core/CodeSystem/vn-communicable-disease-cs",
+      "code": "B45",
+      "labels": {
+        "vi": [
+          "Bệnh viêm não vi rút"
+        ],
+        "en": [
+          "Viral encephalitis"
+        ]
+      },
+      "source": "VN Core FHIR 0.10.0; http://fhir.hl7.org.vn/core/CodeSystem/vn-communicable-disease-cs#B45; source SHA-256 5f1160ec05482c195805c127246fa5265bb19099c0614bea123d3ebc5c9fda05",
+      "license": "CC-BY-4.0 declared at package level; attribution required to Omi HealthTech / VN Core FHIR Community Initiative; resource-level rights review remains pending.",
+      "rights_status": "package_license_declared; source_notice_preserved; independent_rights_review_pending",
+      "aliases": {
+        "vi": [
+          "viêm não vi rút"
+        ]
+      }
+    },
+    {
+      "concept_id": "vncore:vn-communicable-disease:B46",
+      "type": "communicable_disease",
+      "code_system": "http://fhir.hl7.org.vn/core/CodeSystem/vn-communicable-disease-cs",
+      "code": "B46",
+      "labels": {
+        "vi": [
+          "Bệnh viêm phế quản cấp tính do vi rút Coxsackie"
+        ],
+        "en": [
+          "Acute bronchitis due to Coxsackievirus"
+        ]
+      },
+      "source": "VN Core FHIR 0.10.0; http://fhir.hl7.org.vn/core/CodeSystem/vn-communicable-disease-cs#B46; source SHA-256 5f1160ec05482c195805c127246fa5265bb19099c0614bea123d3ebc5c9fda05",
+      "license": "CC-BY-4.0 declared at package level; attribution required to Omi HealthTech / VN Core FHIR Community Initiative; resource-level rights review remains pending.",
+      "rights_status": "package_license_declared; source_notice_preserved; independent_rights_review_pending",
+      "aliases": {
+        "vi": [
+          "viêm phế quản cấp tính do vi rút Coxsackie"
+        ]
+      }
+    },
+    {
+      "concept_id": "vncore:vn-communicable-disease:B47",
+      "type": "communicable_disease",
+      "code_system": "http://fhir.hl7.org.vn/core/CodeSystem/vn-communicable-disease-cs",
+      "code": "B47",
+      "labels": {
+        "vi": [
+          "Ngộ độc botulinum"
+        ],
+        "en": [
+          "Botulism"
+        ]
+      },
+      "source": "VN Core FHIR 0.10.0; http://fhir.hl7.org.vn/core/CodeSystem/vn-communicable-disease-cs#B47; source SHA-256 5f1160ec05482c195805c127246fa5265bb19099c0614bea123d3ebc5c9fda05",
+      "license": "CC-BY-4.0 declared at package level; attribution required to Omi HealthTech / VN Core FHIR Community Initiative; resource-level rights review remains pending.",
+      "rights_status": "package_license_declared; source_notice_preserved; independent_rights_review_pending"
+    },
+    {
+      "concept_id": "vncore:vn-communicable-disease:C01",
+      "type": "communicable_disease",
+      "code_system": "http://fhir.hl7.org.vn/core/CodeSystem/vn-communicable-disease-cs",
+      "code": "C01",
+      "labels": {
+        "vi": [
+          "Bệnh do nhiễm nấm Candida"
+        ],
+        "en": [
+          "Candidiasis"
+        ]
+      },
+      "source": "VN Core FHIR 0.10.0; http://fhir.hl7.org.vn/core/CodeSystem/vn-communicable-disease-cs#C01; source SHA-256 5f1160ec05482c195805c127246fa5265bb19099c0614bea123d3ebc5c9fda05",
+      "license": "CC-BY-4.0 declared at package level; attribution required to Omi HealthTech / VN Core FHIR Community Initiative; resource-level rights review remains pending.",
+      "rights_status": "package_license_declared; source_notice_preserved; independent_rights_review_pending"
+    },
+    {
+      "concept_id": "vncore:vn-communicable-disease:C02",
+      "type": "communicable_disease",
+      "code_system": "http://fhir.hl7.org.vn/core/CodeSystem/vn-communicable-disease-cs",
+      "code": "C02",
+      "labels": {
+        "vi": [
+          "Bệnh do nhiễm Rickettsia"
+        ],
+        "en": [
+          "Rickettsiosis"
+        ]
+      },
+      "source": "VN Core FHIR 0.10.0; http://fhir.hl7.org.vn/core/CodeSystem/vn-communicable-disease-cs#C02; source SHA-256 5f1160ec05482c195805c127246fa5265bb19099c0614bea123d3ebc5c9fda05",
+      "license": "CC-BY-4.0 declared at package level; attribution required to Omi HealthTech / VN Core FHIR Community Initiative; resource-level rights review remains pending.",
+      "rights_status": "package_license_declared; source_notice_preserved; independent_rights_review_pending"
+    },
+    {
+      "concept_id": "vncore:vn-communicable-disease:C03",
+      "type": "communicable_disease",
+      "code_system": "http://fhir.hl7.org.vn/core/CodeSystem/vn-communicable-disease-cs",
+      "code": "C03",
+      "labels": {
+        "vi": [
+          "Bệnh do nhiễm vi rút herpes"
+        ],
+        "en": [
+          "Herpes virus disease"
+        ]
+      },
+      "source": "VN Core FHIR 0.10.0; http://fhir.hl7.org.vn/core/CodeSystem/vn-communicable-disease-cs#C03; source SHA-256 5f1160ec05482c195805c127246fa5265bb19099c0614bea123d3ebc5c9fda05",
+      "license": "CC-BY-4.0 declared at package level; attribution required to Omi HealthTech / VN Core FHIR Community Initiative; resource-level rights review remains pending.",
+      "rights_status": "package_license_declared; source_notice_preserved; independent_rights_review_pending"
+    },
+    {
+      "concept_id": "vncore:vn-communicable-disease:C04",
+      "type": "communicable_disease",
+      "code_system": "http://fhir.hl7.org.vn/core/CodeSystem/vn-communicable-disease-cs",
+      "code": "C04",
+      "labels": {
+        "vi": [
+          "Bệnh do trichomonas"
+        ],
+        "en": [
+          "Trichomoniasis"
+        ]
+      },
+      "source": "VN Core FHIR 0.10.0; http://fhir.hl7.org.vn/core/CodeSystem/vn-communicable-disease-cs#C04; source SHA-256 5f1160ec05482c195805c127246fa5265bb19099c0614bea123d3ebc5c9fda05",
+      "license": "CC-BY-4.0 declared at package level; attribution required to Omi HealthTech / VN Core FHIR Community Initiative; resource-level rights review remains pending.",
+      "rights_status": "package_license_declared; source_notice_preserved; independent_rights_review_pending"
+    },
+    {
+      "concept_id": "vncore:vn-communicable-disease:C05",
+      "type": "communicable_disease",
+      "code_system": "http://fhir.hl7.org.vn/core/CodeSystem/vn-communicable-disease-cs",
+      "code": "C05",
+      "labels": {
+        "vi": [
+          "Bệnh đường ruột do nhiễm giardia"
+        ],
+        "en": [
+          "Giardiasis"
+        ]
+      },
+      "source": "VN Core FHIR 0.10.0; http://fhir.hl7.org.vn/core/CodeSystem/vn-communicable-disease-cs#C05; source SHA-256 5f1160ec05482c195805c127246fa5265bb19099c0614bea123d3ebc5c9fda05",
+      "license": "CC-BY-4.0 declared at package level; attribution required to Omi HealthTech / VN Core FHIR Community Initiative; resource-level rights review remains pending.",
+      "rights_status": "package_license_declared; source_notice_preserved; independent_rights_review_pending",
+      "aliases": {
+        "vi": [
+          "đường ruột do nhiễm giardia"
+        ]
+      }
+    },
+    {
+      "concept_id": "vncore:vn-communicable-disease:C06",
+      "type": "communicable_disease",
+      "code_system": "http://fhir.hl7.org.vn/core/CodeSystem/vn-communicable-disease-cs",
+      "code": "C06",
+      "labels": {
+        "vi": [
+          "Bệnh giang mai"
+        ],
+        "en": [
+          "Syphilis"
+        ]
+      },
+      "source": "VN Core FHIR 0.10.0; http://fhir.hl7.org.vn/core/CodeSystem/vn-communicable-disease-cs#C06; source SHA-256 5f1160ec05482c195805c127246fa5265bb19099c0614bea123d3ebc5c9fda05",
+      "license": "CC-BY-4.0 declared at package level; attribution required to Omi HealthTech / VN Core FHIR Community Initiative; resource-level rights review remains pending.",
+      "rights_status": "package_license_declared; source_notice_preserved; independent_rights_review_pending",
+      "aliases": {
+        "vi": [
+          "giang mai"
+        ]
+      }
+    },
+    {
+      "concept_id": "vncore:vn-communicable-disease:C07",
+      "type": "communicable_disease",
+      "code_system": "http://fhir.hl7.org.vn/core/CodeSystem/vn-communicable-disease-cs",
+      "code": "C07",
+      "labels": {
+        "vi": [
+          "Bệnh giun đũa chó mèo"
+        ],
+        "en": [
+          "Toxocariasis"
+        ]
+      },
+      "source": "VN Core FHIR 0.10.0; http://fhir.hl7.org.vn/core/CodeSystem/vn-communicable-disease-cs#C07; source SHA-256 5f1160ec05482c195805c127246fa5265bb19099c0614bea123d3ebc5c9fda05",
+      "license": "CC-BY-4.0 declared at package level; attribution required to Omi HealthTech / VN Core FHIR Community Initiative; resource-level rights review remains pending.",
+      "rights_status": "package_license_declared; source_notice_preserved; independent_rights_review_pending",
+      "aliases": {
+        "vi": [
+          "giun đũa chó mèo"
+        ]
+      }
+    },
+    {
+      "concept_id": "vncore:vn-communicable-disease:C08",
+      "type": "communicable_disease",
+      "code_system": "http://fhir.hl7.org.vn/core/CodeSystem/vn-communicable-disease-cs",
+      "code": "C08",
+      "labels": {
+        "vi": [
+          "Bệnh lậu"
+        ],
+        "en": [
+          "Gonorrhea"
+        ]
+      },
+      "source": "VN Core FHIR 0.10.0; http://fhir.hl7.org.vn/core/CodeSystem/vn-communicable-disease-cs#C08; source SHA-256 5f1160ec05482c195805c127246fa5265bb19099c0614bea123d3ebc5c9fda05",
+      "license": "CC-BY-4.0 declared at package level; attribution required to Omi HealthTech / VN Core FHIR Community Initiative; resource-level rights review remains pending.",
+      "rights_status": "package_license_declared; source_notice_preserved; independent_rights_review_pending",
+      "aliases": {
+        "vi": [
+          "lậu"
+        ]
+      }
+    },
+    {
+      "concept_id": "vncore:vn-communicable-disease:C09",
+      "type": "communicable_disease",
+      "code_system": "http://fhir.hl7.org.vn/core/CodeSystem/vn-communicable-disease-cs",
+      "code": "C09",
+      "labels": {
+        "vi": [
+          "Bệnh lỵ a-míp"
+        ],
+        "en": [
+          "Amoebic dysentery"
+        ]
+      },
+      "source": "VN Core FHIR 0.10.0; http://fhir.hl7.org.vn/core/CodeSystem/vn-communicable-disease-cs#C09; source SHA-256 5f1160ec05482c195805c127246fa5265bb19099c0614bea123d3ebc5c9fda05",
+      "license": "CC-BY-4.0 declared at package level; attribution required to Omi HealthTech / VN Core FHIR Community Initiative; resource-level rights review remains pending.",
+      "rights_status": "package_license_declared; source_notice_preserved; independent_rights_review_pending",
+      "aliases": {
+        "vi": [
+          "lỵ a-míp"
+        ]
+      }
+    },
+    {
+      "concept_id": "vncore:vn-communicable-disease:C10",
+      "type": "communicable_disease",
+      "code_system": "http://fhir.hl7.org.vn/core/CodeSystem/vn-communicable-disease-cs",
+      "code": "C10",
+      "labels": {
+        "vi": [
+          "Bệnh nhiễm ấu trùng sán lợn"
+        ],
+        "en": [
+          "Cysticercosis"
+        ]
+      },
+      "source": "VN Core FHIR 0.10.0; http://fhir.hl7.org.vn/core/CodeSystem/vn-communicable-disease-cs#C10; source SHA-256 5f1160ec05482c195805c127246fa5265bb19099c0614bea123d3ebc5c9fda05",
+      "license": "CC-BY-4.0 declared at package level; attribution required to Omi HealthTech / VN Core FHIR Community Initiative; resource-level rights review remains pending.",
+      "rights_status": "package_license_declared; source_notice_preserved; independent_rights_review_pending"
+    },
+    {
+      "concept_id": "vncore:vn-communicable-disease:C11",
+      "type": "communicable_disease",
+      "code_system": "http://fhir.hl7.org.vn/core/CodeSystem/vn-communicable-disease-cs",
+      "code": "C11",
+      "labels": {
+        "vi": [
+          "Bệnh nhiễm giun"
+        ],
+        "en": [
+          "Helminthiasis"
+        ]
+      },
+      "source": "VN Core FHIR 0.10.0; http://fhir.hl7.org.vn/core/CodeSystem/vn-communicable-disease-cs#C11; source SHA-256 5f1160ec05482c195805c127246fa5265bb19099c0614bea123d3ebc5c9fda05",
+      "license": "CC-BY-4.0 declared at package level; attribution required to Omi HealthTech / VN Core FHIR Community Initiative; resource-level rights review remains pending.",
+      "rights_status": "package_license_declared; source_notice_preserved; independent_rights_review_pending"
+    },
+    {
+      "concept_id": "vncore:vn-communicable-disease:C12",
+      "type": "communicable_disease",
+      "code_system": "http://fhir.hl7.org.vn/core/CodeSystem/vn-communicable-disease-cs",
+      "code": "C12",
+      "labels": {
+        "vi": [
+          "Bệnh nhiễm sán dây"
+        ],
+        "en": [
+          "Taeniasis"
+        ]
+      },
+      "source": "VN Core FHIR 0.10.0; http://fhir.hl7.org.vn/core/CodeSystem/vn-communicable-disease-cs#C12; source SHA-256 5f1160ec05482c195805c127246fa5265bb19099c0614bea123d3ebc5c9fda05",
+      "license": "CC-BY-4.0 declared at package level; attribution required to Omi HealthTech / VN Core FHIR Community Initiative; resource-level rights review remains pending.",
+      "rights_status": "package_license_declared; source_notice_preserved; independent_rights_review_pending"
+    },
+    {
+      "concept_id": "vncore:vn-communicable-disease:C13",
+      "type": "communicable_disease",
+      "code_system": "http://fhir.hl7.org.vn/core/CodeSystem/vn-communicable-disease-cs",
+      "code": "C13",
+      "labels": {
+        "vi": [
+          "Bệnh nhiễm sán dây chó"
+        ],
+        "en": [
+          "Echinococcosis"
+        ]
+      },
+      "source": "VN Core FHIR 0.10.0; http://fhir.hl7.org.vn/core/CodeSystem/vn-communicable-disease-cs#C13; source SHA-256 5f1160ec05482c195805c127246fa5265bb19099c0614bea123d3ebc5c9fda05",
+      "license": "CC-BY-4.0 declared at package level; attribution required to Omi HealthTech / VN Core FHIR Community Initiative; resource-level rights review remains pending.",
+      "rights_status": "package_license_declared; source_notice_preserved; independent_rights_review_pending"
+    },
+    {
+      "concept_id": "vncore:vn-communicable-disease:C14",
+      "type": "communicable_disease",
+      "code_system": "http://fhir.hl7.org.vn/core/CodeSystem/vn-communicable-disease-cs",
+      "code": "C14",
+      "labels": {
+        "vi": [
+          "Bệnh nhiễm sán lá gan"
+        ],
+        "en": [
+          "Liver fluke infection"
+        ]
+      },
+      "source": "VN Core FHIR 0.10.0; http://fhir.hl7.org.vn/core/CodeSystem/vn-communicable-disease-cs#C14; source SHA-256 5f1160ec05482c195805c127246fa5265bb19099c0614bea123d3ebc5c9fda05",
+      "license": "CC-BY-4.0 declared at package level; attribution required to Omi HealthTech / VN Core FHIR Community Initiative; resource-level rights review remains pending.",
+      "rights_status": "package_license_declared; source_notice_preserved; independent_rights_review_pending"
+    },
+    {
+      "concept_id": "vncore:vn-communicable-disease:C15",
+      "type": "communicable_disease",
+      "code_system": "http://fhir.hl7.org.vn/core/CodeSystem/vn-communicable-disease-cs",
+      "code": "C15",
+      "labels": {
+        "vi": [
+          "Bệnh nhiễm sán lá phổi"
+        ],
+        "en": [
+          "Lung fluke infection (Paragonimiasis)"
+        ]
+      },
+      "source": "VN Core FHIR 0.10.0; http://fhir.hl7.org.vn/core/CodeSystem/vn-communicable-disease-cs#C15; source SHA-256 5f1160ec05482c195805c127246fa5265bb19099c0614bea123d3ebc5c9fda05",
+      "license": "CC-BY-4.0 declared at package level; attribution required to Omi HealthTech / VN Core FHIR Community Initiative; resource-level rights review remains pending.",
+      "rights_status": "package_license_declared; source_notice_preserved; independent_rights_review_pending",
+      "aliases": {
+        "en": [
+          "Paragonimiasis"
+        ]
+      }
+    },
+    {
+      "concept_id": "vncore:vn-communicable-disease:C16",
+      "type": "communicable_disease",
+      "code_system": "http://fhir.hl7.org.vn/core/CodeSystem/vn-communicable-disease-cs",
+      "code": "C16",
+      "labels": {
+        "vi": [
+          "Bệnh nhiễm sán lá ruột"
+        ],
+        "en": [
+          "Intestinal fluke infection"
+        ]
+      },
+      "source": "VN Core FHIR 0.10.0; http://fhir.hl7.org.vn/core/CodeSystem/vn-communicable-disease-cs#C16; source SHA-256 5f1160ec05482c195805c127246fa5265bb19099c0614bea123d3ebc5c9fda05",
+      "license": "CC-BY-4.0 declared at package level; attribution required to Omi HealthTech / VN Core FHIR Community Initiative; resource-level rights review remains pending.",
+      "rights_status": "package_license_declared; source_notice_preserved; independent_rights_review_pending"
+    },
+    {
+      "concept_id": "vncore:vn-communicable-disease:C17",
+      "type": "communicable_disease",
+      "code_system": "http://fhir.hl7.org.vn/core/CodeSystem/vn-communicable-disease-cs",
+      "code": "C17",
+      "labels": {
+        "vi": [
+          "Bệnh nhiễm vi rút đại bào"
+        ],
+        "en": [
+          "Cytomegalovirus (CMV) disease"
+        ]
+      },
+      "source": "VN Core FHIR 0.10.0; http://fhir.hl7.org.vn/core/CodeSystem/vn-communicable-disease-cs#C17; source SHA-256 5f1160ec05482c195805c127246fa5265bb19099c0614bea123d3ebc5c9fda05",
+      "license": "CC-BY-4.0 declared at package level; attribution required to Omi HealthTech / VN Core FHIR Community Initiative; resource-level rights review remains pending.",
+      "rights_status": "package_license_declared; source_notice_preserved; independent_rights_review_pending"
+    },
+    {
+      "concept_id": "vncore:vn-communicable-disease:C18",
+      "type": "communicable_disease",
+      "code_system": "http://fhir.hl7.org.vn/core/CodeSystem/vn-communicable-disease-cs",
+      "code": "C18",
+      "labels": {
+        "vi": [
+          "Bệnh phong"
+        ],
+        "en": [
+          "Leprosy"
+        ]
+      },
+      "source": "VN Core FHIR 0.10.0; http://fhir.hl7.org.vn/core/CodeSystem/vn-communicable-disease-cs#C18; source SHA-256 5f1160ec05482c195805c127246fa5265bb19099c0614bea123d3ebc5c9fda05",
+      "license": "CC-BY-4.0 declared at package level; attribution required to Omi HealthTech / VN Core FHIR Community Initiative; resource-level rights review remains pending.",
+      "rights_status": "package_license_declared; source_notice_preserved; independent_rights_review_pending",
+      "aliases": {
+        "vi": [
+          "phong"
+        ]
+      }
+    },
+    {
+      "concept_id": "vncore:vn-communicable-disease:C19",
+      "type": "communicable_disease",
+      "code_system": "http://fhir.hl7.org.vn/core/CodeSystem/vn-communicable-disease-cs",
+      "code": "C19",
+      "labels": {
+        "vi": [
+          "Ngộ độc thực phẩm do Vibrio Parahaemolyticus"
+        ],
+        "en": [
+          "Food poisoning due to Vibrio parahaemolyticus"
+        ]
+      },
+      "source": "VN Core FHIR 0.10.0; http://fhir.hl7.org.vn/core/CodeSystem/vn-communicable-disease-cs#C19; source SHA-256 5f1160ec05482c195805c127246fa5265bb19099c0614bea123d3ebc5c9fda05",
+      "license": "CC-BY-4.0 declared at package level; attribution required to Omi HealthTech / VN Core FHIR Community Initiative; resource-level rights review remains pending.",
+      "rights_status": "package_license_declared; source_notice_preserved; independent_rights_review_pending"
+    }
+  ]
+}

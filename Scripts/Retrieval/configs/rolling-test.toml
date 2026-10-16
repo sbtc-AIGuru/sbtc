@@ -1,0 +1,20 @@
+# Verified full test20k run after the Underthesea fixed_words escaping fix.
+# READY snapshots are validated as a no-op; use a new run-dir for another build.
+run_dir = "artifacts/retrieval/no-folded-rolling-test20k-after-regex-fix"
+input_dir = "data_final/chunks_format_v3_r3_reserve_test20k"
+scope = "artifacts/retrieval/test20k-scope.jsonl"
+corpus = "newcorpus/links_corpus_vi_en_zh.parquet"
+
+k1 = 0.8
+b = 0.4
+threads = 2
+per_language_docs = 300
+per_language_chunks = 1000
+max_docs = 1000
+max_chunks = 3000
+
+staging_target_bytes = 250000000
+staging_max_bytes = 300000000
+control_reserve_bytes = 1000000
+writer_ram_buffer_mib = 16
+disk_reserve_bytes = 2000000000

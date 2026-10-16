@@ -1,0 +1,18 @@
+{
+  "schema_version": 1,
+  "split": "development",
+  "approved_by": null,
+  "expected_origin": "source_read_development_checks",
+  "cases_sha256": "341008219787edea331827c9a51ef4b70084e36a8112d3833fd1e8b21494b188",
+  "cases": 45,
+  "language_counts": {
+    "vi": 15,
+    "en": 15,
+    "zh": 15
+  },
+  "limitations": [
+    "Not a holdout or release gold.",
+    "VI/ZH positives are expected to fail until source/semantic curation is accepted.",
+    "No expected labels generated from implementation output."
+  ]
+}
