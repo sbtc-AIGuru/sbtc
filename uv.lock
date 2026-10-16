@@ -536,6 +536,15 @@ wheels = [
 ]
 
 [[package]]
+name = "emoji"
+version = "2.16.0"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/34/01/a25a9c13e2f8945d06b219e08e88a5dd8a504ad1a79f872f25d6814f498c/emoji-2.16.0.tar.gz", hash = "sha256:ff9e9b1c48389ef78ed1787e7693c555e84e6bb9bac16be1fd65e1616dbf80c8", size = 617905, upload-time = "2026-09-16T19:47:57.051Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/fd/8a/75e3177f374877b19dd3112820b071836ad1100f9f58424630b4783519bc/emoji-2.16.0-py3-none-any.whl", hash = "sha256:c4230d80640def9071599ff56b1b5950fe13a2a94c0da98c5deab12431b24330", size = 610912, upload-time = "2026-09-16T19:47:55.507Z" },
+]
+
+[[package]]
 name = "faiss-cpu"
 version = "1.15.1"
 source = { registry = "https://pypi.org/simple" }
@@ -1897,19 +1906,23 @@ version = "0.1"
 source = { editable = "." }
 dependencies = [
     { name = "crawl4ai" },
+    { name = "emoji" },
     { name = "faiss-cpu" },
     { name = "psycopg" },
     { name = "pyarrow" },
     { name = "sqlalchemy" },
+    { name = "whitespace-normalizer" },
 ]
 
 [package.metadata]
 requires-dist = [
     { name = "crawl4ai", specifier = "==0.9.4" },
+    { name = "emoji", specifier = ">=2.16.0" },
     { name = "faiss-cpu", specifier = ">=1.15.1" },
     { name = "psycopg", specifier = ">=3.1,<4" },
     { name = "pyarrow", specifier = ">=25.0.1" },
     { name = "sqlalchemy", specifier = ">=2.0,<3" },
+    { name = "whitespace-normalizer", specifier = ">=2025.9.14911" },
 ]
 
 [[package]]
@@ -2229,6 +2242,15 @@ source = { registry = "https://pypi.org/simple" }
 sdist = { url = "https://files.pythonhosted.org/packages/e3/05/b17359e1cefb4f909b5e40b1b90a496d987258916dbbf88e842c729f510e/urllib3-2.8.0.tar.gz", hash = "sha256:63bf2ead4c879426ebf22ef2a781eeb4aa3b4ae798a0435506f8687fd5bb9b63", size = 458972, upload-time = "2026-09-15T19:29:36.253Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/92/9d/c4e665119135114480843e7ab388fa94d8480650450e6f8e26b70d323a4c/urllib3-2.8.0-py3-none-any.whl", hash = "sha256:0cf3cae568d36aa9576b28dfb35f11328f1cb974ca7647d9475ebb86c75ac6e3", size = 135717, upload-time = "2026-09-15T19:29:34.577Z" },
+]
+
+[[package]]
+name = "whitespace-normalizer"
+version = "2025.9.14911"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/ed/7a/f0ec88c28ebbce0cc1013d1bf805b3e53f4b80cc42ce621749fb49912b6a/whitespace_normalizer-2025.9.14911.tar.gz", hash = "sha256:6c315a498372ed4b02788f9ce4ee5da62bc326b54f37be9364bc0995354278bf", size = 2284, upload-time = "2025-09-14T09:12:01.521Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/3b/92/e5928389ff0fb109ecf6b7a24cd1864fcfe7caeac9e30d914ae2cfb972a0/whitespace_normalizer-2025.9.14911-py3-none-any.whl", hash = "sha256:fe279fb6436200885ba3cb1601dadd88ea2a0009964f7dfa932b44f09ec3a9f7", size = 2889, upload-time = "2025-09-14T09:12:00.193Z" },
 ]
 
 [[package]]
