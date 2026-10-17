@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+import html
+import re
 from copy import copy
 from bs4 import BeautifulSoup, Tag
 
@@ -10,6 +12,10 @@ from verbatim import clean_to_verbatim
 
 
 ARTICLE_LAYOUTS: dict[str, tuple[tuple[str, tuple[str, ...]], ...]] = {
+    "120ask.com": (
+        ("#d_askH1, .b_askbox h1, h1", ("#d_msCon, .b_askbox", ".b_answerbox .b_answerli .b_anscont_cont")),
+        ("#d_askH1, .b_askbox h1, h1", ("#d_msCon, .b_askbox",)),
+    ),
     "bachmai.gov.vn": (("#content-post > h3, #content-post > h1", ("#content-post .content-editor",)),),
     "baoangiang.com.vn": ((".detail-title h1", ("#newscontents",)),),
     "baogialai.com.vn": (("h1.article__title", (".article__body",)),),
@@ -31,12 +37,11 @@ ARTICLE_LAYOUTS: dict[str, tuple[tuple[str, tuple[str, ...]], ...]] = {
     "baoquangtri.vn": (("h2#title", (".td-post-content",)),),
     "baovinhlong.com.vn": (("h1.head_title", ("#content",)),),
     "ask.familydoctor.com.cn": ((".quest-title", (".quest-info .illness-pics", ".answer-words")),),
-    "120ask.com": (("#d_askH1", ("#d_msCon", ".b_answerbox .b_answerli .b_anscont_cont")),),
-    "bachmai.gov.vn": (("#content-post > h3.h3", ("#content-post > .content-editor",)),),
-    "baoangiang.com.vn": ((".detail-title h1", ("#newscontents",)),),
     "cnkang.com": (
         (".detail h1.detaila", (".detail .detailc",)),
         (".endContent h1, h1#h1title, h1", ("#endText",)),
+        ("h1, .main_content h1", (".main_content, .article_content",)),
+        ("title, h1", (".zh05b",)),
     ),
     "wujue.com": (("#article-main_left .main_articletitle h1", ("#article-main_left .art-text",)),),
     "baocantho.com.vn": (
@@ -46,22 +51,23 @@ ARTICLE_LAYOUTS: dict[str, tuple[tuple[str, tuple[str, ...]], ...]] = {
     "suckhoedoisong.vn": (
         ("h1.detail-title, .detail-title, h1", (".detail-content",)),
     ),
-    "suckhoeviet.org.vn": ((
-        ".article-detail-body-right > h1",
-        (".article-detail-body-right > .article-detail-desc",
-         ".article-detail-body-right > .__MASTERCMS_CONTENT"),
-    ),),
-    "tamanhhospital.vn": ((
-        ".post_info.box_detail_post .title",
-        (".post_info.box_detail_post:has(> p)",),
-    ),),
     "a-hospital.com": (
-        ("h1.firstHeading, h1", ("#bodyContent",)),
-        ("h1.firstHeading, h1", ("#content",)),
+        ("h1.firstHeading, h1#firstHeading, h1", ("#bodyContent",)),
+        ("h1.firstHeading, h1#firstHeading, h1", ("#content",)),
     ),
     "zhongyibaodian.net": (
-        ("h1.firstHeading, h1", ("#bodyContent",)),
-        ("h1.firstHeading, h1", ("#content",)),
+        ("h1.firstHeading, h1#firstHeading, h1", ("#bodyContent",)),
+        ("h1.firstHeading, h1#firstHeading, h1", ("#content",)),
+    ),
+    "baidu.com": (
+        ("title, h1, h2", (".health-dict__content, .health-dict",)),
+    ),
+    "jbk.39.net": (
+        ("h1, .disease_box h1", (".information_box",)),
+        ("h1", (".lbox, .des, .text",)),
+        ("h1", (".intro, .des, .lbox, .catalogItem",)),
+        ("h1", (".container",)),
+        ("h1", (".disease_box",)),
     ),
     "suckhoecongdongonline.vn": (
         ("h1.article__title, h1", (".article__body, .cms-body",)),
@@ -97,15 +103,25 @@ ARTICLE_LAYOUTS: dict[str, tuple[tuple[str, tuple[str, ...]], ...]] = {
         (".article-content > article > h1", (".article-content > article > .prose",)),
     ),
     "suckhoeviet.org.vn": (
+        (".article-detail-body-right > h1",
+         (".article-detail-body-right > .article-detail-desc",
+          ".article-detail-body-right > .__MASTERCMS_CONTENT")),
         (".article-detail-body-right > h1", (".article-detail-body-right > .__MASTERCMS_CONTENT",)),
         ("h1.mastercms-emag-title", ("article.mastercms-emag-article",)),
     ),
     "tamanhhospital.vn": (
+        (".post_info.box_detail_post .title", (".post_info.box_detail_post:has(> p)",)),
         ("h1", (".post_info.box_detail_post",)),
     ),
     "familydoctor.com.cn": (
+        (".art-title h1, .title h1, h1.title, h1", ("#viewContent, .viewContent, .endContent",)),
         (".art-title h1, .title h1, h1.title, h1", (".art-content, .content, #content, .q-content",)),
         (".article-titile h1", ("#viewContent",)),
+    ),
+    "zysjonline.com": (
+        ("article h1, h1", ("article .leading-8, article .space-y-4", "article")),
+        ("h1", ("main .flex-1.min-w-0", ".flex-1")),
+        ("h1, title", ("article, main .flex-1",)),
     ),
     "youlai.cn": (
         (
@@ -133,7 +149,10 @@ EXCERPT_CHARACTERS = 25
 
 def minimum_article_characters(domain: str) -> int:
     """Allow complete short questions and Chinese book verses in known layouts."""
-    return {"ask.39.net": 8, "qihuangzhishu.com": 12}.get(domain, MIN_BODY_CHARACTERS)
+    return {
+        "ask.39.net": 8, "qihuangzhishu.com": 12,
+        "a-hospital.com": 15, "zhongyibaodian.net": 15,
+    }.get(domain, MIN_BODY_CHARACTERS)
 
 UNIVERSAL_NOISE_SELECTORS = (
     "script, style, noscript, iframe, svg, nav, footer, aside, "
@@ -196,11 +215,19 @@ def purify_body(element: Tag) -> None:
 def _content_in_markdown(element: Tag, markdown: str) -> bool:
     """Validate that the core article body is substantially present in the markdown."""
     purify_body(element)
-    source = normalized_text(element.get_text(" ", strip=True))
+    raw_text = element.get_text(" ", strip=True)
+    # Strip URL addresses that verbatim cleaner stripped from markdown
+    stripped_urls = html.unescape(re.sub(r"https?://\S+", "", raw_text))
+    source = normalized_text(stripped_urls)
     if not source:
         return False
     if len(source) <= EXCERPT_CHARACTERS:
-        return source in markdown
+        return source in markdown or markdown in source
+
+    # For short entries (< 100 characters like dictionary stubs), check matching prefix/substring
+    if len(source) < 100:
+        sample_len = min(15, len(source))
+        return (source[:sample_len] in markdown) or (len(markdown) >= 15 and markdown[:15] in source)
 
     # Interior statistical sampling: check 5 evenly spaced interior checkpoints
     # (15%, 35%, 50%, 65%, 85%) avoiding fragile edge noise (position 0 and last)
@@ -227,7 +254,7 @@ def http_article_error(domain: str, result: object, text: str) -> str | None:
     layouts = ARTICLE_LAYOUTS.get(domain)
     if layouts is None and domain.endswith(".39.net"):
         layouts = ARTICLE_LAYOUTS["39.net"]
-    if layouts is None and domain.endswith(".familydoctor.com.cn"):
+    if layouts is None and (domain.endswith(".familydoctor.com.cn") or domain == "familydoctor.cn"):
         layouts = ARTICLE_LAYOUTS["familydoctor.com.cn"]
     minimum_characters = minimum_article_characters(domain)
     if layouts is None and len(markdown) < minimum_characters:
@@ -245,11 +272,13 @@ def http_article_error(domain: str, result: object, text: str) -> str | None:
 
     if layouts is not None:
         for title_selector, body_selectors in layouts:
-            title = soup.select_one(title_selector)
-            if title is None:
-                continue
-            title_text = normalized_text(title.get_text(" ", strip=True))
-            if not title_text or title_text not in markdown:
+            title_matched = False
+            for title_elem in soup.select(title_selector):
+                title_text = normalized_text(title_elem.get_text(" ", strip=True))
+                if title_text and title_text in markdown:
+                    title_matched = True
+                    break
+            if not title_matched:
                 continue
             bodies = [soup.select(selector) for selector in body_selectors]
             if domain == "ask.39.net":
@@ -272,30 +301,41 @@ def http_article_error(domain: str, result: object, text: str) -> str | None:
                 for element in elements
             ):
                 return None
-        return "HTTP Markdown is missing the title or part of the article body"
 
-    # Universal Auto-Discovery for domains without explicit layout:
-    title_candidates = soup.select("h1, .article-title, .entry-title, .title, header h1")
+    # Universal Auto-Discovery fallback
+    title_candidates = soup.select("h1, .article-title, .entry-title, .title, header h1, title, h2")
     valid_title = False
     for cand in title_candidates:
         cand_text = normalized_text(cand.get_text(" ", strip=True))
-        if len(cand_text) >= 6 and cand_text in markdown:
+        if len(cand_text) >= 4 and cand_text in markdown:
             valid_title = True
             break
     if not valid_title:
-        return f"HTTP article layout is not configured for {domain} (no valid title found in markdown)"
+        return (
+            "HTTP Markdown is missing the title or part of the article body"
+            if layouts is not None
+            else f"HTTP article layout is not configured for {domain} (no valid title found in markdown)"
+        )
 
     body_candidates = soup.select(
-        "article, main, #content, .content, .post-content, .detail-content, .entry-content, #bodyContent"
+        "article, main, #content, .content, .post-content, .detail-content, .entry-content, #bodyContent, .main_content, .container"
     )
     if not body_candidates:
-        return f"HTTP article layout is not configured for {domain} (no standard body container)"
+        return (
+            "HTTP Markdown is missing the title or part of the article body"
+            if layouts is not None
+            else f"HTTP article layout is not configured for {domain} (no standard body container)"
+        )
 
     for cand_body in body_candidates:
         if _content_in_markdown(cand_body, markdown):
             return None
 
-    return f"HTTP article layout is not configured for {domain} (body content did not match markdown)"
+    return (
+        "HTTP Markdown is missing the title or part of the article body"
+        if layouts is not None
+        else f"HTTP article layout is not configured for {domain} (body content did not match markdown)"
+    )
 
 
 def article_metadata(domain: str, result: object) -> dict[str, object]:

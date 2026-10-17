@@ -300,6 +300,8 @@ class TestQualityModule(unittest.TestCase):
             "zhongyibaodian.net",
             "sggp.org.vn",
             "dantri.com.vn",
+            "baidu.com",
+            "jbk.39.net",
         ]
         for domain in expected_domains:
             with self.subTest(domain=domain):
@@ -320,6 +322,46 @@ class TestQualityModule(unittest.TestCase):
         result = MockResult(html)
         error = http_article_error("suckhoedoisong.vn", result, text)
         self.assertIsNone(error, f"Expected None but got: {error}")
+
+    def test_phase1_rescue_cases(self):
+        """Verify Phase 1 rescue site layouts: 120ask, jbk.39.net, cnkang, baidu, a-hospital."""
+        # 1. 120ask without answers (only question)
+        q_title = "医生你好，请问急性胃炎吃什么药好？"
+        q_desc = "健康咨询描述：昨晚吃辣后突然胃痛反酸，目前感觉胃部灼热恶心，想知道如何缓解。"
+        html_120 = f"<h1 id='d_askH1'>{q_title}</h1><div id='d_msCon'>{q_desc}</div>"
+        text_120 = f"{q_title}\n{q_desc}"
+        self.assertIsNone(http_article_error("120ask.com", MockResult(html_120), text_120))
+
+        # 2. jbk.39.net disease page
+        jbk_title = "阿米巴性阴道炎"
+        jbk_body = "阿米巴性阴道炎多由阿米巴原虫侵入阴道黏膜引起炎症，主要表现为阴道分泌物增多伴瘙痒疼痛。"
+        html_jbk = f"<h1>{jbk_title}</h1><div class='disease_box'>{jbk_body}</div>"
+        text_jbk = f"{jbk_title}\n{jbk_body}"
+        self.assertIsNone(http_article_error("jbk.39.net", MockResult(html_jbk), text_jbk))
+
+        # 3. cnkang main_content layout
+        cnkang_title = "跌打损伤常用外敷药酒"
+        cnkang_body = "本药酒主要适用于跌打损伤、局部肿痛及筋骨扭伤，每日涂抹患处两至三次即可见效。"
+        html_cnkang = f"<div class='main_content'><h1>{cnkang_title}</h1><p>{cnkang_body}</p></div>"
+        text_cnkang = f"{cnkang_title}\n{cnkang_body}"
+        self.assertIsNone(http_article_error("cnkang.com", MockResult(html_cnkang), text_cnkang))
+
+        # 4. baidu health encyclopedia layout
+        baidu_title = "白斑病"
+        baidu_body = (
+            "主要特点为皮肤上出现界限清楚的白斑，疾病发生与遗传及自身免疫等因素密切相关。"
+            "根据病情进展分为进展期、稳定期和消退期，根据病期及白斑部位选择合适的治疗方案。"
+        )
+        html_baidu = f"<title>{baidu_title}</title><div class='health-dict__content'><h2>{baidu_title}</h2><p>{baidu_body}</p></div>"
+        text_baidu = f"{baidu_title}\n{baidu_body}"
+        self.assertIsNone(http_article_error("baidu.com", MockResult(html_baidu), text_baidu))
+
+        # 5. a-hospital mediawiki dictionary stub with URL stripping
+        wiki_title = "丁疮"
+        wiki_body = "丁疮，病名。出诸病源候论卷三十二。即疔疮，见该条。出自A+医学百科 http://www.a-hospital.com/w/dingchuang 转载请保留。"
+        html_wiki = f"<h1 class='firstHeading'>{wiki_title}</h1><div id='bodyContent'>{wiki_body}</div>"
+        text_wiki = f"{wiki_title}\n丁疮，病名。出诸病源候论卷三十二。即疔疮，见该条。"
+        self.assertIsNone(http_article_error("a-hospital.com", MockResult(html_wiki), text_wiki))
 
     def test_missing_title_rejected(self):
         """If title is missing, http_article_error should return descriptive error."""

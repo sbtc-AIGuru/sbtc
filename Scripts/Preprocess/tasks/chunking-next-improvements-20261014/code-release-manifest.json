@@ -1,0 +1,15 @@
+{
+  "profile": "format-v3",
+  "cleaner": "verbatim-v5",
+  "format_code_sha256": "ac9f289e564d21dfd1f3aa127a2857ebc4e6040fd587a202696465afc8d0976d",
+  "code_hashes": {
+    "Scripts/Preprocess/chunking.py": "09ca76acdb26797b3cc71cdda484d1970c5ad04f55f8237f60b80169e44d9f0e",
+    "Scripts/Preprocess/format_profiles.py": "3aefe19c8062681ea8784ef81a8f4fc6b7d6b23210c0a720d8440f1d515f3926",
+    "Scripts/Preprocess/format_chunking.py": "824dd82b4aff60b377b9115b6b685a34b5b837cb854e2d663b8b77232507f102",
+    "Scripts/Preprocess/chunk_cli.py": "bbceaf2a767d4dcfe5d0108f211b9a085cf6e18f94ba70cd224c0a534336d657",
+    "Scripts/Preprocess/chunk_audit.py": "effb48e73816afd2d400bc9c8100e104a1699307da149da4fd11ea009d1da03e",
+    "Scripts/Preprocess/boilerplate.py": "ada43b03b0dc90176e999ac250778e0679cc4e2017daa76d72464db60c0ac883",
+    "Scripts/Clawler/verbatim.py": "d6447daf8e5462b0faf46a72e793b0c642fd09e0b81cbd9fa2007d8a0b9014bc"
+  },
+  "input_sha256": "9fdacfb07ecc1757c53c5b03bd41d31358c4a0db74fea785a6a62f90cfe8bf43"
+}

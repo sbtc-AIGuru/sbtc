@@ -1,0 +1,15 @@
+# Install Pyserini separately with --no-deps: lexical-only deployment avoids CUDA.
+pyserini==2.4.0
+# Full external JDK 21 required: slim jdk4py lacks jdk.incubator.vector.
+jieba==0.42.1
+underthesea==8.3.0
+numpy
+scipy
+pyjnius
+tqdm
+requests
+pyyaml
+opencc-python-reimplemented
+pyahocorasick
+pyarrow
+pandas

@@ -1,0 +1,180 @@
+{
+  "generated_at": "2026-10-15T10:35:55+07:00",
+  "inputs": {
+    "aligned": {
+      "bytes": 136715,
+      "path": "sbtc/Resources/concepts_aligned_vi_en_zh.jsonl",
+      "sha256": "a4841f80e2bb885d2d29bcc52aad5b5016c29ed0241cd830573d663b32ba1c8b",
+      "source_license_status": "unknown_or_not_recorded"
+    },
+    "base_en": {
+      "bytes": 307737,
+      "path": "sbtc/Resources/base_en.txt",
+      "sha256": "13f792ce3bceb23e036bed075b97cfaec35c8849b4f24a6d9db8958236fbf858",
+      "source_license_status": "unknown_or_not_recorded"
+    },
+    "base_vi": {
+      "bytes": 4254347,
+      "path": "sbtc/Resources/base_vi.txt",
+      "sha256": "9ed71eaa46e70d6cf6eea003309b5827e1548a42c6786103e61824de675d39a0",
+      "source_license_status": "unknown_or_not_recorded"
+    },
+    "base_zh": {
+      "bytes": 351160,
+      "path": "sbtc/Resources/base_zh.txt",
+      "sha256": "11a5dc93cf9c25ae63000a89adda6dc3783023452bdf4db110e2814209fb1010",
+      "source_license_status": "unknown_or_not_recorded"
+    },
+    "sample": {
+      "bytes": 1617,
+      "path": "sbtc/Resources/medical_lexicon_vi_en_zh.sample.jsonl",
+      "sha256": "cb8dca0592161f0265ee5f5077b8150e01fcedb91f65eeacb0babed53cc1b4a0",
+      "source_license_status": "unknown_or_not_recorded"
+    },
+    "seed": {
+      "bytes": 3619,
+      "path": "sbtc/Scripts/Retrieval/resources/concepts.json",
+      "sha256": "2364f62fd097eccae9eb857faca6f5b508a0a9f22204d6e8e0c72e78477c58f7",
+      "source_license_status": "team_authored"
+    }
+  },
+  "normalization": {
+    "case": "lower",
+    "translation_or_spelling_rewrite": false,
+    "unicode": "NFKC",
+    "unicode_diacritics_removed": false,
+    "whitespace": "collapse consecutive whitespace and strip edges"
+  },
+  "outputs": {
+    "jsonl_record_counts": {
+      "concept_id_map.jsonl": 856,
+      "concepts_candidates.jsonl": 839,
+      "external_ids_review.jsonl": 8,
+      "seed_comparison.jsonl": 12,
+      "terms_en.jsonl": 12955,
+      "terms_vi.jsonl": 154122,
+      "terms_zh.jsonl": 21736
+    },
+    "sha256": {
+      "REPORT.md": "0d986f44dd07a82d3e4b65e8d4110beba151769cd1d54cb3c91fd014551fb196",
+      "concept_id_map.jsonl": "c1e49ab9acf47a99b50faa5a2536ffe71703adf26ccbc22d4912322fca2a91b9",
+      "concepts_candidates.jsonl": "9b5b1cc5d87a4524490056bf61d6140999f2370ff92033803e64064bce04b494",
+      "external_ids_review.jsonl": "86fea93fb563d191f3ce80f08411caa32c87e7dd4fea5915b00e0eb001e8e88d",
+      "seed_comparison.jsonl": "a52e76bd3f3981a6c5acf5cf6b24320529d6757828526b582775da9f066e86c9",
+      "terms_en.jsonl": "0e615bc1089e81aac66e03f7e26eff2b90f1825e3ee5613a5ed8728c589938ed",
+      "terms_vi.jsonl": "d184ebdab13dd167abbe939be0683547d4e54b6dcf1569632095f0ec83e5d982",
+      "terms_zh.jsonl": "492dbe8959e747896f6bcf2741cb85bca68046effc7964a62d8df0828f1184f6"
+    }
+  },
+  "rule_version": "resource-curation-1.0",
+  "safety": {
+    "for_valid_read": false,
+    "integrated_into_bm25": false,
+    "licenses_verified": false,
+    "medical_semantics_verified": false,
+    "sources_modified": false
+  },
+  "schema_version": 1,
+  "statistics": {
+    "aligned": {
+      "canonical_concepts_in_collision_by_language": {
+        "en": 12,
+        "vi": 20,
+        "zh": 24
+      },
+      "canonical_exact_triple_count": 839,
+      "exact_triple_duplicate_groups": 17,
+      "icd_records_unverified": 155,
+      "id_map_count": 856,
+      "label_collision_groups_by_language": {
+        "en": 6,
+        "vi": 10,
+        "zh": 12
+      },
+      "rows_merged_as_exact_triples": 17,
+      "schema_validation": "passed",
+      "source_id_count": 856,
+      "source_record_count": 856
+    },
+    "base": {
+      "en": {
+        "classification_by_deduplicated_term": {
+          "lexical_candidate": 12949,
+          "review": 6
+        },
+        "classification_by_source_line": {
+          "lexical_candidate": 12949,
+          "review": 6
+        },
+        "deduplicated_term_count": 12955,
+        "nonempty_source_line_count": 12955,
+        "review_reason_counts_by_term": {
+          "generic_or_broad_phrase": 3,
+          "possible_code_glued_to_label": 3
+        },
+        "source_line_count": 12955,
+        "source_line_references_in_output": 12955
+      },
+      "vi": {
+        "classification_by_deduplicated_term": {
+          "lexical_candidate": 44913,
+          "review": 109209
+        },
+        "classification_by_source_line": {
+          "lexical_candidate": 44913,
+          "review": 109209
+        },
+        "deduplicated_term_count": 154122,
+        "nonempty_source_line_count": 154122,
+        "review_reason_counts_by_term": {
+          "five_token_window_shape_requires_review": 94102,
+          "known_fragment_or_nonmedical_sample": 30,
+          "negation_or_context_candidate": 371,
+          "organization_or_provider_candidate": 11084,
+          "possible_context_word": 44637,
+          "possible_sentence_or_context_phrase": 2115,
+          "possible_sentence_suffix": 224
+        },
+        "source_line_count": 154122,
+        "source_line_references_in_output": 154122
+      },
+      "zh": {
+        "classification_by_deduplicated_term": {
+          "lexical_candidate": 18962,
+          "review": 2774
+        },
+        "classification_by_source_line": {
+          "lexical_candidate": 18962,
+          "review": 2774
+        },
+        "deduplicated_term_count": 21736,
+        "nonempty_source_line_count": 21736,
+        "review_reason_counts_by_term": {
+          "known_nonmedical_sample": 28,
+          "negation_or_context_candidate": 325,
+          "organization_or_provider_candidate": 30,
+          "possible_context_phrase": 623,
+          "possible_sentence_or_action_prefix": 519,
+          "possible_sentence_or_context_phrase": 414,
+          "possible_sentence_prefix": 1099
+        },
+        "source_line_count": 21736,
+        "source_line_references_in_output": 21736
+      }
+    },
+    "sample": {
+      "aliases_language_unknown": 9,
+      "aliases_unverified": 20,
+      "external_id_pending_review": 6,
+      "external_id_rejected": 2,
+      "schema_validation": "passed",
+      "source_record_count": 8
+    },
+    "seed_comparison": {
+      "exact_triple_label_overlap_count": 5,
+      "partial_label_overlap_count": 2,
+      "seed_concept_count": 12,
+      "single_or_no_label_overlap_count": 5
+    }
+  }
+}

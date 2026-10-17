@@ -139,6 +139,143 @@ class TestVerbatimCleaner(unittest.TestCase):
         expected = "Đoạn 1 chứa nhiều khoảng trắng.\n\nĐoạn 2 sau khoảng cách."
         self.assertEqual(self._clean(sample), expected)
 
+    def test_preserve_medical_identifiers_with_underscores(self):
+        """Medical gene, protein, and lab identifiers with underscores must not be stripped."""
+        sample = "Bệnh nhân có chỉ số TNF_alpha, IL_6 và anti_HCV âm tính. Gen miR_126 bình thường."
+        expected = "Bệnh nhân có chỉ số TNF_alpha, IL_6 và anti_HCV âm tính. Gen miR_126 bình thường."
+        self.assertEqual(self._clean(sample), expected)
+
+    def test_preserve_medical_dosage_with_tilde(self):
+        """Medical dosage ranges and approximation tildes must be preserved."""
+        sample = "Dùng 3~5 ngày hoặc liều 500~1000mg/ngày, nhiệt độ ~37 độ C."
+        expected = "Dùng 3~5 ngày hoặc liều 500~1000mg/ngày, nhiệt độ ~37 độ C."
+        self.assertEqual(self._clean(sample), expected)
+
+    def test_strikethrough_markdown_removal(self):
+        """Double-tilde markdown strikethrough ~~text~~ must be stripped while keeping text."""
+        sample = "~~Thuốc cũ không dùng~~ thay bằng Paracetamol 500mg."
+        expected = "Thuốc cũ không dùng thay bằng Paracetamol 500mg."
+        self.assertEqual(self._clean(sample), expected)
+
+    def test_blockquote_vs_math_comparison(self):
+        """Markdown blockquote > at line start must be stripped, while math > is preserved."""
+        sample = "> Lưu ý: Uống thuốc sau ăn.\nChỉ số pH > 7.0 là môi trường kiềm."
+        expected = "Lưu ý: Uống thuốc sau ăn.\nChỉ số pH > 7.0 là môi trường kiềm."
+        self.assertEqual(self._clean(sample), expected)
+
+    def test_unicode_nfkc_and_spaces(self):
+        """Unicode space normalization unifies non-breaking spaces and fullwidth spaces to standard spaces."""
+        sample = "Uống&nbsp;1/2&nbsp;viên hoặc ½ viên\u3000(hàng ngày)."
+        expected = "Uống 1/2 viên hoặc ½ viên (hàng ngày)."
+        self.assertEqual(self._clean(sample), expected)
+
+    def test_script_style_comment_removal(self):
+        """Script tags, style tags, and HTML comments must be completely removed."""
+        sample = "Triệu chứng sốt.<script>var a = 1;</script><!-- ghi chú --> Cần nhập viện.<style>.red {color:red;}</style>"
+        expected = "Triệu chứng sốt. Cần nhập viện."
+        self.assertEqual(self._clean(sample), expected)
+
+    def test_ui_noise_longchau(self):
+        """Long Chau UI button noise blocks must be removed."""
+        sample = "15 thực phẩm giảm cân\nKích thước chữ\nMặc định\nLớn hơn\nNội dung bài viết."
+        expected = "15 thực phẩm giảm cân\nNội dung bài viết."
+        self.assertEqual(self._clean(sample), expected)
+
+    def test_diverse_biomedical_identifiers(self):
+        """Ensure diverse genetic, viral, and biochemical identifiers with underscores are preserved."""
+        samples = [
+            ("Gen SARS_CoV_2 và BRCA1_2 có đột biến.", "Gen SARS_CoV_2 và BRCA1_2 có đột biến."),
+            ("Kết quả HBeAg_positive và miR_21_5p tăng cao.", "Kết quả HBeAg_positive và miR_21_5p tăng cao."),
+            ("Đo lường CYP2C19_2 và anti_HAV_IgM trong huyết thanh.", "Đo lường CYP2C19_2 và anti_HAV_IgM trong huyết thanh."),
+            ("Chỉ số (anti_HBs_positive) và [TNF_alpha] được ghi nhận.", "Chỉ số (anti_HBs_positive) và [TNF_alpha] được ghi nhận."),
+            ("Đánh giá **chỉ số TNF_alpha** trong máu.", "Đánh giá chỉ số TNF_alpha trong máu."),
+            ("Xem bài về [xét nghiệm anti_HCV](https://example.com/hcv).", "Xem bài về xét nghiệm anti_HCV."),
+        ]
+        for inp, exp in samples:
+            with self.subTest(inp=inp):
+                self.assertEqual(self._clean(inp), exp)
+
+    def test_complex_dosage_and_ranges(self):
+        """Ensure single-tilde medical dosages and tildes inside strikethrough are handled accurately."""
+        samples = [
+            ("Liều 0.5~1.0 mg/kg, uống 2~3 lần/ngày trong 7~10 ngày.", "Liều 0.5~1.0 mg/kg, uống 2~3 lần/ngày trong 7~10 ngày."),
+            ("Dung tích 10~20ml, nhiệt độ 38.5~39°C, chiếm ~20%.", "Dung tích 10~20ml, nhiệt độ 38.5~39°C, chiếm ~20%."),
+            ("Cần khoảng ~5 người, uống 1~2 viên/lần.", "Cần khoảng ~5 người, uống 1~2 viên/lần."),
+            ("~~Dùng 10~15 ngày~~ Dùng 3~5 ngày.", "Dùng 10~15 ngày Dùng 3~5 ngày."),
+        ]
+        for inp, exp in samples:
+            with self.subTest(inp=inp):
+                self.assertEqual(self._clean(inp), exp)
+
+    def test_deeply_nested_emphasis_combinations(self):
+        """Ensure multi-level and chained markdown emphasis delimiters are cleanly stripped."""
+        samples = [
+            ("***rất quan trọng*** đối với sức khỏe.", "rất quan trọng đối với sức khỏe."),
+            ("**bệnh nhân *sốt cao* liên tục** cần nhập viện.", "bệnh nhân sốt cao liên tục cần nhập viện."),
+            ("*bệnh nhân **sốt cao** liên tục* cần nhập viện.", "bệnh nhân sốt cao liên tục cần nhập viện."),
+            ("*Thuốc A* và **Thuốc B** cùng ***Thuốc C*** phối hợp.", "Thuốc A và Thuốc B cùng Thuốc C phối hợp."),
+            ("_triệu chứng:_ đau ngực, _nguyên nhân:_ sốt cao.", "triệu chứng: đau ngực, nguyên nhân: sốt cao."),
+        ]
+        for inp, exp in samples:
+            with self.subTest(inp=inp):
+                self.assertEqual(self._clean(inp), exp)
+
+    def test_complex_markdown_links_and_images(self):
+        """Ensure markdown links with titles, nested formatting, brackets, or empty anchors are parsed cleanly."""
+        samples = [
+            ('[thuốc A](http://link.com "tiêu đề bài viết") dùng hạ sốt.', "thuốc A dùng hạ sốt."),
+            ("[**thuốc A** và *thuốc B*](http://link.com) hiệu quả.", "thuốc A và thuốc B hiệu quả."),
+            ("[vitamin B1 (thiamin)](http://link.com) bổ sung dinh dưỡng.", "vitamin B1 (thiamin) bổ sung dinh dưỡng."),
+            ("Uống [](http://empty.com) liều 500mg.", "Uống liều 500mg."),
+            ("Xem chi tiết tại https://example.com/article?id=10&ref=med ngay.", "Xem chi tiết tại ngay."),
+            ("![biểu đồ nhịp tim (ECG)](http://img.com/ecg.png) đo được.", "biểu đồ nhịp tim (ECG) đo được."),
+        ]
+        for inp, exp in samples:
+            with self.subTest(inp=inp):
+                self.assertEqual(self._clean(inp), exp)
+
+    def test_mathematical_comparisons_mixed_with_html(self):
+        """Ensure mathematical comparison operators (<, >) are preserved while HTML tags are stripped."""
+        samples = [
+            ("<p>Chỉ số p < 0.05 và OR > 1.5 có ý nghĩa thống kê.</p>", "Chỉ số p < 0.05 và OR > 1.5 có ý nghĩa thống kê."),
+            ("Khoảng biến thiên 0 < x < 10.", "Khoảng biến thiên 0 < x < 10."),
+            ("Giữ pH > 7.35 và pH < 7.45 ổn định.", "Giữ pH > 7.35 và pH < 7.45 ổn định."),
+        ]
+        for inp, exp in samples:
+            with self.subTest(inp=inp):
+                self.assertEqual(self._clean(inp), exp)
+
+    def test_html_entities_and_multiline_style_script(self):
+        """Ensure diverse entities and multiline style/script blocks are cleanly unescaped and stripped."""
+        samples = [
+            ("Chỉ số &plusmn; 5% và liều &le; 100mg.", "Chỉ số ± 5% và liều ≤ 100mg."),
+            ("Bệnh nhân có chỉ số &amp;lt; 0.10 U/L &amp; âm tính.", "Bệnh nhân có chỉ số < 0.10 U/L & âm tính."),
+            ("<style>.cls { color: blue; }\nbody { margin: 0; }</style>\nNội dung chính.\n<script>\nconsole.log(1);\n</script>", "Nội dung chính."),
+        ]
+        for inp, exp in samples:
+            with self.subTest(inp=inp):
+                self.assertEqual(self._clean(inp), exp)
+
+    def test_multiline_blockquotes_and_formatted_tables(self):
+        """Ensure multiline blockquotes and markdown tables with bold cells are preserved as clean text lines."""
+        samples = [
+            ("> Đoạn 1 trích dẫn.\n> Đoạn 2 trích dẫn.", "Đoạn 1 trích dẫn.\nĐoạn 2 trích dẫn."),
+            ("| Xét nghiệm | Kết quả |\n| --- | --- |\n| **Bạch cầu** | 8.5 G/L |", "Xét nghiệm Kết quả\nBạch cầu 8.5 G/L"),
+        ]
+        for inp, exp in samples:
+            with self.subTest(inp=inp):
+                self.assertEqual(self._clean(inp), exp)
+
+    def test_multilingual_chinese_vietnamese(self):
+        """Ensure multilingual Chinese/Vietnamese texts with fullwidth spaces and punctuation are preserved."""
+        samples = [
+            ("慢性咽炎 có thể dùng Paracetamol 500mg không?", "慢性咽炎 có thể dùng Paracetamol 500mg không?"),
+            ("医生回答：建议服用头孢克肟。　注意休息。", "医生回答：建议服用头孢克肟。 注意休息。"),
+        ]
+        for inp, exp in samples:
+            with self.subTest(inp=inp):
+                self.assertEqual(self._clean(inp), exp)
+
 
 if __name__ == "__main__":
     unittest.main()

@@ -1,0 +1,55 @@
+{
+  "schema_version": 1,
+  "sources": [
+    {
+      "source_id": "who-2019-covid-claml",
+      "system": "WHO_ICD10",
+      "declared_version": "2019-covid-expanded",
+      "format": "claml_zip",
+      "authority": "WHO",
+      "landing_url": "https://icdcdn.who.int/icd10/index.html",
+      "download_url": "https://icdcdn.who.int/icd10/claml/icd102019en.xml.zip",
+      "sha256": "344c571aa9aed3b9ad1c80261b7828c45cfb5fc0b1a5da64aecef354dff5b3d9",
+      "rights": {"status": "review_required", "note": "WHO classification; download availability is not a redistribution licence"}
+    },
+    {
+      "source_id": "who-2019-tabular",
+      "system": "WHO_ICD10",
+      "declared_version": "2019-tabular",
+      "format": "tabular_zip",
+      "authority": "WHO",
+      "landing_url": "https://icdcdn.who.int/icd10/index.html",
+      "download_url": "https://icdcdn.who.int/icd10/meta/icd102019enMeta.zip",
+      "sha256": "a9fa787fa79076e199e46ca645bbc076449853e93e62cd3b2050b96dc96bbc1d",
+      "rights": {"status": "review_required"}
+    },
+    {
+      "source_id": "byt-06-2026-annex",
+      "system": "BYT_ICD10",
+      "declared_version": "TT06-2026-BYT-annex",
+      "format": "pdf_staging",
+      "authority": "Vietnam Ministry of Health via Government Portal",
+      "landing_url": "https://chinhphu.vn/?docid=217536&orggroupid=4&pageid=27160",
+      "download_url": "https://datafiles.chinhphu.vn/cpp/files/vbpq/2026/4/06-byt-kem.pdf",
+      "sha256": "8639f5eeb77b571363dc841923095895d2498748f9bc6620f50710a6da9159e2",
+      "rights": {"status": "review_required", "note": "Legal source confirmed; no blanket licence inferred"}
+    },
+    {
+      "source_id": "nhc-clinical-2.0-fujian",
+      "system": "NHC_ICD10_CLINICAL",
+      "declared_version": "clinical-2.0-20210602-fujian",
+      "format": "xls",
+      "source_verified": true,
+      "table": {
+        "sheet": "2.0", "header_row": 0,
+        "headers": ["主要编码", "附加编码", "疾病名称"],
+        "code_column": 0, "label_column": 2, "language": "zh"
+      },
+      "authority": "Fujian Provincial Health Commission",
+      "landing_url": "https://wjw.fj.gov.cn/jggk/csxx/yzc/gzdt_33135/202106/t20210603_5607241.htm",
+      "download_url": "https://wjw.fj.gov.cn/jggk/csxx/yzc/gzdt_33135/202106/P020210603544738447753.xls",
+      "sha256": "63ac67ec5b350df1b2d3e8b6c17f173628654505e8ec7869e80c49e9f6ffe1de",
+      "rights": {"status": "review_required"}
+    }
+  ]
+}

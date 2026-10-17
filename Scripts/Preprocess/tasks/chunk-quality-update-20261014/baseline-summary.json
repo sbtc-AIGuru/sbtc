@@ -1,0 +1,188 @@
+{
+  "input_path": "/home/tran-nhat-truong/TranNhatTruong/other/AIGuru/data_final/test_20k.jsonl",
+  "input_sha256": "9fdacfb07ecc1757c53c5b03bd41d31358c4a0db74fea785a6a62f90cfe8bf43",
+  "baseline_output_path": "/home/tran-nhat-truong/TranNhatTruong/other/AIGuru/data_final/chunks_format_v2_baseline_test20k",
+  "audit": {
+    "records": 20000,
+    "errors": 0,
+    "skipped": 100
+  },
+  "baseline_summary": {
+    "chunk_size_distribution": {
+      "0-49": 2036,
+      "100-149": 2866,
+      "150-219": 12052,
+      "220-300": 43063,
+      "50-99": 2424,
+      ">300": 24
+    },
+    "chunks": 62465,
+    "cleaned_records": 19900,
+    "cleaning_actions": {
+      "control_separator": 8,
+      "horizontal_space": 562,
+      "known_ui": 3,
+      "line_whitespace": 284,
+      "markdown_link": 2,
+      "markdown_quote": 1755,
+      "soft_hyphen": 20,
+      "unicode_space": 11119
+    },
+    "cleaning_warnings": {
+      "incomplete_markdown_link": 541,
+      "replacement_character": 3,
+      "retained_format_character": 837
+    },
+    "content_language_counts": {
+      "en": 4400,
+      "es": 150,
+      "fr": 99,
+      "sr": 4,
+      "und": 14403,
+      "vi": 9580,
+      "zh": 4770
+    },
+    "covered_non_whitespace": 37334226,
+    "document_nonfirst_children": 42565,
+    "document_overlap_positive": 30281,
+    "eligible_overlap_positive": 30281,
+    "eligible_overlap_transitions": 34687,
+    "errors": 0,
+    "excluded_non_whitespace": 185982,
+    "excluded_rule_counts": {
+      "alphabetical_navigation_tail": 17,
+      "book_pagination": 207,
+      "catalogue_header_context": 4,
+      "doctor_biography": 392,
+      "drug_taxonomy_navigation": 39,
+      "duplicate_rendered_paragraph": 18,
+      "duplicate_title_before_navigation": 52,
+      "icd_navigation": 2,
+      "related_arrow_tail": 20,
+      "related_articles_navigation": 4,
+      "related_content_tail": 4,
+      "repeated_field_toc": 8,
+      "store_navigation": 52,
+      "unsupported_audio_line": 76,
+      "wiki_navigation_footer": 4
+    },
+    "excluded_spans": 899,
+    "format_warning_counts": {
+      "content_limited": 1,
+      "damaged_bracket_review": 1716,
+      "oversized_atom_review": 24,
+      "uncertain_format": 13069
+    },
+    "indexed_non_whitespace": 37148244,
+    "ok": 19900,
+    "overlap_30_50": 20483,
+    "overlap_exception_counts": {
+      "document_start": 19900,
+      "semantic_region_or_parent_boundary": 7878,
+      "whole_atom_exceeds_capacity": 4406,
+      "whole_atom_overlap": 9798
+    },
+    "oversized_chunks": 24,
+    "parents": 27778,
+    "profile_counts": {
+      "disease_drug_catalogue": 307,
+      "generic": 55,
+      "narrative_article": 13014,
+      "qa": 1801,
+      "research_abstract": 4482,
+      "structured_list": 1,
+      "tcm_book": 240
+    },
+    "reason_counts": {
+      "crawl_failed": 100
+    },
+    "records": 20000,
+    "short_chunk_reason_counts": {
+      "hard_boundary_region": 862,
+      "question_context": 352,
+      "short_document": 3222,
+      "whole_atom_budget_remainder": 24
+    },
+    "skipped": 100,
+    "source_non_whitespace": 37334226,
+    "structural_intact_chunks": 37062,
+    "unit_max": 2760,
+    "unit_min": 1,
+    "unit_sum": 14060958
+  },
+  "special_cases": {
+    "crawl_error_placeholders": [
+      {
+        "doc_id": 543907,
+        "url": "https://suckhoedoisong.vn/sang-10-9-ca-covid-19-va-benh-nhan-nang-tang-cap-do-dich-moi-nhat-the-nao-16922091008383648.htm",
+        "status": "ok",
+        "chunk_count": 1
+      },
+      {
+        "doc_id": 1309894,
+        "url": "http://www.120ask.com/question/5823629.htm",
+        "status": "ok",
+        "chunk_count": 1
+      }
+    ],
+    "chunks_over_500_docs": [
+      {
+        "doc_id": 5756127,
+        "url": "https://pubmed.ncbi.nlm.nih.gov/21735394/",
+        "units": [
+          580
+        ],
+        "profile": "research_abstract"
+      },
+      {
+        "doc_id": 6269502,
+        "url": "https://pubmed.ncbi.nlm.nih.gov/27604617/",
+        "units": [
+          590
+        ],
+        "profile": "research_abstract"
+      },
+      {
+        "doc_id": 6884288,
+        "url": "https://pubmed.ncbi.nlm.nih.gov/34097767/",
+        "units": [
+          661
+        ],
+        "profile": "research_abstract"
+      },
+      {
+        "doc_id": 529733,
+        "url": "https://suckhoedoisong.vn/muc-dong-cua-nguoi-tham-gia-bhyt-thay-doi-the-nao-tu-1-7-2025-169241211113911507.htm",
+        "units": [
+          502
+        ],
+        "profile": "narrative_article"
+      },
+      {
+        "doc_id": 1100056,
+        "url": "http://www.120ask.com/question/16983914.htm",
+        "units": [
+          735
+        ],
+        "profile": "qa"
+      },
+      {
+        "doc_id": 4057861,
+        "url": "https://zhongyibaodian.net/a/133509.html",
+        "units": [
+          2760
+        ],
+        "profile": "tcm_book"
+      },
+      {
+        "doc_id": 4107923,
+        "url": "https://zhongyibaodian.net/a/31845.html",
+        "units": [
+          1063
+        ],
+        "profile": "narrative_article"
+      }
+    ],
+    "compatible_adjacent_short_pairs": 0
+  }
+}

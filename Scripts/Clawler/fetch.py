@@ -381,7 +381,7 @@ async def _crawl_one(
         config = domain_configs["nhathuoclongchau.com.vn/benh"]
     if config is None and domain.endswith(".39.net"):
         config = domain_configs["39.net"]
-    if config is None and domain.endswith(".familydoctor.com.cn"):
+    if config is None and (domain.endswith(".familydoctor.com.cn") or domain == "familydoctor.cn"):
         config = domain_configs.get("familydoctor.com.cn")
     config = config or run_config
     minimum_characters = minimum_article_characters(domain)

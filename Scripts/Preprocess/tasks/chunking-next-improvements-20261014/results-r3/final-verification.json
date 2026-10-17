@@ -1,0 +1,94 @@
+{
+  "input_sha256": "9fdacfb07ecc1757c53c5b03bd41d31358c4a0db74fea785a6a62f90cfe8bf43",
+  "format_code_sha256": "7208edbdbb00ce480e74f48768762ccbc4151356c1dd6c73a70b78bf5d6e88a6",
+  "tests_passed": 97,
+  "source_code_checkpoint_consistent": true,
+  "comparison_errors": 0,
+  "lexical_differences": [],
+  "lexical_order_differences": [],
+  "default_policy": "post_pack",
+  "experimental_policy": "reserve",
+  "retrieval_gold_evaluated": false,
+  "runs": {
+    "post_pack": {
+      "directory": "/home/tran-nhat-truong/TranNhatTruong/other/AIGuru/data_final/chunks_format_v3_r3_test20k",
+      "config_sha256": "c2083a5ad85ffb5db9cfe16bfd3feaa842824ee09b24672b392d41018a066a1d",
+      "audit": {
+        "checked": 19898,
+        "errors": 0,
+        "examples": [],
+        "records": 20000,
+        "skipped": 102
+      },
+      "hashes": {
+        "part-000000.jsonl": "95a5fd534873b4379de7b9a1a159e1759a424a20626ee87cdeee58bdc47c2e98",
+        "part-000001.jsonl": "79417088f6d6ea95fa7815731e4b2ae61599aff4124e2616b26a5fda26398968",
+        "part-000002.jsonl": "7b4ade74cc306e27a27dcdecf4b6887c1075083b3c5cd8909c81fab3fadc54b4",
+        "part-000003.jsonl": "365a80ee47cb4af4a5e1eafc117a1c5b3f24b7f739741031452ae93c8be01c87",
+        "part-000004.jsonl": "6ae03af211c990e6454fc4fee8f7c0ef4e2f3160bb76d190319535afb38ca2ec",
+        "part-000005.jsonl": "ccfb9b1832668b4ba6bd5184eaec00487c4627f2cb203c705264893f8afb3671",
+        "part-000006.jsonl": "46d63ee8e4582b30ddab462ce5da9652edf1c638c080592a38655305f0bab36f",
+        "part-000007.jsonl": "8c51d7950658e662b7eb5ce0785ca9b957ba4bd52bb964b48c4c1776cf5aac17",
+        "part-000008.jsonl": "f54a93ff4410692dfe35cccd5ad8a544e5aba17af9a69281e3a9f658f5f5c57e",
+        "part-000009.jsonl": "8f0299482e24480800b5b1998d3e4699722061bee3e414b6a71da4f3bf1df1f0",
+        "part-000010.jsonl": "fe4d5692571829ed23f3d33fdd0276e5638ca184fd2283f15b31ab829800dc15",
+        "part-000011.jsonl": "99eec1b51e0ab0359ada9e6ee782b1befe741a05824c4c58156c79311ce953e4",
+        "part-000012.jsonl": "56ab9e3fa80923398f19ad1e8c34a8b5dcc585310d07064ed71e11feac954e80",
+        "part-000013.jsonl": "594f9d121ab7b1a09c361d04d42f5517a0e0a6315e4bb52c65604c49b79fb6fe",
+        "part-000014.jsonl": "5b07872d545f421de09a115c9b64123924061ee6842c5ebe544221920a682ead",
+        "part-000015.jsonl": "ec2db362b8fd3144d52650733f20ff27eb321c1e176502f9d705aaf28fef0913",
+        "part-000016.jsonl": "1a40e39a75705cf306d274eda04acff0633ee45adefe4d4d9e79f202729f22ec",
+        "part-000017.jsonl": "08909f5003864da2d3ba0e9818e2179c64f50d7f2382b64696ec62643af3c565",
+        "part-000018.jsonl": "2c68f3735ca532a9ee24bbef6e0bd6f2da93e6c969a2ac84a22f07511655be73",
+        "part-000019.jsonl": "b951f429252e86afc3b84a848955b08f3a3f0d1777c135e2acf16c49efb47c0a"
+      },
+      "checkpoint_sha256": "cb11adba24ab9620504d8d4dbe7e991ddbbf646a544273b4a4d6f6bfdd44a6df"
+    },
+    "reserve": {
+      "directory": "/home/tran-nhat-truong/TranNhatTruong/other/AIGuru/data_final/chunks_format_v3_r3_reserve_test20k",
+      "config_sha256": "19b149f97d80d62912200875a8f7d23f0f7c40a40dacb4c074eb07bc6658c1e1",
+      "audit": {
+        "checked": 19898,
+        "errors": 0,
+        "examples": [],
+        "records": 20000,
+        "skipped": 102
+      },
+      "hashes": {
+        "part-000000.jsonl": "95a5fd534873b4379de7b9a1a159e1759a424a20626ee87cdeee58bdc47c2e98",
+        "part-000001.jsonl": "79417088f6d6ea95fa7815731e4b2ae61599aff4124e2616b26a5fda26398968",
+        "part-000002.jsonl": "7b4ade74cc306e27a27dcdecf4b6887c1075083b3c5cd8909c81fab3fadc54b4",
+        "part-000003.jsonl": "30a828c52dc0e71e9d7f9345fd0f07eced83e1ace87ba46d33ab3a488b7a031d",
+        "part-000004.jsonl": "a4675258f36d6f5fe21f407f2aac348363e59106aa3896c43ee33a4b52ffb89d",
+        "part-000005.jsonl": "cdbb9e17b7bcbdabc9a0531c29b3e0b0b2ddd3f2310a7d463ae0636ae64071a1",
+        "part-000006.jsonl": "46d63ee8e4582b30ddab462ce5da9652edf1c638c080592a38655305f0bab36f",
+        "part-000007.jsonl": "511fa9bd7d0c9150ad22330e33a6ec9d712ddb114e9434ff738d29d1a04800e3",
+        "part-000008.jsonl": "9963cf8a966c9534ba95a18dfb13eb45f631c7513ec0f132dc69b5559447543c",
+        "part-000009.jsonl": "10d4e31d7db83b402ea7a3691a71d13d8b0a422fc2c51c165180c67a0a3254f0",
+        "part-000010.jsonl": "b743f9e84dd534bcf969eec814f33d62baf26ede757f3129006077ba19bc840a",
+        "part-000011.jsonl": "e0e73b9066c861ec14dd8d709db0f8c81197c1ea506e2926d3dced8797dfca28",
+        "part-000012.jsonl": "c56b4364715cc629a6d65ff25ed6682ac6d2411dca45a7aa67fd49686983bc6e",
+        "part-000013.jsonl": "4f142411c9f55a3a0196502b8bc552aa780af89d3028f03b2015abeb1c82fa48",
+        "part-000014.jsonl": "09a9b7ef1dde4ba639780dbb3e5d6a110a903548d093df6a0c84d9e745b6e6f1",
+        "part-000015.jsonl": "e834dc9ce1e88a59a93df3c1d37bb5f9c0afdbffc5b2bade5cad1d55cb17e3f7",
+        "part-000016.jsonl": "c32520c8fb74c9882ef1699a12a651bb0fbf4c527a68f582d9b16f6b9d0c28ef",
+        "part-000017.jsonl": "43c832c4f6770695d3a8868fb1e0cfefbf4908738bbd65c20d0889d8c4f2bc9d",
+        "part-000018.jsonl": "0d7471db7ca6fa0f474585d87f0801d01667b1b8b08e5a550c0ce1cb8a3ee41a",
+        "part-000019.jsonl": "073b7508d0d5a69acb0a70be696e08c3dd8ebb4d8bacd91152c44630815f2783"
+      },
+      "checkpoint_sha256": "88eb6f6b6bca169dd9c016a97f76504612d8e348f70a9bee8439df0eee23e42e"
+    }
+  },
+  "artifact_sha256": {
+    "sbtc/Scripts/Preprocess/tasks/chunking-next-improvements-20261014/tests-r3.log": "4acb2c26a9a44d20f21a00893d44ac24d51dec1ac86aaafc4dfc144520a3d845",
+    "sbtc/Scripts/Preprocess/tasks/chunking-next-improvements-20261014/code-r3-manifest.json": "0bc1692620408c7beb8d7b3b299d6a904a9ffe27a699c96b35833f5528443839",
+    "sbtc/Scripts/Preprocess/tasks/chunking-next-improvements-20261014/results-r3/evaluation.json": "436455946de7cdf54544ad29e1108af7f588046d3752e8dd87c21ccf4837ca2b",
+    "sbtc/Scripts/Preprocess/tasks/chunking-next-improvements-20261014/results-r3/review-cases.jsonl": "9d46757521d059901096a1eff1c46abaf98fd0f292f435b1c0755cbbddb75531",
+    "sbtc/Scripts/Preprocess/tasks/chunking-next-improvements-20261014/results-r3/CASEBOOK.md": "819548d584bd91b962c7b891f23ce4d90ff96a1782f5c47b562a08477e48b4d5",
+    "sbtc/Scripts/Preprocess/tasks/chunking-next-improvements-20261014/results-r3/audit-post.json": "295eb0b88534b8fd643df235f0f0de0a2b7e04f607f4d739afdc770f83d9d913",
+    "sbtc/Scripts/Preprocess/tasks/chunking-next-improvements-20261014/results-r3/audit-reserve.json": "295eb0b88534b8fd643df235f0f0de0a2b7e04f607f4d739afdc770f83d9d913",
+    "sbtc/Scripts/Preprocess/tasks/chunking-next-improvements-20261014/results-r3/run-post.json": "39809c4332c0fc9f6a8af616753166de325fbd6a0d515feb5bf3c7ba04f378de",
+    "sbtc/Scripts/Preprocess/tasks/chunking-next-improvements-20261014/results-r3/run-reserve.json": "f7a6c13c3b79e324d9c2123fa291d10ef8d89b362c32ede813c819a93f60ed29",
+    "sbtc/Scripts/Preprocess/REPORT-chunking-next-improvements-20261014.md": "6442d3f3f78c8c0c6b768fae64dd4f80346ddd9f8d6dbb4604c339de72a68292"
+  }
+}

@@ -1,0 +1,102 @@
+{
+  "input": "data_final/test_20k.jsonl",
+  "candidate": "format-v2",
+  "ideal_overlap_denominator": "transitions within same parent",
+  "overlap_counts": {
+    ">50": 5168,
+    "1-29": 4638,
+    "30-50": 20489,
+    "0": 4411
+  },
+  "ideal_overlap_percent": 59.03590157321501,
+  "uncertain_docs": 13068,
+  "uncertain_percent_of_ok": 65.67494220524677,
+  "link_warning_events": 541,
+  "link_warning_affected_records": 95,
+  "short_under50_reasons": {
+    "short_document": 1537,
+    "hard_boundary_region": 139,
+    "whole_atom_budget_remainder": 9,
+    "question_context": 352
+  },
+  "historical_review_cases_present_in_test": {
+    "6884288": {
+      "file": "/home/tran-nhat-truong/TranNhatTruong/other/AIGuru/data_final/chunks_format_v2_test20k/part-000004.jsonl",
+      "line": 330,
+      "profile": "research_abstract",
+      "evidence": [
+        {
+          "rule": "research_labels",
+          "count": 8,
+          "domain": "pubmed.ncbi.nlm.nih.gov",
+          "spans": [
+            {
+              "start_char": 105,
+              "end_char": 116
+            },
+            {
+              "start_char": 508,
+              "end_char": 519
+            },
+            {
+              "start_char": 649,
+              "end_char": 664
+            },
+            {
+              "start_char": 1011,
+              "end_char": 1030
+            },
+            {
+              "start_char": 1303,
+              "end_char": 1332
+            },
+            {
+              "start_char": 2060,
+              "end_char": 2073
+            },
+            {
+              "start_char": 3448,
+              "end_char": 3460
+            },
+            {
+              "start_char": 7981,
+              "end_char": 7991
+            }
+          ]
+        }
+      ],
+      "warnings": [],
+      "short_children": []
+    },
+    "4057861": {
+      "file": "/home/tran-nhat-truong/TranNhatTruong/other/AIGuru/data_final/chunks_format_v2_test20k/part-000017.jsonl",
+      "line": 503,
+      "profile": "tcm_book",
+      "evidence": [
+        {
+          "rule": "book_path_or_formula",
+          "path": "/a/133509.html"
+        }
+      ],
+      "warnings": [],
+      "short_children": [
+        {
+          "order": 25,
+          "text": "然而以上结果仍需进一步深入评价。",
+          "units": 15
+        }
+      ]
+    }
+  },
+  "historical_review_cases_absent_in_test": [
+    98656,
+    127377,
+    276743,
+    669126,
+    744228,
+    763103,
+    1531406,
+    2520938,
+    2534375
+  ]
+}

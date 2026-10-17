@@ -1,0 +1,60 @@
+# Cấu hình BM25 Retrieval cho tập kiểm thử kỹ thuật test_20k
+# Căn cứ SPEC-bm25-medical-multilingual.md
+
+corpus_snapshot = "newcorpus/links_corpus_vi_en_zh.parquet"
+source_scope = "data_final/test_20k.jsonl"
+chunk_input = "data_final/chunks_format_v3_r3_reserve_test20k"
+run_dir = "artifacts/retrieval/bm25-test-v1"
+queries_path = "newcorpus/query.parquet"
+
+[bm25]
+doc_k1 = 1.2
+doc_b = 0.75
+chunk_k1 = 1.2
+chunk_b = 0.75
+
+[boost_doc]
+contents = 1.0
+title = 1.5
+section = 0.2
+surface = 0.15
+medical_exact = 0.5
+concepts = 0.5
+
+[boost_chunk]
+contents = 1.0
+title = 0.2
+section = 0.2
+surface = 0.15
+medical_exact = 0.5
+concepts = 0.5
+
+[budgets]
+candidate_docs_per_variant = 200
+candidate_chunks_per_variant = 1000
+max_selected_docs = 5
+max_selected_chunks = 10
+max_chunks_per_doc = 2
+overlap_penalty_threshold = 0.7
+rrf_k = 60
+adaptive_selector = true
+doc_score_ratio = 0.5
+chunk_score_ratio = 0.5
+min_selected_docs = 1
+min_selected_chunks = 1
+
+[quality_policy]
+block_on_oversized_unresolved = false  # Cho phép trên test_20k (test_20k không có unresolved)
+allow_uncertain_format = true
+require_parquet_membership = true
+
+[query_bridge]
+mode = "lexical-control"
+max_clauses = 128
+
+[resources]
+jvm_heap = "3g"
+batch_records = 1000
+batch_bytes = 67108864 # 64 MiB
+max_search_threads = 4
+index_threads = 2

@@ -1,0 +1,1438 @@
+{
+  "groups": {
+    "catalogue": 12,
+    "broken_link": 8,
+    "nonpubmed_research": 8,
+    "short_remainder": 8,
+    "toc_marker": 12
+  },
+  "cases": {
+    "239736": {
+      "tags": [
+        "catalogue"
+      ],
+      "profile": "disease_drug_catalogue",
+      "evidence": [
+        {
+          "rule": "clinical_fields",
+          "labels": [
+            "Nguy cơ",
+            "Nguyên nhân",
+            "Triệu chứng"
+          ],
+          "spans": [
+            {
+              "start_char": 1445,
+              "end_char": 1486
+            },
+            {
+              "start_char": 2159,
+              "end_char": 2191
+            },
+            {
+              "start_char": 5387,
+              "end_char": 5420
+            },
+            {
+              "start_char": 6952,
+              "end_char": 7011
+            }
+          ]
+        }
+      ],
+      "url": "https://nhathuoclongchau.com.vn/bai-viet/huyet-ap-thap-co-nguy-hiem-khong-bien-chung-cua-benh-la-gi.html",
+      "output_file": "data_final/chunks_format_v2_test20k/part-000004.jsonl",
+      "output_line": 614,
+      "input_line": 4614,
+      "source_head": "Huyết áp thấp có nguy hiểm không? Biến chứng của bệnh là gì?\n\nHuyết áp là một vấn đề sức khỏe được rất nhiều người quan tâm đặc biệt ở người cao tuổi. Huyết áp thấp có nguy hiểm không? Ngoài bệnh lý phổ biến thường gặp phải hiện nay là tăng huyết áp, tình trạng huyết áp thấp mặc dù ít được đề cập đến hơn nhưng có thể gây ra những biến chứng nguy hiểm.\n\nVậy liệu tình trạng\n\nhuyết áp thấp\n\ncó nguy hiểm không? Bài viết sau đây sẽ đem đến cho bạn đọc một số thông tin về huyết áp thấp và những lưu ý cần thiết khi gặp phải tình trạng này.\n\nHuyết áp thấp là gì?\n\nChỉ số huyết áp là gì?\n\nHuyết áp là một chỉ số đo lường với đơn vị mm thủy ngân (viết tắt: MmHg), thể hiện lực của dòng máu tác động lên thành động mạch khi chảy qua. Kết quả huyết áp sau khi đo sẽ hiển thị lên chỉ số gồm hai con số, được gọi hoặc là\n\nhuyết áp tâm thu\n\nvà huyết áp tâm trương. Chỉ số huyết áp bình thường sẽ là bằng hoặc dao động dưới mức 120/80 mmHg.\n\nHuyết áp ở mức bình thường từ 120/80 mmHg trở xuống\n\nThế nào được gọi là huyết áp thấp?\n\nHuyết áp thấp đôi khi có thể khiến bạn cảm thấy mệt mỏi hoặc chóng mặt, tuy nhiên tình trạng hạ huyết áp cũng có thể là dấu hiệu của một bất thường hoặc bệnh lý tiềm ẩn nào đó cần được điều trị. Huyết áp thấp ở người lớn được định nghĩa là chỉ số huyết áp giảm đột ngột khoảng 90/60 mmHg hoặc có thể hạ xuống thấp hơn nữa, cụ thể:\n\nHuyết áp tâm thu từ mức 90 mmHg trở xuống.\n\nHuyết áp tâm trương\n\ntừ mức 60 mmHg trở xuống.\n\nTriệu chứng gặp phải khi bị huyết áp thấp\n\nHạ huyết áp không phải lúc nào cũng gây ra các triệu chứng, nhưng đôi khi huyết áp thấp đồng nghĩa với việc các cơ quan quan trọng của bạn có thể sẽ không nhận được lượng máu nuôi dưỡng cần thiết. Vì thế, bạn sẽ có thể gặp phải một trong những triệu chứng của tình trạng hạ huyết áp sau đây:\n\nCảm giác mệt mỏi, bị hụt hơi;\n\nChóng mặt\n\nhoặc cảm giác như có thể ngất xỉu;\n\nCảm thấy mất thăng bằng khi bạn đứng dậy từ tư thế nằm hoặc ngồi hoặc khi bạn đang đứng;\n\nBuồn nôn, cảm giác khó chịu trong dạ dày;\n\nVã mồ hô",
+      "cleaning_warnings": []
+    },
+    "252279": {
+      "tags": [
+        "catalogue"
+      ],
+      "profile": "disease_drug_catalogue",
+      "evidence": [
+        {
+          "rule": "clinical_fields",
+          "labels": [
+            "Nguyên nhân",
+            "Phương pháp chẩn đoán",
+            "Triệu chứng"
+          ],
+          "spans": [
+            {
+              "start_char": 6278,
+              "end_char": 6338
+            },
+            {
+              "start_char": 6278,
+              "end_char": 6338
+            },
+            {
+              "start_char": 6340,
+              "end_char": 6400
+            }
+          ]
+        }
+      ],
+      "url": "https://nhathuoclongchau.com.vn/bai-viet/nhan-biet-dau-hieu-som-cua-viem-khop-vay-nen.html",
+      "output_file": "data_final/chunks_format_v2_test20k/part-000004.jsonl",
+      "output_line": 634,
+      "input_line": 4634,
+      "source_head": "Nhận biết dấu hiệu sớm của viêm khớp vảy nến\n\nBệnh viêm khớp vảy nến có thể tác động đến bất kỳ thành phần nào của cơ thể, bao gồm cả cột sống và ngón tay. Cùng tìm hiểu dấu hiệu sớm của viêm khớp vảy nến trong bài viết dưới đây để chủ động hơn trong việc thăm khám nhé!\n\nViêm khớp vảy nến là bệnh lý viêm khớp mạn tính có tác động đến các khớp, da, mắt và nhiều cơ quan khác. Việc nắm được các dấu hiệu sớm của viêm khớp vảy nến có thể giúp bệnh nhân chủ động hơn trong việc thăm khám và có kế hoạch điều trị kịp thời, tránh được những biến chứng nghiêm trọng.\n\nViêm khớp vảy nến là bệnh gì?\n\nViêm khớp vảy nến\n\n(Psoriatic Arthritis – PsA) là một dạng viêm khớp xảy ra ở một số người mắc bệnh vảy nến - bệnh da mãn tính. Bệnh vảy nến là bệnh da mạn tính kéo dài, đặc trưng với các mảng sần đỏ, bong vảy trắng hình thành trên da. Có đến 30% người mắc bệnh vảy nến xuất hiện tình trạng\n\nviêm khớp\n\n, phổ biến nhất ở độ tuổi từ 30 đến 50. Mức độ nghiêm trọng của bệnh vảy nến không liên quan đến viêm khớp vảy nến.\n\nBệnh viêm khớp vảy nến thường xuất hiện ở người bị bệnh vảy nến ở da hoặc móng\n\nBệnh viêm khớp vảy nến là tình trạng kết hợp giữa viêm khớp và bệnh\n\nvảy nến\n\n, có thể liên quan đến một hoặc nhiều khớp. Trong PsA, khớp và da bị tấn công bởi hệ thống miễn dịch và chưa xác định chắc chắn nguyên nhân cụ thể gây ra cuộc tấn công này. Theo các chuyên gia, sự tấn công này có thể bắt nguồn từ sự kết hợp của gen và yếu tố môi trường.\n\nMột số yếu tố làm tăng nguy cơ mắc bệnh viêm khớp vảy nến (PsA) như bị bệnh vảy nến, tiền sử gia đình bị PsA, tuổi tác (độ tuổi từ 30 đến 50), viêm họng liên cầu khuẩn và\n\nnhiễm HIV\n\n.\n\nHiện tại, chưa có phương pháp nào có thể điều trị dứt điểm bệnh viêm khớp vảy nến. Mục tiêu của các biện pháp can thiệp là kiểm soát triệu chứng, ngăn ngừa tổn thương cấu trúc cũng như hạn chế tối đa nguy cơ biến chứng ở hệ cơ xương khớp. Trường hợp bệnh phát hiện ở giai đoạn muộn có thể khiến các khớp bị \"vô hiệu hóa\" nếu không được điều trị đúng cách.\n\nDấu hiệu sớm ",
+      "cleaning_warnings": []
+    },
+    "254863": {
+      "tags": [
+        "catalogue"
+      ],
+      "profile": "disease_drug_catalogue",
+      "evidence": [
+        {
+          "rule": "clinical_fields",
+          "labels": [
+            "Chế độ sinh hoạt",
+            "Nguy cơ",
+            "Nguyên nhân",
+            "Triệu chứng"
+          ],
+          "spans": [
+            {
+              "start_char": 648,
+              "end_char": 690
+            },
+            {
+              "start_char": 845,
+              "end_char": 873
+            },
+            {
+              "start_char": 1087,
+              "end_char": 1120
+            },
+            {
+              "start_char": 1394,
+              "end_char": 1457
+            },
+            {
+              "start_char": 5836,
+              "end_char": 5889
+            },
+            {
+              "start_char": 5836,
+              "end_char": 5889
+            },
+            {
+              "start_char": 5891,
+              "end_char": 5949
+            }
+          ]
+        }
+      ],
+      "url": "https://nhathuoclongchau.com.vn/bai-viet/nhung-loai-thuc-pham-tot-cho-khop-goi-khong-the-bo-qua.html",
+      "output_file": "data_final/chunks_format_v2_test20k/part-000004.jsonl",
+      "output_line": 641,
+      "input_line": 4641,
+      "source_head": "Những loại thực phẩm tốt cho khớp gối không thể bỏ qua\n\nTrong phạm vi bài viết này, hãy cùng các chuyên gia tìm hiểu về thực phẩm tốt cho khớp gối, các loại thực phẩm nên kiêng và làm thế nào để có một lối sống lành mạnh.\n\nBệnh lý về xương khớp\n\nlà bệnh lý thường gặp ở mọi lứa tuổi, cả nam lẫn nữ. Dù là các khớp lớn như khớp háng, khớp gối, khớp vai,... hay các khớp nhỏ như khớp cổ tay, ngón tay, ngón chân,.. đều có thể mắc phải bệnh lý. Bên cạnh việc rèn luyện thể thao để có sức khỏe tốt thì thực phẩm cũng bổ trợ rất nhiều trong quá trình điều trị bệnh. Vậy thực phẩm tốt cho khớp gối là gì? Và người bệnh nên kiêng các loại thực phẩm nào?\n\nNhững yếu tố nguy cơ tác động đến khớp gối\n\nTuổi tác, cân nặng, vận động sai tư thế như ngồi xổm hay quỳ, giới tính,... là những yếu tố nguy cơ phổ biến đối với các bệnh lý ở khớp gối.\n\nTuổi tác:\n\nĐộ tuổi càng cao thì nguy cơ\n\nthoái hoá khớp\n\ncao, các phần như sụn, khớp bị mòn dần, giảm mật độ xương, loãng xương nên dễ yếu và tổn thương.\n\nGiới tính:\n\nỞ nữ, đặc biệt là trên 55 tuổi thì nguy cơ mắc bệnh lý về khớp gối cao hơn nam giới.\n\nChế độ sinh hoạt không lành mạnh:\n\nThường xuyên thức khuya, dùng bia rượu, hút thuốc, lười vận động, vận động sai tư thế, ngồi xổm thường xuyên,... sẽ dễ gây tổn thương đến khớp khối.\n\nThừa cân,\n\nbéo phì\n\nTạo một áp lực lớn đến các xương và khớp ở chi dưới, hạn chế khả năng vận động và dễ bị chấn thương.\n\nThừa cân, béo phì là yếu tố nguy cơ dẫn đến các bệnh lý về khớp\n\nMột chế độ ăn lành mạnh là chế độ ăn không gây tăng cân hay các phản ứng viêm gồm các loại thực phẩm tốt cho các hệ cơ quan. Vậy nên ăn các loại thực phẩm tốt cho khớp gối nào để khớp gối khỏe mạnh?\n\nCác loại thực phẩm tốt cho khớp gối\n\nĐể giữ cho khớp khỏe mạnh, bước quan trọng đầu tiên là thay đổi chế độ ăn uống, bổ sung các chất dinh dưỡng thiết yếu. Việc lựa chọn những thực phẩm phù hợp sẽ giúp ngăn ngừa viêm nhiễm, tăng cường mô liên kết và mật độ xương, bảo vệ khớp và có thể giúp giảm đau một cách tự nhiên.\n\nThực phẩm giàu omega-",
+      "cleaning_warnings": []
+    },
+    "209105": {
+      "tags": [
+        "catalogue"
+      ],
+      "profile": "disease_drug_catalogue",
+      "evidence": [
+        {
+          "rule": "clinical_fields",
+          "labels": [
+            "Chống chỉ định",
+            "Nguy cơ",
+            "Nguyên nhân",
+            "Phương pháp chẩn đoán",
+            "Triệu chứng"
+          ],
+          "spans": [
+            {
+              "start_char": 4340,
+              "end_char": 4390
+            },
+            {
+              "start_char": 4643,
+              "end_char": 4681
+            },
+            {
+              "start_char": 5226,
+              "end_char": 5282
+            },
+            {
+              "start_char": 9891,
+              "end_char": 9961
+            },
+            {
+              "start_char": 9963,
+              "end_char": 10026
+            },
+            {
+              "start_char": 9963,
+              "end_char": 10026
+            },
+            {
+              "start_char": 10288,
+              "end_char": 10348
+            }
+          ]
+        }
+      ],
+      "url": "https://nhathuoclongchau.com.vn/bai-viet/ba-me-co-biet-viem-nao-nhat-ban-tiem-may-mui-la-dung-lieu-42082.html",
+      "output_file": "data_final/chunks_format_v2_test20k/part-000004.jsonl",
+      "output_line": 680,
+      "input_line": 4680,
+      "source_head": "Vắc xin viêm não Nhật bản tiêm mấy mũi để đạt hiệu quả tối ưu nhất?\n\nỨng dụng Nhà Thuốc Long Châu\n\nSiêu ưu đãi, siêu trải nghiệm\n\nMỞ\n\nThực phẩm chức năng\n\nVitamin & Khoáng chất\n\nMiễn dịch - Đề kháng\n\nSinh lý - Nội tiết tố\n\nMắt - Thị lực\n\nTiêu hóa\n\nThần kinh não\n\nHỗ trợ làm đẹp\n\nĐường huyết - Tiểu đường\n\nTim mạch - Huyết áp\n\nHô hấp - Tai mũi họng\n\nCơ xương khớp\n\nGan - Mật\n\nThận - Tiết niệu\n\nSữa\n\nDược mỹ phẩm\n\nChăm sóc da mặt\n\nHỗ trợ điều trị da mặt\n\nChăm sóc cơ thể\n\nChăm sóc tóc - da đầu\n\nChăm sóc da vùng mắt\n\nMỹ phẩm trang điểm\n\nThuốc\n\nTra cứu thuốc\n\nTra cứu dược chất\n\nTra cứu dược liệu\n\nThuốc kháng sinh, kháng nấm\n\nThuốc điều trị ung thư\n\nThuốc tim mạch & máu\n\nThuốc thần kinh\n\nThuốc tiêu hoá & gan mật\n\nXem tất cả\n\nKhông có từ khóa theo chữ cái đã chọn\n\nXem theo chữ cái\n\nA\n\nB\n\nC\n\nD\n\nE\n\nF\n\nG\n\nH\n\nI\n\nJ\n\nK\n\nL\n\nM\n\nN\n\nO\n\nP\n\nQ\n\nR\n\nS\n\nT\n\nU\n\nV\n\nW\n\nX\n\nY\n\nZ\n\nChăm sóc cá nhân\n\nChăm sóc vùng kín\n\nHỗ trợ tình dục\n\nChăm sóc răng miệng\n\nThực phẩm - Đồ uống\n\nVệ sinh hàng ngày\n\nChăm sóc mẹ và bé\n\nTã - bỉm\n\nTinh dầu & Hương liệu các loại\n\nThiết bị làm đẹp\n\nHỗ trợ điều trị da cơ thể\n\nThiết bị y tế\n\nTheo dõi sức khoẻ\n\nSơ cứu, giảm đau tại chỗ\n\nBảo hộ - Phòng ngừa\n\nHỗ trợ hô hấp, tai mũi họng\n\nChăm sóc mắt\n\nPhục hồi & Giảm đau cơ khớp\n\nVận động - Chỉnh hình\n\nDụng cụ tiêm & Lấy mẫu\n\nChăm sóc tiêu hoá tại nhà\n\nDụng cụ y tế\n\nTiêm chủng\n\nBệnh & Góc sức khỏe\n\nGóc sức khỏe\n\nChuyên trang ung thư\n\nBệnh thường gặp\n\nTin khuyến mại\n\nTruyền Thông\n\nHệ thống nhà thuốc\n\nTrang chủ\n\n/\n\nGóc sức khỏe\n\n/\n\nPhòng bệnh & Sống khoẻ\n\n/\n\nTiêm chủng\n\nVắc xin viêm não Nhật bản tiêm mấy mũi để đạt hiệu quả tối ưu nhất?\n\n26/12/2025\n\nKích thước chữ\n\nMặc định\n\nLớn hơn\n\nVắc xin viêm não Nhật Bản tiêm mấy mũi để đạt hiệu quả cao nhất? Chuyển từ vắc xin Jevax sang vắc xin Imojev được không? Tất cả các thắc mắc liên quan đến lịch tiêm và các lưu ý sau tiêm sẽ được trung tâm tiêm chủng Long Châu giải đáp bên dưới đây.\n\nTrong bài viết này, chúng ta sẽ tìm hiểu về viêm não Nhật Bản tiêm mấy mũi cũng như sự hiệu quả của việc t",
+      "cleaning_warnings": []
+    },
+    "212299": {
+      "tags": [
+        "catalogue"
+      ],
+      "profile": "disease_drug_catalogue",
+      "evidence": [
+        {
+          "rule": "clinical_fields",
+          "labels": [
+            "Nguy cơ",
+            "Nguyên nhân",
+            "Triệu chứng"
+          ],
+          "spans": [
+            {
+              "start_char": 643,
+              "end_char": 682
+            },
+            {
+              "start_char": 2131,
+              "end_char": 2190
+            },
+            {
+              "start_char": 3324,
+              "end_char": 3381
+            },
+            {
+              "start_char": 3324,
+              "end_char": 3381
+            },
+            {
+              "start_char": 3383,
+              "end_char": 3454
+            }
+          ]
+        }
+      ],
+      "url": "https://nhathuoclongchau.com.vn/bai-viet/benh-nhan-xo-tu-cung-co-nguy-hiem-khong.html",
+      "output_file": "data_final/chunks_format_v2_test20k/part-000004.jsonl",
+      "output_line": 717,
+      "input_line": 4717,
+      "source_head": "Bệnh nhân xơ tử cung có nguy hiểm không?\n\nNhân xơ tử cung luôn nằm trong danh sách những bệnh phụ khoa thường gặp ở phụ nữ tuổi trưởng thành. Có vô vàn câu hỏi xoay quanh căn bệnh này mà nhiều người cần giải đáp như bệnh nhân xơ tử cung có nguy hiểm không? Bị nhân xơ tử cung có đặt vòng được không?\n\nNhân xơ tử cung thường gặp nhất ở phụ nữ trong độ tuổi sinh đẻ đến độ tuổi mãn kinh. Theo thống kê, có đến 70 - 80% phụ nữ có nhân xơ trong một thời điểm nhất định của cuộc đời. Liên quan đến căn bệnh này, những câu hỏi thường gặp nhất có thể kể đến như bệnh\n\nnhân xơ tử cung có nguy hiểm không\n\n? Bị nhân xơ tử cung có đặt vòng được không?\n\nNhân xơ tử cung và nguyên nhân gây bệnh\n\nNhân xơ tử cung còn được gọi là u xơ tử cung được xếp vào nhóm\n\nbệnh phụ khoa\n\nlành tính. Hầu hết các trường hợp nhân xơ tử cung là lành tính, chỉ có khoảng 1% phát triển thành ác tính. Không phải ai có nhân xơ cũng biểu hiện thành triệu chứng. Có những người chỉ biết có nhân xơ tử cung khi khám phụ khoa. Ngược lại, một số người lại có triệu chứng bệnh khá rõ nét.\n\nKhối nhân xơ tử cung hình ảnh do sự tăng sinh các tế bào cơ trơn và mô liên kết trong tử cung. Nhân xơ có thể mọc ở các vị trí khác nhau trong tử cung. Vì vậy, chúng gây ra những triệu chứng và mức độ nghiêm trọng khác nhau. Các khối nhân xơ thường phát triển chậm và theo thời gian chúng to dần về kích thước. Đến khi phụ nữ bước vào giai đoạn\n\nmãn kinh\n\n, nhân xơ sẽ nhỏ dần. Trừ khi nhân xơ là ác tính thì kích thước mới to lên nhanh chóng và bất thường.\n\nNhiều người muốn biết bị nhân xơ tử cung có nguy hiểm không?\n\nBệnh nhân xơ tử cung có nguy hiểm không?\n\nNhân xơ tử cung là khối u lành tính nhưng có thể gây ra các biến chứng nguy hiểm\n\nnhư thiếu máu nghiêm trọng, vô sinh, nhiễm khuẩn, xoắn khối u, và hiếm gặp là ung thư. Nếu khối u có kích thước lớn và gây chèn ép, cần can thiệp y tế kịp thời.\n\nBệnh nhân xơ tử cung có nguy hiểm không còn phụ thuộc vào từng tình trạng thực tế. Bệnh sẽ không nguy hiểm nếu:\n\nĐược phát hiện sớm khi nhân ",
+      "cleaning_warnings": []
+    },
+    "245137": {
+      "tags": [
+        "catalogue"
+      ],
+      "profile": "disease_drug_catalogue",
+      "evidence": [
+        {
+          "rule": "clinical_fields",
+          "labels": [
+            "Chế độ sinh hoạt",
+            "Nguyên nhân",
+            "Triệu chứng"
+          ],
+          "spans": [
+            {
+              "start_char": 650,
+              "end_char": 702
+            },
+            {
+              "start_char": 2239,
+              "end_char": 2258
+            },
+            {
+              "start_char": 4245,
+              "end_char": 4288
+            },
+            {
+              "start_char": 6211,
+              "end_char": 6244
+            }
+          ]
+        }
+      ],
+      "url": "https://nhathuoclongchau.com.vn/bai-viet/mang-thai-3-thang-dau-bi-sut-can-co-anh-huong-den-thai-nhi-khong.html",
+      "output_file": "data_final/chunks_format_v2_test20k/part-000004.jsonl",
+      "output_line": 723,
+      "input_line": 4723,
+      "source_head": "Mang thai 3 tháng đầu bị sụt cân có ảnh hưởng đến thai nhi không?\n\nMang thai 3 tháng đầu bị sụt cân có thể xảy ra do nhiều nguyên nhân. Điều này khiến các mẹ bầu cảm thấy lo lắng vì không biết có bị ảnh hưởng đến sự phát triển của em bé không. Vậy thì đừng bỏ lỡ bài viết giải đáp chi tiết dưới đây nhé!\n\nTrung bình, mỗi mẹ bầu sẽ tăng khoảng 9 - 12kg trong suốt 9 tháng thai kỳ nhưng vẫn có một số trường hợp bị sụt cân ở 3 tháng đầu. Vậy việc\n\nmang thai\n\n3 tháng đầu bị sụt cân có ảnh hưởng đến em bé không? Mang thai 3 tháng đầu tăng bao nhiêu cân sẽ hợp lý? Tất cả những vấn đề này sẽ được giải đáp chi tiết trong nội dung chia sẻ dưới đây nhé!\n\nMang thai 3 tháng đầu bị sụt cân nguyên nhân do đâu?\n\nMang thai 3 tháng đầu bị sụt cân có thể bắt nguồn từ nhiều nguyên nhân khác nhau, cụ thể như sau:\n\nỐm nghén và buồn nôn\n\nỐm nghén\n\nthường xuất hiện từ tuần thứ 6 của thai kỳ và kéo dài đến khoảng tuần 12. Đây là nguyên nhân chính khiến 70 - 80% phụ nữ mang thai sụt cân trong giai đoạn đầu thai kỳ. Tình trạng mệt mỏi, buồn nôn và nôn mửa khiến mẹ bầu bị giảm cảm giác thèm ăn, khiến lượng calo tiêu thụ ít hơn bình thường. Do đó, nhiều mẹ bầu không tăng cân, thậm chí sụt cân trong 3 tháng đầu. Tuy nhiên, từ tháng thứ 4 trở đi, các triệu chứng này thường được cải thiện và cân nặng bắt đầu tăng lên.\n\nỐm nghén và buồn nôn khiến mẹ bầu bị giảm cảm giác thèm ăn dẫn đến sụt cân\n\nTuy nhiên, nếu tình trạng nghén nặng dẫn đến sụt cân 5 - 10%, mẹ bầu cần gặp bác sĩ để có hướng khắc phục kịp thời.\n\nChế độ dinh dưỡng không cân đối\n\nMột chế độ dinh dưỡng thiếu khoa học, không đảm bảo đầy đủ dưỡng chất cũng có thể khiến mẹ bầu giảm cân trong 3 tháng đầu hoặc thậm chí trong suốt thai kỳ. Mặc dù mẹ bầu không cần tăng cân quá nhiều trong giai đoạn đầu, nhưng việc bổ sung đủ chất dinh dưỡng lại có vai trò rất quan trọng. Khi không được cung cấp đủ dưỡng chất, cơ thể sẽ trở nên\n\nmệt mỏi\n\n, khó tăng cân hoặc dẫn đến sụt cân.\n\nNếu bị nghén với một số loại thực phẩm, mẹ bầu có thể thay thế bằng các n",
+      "cleaning_warnings": []
+    },
+    "282156": {
+      "tags": [
+        "catalogue"
+      ],
+      "profile": "disease_drug_catalogue",
+      "evidence": [
+        {
+          "rule": "clinical_fields",
+          "labels": [
+            "Nguyên nhân",
+            "Phương pháp chẩn đoán",
+            "Triệu chứng"
+          ],
+          "spans": [
+            {
+              "start_char": 2935,
+              "end_char": 2968
+            },
+            {
+              "start_char": 2970,
+              "end_char": 3025
+            },
+            {
+              "start_char": 3899,
+              "end_char": 3941
+            },
+            {
+              "start_char": 3981,
+              "end_char": 4038
+            },
+            {
+              "start_char": 4961,
+              "end_char": 4990
+            },
+            {
+              "start_char": 5446,
+              "end_char": 5491
+            },
+            {
+              "start_char": 6625,
+              "end_char": 6672
+            },
+            {
+              "start_char": 6674,
+              "end_char": 6755
+            },
+            {
+              "start_char": 6757,
+              "end_char": 6778
+            }
+          ]
+        }
+      ],
+      "url": "https://nhathuoclongchau.com.vn/bai-viet/xuong-cut-nam-o-dau-va-co-vai-tro-gi-thong-tin-ve-benh-ly-tai-xuong-cut.html",
+      "output_file": "data_final/chunks_format_v2_test20k/part-000004.jsonl",
+      "output_line": 731,
+      "input_line": 4731,
+      "source_head": "Xương cụt nằm ở đâu và có vai trò gì? Thông tin về bệnh lý tại xương cụt\n\nXương cụt là xương cuối cùng của cột sống. Xương này có thể bị viêm, tổn thương, đau nhức do nhiều nguyên nhân gây ra. Cùng Nhà thuốc Long Châu tìm hiểu về xương cụt và bệnh lý có thể gặp ở vị trí xương cụt.\n\nXương cụt, mặc dù thường ít gặp các vấn đề sức khỏe do được bảo vệ bởi các cấu trúc mạnh mẽ xung quanh, nhưng vẫn có thể trở nên đau đớn trong một số tình huống. Sự chấn thương và thoái hóa khớp, đĩa đệm có thể gây ra những vấn đề về đau ở xương cụt, ảnh hưởng đến khả năng vận động và chất lượng cuộc sống.\n\nVị trí giải phẫu và vai trò của xương cụt\n\nXương cụt là một xương thuộc cột sống, có một số vai trò nhất định đối với cơ thể.\n\nVị trí giải phẫu\n\nXương cụt là phần cuối cùng của cột sống, nằm ngay dưới\n\nxương cùng\n\n. Mặc dù kích thước của xương cụt thường nhỏ hơn so với xương cùng, nhưng vai trò của nó không kém phần quan trọng. Cấu trúc của xương cụt thường bao gồm 4 đến 6 đốt sống cụt dính liền với nhau, nằm dưới đốt sống thắt lưng thứ 5.\n\nVai trò\n\nCó một số vai trò quan trọng của xương cụt:\n\nĐảm bảo cơ thể duy trì cân bằng khi ngồi.\n\nGiữ cho các cơ quan như gân, dây chằng xung quanh và cơ được cố định.\n\nHỗ trợ và cân bằng vận động của khớp, giúp chúng hoạt động linh hoạt hơn.\n\nNâng đỡ cột sống, hỗ trợ cho các hoạt động như đi, đứng và ngồi.\n\nXương cụt là phần cuối cùng của cột sống\n\nBệnh lý liên quan đến xương cụt\n\nXương cụt thường ít mắc các bệnh lý do nó được bảo vệ bởi các cấu trúc phía trước là xương chậu, cũng như các cấu trúc trong bụng, và phía sau là mông với các lớp cơ và mỡ rất dày. Tuy nhiên, trong một số tình huống, xương cụt vẫn có thể bị đau.\n\nĐau xương cụt\n\ncó thể ảnh hưởng đến mọi người, không phân biệt giới tính hay độ tuổi. Mặc dù ai cũng có thể mắc phải đau xương cụt, nhưng có một số nhóm người có nguy cơ cao hơn. Thanh thiếu niên và người lớn thường mắc đau xương cụt nhiều hơn so với trẻ em, và nữ giới có khả năng mắc bệnh cao hơn nam giới. Dưới đây là một số yếu ",
+      "cleaning_warnings": []
+    },
+    "275391": {
+      "tags": [
+        "catalogue"
+      ],
+      "profile": "disease_drug_catalogue",
+      "evidence": [
+        {
+          "rule": "clinical_fields",
+          "labels": [
+            "Nguy cơ",
+            "Nguyên nhân",
+            "Triệu chứng"
+          ],
+          "spans": [
+            {
+              "start_char": 0,
+              "end_char": 50
+            },
+            {
+              "start_char": 0,
+              "end_char": 50
+            },
+            {
+              "start_char": 285,
+              "end_char": 296
+            },
+            {
+              "start_char": 558,
+              "end_char": 578
+            },
+            {
+              "start_char": 1127,
+              "end_char": 1183
+            },
+            {
+              "start_char": 1734,
+              "end_char": 1797
+            },
+            {
+              "start_char": 1799,
+              "end_char": 1838
+            },
+            {
+              "start_char": 2160,
+              "end_char": 2195
+            },
+            {
+              "start_char": 3929,
+              "end_char": 3993
+            },
+            {
+              "start_char": 5440,
+              "end_char": 5508
+            }
+          ]
+        }
+      ],
+      "url": "https://nhathuoclongchau.com.vn/bai-viet/trieu-chung-gout-cap-nguyen-nhan-va-cach-chua-tri-44924.html",
+      "output_file": "data_final/chunks_format_v2_test20k/part-000004.jsonl",
+      "output_line": 732,
+      "input_line": 4732,
+      "source_head": "Triệu chứng gout cấp, nguyên nhân và cách chữa trị\n\nBệnh gout có thể bắt đầu ở giai đoạn cấp tính và gây ra những cơn đau dữ dội. Triệu chứng gout cấp tính khi tái phát nhiều lần có thể dẫn đến giai đoạn gout mãn tính nếu không được chẩn đoán và điều trị và phòng ngừa bệnh tái phát.\n\nTriệu chứng\n\ngout cấp\n\nthường khởi phát đột ngột với cơn đau dữ dội tại khớp, đặc biệt là khớp ngón chân cái, gây sưng đỏ và hạn chế vận động nghiêm trọng. Nhận biết sớm các dấu hiệu và áp dụng đúng cách giảm đau sẽ giúp kiểm soát cơn gout hiệu quả và hạn chế biến chứng.\n\nTriệu chứng gout cấp\n\nTriệu chứng gout cấp thường khởi phát đột ngột, tiến triển nhanh và gây đau dữ dội, thường bùng phát ban đêm. Cơn đau đạt đỉnh trong 12 giờ đầu, hay gặp ở ngón chân cái, mắt cá chân hoặc đầu gối.\n\nĐau khớp cấp tính, khởi phát đột ngột\n\nTriệu chứng điển hình nhất là cơn đau khớp dữ dội, thường xuất hiện vào ban đêm hoặc rạng sáng. Đau có tính chất tăng nhanh, đạt đỉnh chỉ sau vài giờ và khiến người bệnh khó cử động, mất ngủ. Vị trí thường gặp nhất là khớp ngón chân cái, ngoài ra có thể xuất hiện ở cổ chân, mắt cá chân, khớp gối hoặc cổ tay.\n\nĐau khớp khởi phát đột ngột là triệu chứng gout cấp tính\n\nSưng, nóng, đỏ tại khớp tổn thương\n\nKhớp bị viêm thường có biểu hiện sưng to, da căng bóng, đỏ và nóng, kèm theo cảm giác đau nhói khi chạm vào. Tình trạng viêm không chỉ khu trú tại khớp mà còn có thể lan sang các cấu trúc lân cận như bao hoạt dịch và mô mềm quanh khớp, làm tăng mức độ đau và hạn chế vận động.\n\nBiểu hiện toàn thân kèm theo\n\nMột số trường hợp\n\ngout\n\ncấp có thể xuất hiện triệu chứng toàn thân như sốt nhẹ đến trung bình, mệt mỏi, chán ăn. Đây là phản ứng viêm hệ thống khi cơ thể đáp ứng với sự lắng đọng tinh thể urat tại khớp.\n\nMột số trường hợp gout cấp có thể xuất hiện triệu chứng sốt nhẹ\n\nThời gian diễn tiến và nguy cơ tái phát\n\nCơn gout cấp thường kéo dài khoảng 5-7 ngày, sau đó các triệu chứng viêm và đau giảm dần nếu được kiểm soát tốt. Tuy nhiên, nếu không điều chỉnh chế độ sinh hoạ",
+      "cleaning_warnings": []
+    },
+    "250915": {
+      "tags": [
+        "catalogue"
+      ],
+      "profile": "disease_drug_catalogue",
+      "evidence": [
+        {
+          "rule": "clinical_fields",
+          "labels": [
+            "Nguy cơ",
+            "Nguyên nhân",
+            "Triệu chứng"
+          ],
+          "spans": [
+            {
+              "start_char": 0,
+              "end_char": 57
+            },
+            {
+              "start_char": 656,
+              "end_char": 698
+            },
+            {
+              "start_char": 700,
+              "end_char": 746
+            },
+            {
+              "start_char": 1512,
+              "end_char": 1563
+            },
+            {
+              "start_char": 2546,
+              "end_char": 2592
+            },
+            {
+              "start_char": 2594,
+              "end_char": 2662
+            },
+            {
+              "start_char": 3032,
+              "end_char": 3060
+            },
+            {
+              "start_char": 3062,
+              "end_char": 3147
+            },
+            {
+              "start_char": 3539,
+              "end_char": 3570
+            },
+            {
+              "start_char": 3738,
+              "end_char": 3758
+            }
+          ]
+        }
+      ],
+      "url": "https://nhathuoclongchau.com.vn/bai-viet/nguyen-nhan-chay-mau-khi-bi-sot-xuat-huyet-va-cach-xu-tri.html",
+      "output_file": "data_final/chunks_format_v2_test20k/part-000004.jsonl",
+      "output_line": 741,
+      "input_line": 4741,
+      "source_head": "Nguyên nhân chảy máu khi bị sốt xuất huyết và cách xử trí\n\nSốt xuất huyết là một bệnh truyền nhiễm nguy hiểm, được gây ra bởi virus Dengue, đặc biệt phổ biến ở các vùng nhiệt đới và cận nhiệt đới, trong đó có Việt Nam. Bệnh này thường phát triển qua năm giai đoạn khác nhau, và chảy máu khi bị sốt xuất huyết được xem là một trong những biến chứng nghiêm trọng có thể xảy ra ở giai đoạn muộn của bệnh, thường từ ngày thứ 3 đến ngày thứ 7 của chu kỳ bệnh.\n\nTrong bài viết này, chúng tôi sẽ cung cấp cho bạn thông tin chi tiết về hiện tượng chảy máu khi bị sốt xuất huyết, bao gồm nguyên nhân, triệu chứng, phương pháp điều trị và các biện pháp phòng ngừa.\n\nNguyên nhân chảy máu khi bị sốt xuất huyết\n\nHiểu rõ hơn về nguyên nhân của chảy máu khi bị\n\nsốt xuất huyết\n\nlà một yếu tố quan trọng để đưa ra các biện pháp phòng tránh và điều trị hiệu quả. Dưới đây là những thông tin chi tiết hơn về nguyên nhân của tình trạng sốt xuất huyết:\n\nTổn thương của hệ thống máu\n\nTác động của virus Dengue:\n\nVirus Dengue - nguyên nhân chính gây ra sốt xuất huyết, tấn công hệ thống cơ thể của con người, đặc biệt là mao mạch và mạch máu. Khi virus xâm nhập vào cơ thể, nó tấn công các tế bào trong hệ thống máu, gây ra viêm nhiễm và tổn thương.\n\nSự phá hủy của máu:\n\nVirus Dengue tác động trực tiếp đến các tế bào cấu trúc của\n\nmao mạch\n\nvà mạch máu, gây ra sự phá hủy và suy giảm chức năng của chúng. Khi máu không còn được duy trì trong tình trạng bình thường, dễ dàng dẫn đến tình trạng chảy máu cục bộ hoặc toàn bộ cơ thể.\n\nVirus Dengue là nguyên nhân gây bệnh sốt xuất huyết\n\nTình trạng rối loạn máu\n\nMất cân bằng tiểu cầu:\n\nVirus Dengue gây ra sự\n\ngiảm tiểu cầu\n\n, một loại tế bào máu chịu trách nhiệm vận chuyển oxy và dưỡng chất. Khi tiểu cầu giảm, máu trở nên ít dẻo và dễ vỡ nứt, dẫn đến tình trạng chảy máu nặng hơn.\n\nSự thất thải của hệ thống mạch máu:\n\nSự phá hủy mao mạch và mạch máu khiến cho hệ thống mạch máu trở nên không ổn định. Điều này có thể gây ra sự thất thải máu, khi máu không còn được kiể",
+      "cleaning_warnings": []
+    },
+    "260874": {
+      "tags": [
+        "catalogue"
+      ],
+      "profile": "disease_drug_catalogue",
+      "evidence": [
+        {
+          "rule": "clinical_fields",
+          "labels": [
+            "Nguy cơ",
+            "Nguyên nhân",
+            "Phương pháp chẩn đoán",
+            "Triệu chứng"
+          ],
+          "spans": [
+            {
+              "start_char": 2983,
+              "end_char": 3026
+            },
+            {
+              "start_char": 3732,
+              "end_char": 3784
+            },
+            {
+              "start_char": 3994,
+              "end_char": 4053
+            },
+            {
+              "start_char": 4204,
+              "end_char": 4263
+            },
+            {
+              "start_char": 4657,
+              "end_char": 4725
+            },
+            {
+              "start_char": 4727,
+              "end_char": 4788
+            },
+            {
+              "start_char": 4790,
+              "end_char": 4811
+            },
+            {
+              "start_char": 6047,
+              "end_char": 6128
+            }
+          ]
+        }
+      ],
+      "url": "https://nhathuoclongchau.com.vn/bai-viet/roi-loan-chuyen-dang-co-the-va-nhung-thong-tin-can-biet.html",
+      "output_file": "data_final/chunks_format_v2_test20k/part-000004.jsonl",
+      "output_line": 779,
+      "input_line": 4779,
+      "source_head": "Rối loạn chuyển dạng cơ thể và những thông tin cần biết\n\nRối loạn chuyển dạng cơ thể là một loại rối loạn tâm thần mà người bệnh tập trung quá mức vào các khuyết điểm về ngoại hình của mình, đến mức gây ảnh hưởng nghiêm trọng đến cuộc sống hàng ngày và chức năng xã hội. Khi phát hiện, thường là ở giai đoạn muộn, điều này có thể làm tăng chi phí và khó khăn trong quá trình điều trị. Vậy rối loạn chuyển dạng cơ thể này có đặc điểm như thế nào? Nguyên nhân gì gây nên? Phương pháp điều trị ra sao?\n\nRối loạn chuyển dạng cơ thể là thuật ngữ được dùng phổ biến nói về loại rối loạn tâm thần với nhiều dạng biểu hiện chủ yếu qua các triệu chứng ảnh hưởng đến cơ thể. Thuật ngữ này thay thế cho các thuật ngữ như: Rối loạn cơ thể hóa, tâm căn nghi bệnh và các rối loạn chức năng sinh lý có nguồn gốc tâm căn.\n\nRối loạn chuyển dạng cơ thể là bệnh gì?\n\nSomatoform Disorder là tên tiếng Anh của rối loạn chuyển dạng cơ thể, đây là một loại bệnh tâm thần gây ra một hoặc nhiều triệu chứng ảnh hưởng đến cơ thể. Các triệu chứng thường xuất hiện khi có căng thẳng hoặc áp lực tinh thần đối với người bệnh. Hiểu đơn giản thì\n\nrối loạn dạng cơ thể\n\nxảy ra khi người đó quá lo lắng về các triệu chứng cơ thể như: Đau đớn hay mệt mỏi, mặc dù không có căn bệnh vật lý thực sự. Những biểu hiện cực đoan của bệnh này có thể ảnh hưởng nghiêm trọng đến cuộc sống hàng ngày của họ. Ví dụ, trong trường hợp của rối loạn chuyển dạng, người bệnh có thể bị té ngã và sau đó cảm thấy chân bị liệt, mặc dù không có chấn thương nào ở chân.\n\nRối loạn chuyển dạng cơ thể là một loại bệnh tâm thần\n\nCác triệu chứng và dấu hiệu của rối loạn chuyển dạng không phụ thuộc vào trạng thái tâm lý cụ thể, vì vậy không thể dự đoán hay kiểm soát chúng. Điều quan trọng là người bị rối loạn dạng cơ thể không phải là giả bệnh. Sự đau đớn và các triệu chứng về thể chất thực sự, và chúng có thể có nguyên nhân y khoa mặc dù thường không được xác định chính xác. Vấn đề quan trọng trong điều trị là can thiệp những hành vi cực đoan mà người ",
+      "cleaning_warnings": []
+    },
+    "225452": {
+      "tags": [
+        "catalogue"
+      ],
+      "profile": "disease_drug_catalogue",
+      "evidence": [
+        {
+          "rule": "clinical_fields",
+          "labels": [
+            "Nguy cơ",
+            "Phương pháp chẩn đoán",
+            "Triệu chứng"
+          ],
+          "spans": [
+            {
+              "start_char": 1681,
+              "end_char": 1732
+            },
+            {
+              "start_char": 4114,
+              "end_char": 4138
+            },
+            {
+              "start_char": 7054,
+              "end_char": 7097
+            }
+          ]
+        }
+      ],
+      "url": "https://nhathuoclongchau.com.vn/bai-viet/co-che-phu-trong-suy-than-va-bien-phap-giam-tinh-trang-phu.html",
+      "output_file": "data_final/chunks_format_v2_test20k/part-000004.jsonl",
+      "output_line": 787,
+      "input_line": 4787,
+      "source_head": "Cơ chế phù trong suy thận và biện pháp giảm tình trạng phù\n\nSuy thận là một trong những bệnh lý nghiêm trọng ảnh hưởng đến chức năng lọc và loại bỏ chất thải của thận. Một trong những biến chứng phổ biến và quan trọng của suy thận là hiện tượng phù, gây sưng ở các mô cơ thể. Cơ chế phù trong suy thận liên quan chặt chẽ đến sự mất cân bằng giữa lượng chất lỏng và muối, khiến nước tích tụ trong các mô. Hiểu rõ cơ chế này giúp nhận biết và điều trị sớm các biến chứng nguy hiểm của bệnh.\n\nPhù nề trong suy thận có thể xuất hiện ở nhiều vùng khác nhau trên cơ thể, thường thấy nhất ở chân, mắt cá chân, mí mắt và tay. Tình trạng phù nề có thể không gây triệu chứng hoặc dẫn đến một số triệu chứng như khó thở, mệt mỏi,\n\nchán ăn\n\n, buồn nôn và đau nhức cơ thể. Việc hiểu rõ cơ chế phù trong suy thận và các biện pháp giảm tình trạng phù là điều cần để cải thiện chất lượng cuộc sống của người suy thận.\n\nCơ chế phù trong suy thận là gì?\n\nSuy thận mạn\n\nlà tình trạng thận suy giảm chức năng một cách từ từ và không có khả năng hồi phục theo thời gian. Khi đó, thận chỉ có thể thực hiện một phần rất nhỏ hoặc mất hoàn toàn khả năng thải độc, khiến độc tố và nước dư thừa không thể được loại bỏ khỏi cơ thể. Hệ quả của tình trạng này là lượng dịch và nước sẽ ứ đọng trong các khoang bào, dẫn đến hiện tượng phù. Đây chính là cơ chế phù trong suy thận.\n\nTrong thực tế lâm sàng, phù trong suy thận thường xuất hiện vào chiều tối hoặc ban đêm và giảm dần vào ban ngày. Phù chủ yếu xảy ra ở khu vực quanh mí mắt, tay và mắt cá chân của bệnh nhân.\n\nCơ chế phù trong suy thận là do thận suy giảm chức năng lọc nên khiến độc tố và nước dư thừa không thể được loại bỏ khỏi cơ thể dẫn đến phù\n\nCác triệu chứng nhận biết cơ chế phù trong suy thận\n\nBệnh nhân và người nhà có thể dựa vào những dấu hiệu điển hình sau đây để nhận biết tình trạng phù do suy thận mạn:\n\nPhù nề ở vùng mí mắt, tay và mắt cá chân.\n\nĐau âm ỉ ở vùng thắt lưng.\n\nMất ngủ\n\ndo một số bộ phận cơ thể bị sưng phù và đau nhức.\n\nThay đổi cân nặng ",
+      "cleaning_warnings": []
+    },
+    "249318": {
+      "tags": [
+        "catalogue"
+      ],
+      "profile": "disease_drug_catalogue",
+      "evidence": [
+        {
+          "rule": "clinical_fields",
+          "labels": [
+            "Nguy cơ",
+            "Nguyên nhân",
+            "Triệu chứng"
+          ],
+          "spans": [
+            {
+              "start_char": 0,
+              "end_char": 66
+            },
+            {
+              "start_char": 1863,
+              "end_char": 1900
+            },
+            {
+              "start_char": 2191,
+              "end_char": 2271
+            },
+            {
+              "start_char": 2515,
+              "end_char": 2600
+            },
+            {
+              "start_char": 2732,
+              "end_char": 2788
+            },
+            {
+              "start_char": 2790,
+              "end_char": 2828
+            },
+            {
+              "start_char": 3198,
+              "end_char": 3285
+            }
+          ]
+        }
+      ],
+      "url": "https://nhathuoclongchau.com.vn/bai-viet/ngat-xiu-co-nguy-hiem-khong-nguyen-nhan-khien-nguoi-benh-ngat-xiu.html",
+      "output_file": "data_final/chunks_format_v2_test20k/part-000004.jsonl",
+      "output_line": 796,
+      "input_line": 4796,
+      "source_head": "Ngất xỉu có nguy hiểm không? Nguyên nhân khiến người bệnh ngất xỉu\n\nNgất xỉu là tình trạng lượng máu không thể dẫn truyền lên não đủ khiến người bệnh rơi vào trạng thái mất ý thức một cách đột ngột. Thông thường, người bị xỉu có thể tỉnh dậy nhanh chóng từ 2 - 3 phút. Tuy nhiên, nếu việc ngất xỉu diễn ra thường xuyên, đây có thể là dấu hiệu cảnh báo một số bệnh lý. Sau đây hãy cùng Nhà thuốc Long Châu tìm hiểu ngất xỉu là gì và ngất xỉu có nguy hiểm không nhé.\n\nTình trạng\n\nngất xỉu\n\ntương đối phổ biến, có đến khoảng 3% nam giới và 3.5% nữ giới đã từng xuất hiện tại một số thời điểm nhất định. Khả năng mất đột ngột thường sẽ tăng cao đối với người cao tuổi. Vậy ngất xỉu là gì? Ngất xỉu có nguy hiểm không?\n\nNgất xỉu là gì?\n\nNgất xỉu là trạng thái bất tỉnh, hôn mê và mất nhận thức trong một khoảng thời gian ngắn. Tình trạng này thường xuất phát từ áp lực máu thấp hoặc sự suy yếu hệ tim mạch, khiến cho não không nhận đủ lượng oxy cần thiết. Khi xảy ra tình trạng này, người bệnh thường trải qua các dấu hiệu choáng váng,\n\nmất thăng bằng\n\nvà có thể gục ngã.\n\nNgất xỉu khiến người bệnh rơi vào trạng thái hôn mê, bất tỉnh, không rõ nhận thức\n\nNgười bị ngất xỉu thường có thể hồi phục nếu được chăm sóc kịp thời trong môi trường an toàn. Tuy nhiên, nếu tình trạng ngất kéo dài hoặc không được xử lý đúng cách, có thể dẫn đến tình trạng hôn mê sâu hơn, khi tỉnh dậy, người bệnh có thể cảm thấy\n\nmệt mỏi\n\n, cơ thể suy yếu.\n\nNhững dấu hiệu của ngất xỉu\n\nTrước khi tìm hiểu ngất xỉu có nguy hiểm không, bạn cần phải biết đến một số dấu hiệu của ngất xỉu để phòng tránh kịp thời. Cụ thể như:\n\nNói lắp hoặc khó nói rõ.\n\nNgã không rõ lý do.\n\nDa trở lạnh và mồ hôi ra nhiều.\n\nMất thăng bằng hoặc đứng không vững.\n\nChoáng váng,\n\nchóng mặt\n\nvà\n\nđau đầu\n\n.\n\nMất ý thức hoàn toàn, thường xảy ra sau khi ăn hoặc sau khi tập thể dục.\n\nMọi thứ khi nhìn trở nên tối sầm.\n\nNguyên nhân khiến người bệnh ngất xỉu\n\nCó nhiều nguyên nhân có thể dẫn đến tình trạng ngất xỉu đột ngột, trong đó một số nguyên nhân phổ ",
+      "cleaning_warnings": []
+    },
+    "732683": {
+      "tags": [
+        "broken_link"
+      ],
+      "profile": "narrative_article",
+      "evidence": [
+        {
+          "rule": "prose_fallback",
+          "spans": [
+            {
+              "start_char": 0,
+              "end_char": 1635
+            }
+          ]
+        }
+      ],
+      "url": "https://www.vietnamplus.vn/trung-quoc-phe-duyet-vaccine-mrna-tu-phat-trien-ngua-covid-19-post852701.vnp",
+      "output_file": "data_final/chunks_format_v2_test20k/part-000008.jsonl",
+      "output_line": 744,
+      "input_line": 8744,
+      "source_head": "Trung Quốc phê duyệt vaccine mRNA tự phát triển ngừa COVID-19\nKhác với các loại vaccine truyền thống sử dụng virus đã bị làm yếu hoặc bất hoạt, vaccine công nghệ mRNA “dạy” các tế bào cách tạo protein giúp kích hoạt phản ứng miễn dịch của cơ thể con người.\nFacebook Twitter Lưu bài viết Bản in Copy link\nNhân viên y tế tiêm vaccine ngừa COVID-19 cho người dân tại Quý Châu (Trung Quốc). (Ảnh: THX/TTXVN)\nTrung Quốc đã phê duyệt vaccine ngừa COVID-19 dựa trên công nghệ mRNA đầu tiên do nước này tự phát triển.\nVaccine trên do công ty dược phẩm CSPC Pharmaceutical của Trung Quốc phát triển.\nThông báo của CSPC Pharmaceutical cho biết vaccine của công ty đã được cơ quan y tế Trung Quốc cấp phép \"sử dụng khẩn cấp.\" Vaccine này đã chứng minh có hiệu quả cao trong cuộc thử nghiệm sử dụng tiêm mũi tăng cường cho những người đã được tiêm các loại vaccine khác.\nADVERTISEMENT\nVaccine công nghệ mRNA được đánh giá là một trong những loại vaccine hiệu quả nhất trong việc giảm số ca mắc và số ca tử vong vì COVID-19.\n[[Pfizer/BioNTech thử nghiệm vaccine kết hợp phòng COVID-19 và cúm]](\nKhác với các loại vaccine truyền thống sử dụng virus đã bị làm yếu hoặc bất hoạt, vaccine công nghệ mRNA “dạy” các tế bào cách tạo protein giúp kích hoạt phản ứng miễn dịch của cơ thể con người.\nĐối với COVID-19, vaccine này chỉ dẫn các tế bào sản sinh ra một protein gai trên virus gây bệnh này. Sau đó, hệ miễn dịch trong cơ thể tạo ra các kháng thể chống lại protein gai đó, nhờ đó, hệ miễn dịch được chuẩn bị để sẵn sàng chống lại khi virus thực sự xâm nhập cơ thể.\nCông nghệ này cũng được nghiên cứu để phòng chống các bệnh khác./.\n(TTXVN/Vietnam+)",
+      "cleaning_warnings": [
+        {
+          "code": "incomplete_markdown_link",
+          "count": 1
+        }
+      ],
+      "link_excerpt": "[[Pfizer/BioNTech thử nghiệm vaccine kết hợp phòng COVID-19 và cúm]]("
+    },
+    "730099": {
+      "tags": [
+        "broken_link"
+      ],
+      "profile": "narrative_article",
+      "evidence": [
+        {
+          "rule": "prose_fallback",
+          "spans": [
+            {
+              "start_char": 0,
+              "end_char": 2239
+            }
+          ]
+        }
+      ],
+      "url": "https://www.vietnamplus.vn/cac-trieu-chung-than-kinh-o-nhung-nguoi-mac-covid-keo-dai-post860999.vnp",
+      "output_file": "data_final/chunks_format_v2_test20k/part-000008.jsonl",
+      "output_line": 863,
+      "input_line": 8863,
+      "source_head": "Các triệu chứng thần kinh ở những người mắc COVID kéo dài\nTình trạng mệt mỏi và \"não sương mù\" do COVID-19 kéo dài nằm trong nhóm những triệu chứng phổ biến và gây suy nhược nhất, có thể bắt nguồn từ rối loạn hệ thần kinh.\nFacebook Twitter Lưu bài viết Bản in Copy link\nNhân viên y tế điều trị cho bệnh nhân COVID-19. (Ảnh: AFP/TTXVN)\nNhững người xuất hiện các triệu chứng thần kinh sau khi nhiễm virus SARS-CoV-2 có thể có các điểm khác nhau trong hệ tế bào miễn dịch và rối loạn thần kinh thực vật.\nĐây là kết quả nghiên cứu mới của Viện Y tế Quốc gia Mỹ (NIH) được đăng ngày 5/5 trên tạp chí Neurology: Neuroimmunology & Neuroinflammation.\nNhững người chịu di chứng hậu COVID-19, trong đó có COVID-19 kéo dài, thường có nhiều triệu chứng như mệt mỏi, khó thở, sốt, đau đầu, mất ngủ và \"não sương mù\" - một trạng thái sa sút nhận thức.\nADVERTISEMENT\nNhững triệu chứng này có thể kéo dài nhiều tháng hoặc lâu hơn sau khi nhiễm virus. Tình trạng mệt mỏi và \"não sương mù\" nằm trong nhóm những triệu chứng phổ biến và gây suy nhược nhất, có thể bắt nguồn từ rối loạn hệ thần kinh.\nNhóm nghiên cứu đã tiếp cận bằng phương pháp kiểu hình chuyên sâu (deep phenotyping) để đánh giá những đặc điểm lâm sàng và sinh học của tình trạng COVID kéo dài ở 12 người có những triệu chứng rối loạn thần kinh kéo dài sau khi mắc COVID-19.\n[[Hội chứng COVID kéo dài có thể liên quan đến thay đổi chức năng não bộ]](\nTrong thời gian mắc bệnh, hầu hết người tham gia chỉ có những triệu chứng nhẹ. Người tham gia nghiên cứu được kiểm tra toàn diện từ khám lâm sàng, trả lời câu hỏi, chụp cắt lớp não, xét nghiệm máu và dịch tủy não và các chức năng thần kinh thực vật.\nKết quả chỉ ra những người bị COVID kéo dài có hàm lượng tế bào T mẫu CD4+ và CD8+ (những tế bào miễn dịch có tham gia phản ứng miễn dịch của cơ thể với các loại virus) so với những người khỏe mạnh.\nNhóm nghiên cứu cũng phát hiện hàm lượng tế bào B và các tế bào miễn dịch khác tăng lên, cho thấy tình trạng rối loạn miễn dịch có thể đóng vai trò tron",
+      "cleaning_warnings": [
+        {
+          "code": "incomplete_markdown_link",
+          "count": 1
+        }
+      ],
+      "link_excerpt": "[[Hội chứng COVID kéo dài có thể liên quan đến thay đổi chức năng não bộ]]("
+    },
+    "85505": {
+      "tags": [
+        "broken_link"
+      ],
+      "profile": "narrative_article",
+      "evidence": [
+        {
+          "rule": "prose_fallback",
+          "spans": [
+            {
+              "start_char": 0,
+              "end_char": 13135
+            }
+          ]
+        }
+      ],
+      "url": "https://baoquangtri.vn/suc-khoe/201702/dong-y-dieu-tri-benh-viem-loet-da-day-ta-trang-2142790/",
+      "output_file": "data_final/chunks_format_v2_test20k/part-000008.jsonl",
+      "output_line": 941,
+      "input_line": 8941,
+      "source_head": "Đông y điều trị bệnh viêm loét dạ dày- tá tràng\n07:02, 15/02/2017\n\n(QBĐT) - Viêm loét dạ dày - tá tràng (đông y gọi là vị quản thống) là tình trạng niêm mạc dạ dày- tá tràng bị tổn thương, là một bệnh mạn tính, hay tái phát mang tính chu kỳ. Bệnh viêm loét niêm mạc dà dày- tá tràng xảy ra theo cơ chế có thể do tác động quá mức sinh lý của acid HCL và men pepsin, làm mất sự cân bằng giữa cơ chế bảo vệ của cơ thể nên sinh ra bệnh. Đây là bệnh khá phổ biến ở Việt Nam và trên thế giới, theo các thông kê mới nhất, bệnh chiếm gần khoảng 26% dân số, gặp ở mọi lứa tuổi, nhưng thường gặp ở tuổi thanh niên và trung niên. Loét dạ dày tỷ lệ nam/nữ bằng nhau, loét hành tá tràng nam/nữ là 2/1, bệnh gặp ở thành phố, đô thị nhiều hơn vùng ở nông thôn.\nBệnh viêm loét dạ dày - tá tràng do nhiều nguyên nhân gây ra.\n\nTheo y học hiện đại: Do yếu tố thần kinh (stress) căng thẳng quá ngưỡng chịu đựng và kéo dài của cơ thể; do kích thích dây thần kinh số X (thần kinh phế vị); do vi khuẩn Helicobacter Pylori (HP) là loại vi khuẩn sống ở lớp niêm mạc dạ dày và gây ra viêm, theo thống kê có đến gần 95% gây ra bệnh viêm niêm mạc dạ dày; do tác dụng của thuốc giảm đau, chống viêm, đặc biệt do nhóm non steroid và steroid gây ra. Yếu tố gia đình cũng được đưa ra bàn luận, trên thực tế, người ta thấy rằng ở những gia đình có bố, mẹ bị viêm loét dạ dày- tá tràng thì những người con bị mắc bệnh này cao gấp 3 lần so với những đối tượng khác. Ăn uống cũng có thể gây ra bệnh như ăn phải hóa chất (uống nhầm acid), thức ăn mất cân đối chất dinh dưỡng, thời gian ăn không hợp lý, ăn nhiều chất gây tổn thương niêm mạc dạ dày (chua, cay...). Ngoài ra còn do số ít bệnh khác gây ra như viêm túi mật, viêm tụy, xơ gan.\nLý luận đông y cho rằng: Do tâm lý bị kích thích (vui, buồn, sợ hãi, lo lắng...) các yếu tố này tích lũy lâu ngày gây ra can khí uất kết, mất khả năng sơ tiết làm rối loạn cơ khí, hoành nghịch phạm vị làm cho can vị bất hòa dẫn đến rối loạn sự thăng thạnh giáng trọc của tỳ vị gây ra đau, ợ hơi, ợ ",
+      "cleaning_warnings": [
+        {
+          "code": "incomplete_markdown_link",
+          "count": 1
+        }
+      ],
+      "link_excerpt": "[[Infographics] Sáu biện pháp phòng chống bệnh chân tay miệng]("
+    },
+    "474770": {
+      "tags": [
+        "broken_link"
+      ],
+      "profile": "narrative_article",
+      "evidence": [
+        {
+          "rule": "prose_fallback",
+          "spans": [
+            {
+              "start_char": 0,
+              "end_char": 3772
+            }
+          ]
+        }
+      ],
+      "url": "https://suckhoecongdongonline.vn/xsmb-297-ket-qua-xsmb-hom-nay-297-kqxsmb-thu-2",
+      "output_file": "data_final/chunks_format_v2_test20k/part-000008.jsonl",
+      "output_line": 1000,
+      "input_line": 9000,
+      "source_head": "XSMB 29/7 - Kết quả XSMB hôm nay 29/7 - KQXSMB thứ 2\nXSMB 29/7 - KQXSMB thứ 2 ngày 29/7/2019 - Tường thuật trực tiếp kết quả XSMB hôm nay thứ 2 ngày 29/7/2019 nhanh nhất, chính xác nhất. Cập nhật kết quả XSMB mỗi ngày vào lúc 18h15'.\nXSMB 29/7\nXem kết quả XSMB thứ 2 ngày 29/7/2019 được tường thuật trực tiếp quay số và mở thưởng tại trường quay S4 - Đài TH KTS VTC, 65 Lạc Trung, Hai Bà Trưng, Hà Nội lúc 18 giờ 15 phút.\nMời quý độc giả xem trực tiếp kết quả XSMB 29/7/2019 vào hồi 18h15p theo bảng KQ dưới đây:\nVới bảng XSMB được tự động cập nhật nhanh chóng, liên tục các kết quả từ trường quay cho bạn kết quả XSMB hôm nay nhanh chóng, chính xác, thuận tiện cho việc xem và dò kết quả.\nXổ số Miền Bắc hôm nay ngày 29/7/2019 được mở thưởng bởi Công ty TNHH Một thành viên Xổ số kiến thiết Thủ đô Địa chỉ: 53E - Hàng Bài - Hoàn Kiếm - Hà Nội. Điện thoại: 04.9433636 - Fax: 04.9438874 - Đường dây nóng: 04.9439928, 04.9433123\nXem lại Kết quả xổ số Miền Bắc hôm qua Chủ nhật ngày 28/7/2018 - XSMB tại đây.\nKết quả xổ số miền Bắc (XSMB 28/7) ngày 28/7/2019, được quay thưởng vào lúc 18 giờ 15 phút. Trong kì quay XSMB mở thưởng ngày 28/7/2019, các giải đặc biệt, mỗi giải có giá trị 1 tỉ đồng trùng khớp với dãy số 59008. Các ký hiệu trúng ĐB: 14QD - 4QD - 10QD . Bên cạnh đó, 15 giải nhất mỗi giải trị giá 10.000.000 đồng đã thuộc về các khách hàng có tấm vé trùng với dãy số 46054. 30 giải nhì trị giá 5.000.000 triệu đồng trùng với dãy số 27425 và 31871.\nCơ cấu giải thưởng XSMB có sự thay đổi trong cơ cấu giải thưởng tính từ tháng 2/2016. Cơ cấu giải thưởng chỉ thay đổi đối với giải đặc biệt của XSMB. Cụ thể, 5 vé số có dãy số trùng với giải Đặc Biệt và có mã trùng với 1 trong 3 mã trúng giải đặc biệt ( tổng cộng có 15 mã) sẽ trúng giải đặc biệt với trị giá giải thưởng lên đến 1 tỷ đồng. Với 12 vé còn lại trùng với dãy số của giải đặc biệt nhưng không trùng mã đặc biệt thì sẽ được trúng giải phụ Đặc Biệt có trị giá lên tới 50 triệu đồng. Ngoài ra, các vé số có 2 số cuối trùng với 2 số cu",
+      "cleaning_warnings": [
+        {
+          "code": "incomplete_markdown_link",
+          "count": 2
+        }
+      ],
+      "link_excerpt": "[[email protected]]("
+    },
+    "731696": {
+      "tags": [
+        "broken_link"
+      ],
+      "profile": "narrative_article",
+      "evidence": [
+        {
+          "rule": "prose_fallback",
+          "spans": [
+            {
+              "start_char": 0,
+              "end_char": 2282
+            }
+          ]
+        }
+      ],
+      "url": "https://www.vietnamplus.vn/nhat-ban-phat-hien-hoa-chat-co-hai-trong-mau-mau-cua-nguoi-dan-o-tokyo-post843520.vnp",
+      "output_file": "data_final/chunks_format_v2_test20k/part-000009.jsonl",
+      "output_line": 51,
+      "input_line": 9051,
+      "source_head": "Nhật Bản phát hiện hóa chất có hại trong mẫu máu của người dân ở Tokyo\nKết quả xét nghiệm ban đầu cho thấy nồng độ PFOS trong các mẫu máu của 87 trong số 280 cư dân sống gần căn cứ không quân Yokota của Mỹ cao hơn 3 lần so với mức được ghi nhận năm 2021.\nFacebook Twitter Lưu bài viết Bản in Copy link\nCăn cứ không quân Yokota. (Nguồn: The Japan Times)\nTheo phóng viên TTXVN tại Tokyo, các nhà nghiên cứu Nhật Bản vừa phát hiện các hợp chất flo hữu cơ có hại trong các mẫu máu của người dân sống gần một căn cứ quân sự của Mỹ ở thủ đô Tokyo.\nCác nhà nghiên cứu đã tiến hành xét nghiệm mẫu máu của 280 người sống gần căn cứ không quân Yokota của Mỹ, sau khi cơ quan chức năng phát hiện các hóa chất trên tại các con sông và nước ngầm gần các căn cứ quân sự của Mỹ ở hai tỉnh Okinawa và Kanagawa, với nồng độ cao hơn mức tiêu chuẩn an toàn của Chính phủ Nhật Bản.\nKết quả xét nghiệm ban đầu cho thấy nồng độ PFOS (axit perfluorooctanesulfonic) và PFOA (axit perfluorooctanoic) trong các mẫu máu của 87 trong số 280 cư dân nói trên cao hơn 3 lần so với mức được ghi nhận trong một cuộc điều tra của Chính phủ Nhật Bản tại 3 địa điểm vào năm 2021.\nADVERTISEMENT\n[[Nhật Bản phản đối Thủy quân lục chiến Mỹ xả nước thải ở Okinawa]](\nTheo đài truyền hình NHK, các hóa chất trên cũng được phát hiện trong giếng và nước ngầm tại một số địa điểm ở trung tâm thủ đô Tokyo, với nồng độ tương tự.\nNHK dẫn lời Phó Giáo sư Koji Harada của Đại học Kyoto cho biết ở nồng độ được phát hiện, các hợp chất này sẽ không tác động ngay lập tức tới sức khỏe của con người. Tuy nhiên, ông kêu gọi chính quyền thành phố và trung ương xác định nguồn gốc của các hóa chất trên và nghiên cứu các ảnh hưởng của chúng.\nMột tổ chức công dân của Nhật Bản đã lên kế hoạch tiến hành xét nghiệm đối với 600 người dân trong thời gian từ nay tới tháng 3/2023 và phân tích các kết quả xét nghiệm này.\nCác hợp chất flo hữu cơ thường được sử dụng trong bọt chữa cháy và chất tẩy các vết bẩn. Mỹ có các quy định hướng dẫn nghiêm ngặt đối với ",
+      "cleaning_warnings": [
+        {
+          "code": "incomplete_markdown_link",
+          "count": 1
+        }
+      ],
+      "link_excerpt": "[[Nhật Bản phản đối Thủy quân lục chiến Mỹ xả nước thải ở Okinawa]]("
+    },
+    "86115": {
+      "tags": [
+        "broken_link"
+      ],
+      "profile": "narrative_article",
+      "evidence": [
+        {
+          "rule": "prose_fallback",
+          "spans": [
+            {
+              "start_char": 0,
+              "end_char": 6495
+            }
+          ]
+        }
+      ],
+      "url": "https://baoquangtri.vn/suc-khoe/201807/nano-vang-khong-thuoc-danh-muc-thuoc-dieu-tri-ung-thu-o-viet-nam-2158123/",
+      "output_file": "data_final/chunks_format_v2_test20k/part-000009.jsonl",
+      "output_line": 269,
+      "input_line": 9269,
+      "source_head": "Nano vàng không thuộc danh mục thuốc điều trị ung thư ở Việt Nam\n07:07, 13/07/2018\n\nTheo thông tin từ Bệnh Viện K, hiện nay có nhiều bệnh nhân phản hồi về việc dùng nano vàng để điều trị ung thư. Trước sự việc trên, chiều 12-7, Bệnh viện K đã tổ chức họp báo thông tin về sự việc này.\nBệnh nhân ung thư sau khi tiêm thuốc phóng xạ được đưa vào máy Spect để kiểm tra di căn ung thư xương. (Ảnh: Lê Xuân/TTXVN)\n\nTại cuộc họp, nhiều chuyên gia trong ngành ung thư bày tỏ quan điểm không khuyến cáo người bệnh tự ý mua nanno vàng để điều trị.\nPhó giáo sư Lê văn Quảng - Phó giám đốc Bệnh viện K cho hay: “Tại Việt Nam, hiện nay có thể khẳng định nano vàng không có tên trong danh mục thuốc điều trị ung thư. Bộ Y tế không có khuyến cáo người dân sử dụng.”\nPhó giáo sư Quảng cũng lưu ý hiện nay giữa nghiên cứu của Việt Nam với thế giới có sự khác biệt. Trên thế giới, các nghiên cứu gắn nano vàng với các kháng thể để chạy đến điểm cần diệt tế bào ung thư, ở Việt Nam thì không.\nBác sỹ Đào Thanh Tú, khoa Nội (Bệnh viện K Trung ương) cho hay, hạt nano vàng được phát hiện có độc tính. Điều này đã được thử nghiệm trên động vật, cho thấy chúng có hấp thu trong cơ thể ở hầu hết các cơ quan trong cơ thể bao gồm não, lách,… đặc biệt là gan.\nSau khi được tiêm, các hạt nano vàng sẽ thâm nhập và tích lũy vào các mô như lách, gan, thận, não, tinh hoàn. Trong các nghiên cứu cũng ghi nhận độc tính của hạt nano vàng trên cơ thể động vật do đó chưa phải là một phương pháp điều trị hiệu quả. Nếu qua đường uống có thể gây độc, suy gan, dẫn tới tử vong.\nPhó giáo sư Quảng cũng thông tin thêm: “Các độc tính này có thể gây chết người. Chúng có độc tính trên gan với liều thấp, ở liều cao chúng có thể gây chết người.”\nViệc sử dụng hạt nano vàng tự do để điều trị ung thư là không có cơ sở khoa học thuyết phục, tích lũy hạt nano vàng ở các cơ quan quan trọng trong cơ thể có thể gây ra ngộ độc cấp tính và mạn tính gây nguy hiểm đến sức khỏe người bệnh.\nTheo các chuyên gia, việc nghiên cứu tác dụng trên tế bào ",
+      "cleaning_warnings": [
+        {
+          "code": "incomplete_markdown_link",
+          "count": 1
+        }
+      ],
+      "link_excerpt": "[[Infographics] Những cách phòng chống say nắng, say nóng hiệu quả]("
+    },
+    "730709": {
+      "tags": [
+        "broken_link"
+      ],
+      "profile": "narrative_article",
+      "evidence": [
+        {
+          "rule": "prose_fallback",
+          "spans": [
+            {
+              "start_char": 0,
+              "end_char": 2345
+            }
+          ]
+        }
+      ],
+      "url": "https://www.vietnamplus.vn/ghi-nhan-them-2-truong-hop-tu-vong-do-covid-19-kem-theo-benh-ly-nen-post722433.vnp",
+      "output_file": "data_final/chunks_format_v2_test20k/part-000009.jsonl",
+      "output_line": 339,
+      "input_line": 9339,
+      "source_head": "Ghi nhận thêm 2 trường hợp tử vong do COVID-19 kèm theo bệnh lý nền\nTrưa 25/6, Tiểu ban Điều trị Ban chỉ đạo phòng chống dịch COVID-19 thông báo các ca tử vong 73 và 74 tại Thành phố Hồ Chí Minh và tỉnh Kiên Giang.\nFacebook Twitter Lưu bài viết Bản in Copy link\n(Ảnh: TTXVN/Vietnam+)\nTrưa 25/6, Tiểu ban Điều trị Ban chỉ đạo phòng chống dịch COVID-19 thông báo các ca tử vong 73 và 74.\nCa tử vong 73: BN9830 , nam, 44 tuổi, có địa chỉ tại huyện Bình Chánh, Thành phố Hồ Chí Minh. Tiền sử đái tháo đường type 2.\nNgày 14/6, bệnh nhân xét nghiệm SARS-COV-2 có kết quả dương tính được chuyển từ Bệnh viện Điều trị COVID-19 Cần Giờ đến Bệnh viện Phạm Ngọc Thạch điều trị tại Khoa Hồi sức cấp cứu COVID-19 trong tình trạng tỉnh, khó thở phải thở oxy mask 15 lít/phút.\nADVERTISEMENT\n[[Bài 3: ‘Chiến binh áo trắng’ về an toàn từ ‘chiến địa’ ác liệt nhất]](\nTại đây bệnh nhân được điều trị hồi sức tích cực bằng thở máy qua nội khí quản, an thần, giãn cơ, kháng sinh, kháng đông, kháng viêm, insulin, thuốc vận mạch.\nTuy nhiên do bệnh nhân có bệnh nền, đáp ứng điều trị kém, bệnh diễn biến nặng dần, mặc dù đã được bệnh viện dốc sức cứu chữa nhưng không qua khỏi, bệnh nhân tử vong lúc 1 giờ 32 phút ngày 22/6.\nChẩn đoán tử vong: Viêm phổi do SARS-CoV-2 nặng biến chứng suy hô hấp cấp tiến triển (ARDS), sốc nhiễm khuẩn, suy đa cơ quan trên bệnh nhân đái tháo đường type 2.\nCa tử vong 74: BN11456 , nữ, 68 tuổi, có địa chỉ tại huyện An Minh, tỉnh Kiên Giang. Tiền sử: Đái tháo đường type 2, tăng huyết áp, di chứng lao phổi (đã hoàn thành điều trị cách đây 10 năm).\nNgày 16/6, bệnh nhân xét nghiệm SARS-CoV-2 có kết quả dương tính được chuyển từ Bệnh viện Điều trị COVID-19 Cần Giờ đến Bệnh viện Phạm Ngọc Thạch điều trị trong tình trạng suy hô hấp không cải thiện, hỗ trợ oxy mask liên tục.\nTại đây, bệnh nhân được điều trị hồi sức tích cực bằng thở máy qua nội khí quản, an thần, giãn cơ, kháng sinh, kháng đông, kháng viêm, insulin, thuốc vận mạch. Tuy nhiên do tuổi cao, bệnh lý nền nặng, đáp ứng điều trị",
+      "cleaning_warnings": [
+        {
+          "code": "incomplete_markdown_link",
+          "count": 1
+        }
+      ],
+      "link_excerpt": "[[Bài 3: ‘Chiến binh áo trắng’ về an toàn từ ‘chiến địa’ ác liệt nhất]]("
+    },
+    "86725": {
+      "tags": [
+        "broken_link"
+      ],
+      "profile": "narrative_article",
+      "evidence": [
+        {
+          "rule": "prose_fallback",
+          "spans": [
+            {
+              "start_char": 0,
+              "end_char": 6725
+            }
+          ]
+        }
+      ],
+      "url": "https://baoquangtri.vn/suc-khoe/201912/binh-phuoc-mot-tre-so-sinh-bi-bong-nang-do-suoi-am-bang-than-2172668/",
+      "output_file": "data_final/chunks_format_v2_test20k/part-000009.jsonl",
+      "output_line": 598,
+      "input_line": 9598,
+      "source_head": "Bình Phước: Một trẻ sơ sinh bị bỏng nặng do sưởi ấm bằng than\n04:12, 10/12/2019\n\nChị Nguyễn Thị B. (mẹ của bệnh nhi) cho biết, do thời tiết lạnh nên sau khi sinh cháu N., gia đình đã đốt than để dưới giường cho 2 mẹ con chị sưởi ấm, dẫn đến việc bé N. bị bỏng nặng.\nLưng trẻ sơ sinh bị bỏng nặng, phồng rộp do sưởi ấm bằng than. (Ảnh: TTXVN phát)\n\nNgày 10-12, Quyền Trưởng khoa Sơ sinh - Bệnh viện Nhi đồng 2 Thành phố Hồ Chí Minh, bác sỹ Nguyễn Thị Kim Anh, cho biết đơn vị này vừa tiếp nhận một trường hợp trẻ sơ sinh bị bỏng nặng do sưởi ấm bằng than.\nTrước đó, ngày 5-12, Bệnh viện Nhi đồng 2 tiếp nhận bệnh nhi Nguyễn Hoàng M.N. (sinh ngày 27-11-2019, ngụ tại tỉnh Bình Phước) trong tình trạng sốt cao, lừ đừ, bụng chướng, lưng bị sưng nề, đỏ.\nSau khi thăm khám và làm xét nghiệm cần thiết, bệnh nhi được chẩn đoán bị bỏng độ 2, ápxe, nhiễm trùng máu, hậu quả của việc gia đình cho bé nằm hơ than cùng với mẹ.\nChị Nguyễn Thị B. (mẹ của bệnh nhi) cho biết do thời tiết lạnh nên sau khi sinh cháu N., gia đình đã đốt than để dưới giường cho 2 mẹ con chị sưởi ấm.\nNgày đầu tiên nằm than, bé sốt nhẹ và quấy khóc. Sang ngày thứ hai, bé sốt cao liên tục không giảm, bụng chướng, sờ vùng da lưng thấy cứng, khóc nhiều hơn.\nĐến ngày thứ ba, bé khóc dữ dội, bỏ bú nên gia đình không cho bé nằm than nữa và đưa vào Bệnh viện thị xã Bình Long (tỉnh Bình Phước) để khám và điều trị. Các bác sỹ ở đây nhận định bé có khả năng bị viêm ruột, sưng mô và chuyển lên tuyến trên.\nTại Khoa Sơ sinh - Bệnh viện Nhi Đồng 2, sau vài ngày điều trị bằng kháng sinh, bệnh nhi giảm sốt nhưng vùng tổn thương ở lưng không đỡ mà còn diễn biến nghiêm trọng hơn. Vùng lưng của bệnh nhi nổi bóng nước, da phập phều, vùng trung tâm bị hoại tử.\nCác bác sỹ đã phải rạch dẫn lưu mủ, điều trị chỗ áp-xe cho bé, đồng thời tiếp tục điều trị kháng sinh.\nDự kiến, phải mất khoảng 20-30 ngày điều trị thì bệnh nhi mới có thể lành chỗ tổn thương và hồi phục.\nBác sỹ Nguyễn Thị Kim Anh cho biết da trẻ sơ sinh rất mỏng, dễ bị tổn thương, ",
+      "cleaning_warnings": [
+        {
+          "code": "incomplete_markdown_link",
+          "count": 1
+        }
+      ],
+      "link_excerpt": "[[Infographics] Tám mục tiêu Chiến lược Dân số Việt Nam đến năm 2030]("
+    },
+    "566375": {
+      "tags": [
+        "nonpubmed_research"
+      ],
+      "profile": "research_abstract",
+      "evidence": [
+        {
+          "rule": "research_labels",
+          "count": 4,
+          "domain": "suckhoeviet.org.vn",
+          "spans": [
+            {
+              "start_char": 949,
+              "end_char": 959
+            },
+            {
+              "start_char": 1124,
+              "end_char": 1132
+            },
+            {
+              "start_char": 1347,
+              "end_char": 1355
+            },
+            {
+              "start_char": 1540,
+              "end_char": 1551
+            }
+          ]
+        }
+      ],
+      "url": "https://suckhoeviet.org.vn/kien-thuc-thai-do-thuc-hanh-ve-phong-va-xu-tri-phoi-nhiem-voi-vat-sac-nhon-trong-tiem-truyen-cua-sinh-vien-khoa-y-duoc-truong-dai-hoc-tra-vinh-11710-11710.html",
+      "output_file": "data_final/chunks_format_v2_test20k/part-000009.jsonl",
+      "output_line": 688,
+      "input_line": 9688,
+      "source_head": "Kiến thức, thái độ, thực hành về phòng và xử trí phơi nhiễm với vật sắc nhọn trong tiêm truyền của sinh viên khoa y- dược trường đại học Trà Vinh\nMục tiêu:Xác định tỉ lệ kiến thức, thái độ, thực hành đúng và một số yếu tố liên quan về phòng và xử trí phơi nhiễm với vật sắc nhọn trong tiêm truyền.\nPhương pháp nghiên cứu:Nghiên cứu mô tả cắt ngang, đối tượng nghiên cứu là Sinh viên năm 2, năm 3, năm 4 học khối ngành thuộc khoa Y- Dược trường Đại học Trà Vinh bao gồm ngành Y đa khoa và ngành Điều dưỡng..\nKết quả:tỉ lệ sinh viên có kiến thức , thái độ, thực hành đúng về phòng và xử trí phơi nhiễm với vật sắc nhọn trong tiêm truyền lầ n lượt là 63 ,8%, 81,7%và 87,9%.\nKết luận:nghiên cứu cho thấy cần phải nâng cao kiến thức của sinh viên về phòng ngừa và xử trí phơi nhiễm với vật sắc nhọn trong tiêm truyền để đảm bảo sinh viên có kiến thức tốt nhất trước khi đi thực tập lâm sàng .\nTừ khóa : kiến thức, thái độ, thực hành, phơi nhiễm\nAbstract\nObjective: Determine the rate of knowledge, attitude, correct practice and some related factors on preventing and handling exposure to sharp objects in intravenous injection.\nMethods: Cross-sectional descriptive study, the research subjects were 2nd, 3rd, and 4th year students studying majors in the Faculty of Medicine and Pharmacy at Tra Vinh University, including General Medicine and Nursing.\nResults: The percentage of students with correct knowledge, attitudes, and practices on preventing and handling exposure to sharp objects in injection is 63.8%, 81.7%, and 87.9%, respectively.\nConclusion: Research shows that it is necessary to improve students' knowledge about preventing and managing exposure to sharp objects in intravenous injection to ensure students have the best knowledge before going to clinical practice.\nKey-words: knowledge, attitudes, practices, exposure\nI. ĐẶT VẤN ĐỀ\nPhơi nhiễm do vật sắc nhọn là một trong những tai nạn nghề nghiệp xảy ra thường xuyên và phổ biến tại các cơ sở y tế trên thế giới và Việt Nam. Tại Việt Na",
+      "cleaning_warnings": []
+    },
+    "427504": {
+      "tags": [
+        "short_remainder"
+      ],
+      "profile": "narrative_article",
+      "evidence": [
+        {
+          "rule": "prose_fallback",
+          "spans": [
+            {
+              "start_char": 0,
+              "end_char": 90672
+            }
+          ]
+        }
+      ],
+      "url": "https://suckhoecongdongonline.vn/quy-dinh-ve-quan-ly-rac-thai-sinh-hoat",
+      "output_file": "data_final/chunks_format_v2_test20k/part-000010.jsonl",
+      "output_line": 861,
+      "input_line": 10861,
+      "source_head": "Quy định về quản lý rác thải sinh hoạt\nHiện nay các quy định về quản lý rác thải sinh hoạt đang đặt ra nhiều thách thức không chỉ đối với môi trường mà còn đối với cả sức khỏe con người....\nCác quy định về quản lý rác thải sinh hoạt đang rất cấp bách\nỞ Việt Nam hiện nay các công tác quy định về quản lý rác thải sinh hoạt đang đặt ra nhiều vấn đề cấp thiết. Lý do bởi rác thải sinh hoạt có tốc độ phát sinh rất cao, đặc biệt là tại khu vực đô thị có nhiều dân cư sinh sống. Đây là sản phẩm được thải ra từ cuộc sống sinh hoạt hàng ngày, các hoạt động kinh doanh cá thể, các hoạt động dịch vụ, các hoạt động y tế hay cả vui chơi giải trí...\nCàng theo thời gian thì lượng rác thải sinh hoạt càng được nâng cao hơn do cuộc sống có nhiều phát triển và tiến bộ. Tuy nhiên, đi kèm với đó chính là các quy định về quản lý rác thải sinh hoạt chưa thật sự theo sát và gắt gao. Khi mà rác thải ngày càng đa dạng hơn và độc hại hơn thì các quy định về quản lý rác thải sinh hoạt cũng cần phải được thực hiện chặt chẽ hơn. Chính vì vậy không chỉ ở Việt Nam mà tại các nước khác trên thế giới thì việc xử lý rác thải đang trở thành một bài toán khó. Chính vì vậy mà các quy định về quản lý rác thải sinh hoạt ngày càng phải được xem trọng.\nBài liên quan\nThực trạng các quy định về quản lý rác thải sinh hoạt\nThực tế các quy định về quản lý rác thải sinh hoạt vẫn đang được các cơ quan chức năng thực hiện tốt nhưng lực lượng quản lý vẫn còn thiếu hụt so với nhu cầu hiện tại.\nHiện nay, tại các khu đô thị thì việc thu gom rác còn rất nhiều khó khăn khiến cho các loại rác thải sinh hoạt được thải thẳng ra môi trường tự nhiên. Điều này tổn hại rất lớn đến môi trường cũng như sức khỏe con người.\nCòn ở khu vực nông thôn, nơi hạn chế sự tuyên truyền các quy định về quản lý rác thải sinh hoạt thì rác hầu như bị vất bừa bãi khắp nơi mà không được thu gom. Điều này khiến cho môi trường sống bị ảnh hưởng nghiêm trọng và có nguy cơ bùng phát nhiều loại dịch bệnh khác nhau.\nChính vì vậy các cơ quan chức năng cần p",
+      "cleaning_warnings": []
+    },
+    "1097095": {
+      "tags": [
+        "short_remainder"
+      ],
+      "profile": "qa",
+      "evidence": [
+        {
+          "rule": "question_answer_markers",
+          "spans": [
+            {
+              "start_char": 27,
+              "end_char": 33
+            }
+          ]
+        }
+      ],
+      "url": "http://www.120ask.com/question/167.htm",
+      "output_file": "data_final/chunks_format_v2_test20k/part-000015.jsonl",
+      "output_line": 728,
+      "input_line": 15728,
+      "source_head": "本人发病已有大半年大半年,症状为心脏经常会突然跳一下\n健康咨询描述： 本人发病已有大半年大半年。症状为心脏经常会突然跳一下，此状况有时持续几分钟，有时会持续一整天，还会伴有呕吐却吐不出来的现象，胸口经常堵得慌，憋闷，我曾经在2003年做过膝盖部位的关节镜手术，当时打过半身麻醉药，手术做得不是很成功，在做过手术之后的几个月就有上述症状了，不知是否由于这个手术影响到心脏的；同时我又做了很多检查，如24小时动态心电图、B超心电图、胃镜、胸透、血常规等检查都没有问题，医生也去看了，都说我没问题，医生让我服用了一些心脏早搏的药，如倍他乐克、丹参片、心得安等西药以及一些中药，我吃了大半年了，觉得一点都不管用，反而现在感到越来越严重了，因为有好几次做了一些比较激烈的运动，就感觉心脏很不规律的跳动得很快且胸口闷得要人晕倒了，特别是最近一个月发作非常频繁，实在是太痛苦了。在此希望能得到专家的诊治，谢谢！\n你做过哪些检查？如心电图、心彩超超、动态心电图等。",
+      "cleaning_warnings": []
+    },
+    "1058945": {
+      "tags": [
+        "short_remainder"
+      ],
+      "profile": "qa",
+      "evidence": [
+        {
+          "rule": "question_answer_markers",
+          "spans": [
+            {
+              "start_char": 19,
+              "end_char": 25
+            },
+            {
+              "start_char": 889,
+              "end_char": 893
+            }
+          ]
+        }
+      ],
+      "url": "http://www.120ask.com/question/14114182.htm",
+      "output_file": "data_final/chunks_format_v2_test20k/part-000016.jsonl",
+      "output_line": 198,
+      "input_line": 16198,
+      "source_head": "是否患有精神分裂或其他疾病？谢谢帮助\n健康咨询描述： 别人在说话时总感觉在议论自己,会时常感觉身上像有虫子爬过,常常在想一个事情的时候突然就乱了,乱的什么都有,有幻听情况,时常头痛,最近三天肠胃非常不好,虐待他人的欲望在大约一年前比较强烈,而最近一年左右有比较强烈的受虐欲望,心悸胸闷,有时身体忽冷忽热,早晨醒来时会有强烈的抑郁感,过一会这种感觉会消失,有时突然想打人或其他暴力行为,而有时又会兴奋,和家人或亲密的人在一起的时候是一种状态而在其他人和场合时完全相反的状态性格,总是怀疑自己做的不好,是不是很差,别人是不是在嘲笑自己,会重复检查做过的事但还是怀疑没有做好,有时会突然悲伤,非常不信任别人,常有两种不同的思想观念,有时不同的思想观念会一起涌来然后思维就很混乱\n时间不超过两年不少于一年.家庭关系从小就不好,最近两年突然更坏了,自己也受过很多打击,具体的原因不清楚\n时间不超过两年不少于一年.家庭关系从小就不好,最近两年突然更坏了,自己也受过很多打击,具体的原因不清楚\n曾经的治疗情况和效果： 看过心理医生\n想得到怎样的帮助：是否患有精神分裂或其他疾病?希望能得到一些建议,非常感谢!\n你好,是精神分裂症的表现,精神分裂症不易治愈且容易复发的主要原因是没有去除心理因素,药物只是控制了某些疾病的症状,当遇到社会心理因素的刺激时又可能复发,因此建议最好采用中药配合心理治疗可以达到很好的治疗效果,中药可以起到调理情绪,醒脑开窍,疏肝涤痰,调理气血,调整机体的脏腑功能及平衡阴阳的作用.中药副作用小,标本兼治.同时配合心理治疗从根本上治疗疾病,才能取得满意的治疗效果,疾病反复发作的原因就是没有治疗心理因素,只有去除心理因素,才能达到根治.祝早日康复.\n\n你好!本患者,依据你提供的症状来看,她是患精神分裂症症了,其主要表现：幻觉,幻听,幻触等.就该症的发病诱因就你所说的家庭环境有关,她目前的这一状况是脑功能紊乱.象她这一症状的患者服用布-依中草药治疗是比较好的,它在没有依赖性和抗药性的前提下标本兼治,愈后不复发,并且没有任何副作用,恢复较好.如知详情可和我们联系.\n病情分析：\n患者你好,其实懂得来求助,就说明你的情况不严重,因为严重的人总认为自己没问题.\n指导意见：\n建议就是凡事不要太多计较,心胸放开阔,坚持做好自己,多找点有意义或者自己感兴趣的事情做,分散注意力.\n\n以上是对“是否患有精神分裂或其他疾病？谢谢帮助”这个问题的建议，希望对您有帮助，祝您健康！",
+      "cleaning_warnings": []
+    },
+    "1055481": {
+      "tags": [
+        "short_remainder"
+      ],
+      "profile": "qa",
+      "evidence": [
+        {
+          "rule": "question_answer_markers",
+          "spans": [
+            {
+              "start_char": 8,
+              "end_char": 14
+            },
+            {
+              "start_char": 68,
+              "end_char": 72
+            },
+            {
+              "start_char": 502,
+              "end_char": 506
+            },
+            {
+              "start_char": 978,
+              "end_char": 982
+            },
+            {
+              "start_char": 1753,
+              "end_char": 1757
+            },
+            {
+              "start_char": 2321,
+              "end_char": 2325
+            },
+            {
+              "start_char": 2558,
+              "end_char": 2562
+            }
+          ]
+        }
+      ],
+      "url": "http://www.120ask.com/question/14034423.htm",
+      "output_file": "data_final/chunks_format_v2_test20k/part-000017.jsonl",
+      "output_line": 219,
+      "input_line": 17219,
+      "source_head": "如何治疗冠心病\n健康咨询描述： 乏力.胸憋\n早晨\n曾经的治疗情况和效果： 含服硝酸甘油半小时缓解\n想得到怎样的帮助：有没有好的治疗办法\n病情分析：\n对冠心病的治疗大致有以下几种方法.如果是轻度的,可以药物治疗,注意饮食,适度锻炼.如果冠状动脉的狭窄程度超过70%,就不能仅用药物而要考虑用支架或是搭桥了.因为,这种狭窄程度随时会被堵上\n指导意见：\n造影是鉴定冠心病的“金标准”.可以通过造影来观察心脏血管的病变位置,堵塞程度.发生状况,应尽早检查,及时做出相应处理.一旦发生心梗,就是极其危险的. 心肌的死亡是不可逆转的.所以,应该先弄清楚心脏的具体情况,再决定下一步的治疗.\n\n你好,胸痛考虑您有心肌缺血,建议做一下64排CT检查,看一下心脏血管狭窄的情况,如果狭窄超过了75%,需要支架,如果狭窄在75%以下,可以药物治疗.平时注意清淡饮食,适量运动,放松心情.YDF\n\n治疗关系病关键应从多方面入手.目前防治方案有ABCDE等.戒烟,降血脂,控制血压,抗凝,改善冠脉循环,像你这种情况,最好常被硝酸甘油,最好到医院系统查一查\n\n以上是对“如何治疗冠心病”这个问题的建议，希望对您有帮助，祝您健康！\n病情分析：\n控制冠心病的关键在于预防.虽然冠心病是中老年人的常见病和多发病,但其动脉粥样硬化的病理基础却始发于少儿期,这其间的几十年为预防工作提供了极为宝贵的机会.一级预防,防止冠状动脉粥样硬化的发生,消灭冠心病于萌芽状态；二级预防,提高全社区冠心病的早期检出率,加强治疗,防止病变发展并争取其逆转；三级预防,及时控制并发症,提高患者的生存质量,延长病人寿命\n指导意见：\n不吸烟.\n只食用少量的牛油,奶油及各种油腻食物.\n将你习惯食用的肉类量减少,将你食用的肉上脂肪除去,吃烧煮的肉,不要吃油煎的肉.\n每周最多只吃三只鸡蛋.\n吃大量水果及蔬菜,但饮食要维持平衡均匀.\n减少盐的摄食量.摄食盐量低可以降低血压,并且减少发展冠状动脉病的危险.\n经常运动.有证据显示,每周做两,三次剧烈运动,可减少得心脏疾病的危险.但由于突然做剧烈运动很危险,必须以渐进的方式来开始实行你的运动计划.\n应付精神压力,寻求各种途径来调解生活上的压力.可以培养嗜好或通过运动来松懈日常生活中的紧张情绪.\n控制高血压,高胆固醇血症和糖尿病.\n定时检查身体并遵照医生的指示去做.\n\n病情分析：\n您好!建议您1.合理调整饮食：一般认为,限制饮食中的胆固醇和饱和脂肪酸,增加不饱和脂肪酸,同时补充维生素C,B,E等,限制食盐和碳水化合物的摄入,可预防动脉粥样硬化.\n2.加强体力活动：流行病学调查表明,从事一定的体力劳动和坚持体育锻炼的人,比长期坐位工作和缺乏体力活动的入的冠心病发病率低些,同时体育锻炼对控制危险因素（减低血脂,降低高血压,减轻体重）,改善冠心病患者的血液循环也有良好的作用.\n3.控制吸烟；吸烟在冠心病的发病中起着一定的作用.有人报告,在35～54岁死于冠心病的人群中,吸烟者比不吸烟者多4～5倍,吸烟量多者危险性更大,可高达4-5倍,戒烟后心肌梗塞的发病率和冠心病的死亡率显著减少,而且戒烟时间越长效果越大.这足以说明吸烟的危险性和戒烟的重要性.\n4.治疗有关疾病：早期发现和积极治疗高血脂,高血压,糖尿病等与冠心病有关的疾病,尽可能消除和控制这些危险因素,对防止冠心病是十分重要的.\n指导意见：\n您好!治疗冠心病的药物主要包括以下几类：（ 1 ）抗血小板制剂如阿司匹林；（ 2 ） β 受体阻滞剂如倍他乐克,可用于心肌梗死后的二级预防,可有效减少心脏事件,从降低发病率和病死率方面也是稳定心绞痛患者的首选药物；（ 3 ）血管紧张素转换酶抑制剂如开搏通,对心肌梗死患者有良好的近期和远期疗效,可以降低心肌梗死患者死亡率；（ 4 ）降血脂药物,降血脂药可以减少急性冠脉事件,降低冠心病死亡率,是冠心病治疗的基础用药；（ 5 ）硝酸酯类药物,该类药物虽然不能有效减少急性心肌梗死患者的死亡率,但可有效缓解心绞痛症状和发作频次；（ 6 ）长效或缓释二氢砒啶类钙拮抗剂和非二氢砒啶类钙拮抗剂可缓解稳定心绞痛患者的症状而不增加不良心脏事件的发生率.\n生活护理：\n建议咨询您的医生,由您的医生为您决定选择何种药物,如何治疗\n\n病情分析：\n冠心病的治疗：一,抗缺血治疗：1.硝酸酯类：常用药物有硝酸甘油,消心痛.主要通过扩张静脉血管,降低心脏前负荷,降低心肌耗氧量,从而改善心肌缺血.2.β受体阻滞剂：常用药物有心得安,倍他乐克.通过减慢心率,降低血压,减弱心脏收缩力而降低心肌耗氧量,缓解心肌氧的供需矛盾.3.钙拮抗剂：常用药物有心痛定,恬尔心.可以通过降低血压,减弱心肌收缩力而发挥作用,但可使心率加快而增加心肌耗氧量,可以合用β受体阻滞剂而得到克服.4.血管紧张素转换酶抑制剂：常用的药物有开搏通,依那普利等.通过扩",
+      "cleaning_warnings": []
+    },
+    "4057861": {
+      "tags": [
+        "short_remainder"
+      ],
+      "profile": "tcm_book",
+      "evidence": [
+        {
+          "rule": "book_path_or_formula",
+          "path": "/a/133509.html"
+        }
+      ],
+      "url": "https://zhongyibaodian.net/a/133509.html",
+      "output_file": "data_final/chunks_format_v2_test20k/part-000017.jsonl",
+      "output_line": 503,
+      "input_line": 17503,
+      "source_head": "老年急性白血病\n中医宝典 > 肿瘤 > 老年急性白血病\n老年白血病的定义不一，一般多指年愈60岁的白血病患者与其他年龄组白血病一样，是一种病因不明的原发于造血干细胞的恶性疾病。\n老年急性白血病的病因\n(一)发病原因\n人类白血病的确切病因至今未明。许多因素被认为和白血病发生有关。病毒可能是主要因素，此外尚有电离辐射、化学毒物或药物、遗传因素等。\n1.病毒 已证实鸡、小鼠、猫、牛和长臂猿等动物的自发性白血病组织中可分离出白血病病毒，为一种反转录病毒，在电镜下大多呈C型。人类白血病的病毒病因研究已有数十年历史，但至今只有成人T细胞白血病肯定是由病毒引起的。1976年日本高月清首先报道成人T细胞白血病或淋巴瘤(ATL)，以后的流行病学调查，发现在日本西南部、加勒比海区域及中部非洲为高发流行区。1980年在ATL，细胞系中发现ATL相关抗原，并在电镜下发现了病毒颗粒。美国Gallo和日本的日昭赖夫分别从病人培养细胞株中分离出C形反转录RNA病毒，分别命名为HTLV-Ⅰ和ATLV，以后证实二者是一致的。这是对人类白血病病毒病因研究的重大贡献。ATL高发区也是HTLV-Ⅰ感染的高发区。HTLV-Ⅰ具有传染性，可通过乳汁母婴传播，通过性交和输血传播。其他病毒如HTLV-Ⅱ和毛细胞白血病，EB病毒和ALL-L3亚型的关系尚未完全肯定。其他类型白血病尚无法证实其病毒病因，并不具有传染性。\n2.电离辐射 电离辐射有致白血病作用，其作用与放射剂量大小和照射部位有关。一次大剂量或多次小剂量照射均有致白血病作用。全身照射，特别是骨髓受到照射，可致骨髓抑制和免疫抑制，照射后数月仍可观察到染色体的断裂和畸变。1945年日本广岛和长崎遭原子弹袭击后幸存者中发生白血病数较未辐射地区高30倍和17倍。放射治疗强直性脊柱炎和32P治疗真性红细胞增多症，白血病发生率均较对照组为高。据我国1950～1980年调查，临床X线工作者白血病发病率9.61/10万(标化率9.67/10万)，而其他医务人员为2.74/10万(标化率2.77/10万)。放射可诱发急性非淋巴细胞白血病(ANLL)、急性淋巴细胞白血病(ALL)和慢性粒细胞白血病(CML)，并且发病前常有一段骨髓抑制期，其潜伏期为2～16年。诊断性照射是否会致白血病尚无确切的根据，但孕妇胎内照射可增加出生后婴儿发生白血病的危险性。\n3.化学物质 苯致白血病作用比较肯定。苯致急性白血病以急粒和红白血病为主。苯致慢性白血病主要为CML。烷化剂和细胞毒药物可致继发性白血病也较肯定。多数继发性白血病是发生在原有淋巴系统恶性肿瘤和易产生免疫缺陷的恶性肿瘤经长期烷化剂治疗后发生，发病间隔2～8年。化疗引起的继发性白血病以ANLL为主，且发病前常有一个全血细胞减少期。近年来国内陆续报道乙双吗啉致继发性白血病近百例，该药用于治疗银屑病，是一种极强的致染色体畸变物质。服乙双吗啉后1～7年发生白血病。\n4.遗传因素 某些白血病发病与遗传因素有关。单卵双胎如一人患白血病，另一人患白血病的机会为20%。家族性白血病占白血病例总数0.7%，偶见先天性白血病。某些遗传性疾病常伴较高的白血病发病率，包括Down、Bloom、Klinefelter、Fanconi和Wiskott-Aldrich综合征等，如Down综合征，急性白血病发生率比一般人群高20倍。上述多数遗传性疾患具有染色体畸变和断裂，但极大多数白血病不是遗传性疾病。\n(二)发病机制\n白血病起源于骨髓单个造血祖细胞或干细胞的恶性变，随后恶性的细胞(克隆)进行复制和扩增。此种恶变细胞最显著的特点为成熟障碍，ALL在原幼淋巴细胞后的水平，ANLL在原粒及早幼粒细胞后的水平丧失分化成熟能力。这种过度增殖而不能分化成熟的白血病细胞在骨髓大量堆积，造成骨髓压增加，窦样隙屏障破裂，使不成熟的白血病细胞进入周围血。白血病细胞也可经循环至组织，并保持继续增殖的能力，造成脏器组织的白血病浸润。\n白血病由一个造血祖细胞或干细胞恶变而来的理由为：①几乎所有ALL的白血病细胞均有免疫球蛋白(Ig)或T细胞受体(TCR)基因重排的克隆表达;②同一病人的所有白血病细胞具有同样的细胞遗传学异常、6-磷酸葡萄糖脱氢酶(G-6PD)同工酶型及免疫表型;③多数获完全缓解(CR)的病人复发时，其白血病细胞基因型及表型再现诊断时的克隆。造血细胞发生白血病变的机制仍不清楚，某些染色体的异常与白血病的发生有直接关系，染色体的断裂和易位可使癌基因的位置发生移动和被激活，染色体内基因结构的改变可直接引起细胞发生突变。白血病细胞染色体重排对细胞癌基因结构或调节发生改变，使基因产物发生质和量的改变，后者可能和白血病的发生和维持有一定关系。如APL(M3)伴t(15;17)，使位于17号染色体长臂上的RARα基因与位于15号染色体长臂上的早幼",
+      "cleaning_warnings": []
+    },
+    "3109918": {
+      "tags": [
+        "nonpubmed_research"
+      ],
+      "profile": "research_abstract",
+      "evidence": [
+        {
+          "rule": "research_labels",
+          "count": 8,
+          "domain": "www.a-hospital.com",
+          "spans": [
+            {
+              "start_char": 3777,
+              "end_char": 3780
+            },
+            {
+              "start_char": 3900,
+              "end_char": 3903
+            },
+            {
+              "start_char": 4040,
+              "end_char": 4043
+            },
+            {
+              "start_char": 4181,
+              "end_char": 4184
+            },
+            {
+              "start_char": 4308,
+              "end_char": 4311
+            },
+            {
+              "start_char": 4453,
+              "end_char": 4456
+            },
+            {
+              "start_char": 4583,
+              "end_char": 4586
+            },
+            {
+              "start_char": 4688,
+              "end_char": 4691
+            }
+          ]
+        }
+      ],
+      "url": "https://www.a-hospital.com/w/%E7%BC%A0%E8%85%B0%E8%9B%87%E4%B8%B9",
+      "output_file": "data_final/chunks_format_v2_test20k/part-000017.jsonl",
+      "output_line": 582,
+      "input_line": 17582,
+      "source_head": "带状疱疹\n（重定向自缠腰蛇丹）\n跳转到： 导航, 搜索\nA+医学百科 >> 带状疱疹\n\n带状疱疹\n带状疱疹(Herpes Zoster)是由水痘带状疱疹病毒引起的急性炎症性皮肤病，中医称为缠腰火龙 、缠腰火丹 、缠腰蛇丹 。民间俗称蜘蛛疮 ，亦名蛇串疮 、火带疮 、蛇缠疮 、蛇丹 等。发病前局部皮肤往往先有感觉过敏或神经痛，伴有轻度发热、全身不适、食欲不振等前驱症状，亦可无前驱症状而突然发病。患部先发生潮红斑，继而其上出现多数成群簇集的粟粒至绿豆大的丘疱疹，迅速变为水疱，水疱透明澄清，疱壁紧张发亮，疱周有红晕。数群水疱常沿皮神经排列呈带状，各群水疱间皮肤正常。10余日后水疱吸收干涸、结痂。愈后留有暂时性淡红色斑或色素沉着，不留疤痕。亦可因疱膜破溃形成糜烂，甚至坏死或继发化脓感染。全病程约2～3周。西医学对带状疱疹的治疗原则为抗病毒、消炎止痛和防止继发感染。\n病因\n系由水疱-带状疱疹病毒（Varicella-virus,VZV)所致。VZV现已命名为人疱疹病毒3型（HHV-3），此病毒呈砖形，有立体对称的衣壳，内含双链DNA分子。VZV对体外环境的抵抗力较弱，在干燥的痂内很快失去活性。对此病毒免疫力低的儿童被感染后，发生水痘。部分患者被感染后成为带病毒者而不发生症状。由于病毒具有亲神经性，感染后可长期潜伏于脊髓神经后根神经节的神经元内，当抵抗力低下或劳累、感染、感冒发烧,生气上火等，病毒可再次生长繁殖，并沿神经纤维移至皮肤，使受侵犯的神经和皮肤产生激烈的炎症。皮疹一般有单侧性和按神经节段分布的特点，有集簇性的疱疹组成，并伴有疼痛；年龄愈大，神经痛愈重。此病现代医学称为带状疱疹，民间称为蛇胆疮，缠腰龙，飞蛇等称。\n发病机制\n其主要特点为簇集水泡，沿一侧周围神经作群集带状分布，常伴有明显神经痛。人是水痘带状疱疹病毒的唯一宿主，病毒经呼吸道黏膜进入血液形成病毒血症，发生水痘或呈隐性感染，以后病毒可长期潜伏在脊髓后根神经节或者颅神经感觉神经节内。当机体受到某种刺激（如创伤、疲劳、恶性肿瘤或病后虚弱等）导致机体抵抗力下降时，潜伏病毒被激活，沿感觉神经轴索下行到达该神经所支配区域的皮肤内复制产生水疱，同时受累神经发生炎症、坏死，产生神经痛。本病愈后可获得较持久的免疫，故一般不会再发。\n临床表现\n带状疱疹好发于春秋季节，成人多见。\n主要特点\n年幼年长都会发病，以成人多见且症状较重；\n四季皆能发病，以春秋季和潮湿天居多；\n人体任何部位都可能出现疱疹，以躯干及面部最常见；\n发病就伴有疼痛，疱疹结痂后部分患者还会延续疼痛；\n水疱和皮损多沿某一周围神经分布，排列成带状发生于身体一侧，不超过躯体中线。\n典型表现\n发疹前可有轻度乏力、低热、纳差等全身症状，患处皮肤自觉灼热感或者神经痛，触之有明显的痛觉敏感，持续13天，亦可无前驱症状即发疹。好发部位依次为肋间神经、颈神经、三叉神经和腰骶神经支配区域。患处常首先出现潮红斑，很快出现粟粒至黄豆大小丘疹，簇状分布而不融合，继之迅速变为水疱，疱壁紧张发亮，疱液澄清，外周绕以红晕，各簇水疱群间皮肤正常；皮损沿某一周围神经呈带状排列，多发生在身体的一侧，一般不超过正中线。神经痛为本病特征之一，可在发病前或伴随皮损出现，老年患者常较为剧烈。病程一般23周，老年人为34周，水疱干涸、结痂脱落后留有暂时性淡红斑或色素沉着。需要强调的是 引起带状疱疹的起因是由于长期缺乏运动和锻炼 不是说老年人容易生这个病 是老年人更会坐着不锻炼 所以以老者居多\n特殊表现\n⑴眼带状疱疹（herpes zoster ophthalmicus）：系病毒侵犯三叉神经眼支，多见于老年人，疼痛剧烈，可累及角膜形成溃疡性角膜炎。\n⑵耳带状疱疹（herpez zoster oticus）:系病毒侵犯面神经及听神经所致，表现为外耳道或鼓膜疱疹。膝状神经节受累同时侵犯面神经的运动和感觉神经纤维时，可出现面瘫、耳痛及外耳道疱疹三联征，称为Ramsay-Hunt综合征。\n⑶带状疱疹后遗神经痛（postherpetic neuralgia,PHN）:带状疱疹常伴有神经痛，在发疹前、发疹时以及皮损痊愈后均可伴有，但多在皮损完全消退后或者1个月内消失，少数患者神经痛可持续超过1个月以上，称为带状疱疹后遗神经痛。\n⑷其他不典型带状疱疹：与患者机体抵抗力差异有关，可表现为顿挫型（不出现皮损仅有神经痛）、不全型（仅出现红斑、丘疹而不发生水疱即消退）、大疱型、出血性、坏疽型和泛发型（同时累及2个以上神经节产生对侧或同侧多个区域皮损）；病毒偶可经血液播散产生广泛性水痘样疹并侵犯肺和脑等器官，称为播散型带状疱疹。\n并发症\n疱疹局部破损后可能并发细菌感染。若带状疱疹病损发生于特殊部位，例如眼部，则可能导致严重后果。倘若继发细菌性感染后，可引起全眼球炎，甚至脑膜炎;病后出现视力下降、失",
+      "cleaning_warnings": []
+    },
+    "4061665": {
+      "tags": [
+        "short_remainder"
+      ],
+      "profile": "narrative_article",
+      "evidence": [
+        {
+          "rule": "prose_fallback",
+          "spans": [
+            {
+              "start_char": 0,
+              "end_char": 2116
+            }
+          ]
+        }
+      ],
+      "url": "https://zhongyibaodian.net/a/137787.html",
+      "output_file": "data_final/chunks_format_v2_test20k/part-000017.jsonl",
+      "output_line": 586,
+      "input_line": 17586,
+      "source_head": "鼠尾征\n中医宝典 > 鼠尾征\n鼠尾征 指支气管肺癌沿支气管的纵轴浸润蔓延，使支气管呈尾巴状狭窄且不规则的缺损\n鼠尾征的原因\n食管异位，肺癌，胆管癌等\n鼠尾征的诊断\n1.刺激性咳嗽、大多为乾咳或白色泡沫痰。 2.血痰常为痰中带血点或血丝。 3.癌肿长大造成支气管不同程度阻塞时，可出现胸闷、哮喘、气促及局限性哮鸣音、局部肺气肿等症状和体征。 4.支气管完全阻塞时，出现相应肺组织肺不张的体征。 诊断依据： 1.刺激性咳嗽、乾咳或白色泡沫痰、痰中带血点或血丝。 2.胸闷、哮喘、气促。 3.局限性哮呜音，局限性肺气肿或肺不张的体征。 4.X线胸部平片：见肺内有密度均匀，边缘不整或分叶肿块、或肺内有圆形或椭圆形边缘有切迹或毛刺阴影，有时可见到局部肺气肿、肺不张等。 5.痰细胞学检查找到癌细胞。 6.支气管镜检查窥见癌源病变。\n鼠尾征的鉴别诊断\n1.肺结核 特别是肺结核瘤(球)有时很难与周围型肺癌相鉴别。肺结核瘤(球)较多见于40岁以下青年病人，病程较长，少见痰带血，血沉变化少，有16%～28%病人痰中发现结核菌。胸片多呈圆形，见于上叶尖或后段，体积较小，一般不超过5cm直径，边界光滑，密度不匀可见钙化，16%～32%病例可见引流支气管影指向肺门，较少出现胸膜皱缩，增长慢，如中心液化出现空洞，多居中薄壁且内缘光滑。结核瘤(球)的周围常有散在的结核病灶称为卫星灶。周围型肺癌多见于40岁以上病人，痰带血较多见，痰中癌细胞阳性者达40%～50%。X线胸片肿瘤常呈分叶状，边缘不整齐，有小毛刺影及胸膜皱缩，生长较快。在一些慢性肺结核病例，可在肺结核基础上发生肺癌，因此在慢性肺结核的成年病人，如果肺部出现异常团块阴影，肺门阴影增多或经正规抗结核药物治疗后，病变不见吸收好转反而增大时，都应怀疑肺癌的可能性。必须进一步做痰液细胞学和支气管镜检查，必要时施行剖胸探查术。\n2.肺部炎症 老年病人支气管肺炎，有时难与肺癌阻塞支气管引起的阻塞性肺炎相鉴别。阻塞性肺炎常按支气管分支做扇形分布，而一般支气管肺炎则呈不规则片状阴影。但如肺炎多次发作在同一部位，则应提高警惕，应高度怀疑有肿瘤堵塞所致，应取病人痰液做细胞学检查和进行纤维光导文气管统检查，在有些病例，肺部炎症部分吸收，剩余炎症被纤维组织包裹形成结节或炎性假瘤时，很难与周围型肺癌鉴别，在可疑病例，应施行肺叶切除术，以免延误治疗。\n3.肺部良性肿瘤及支气管腺瘤 肺部良性肿瘤如结构瘤、软骨瘤、纤维瘤等都较少见，但都须与周围型肺癌相鉴别，一般良性肿瘤病程较长，增长缓慢，临床上大多没有症状，X线摄片上常呈圆形块影，边缘整齐，没有毛刺，也不呈分叶状。支气管腺瘤是一种低度恶性的肿瘤，常发生在年龄较轻的女性病人，多起源于较大的支气管黏膜，因此临床上常有支气管阻塞引致的肺部感染和咯血等症状，经纤维文气管镜检查常能作出诊断。\n4.纵隔恶性淋巴瘤(淋巴肉瘤及霍奇金病) 临床上常有咳嗽、发热等症状，X线片显示纵隔影增宽，且呈分叶状，有时难以与中央型肺癌相鉴别。如果有锁骨上或腋窝下淋巴结肿大，采取活组织做病理切片常能明确诊断。淋巴肉瘤对放射治疗特别敏感，对可疑病例，可试用小剂量放射治疗，达到5～7Gy时，常可使肿块明显缩小.这种试验性治疗也有助于淋巴肉瘤的诊断。\n1.刺激性咳嗽、大多为乾咳或白色泡沫痰。 2.血痰常为痰中带血点或血丝。 3.癌肿长大造成支气管不同程度阻塞时，可出现胸闷、哮喘、气促及局限性哮鸣音、局部肺气肿等症状和体征。 4.支气管完全阻塞时，出现相应肺组织肺不张的体征。 诊断依据： 1.刺激性咳嗽、乾咳或白色泡沫痰、痰中带血点或血丝。 2.胸闷、哮喘、气促。 3.局限性哮呜音，局限性肺气肿或肺不张的体征。 4.X线胸部平片：见肺内有密度均匀，边缘不整或分叶肿块、或肺内有圆形或椭圆形边缘有切迹或毛刺阴影，有时可见到局部肺气肿、肺不张等。 5.痰细胞学检查找到癌细胞。 6.支气管镜检查窥见癌源病变。\n鼠尾征的治疗和预防方法\n(1)戒除吸烟，这是预防肺癌最有效的方法; (2)少饮烈性酒; (3)不吃霉烂变质食物，少食腌制食品; (5)进食时，应细嚼慢咽，不食过烫食物; (6)脂肪摄入勿过多，摄入量控制在摄入总热量的30%以下，即每日食取的动植物性脂肪50g～80g;多吃新鲜蔬菜和水果，每天供应10g纤维和一般水平的维生素 (7)少吃烟熏食品; (8)不滥用药物，尤其不要滥用性激素类药及有细胞毒性的药物，防止药物致 癌危险; (9)每日进食水果、蔬菜、粗制谷类; 环境：注意厨房里的污染，加强厨房通风; 心理：培养乐观、豁达的个性; 其他：每天至少运动3次，避免体重 肺癌晚期病人由于长期的慢性消耗，肿瘤的广泛转移导致机体功能紊乱，患者无论从心里还是生理上都在忍受着巨大的痛苦，其中最不能忍受的是身体部位的疼痛，在对患者进行护理时，",
+      "cleaning_warnings": []
+    },
+    "2520397": {
+      "tags": [
+        "nonpubmed_research"
+      ],
+      "profile": "research_abstract",
+      "evidence": [
+        {
+          "rule": "research_labels",
+          "count": 2,
+          "domain": "jbk.39.net",
+          "spans": [
+            {
+              "start_char": 984,
+              "end_char": 987
+            },
+            {
+              "start_char": 1605,
+              "end_char": 1608
+            }
+          ]
+        }
+      ],
+      "url": "https://jbk.39.net/jiancha/nczbxbwbcleu/",
+      "output_file": "data_final/chunks_format_v2_test20k/part-000017.jsonl",
+      "output_line": 592,
+      "input_line": 17592,
+      "source_head": "尿沉渣白细胞\n尿沉渣白细胞\n（别名：尿沉渣WBC,尿沉渣LEU）\n标签: 肾病检查 其他 尿液一般检查\n尿沉渣(urinary sediment)检查是用显微镜对尿沉淀物进行检查，识别尿液中细胞、管、结晶、细菌、寄生虫等各种病理成分；辅助对泌尿系统疾作出的诊断、定位、鉴别诊断及预后判断的重要常规试验项目。在一般性状检查或化学试验中不能发现的变化。检查离心沉淀后尿沉渣中的白细胞可用于辅助诊断泌尿系统感染及其早期排查。\n...[详细][收起]\n\n目录:\n基本信息 注意事项 指标结果解读 相关疾病 相关症状 检查作用 检查过程\n检查部位： 肾 输尿管\n科室： 泌尿外科\n空腹检查： 否\n医院参考价： ￥1 - ￥6查看详细>>\n指标解读：\n\n正 常\n正常：\n混均一滴尿：0-1/HP。 离心尿：男性0-3/HP；女性0-5/HP。\n\n异 常\n异常：\n暂无相关资料\n相关疾病： 尿道炎 急性肾盂肾炎 狼疮性肾炎 慢性肾炎 肾盂肾炎 紫癜性肾炎 [更多]\n相关症状： 脓尿 少尿 血红蛋白尿 等渗尿 泌尿道阻塞 癌性输尿管狭窄 [更多]\n尿沉渣白细胞注意事项\n一、检查前：\n留尿前清洗外阴，使用的容器应清洁无污染，不可混有洗涤剂、消毒剂和防腐剂等化学物质，以免影响检查结果。\n二、检查中：\n1.女性应防止白带混入尿液中。\n2. 留尿后应该立刻送检，避免尿液放置后导致检测结果错误。\n尿沉渣白细胞指标解读结果\n\n正常值:\n混均一滴尿：0-1/HP。\n离心尿：男性0-3/HP；女性0-5/HP。\n高于正常值：\n高于正常值：泌尿系统有炎症时均可见到尿中白细胞增多，尤其在细菌感染时为甚，如急、慢性肾盂肾炎、膀胱炎、尿道炎、前列腺炎、肾结核等,尿中浆细胞增多，见于骨髓瘤病。\n导致该异常结果可能疾病为： 肾盂肾炎 肾炎\n低于正常值：\n低于正常值：单核细胞减少或消失，常见于急性肾小管坏死。\n尿沉渣白细胞相关疾病\n尿道炎\n急性肾盂肾炎\n狼疮性肾炎\n慢性肾炎\n肾盂肾炎\n紫癜性肾炎\n多发性骨髓瘤\n肾炎\n尿沉渣白细胞相关症状\n脓尿\n少尿\n血红蛋白尿\n等渗尿\n泌尿道阻塞\n癌性输尿管狭窄\n尿沉渣白细胞检查作用\n检查离心沉淀后尿沉渣中的白细胞可用于辅助诊断泌尿系统感染及其早期排查。\n尿沉渣白细胞检查过程\n1 在0.2ml尿沉渣中加入一滴染液混合染色，3min后取沉渣盖以玻片镜检。\n2 结果：红细胞染成淡紫色，多形核白细胞的核染成橙紫色，浆内可见颗粒。透明管型染成橙紫色，浆内可见颗粒，透明管型染成粉红色或淡紫色，细胞管型染成深紫色。\n尿沉渣(urinary sediment)检查是用显微镜对尿沉淀物进行检查，识别尿液中细胞、管、结晶、细菌、寄生虫等各种病理成分；辅助对泌尿系统疾作出的诊断、定位、鉴别诊断及预后判断的重要常规试验项目。在一般性状检查或化学试验中不能发现的变化。检查离心沉淀后尿沉渣中的白细胞可用于辅助诊断泌尿系统感染及其早期排查。\n...[详细][收起]\n一、检查前：\n留尿前清洗外阴，使用的容器应清洁无污染，不可混有洗涤剂、消毒剂和防腐剂等化学物质，以免影响检查结果。\n二、检查中：\n1.女性应防止白带混入尿液中。\n2. 留尿后应该立刻送检，避免尿液放置后导致检测结果错误。\n\n正常值:\n混均一滴尿：0-1/HP。\n离心尿：男性0-3/HP；女性0-5/HP。\n高于正常值：\n高于正常值：泌尿系统有炎症时均可见到尿中白细胞增多，尤其在细菌感染时为甚，如急、慢性肾盂肾炎、膀胱炎、尿道炎、前列腺炎、肾结核等,尿中浆细胞增多，见于骨髓瘤病。\n导致该异常结果可能疾病为： 肾盂肾炎 肾炎\n低于正常值：\n低于正常值：单核细胞减少或消失，常见于急性肾小管坏死。\n检查离心沉淀后尿沉渣中的白细胞可用于辅助诊断泌尿系统感染及其早期排查。\n1 在0.2ml尿沉渣中加入一滴染液混合染色，3min后取沉渣盖以玻片镜检。\n2 结果：红细胞染成淡紫色，多形核白细胞的核染成橙紫色，浆内可见颗粒。透明管型染成橙紫色，浆内可见颗粒，透明管型染成粉红色或淡紫色，细胞管型染成深紫色。",
+      "cleaning_warnings": [],
+      "toc_excerpt": "化。检查离心沉淀后尿沉渣中的白细胞可用于辅助诊断泌尿系统感染及其早期排查。\n...[详细][收起]\n\n目录:\n基本信息 注意事项 指标结果解读 相关疾病 相关症状 检查作用 检查过程\n检查部位： 肾 输尿管\n科室： 泌尿外科\n空腹检查： 否\n医院参考价： ￥1 - ￥6查看详细>>\n指标解读：\n\n正 常\n正常：\n混均一滴尿：0-1/HP。 离心尿：男性0-3/HP；女性0-5/HP。\n\n异 常\n异常：\n暂无相关资料\n相关疾病： 尿道炎 急性肾盂肾炎 狼疮性肾炎 慢性肾炎 肾盂肾炎 紫癜性肾炎 [更多]\n相关症状： 脓尿 少尿 血红蛋白尿 等渗尿 泌尿道阻塞 癌性输尿管狭窄 [更多]\n尿沉渣白细胞注意事项\n一、检查前：\n留尿前清洗外阴，使用的容器应清洁无污染，不可混有洗涤剂、消毒剂和防腐剂等化学物质，以免影响检查结果。\n二、检查中：\n1.女性应防止白带混入尿液中。\n2. 留尿后应该立刻送检，避免尿液放置后导致检测结果错误。\n尿沉渣白细胞指标解读结果\n\n正常值:\n混均一滴尿：0-1/HP。\n离心尿：男性0-3/HP；女性0-5/HP。\n高于正常值：\n高于正常值：泌尿系统有炎症时均可见到尿中白细胞增多，尤其在细菌感染时为甚，如急、慢性肾盂肾炎、膀胱炎、尿道炎、前列腺炎、肾结核等,尿中浆细胞增多，见于骨髓瘤病。\n导致该异常结果可能疾病为： 肾盂肾炎 肾炎\n低于正常值：\n低于正常值：单核细胞减少或消失，常见于急性肾小管坏死。\n尿沉渣白细胞相关疾病\n尿道炎\n急性肾盂肾炎\n狼疮性肾炎\n慢性肾炎\n肾盂肾炎\n紫癜性肾炎\n多发性骨髓瘤\n肾炎\n尿沉渣白细胞相关症状\n脓尿\n少尿\n血红蛋白尿\n等渗尿\n泌尿道阻塞\n癌性输尿管狭窄\n尿沉渣白细胞检查作用\n检查离心沉淀后尿沉渣中的白细胞可用于辅助诊断泌尿系统感染及其早期排查。\n尿沉渣白细胞检查过程\n1 在0.2ml尿沉渣中加入一滴染液混合染色，3min后取沉渣盖以玻片镜检。\n2 结果：红细胞染成淡紫色，多形核白细胞的核染成橙紫色，浆内可见颗粒。透明管型染成橙紫色，浆内可见颗粒，透明管型染成粉红色或淡紫色，细胞管型染成深紫色。\n尿沉渣(urinary sediment)检查是用显微镜对尿沉淀物进行检查，识别尿液中细胞、管、结晶、细菌、寄生虫等各种病理成分；辅助对泌尿系统疾作出的诊断、定位、鉴别诊断及预后判断的重要常规试验项目。在一般性状检查或化学试验中不能发现的变化。检查离心沉淀后尿沉渣中的白细胞可用于辅助诊断泌尿系统感染及其早期排查。\n...[详细][收"
+    },
+    "4048923": {
+      "tags": [
+        "nonpubmed_research"
+      ],
+      "profile": "research_abstract",
+      "evidence": [
+        {
+          "rule": "research_labels",
+          "count": 2,
+          "domain": "zhongyibaodian.net",
+          "spans": [
+            {
+              "start_char": 4988,
+              "end_char": 4991
+            },
+            {
+              "start_char": 5763,
+              "end_char": 5766
+            }
+          ]
+        }
+      ],
+      "url": "https://zhongyibaodian.net/a/122498.html",
+      "output_file": "data_final/chunks_format_v2_test20k/part-000017.jsonl",
+      "output_line": 620,
+      "input_line": 17620,
+      "source_head": "老年人低血压\n中医宝典 > 老年人低血压\n老年低血压国内研究相对较少。实际上，它和高血压一样具有重要的临床意义：长期的症状性低血压可严重影响老年人生活质量，导致各种重要脏器功能进行性衰退;突发的低血压则可导致老年人晕厥、跌倒、外伤、急性心肌梗死、脑卒中以至危及生命，故必须予以高度的重视。\n老年人低血压的病因\n(一)发病原因\n老年性低血压和(或)合并晕厥者，其病因和诱因相当复杂，除心源性外，神经、内分泌和代谢性疾病等也相当多见。\n1.心源性\n(1)后负荷过重：\n①主、肺动脉或其瓣膜狭窄，致流出道阻力增加、心搏量减少，重要脏器灌注不足。\n②非对称性肥厚型心肌病，致心缩中、晚期心搏量急剧下降、压力阶差增大。\n③肺动脉高压、肺梗死，致右心心搏量减少，右心衰，肺循环血量下降，体循环淤血。\n(2)前负荷不足：\n①风湿性心脏瓣膜病二尖瓣狭窄或老年二尖瓣钙化而狭窄，致左心室充盈受阻，心输出量下降。\n②左房黏液瘤，致左室中、晚期充盈不足，心搏量减少。\n③腔静脉阻塞症，致周围回心血量下降，心室充盈不足。\n(3)心脏收缩机能不良：\n①冠心病劳力性低血压、心肌梗死、心肌炎、心衰，致心肌有效做功下降，射血分数减少，重要脏器特别是大脑灌注不足。\n②心包填塞、缩窄性心包炎，致心脏舒缩功能异常，心室充盈欠佳，心搏量下降。\n(4)心律或心率障碍、心脏起搏器功能失调，如Ⅲ度房室传导阻滞、病态窦房结综合征心率 180次/min，致心输出量明显下降;室性心动过速或室性逸搏心律，心肌多为无效做功，射血分数急剧、严重下降。\n2.周围神经或血管张力增高\n(1)迷走神经兴奋性增高，如颈动脉窦等压力感受器过敏，将冲动反射至心血管中枢，致心率、血压下降。\n(2)慢性酒精中毒、糖尿病、维生素缺乏症，致自主神经功能受损，血管调节机能障碍。\n(3)体位改变：其所致的可逆性低血压多为周围静脉淤血、血流缓慢、降血压或利尿过度，当体位改变时，老年人的神经、血管和有效血容量来不及调整所致;不可逆性低血压则多为特发性系统萎缩，自主神经和血管功能受损等所致;某些继发性体位性低血压也属此范畴。\n3.内分泌或代谢机能障碍\n(1)嗜铬细胞瘤，致过量儿茶酚胺中毒，在血压急剧上升后出现心功能和周围循环机能障碍。\n(2)艾迪生病和低血糖症，致皮质激素分泌减少、代谢机能降低;能量不足，影响心、脑正常机能，周围血管阻力下降。\n(3)甲状腺机能减退，致血中甲状腺素浓度下降，从而减弱了它通过对自主神经、血管或代谢的正常调节而应发挥的升压作用。\n(4)类癌或高缓激肽症，致缓激肽和组织胺等扩血管物质过多，造成回心血流减少、低血压以至晕厥。\n(5)酸中毒和电解质紊乱，致心功能受损、血管阻力降低。\n4.尿毒症或肾透析术后 长期卧床和利尿剂应用不当等，致电解质紊乱，有效血容量不足，血中部分缩血管物质丢失，心肌收缩力下降，血管调节机能不良，血容量不足，回心血量和心输出量减少。\n5.麻醉、手术或交感神经节切除术后 麻醉剂应用不当，术中出血量过多或合并严重心功受损、心肌梗死等;交感神经节切除后血管调节机能不良，外周阻力下降，周围血回流不畅以及心输出量不足等共同影响血压。\n6.中枢神经机能障碍、自律神经功能不全如Shy-Draqer's症、帕金森病、脑血管病和脊髓病等都可致血管调节不良。\n7.药物 扩血管药、降血压药、抗心绞痛药、抗心律失常药、镇静药、三环类药、胰岛素过量等均可使血压降低甚至引起严重低血压。\n8.其他 如各种休克、恶性贫血、红细胞增多症、失血、脱水、主动脉夹层血肿和主动脉弓综合征等，也可通过不同的机制降低血压。\n(二)发病机制\n老年人低血压 病因复杂，发病机制目前尚未阐明，推测与增龄相关疾病和神经内分泌功能失调或药物长期作用所致。\n老年人低血压的症状\n1.临床表现\n(1)无症状性低血压几乎都是在健康查体或因其他病门诊、住院时偶尔发现。老年人对低血压耐受较好，加上反应迟钝、其他病掩盖等因素，低血压易被忽略。事实上，经详细询问病史，绝对无症状者极少。患者常有轻度乏力，偶或头晕、头昏等。一般无器质性病变。其血压低而脉压小，心率偏慢，性格内向，不易激动，肥胖与消瘦者均可见到，以体格瘦弱者较多，老年人较年轻人、女性较男性多见。\n(2)症状性低血压大多有轻或中度脑和其他脏器缺血症状，如软弱、头昏、头痛、失眠、记忆力差，注意力不易集中等。部分原患高血压的病人，在合并大面积、严重心肌梗死后，血压反而长期偏低，此时除有低血压表现外，还有心肌缺血的有关证据。\n(3)症状性低血压严重时可有突然、短暂的意识丧失伴体位张力的消失，也即晕厥的发生。\n晕厥的前驱症状有：\n①过度体力或脑力劳动后出现头晕、头昏，改变体位常使其加重。\n②继头晕后很快出现视力模糊、眼花、黑朦等。\n③可有轻度的听力减退或耳鸣。\n④软弱无力，站立不稳，有欲倾倒感。\n⑤面色苍",
+      "cleaning_warnings": []
+    },
+    "4053159": {
+      "tags": [
+        "short_remainder"
+      ],
+      "profile": "tcm_book",
+      "evidence": [
+        {
+          "rule": "book_path_or_formula",
+          "path": "/a/12785.html"
+        }
+      ],
+      "url": "https://zhongyibaodian.net/a/12785.html",
+      "output_file": "data_final/chunks_format_v2_test20k/part-000017.jsonl",
+      "output_line": 631,
+      "input_line": 17631,
+      "source_head": "铁蛋白\n中医宝典 > 铁蛋白 重定向自：储铁蛋白\nferritin\n动植物体内广泛存在的一类贮存铁 的蛋白。在哺乳类动物的肝和脾中含量最多。其外径约12～14nm，空囊腔径长约6nm，外壳(即脱铁铁蛋白)由24个亚基组成，每个亚基约含163个氨基酸残基，每个分子最多可结合4500个铁原子。分子量约为900 000。结合铁的铁蛋白是“溶”于水的，血浆铁蛋白的浓度与体内储存的铁成正比。\n铁蛋白为机体内一种贮存铁的可溶组织蛋白，正常人血清中含有少量铁蛋白，但不同的检测法有不同的正常值，一般正常均值男性约80－130ug/L(80-130ng/ml)女性约35－55ug/L(35-55ng/ml)，血清铁水平在妊娠期及急性贫血时降低，急慢性肝脏损害和肝癌时升高，国内报道肝癌患者阳性率高达90％。近年来发现肝癌还含有一种酸性的异铁蛋白，称为癌胚异铁蛋白，可能有助于早期诊断。肝癌患者有铁蛋白增高的原因可能是：①肝癌细胞能合成和分泌铁蛋白或异铁蛋白。②肝癌组织对铁蛋白的摄取及清除受到影响。③肝细胞损害坏死，贮存在肝细胞浆中的铁蛋白溢入血中。血清铁蛋白虽非特异性，但除肝癌、胰腺癌中度升高外，其它消化道肿瘤如食管癌、胃癌、直结肠癌均不升高。肝癌患者治疗有效者血清铁蛋白下降，而恶化和再发者升高，持续增高则予后不良，故血清铁蛋白测定可作为疗效监测手段之一，特别是对AFP阴性的患者尤有意义。\n4个分类: 生物化学 生物学 蛋白质 铁",
+      "cleaning_warnings": []
+    },
+    "4043988": {
+      "tags": [
+        "short_remainder"
+      ],
+      "profile": "narrative_article",
+      "evidence": [
+        {
+          "rule": "prose_fallback",
+          "spans": [
+            {
+              "start_char": 0,
+              "end_char": 18170
+            }
+          ]
+        }
+      ],
+      "url": "https://zhongyibaodian.net/a/116494.html",
+      "output_file": "data_final/chunks_format_v2_test20k/part-000017.jsonl",
+      "output_line": 645,
+      "input_line": 17645,
+      "source_head": "糖尿病和高血压\n中医宝典 > 糖尿病和高血压\n糖尿病与高血压均为常见疾病，二者关系密切。糖尿病病人中高血压的患病率明显增高，约为非糖尿病人群的2倍，并随年龄增长、体重增加及病程延长而上升，女性高于男性。国外有关资料显示，糖尿病病人中高血压患病率为40%～80%;我国的报道低于国外，为28.4%～48.1%。此外，糖尿病人群中高血压发生早，其患病率高峰较非糖尿病人群提前10年。\n糖尿病和高血压的病因\n(一)发病原因\n目前无相关资料。\n(二)发病机制\n在2型糖尿病，高血压的发生机制与钠潴留及血管阻力增加有关。如高血压发生在糖尿病之前，多为原发性高血压;如高血压发生在糖尿病病程中，则有3种可能性：原发性高血压，动脉粥样硬化所致的收缩期高血压，并发糖尿病肾病所致的肾性高血压。\n在1型糖尿病，高血压绝大部分为糖尿病肾病所致的肾性高血压，水钠潴留是主要发生机制，往往紧接着微白蛋白尿后发生。\n糖尿病合并高血压的发生机制目前仍未完全明了。高血糖本身抑制血管内皮舒张，增加细胞内游离钙，刺激作用于血管平滑肌的生长因子基因转录。此外，下列因素也参与高血压的发病。\n1.高胰岛素血症 2型糖尿病由于胰岛素抵抗而存在高胰岛素血症，1型糖尿病由于长期大量外源胰岛素也可导致高胰岛素血症。高胰岛素血症可通过下列因素而导致高血压：①增加肾钠、水重吸收;②增加血压对摄入盐的敏感性;③增加加压物质及醛固酮对血管紧张素Ⅱ的敏感性;④改变电解质跨膜转运，表现为细胞内钠转运增加、Na -K -ATP酶活性降低、Na -H -ATP酶活性增加;⑤增加细胞内钙;⑥刺激生长因子(特别血管平滑肌的生长因子)表达;⑦刺激交感神经活性;⑧降低扩血管物质前列腺素的合成;⑨增加内皮素的分泌;⑩损害心房利钠肽的利钠作用。上述作用结果导致钠、水潴留及血管张力增加，最终产生高血压。另外，有人发现细胞内游离镁水平与血浆胰岛素水平呈负相关，即高胰岛素血症时伴细胞内低镁，而细胞内镁水平又与血压呈负相关。\n2.肾素-血管紧张素-醛固酮系统 糖尿病病人由于高胰岛素血症、反复出现的水、盐代谢紊乱(如酮症酸中毒)及长期代谢控制不良，可导致体内肾素-血管紧张素-醛固酮系统活性反复增加，可能与糖尿病病人的高血压发生有关。但合并肾脏病变和氮质血症的糖尿病病人，不论有无高血压，其肾素-血管紧张素-醛固酮系统受抑制，可能是由于水钠潴留、肾小球旁细胞变性、交感神经活性减弱及肾前列腺素缺乏等所致。\n3.水钠潴留 高胰岛素血症、肾素-血管紧张素-醛固酮系统活性增加、肾脏病变等均可导致水钠潴留。水钠潴留后又可增加血管对儿茶酚胺和交感神经的敏感性。有研究显示，即使在代谢稳定且无氮质血症的糖尿病伴高血压病人，不论是1型或2型糖尿病，不论有无视网膜病变或糖尿病肾病，体内可交换钠平均增加10%，且与血压呈显著正相关。给病人用利尿剂6周后，可使交换钠降至正常，使心血管系统对去甲肾上腺素的加压反应从增强状态恢复正常。引起水钠潴留的原因还包括血生长激素增加，血清白蛋白浓度下降使胶体渗透压降低，肾舒血管因子如前列腺素E减少等因素。\n4.儿茶酚胺 高胰岛素血症、血糖控制不佳(特别是发生酮症酸中毒时)，机体内儿茶酚胺浓度显著增高、交感神经活性明显增加。\n5.动脉粥样硬化及血管平滑肌细胞增生 糖尿病病人常合并脂代谢紊乱，长期血糖控制不良导致糖基化蛋白终产物(AGEs)增加，均可导致动脉粥样硬化。此外，糖尿病病人常伴高胰岛素血症，同时一些生长因子(如转化生长因子β1、胰岛素样生长因子、血小板源生长因子等)表达增加，可导致血管平滑肌增生。动脉粥样硬化及血管平滑肌细胞增生则导致周围血管阻力增加。\n6.细胞内游离钙增加 高胰岛素血症可导致细胞内游离钙增加。另一方面，有人发现糖尿病病人血循环中游离的1，25-(OH)2D3水平增高。上述均可引起细胞内游离钙增加，从而导致动脉血管阻力增加。\n糖尿病和高血压的症状\n1.糖尿病本身的临床表现 可症状不典型或具有多饮、多尿、多食、乏力、困倦、消瘦等特征性改变以及糖尿病合并其他并发症时的相应表现。\n2.高血压的临床表现 早期可无症状或有头痛、头晕、视物模糊、眼花、食欲不振、耳鸣、失眠等。症状与血压水平可不一致。体检可有主动脉瓣第二心音亢进，长期高血压可出现左心室肥厚的体征。\n3.糖尿病合并高血压的特有表现 ①卧位高血压伴直立性低血压：伴有自主神经病变的糖尿病患者易出现卧位血压正常或升高伴直立体位的血压降低。维持直立血压需要心排出量、有效循环容量、压力感受器反射激活各种血管活性激素等的共同作用，此机制中的任一环节异常都将发生直立性低血压的可能。糖尿病时可出现上述一种或多种环节障碍，无法有效代偿以致发生直立性低血压;②低肾素或肾素正常的高血压：糖尿病无肾病者血浆肾素活性多正常或一小部分属低肾素活性，合并较严重程度的肾病时",
+      "cleaning_warnings": []
+    },
+    "4153503": {
+      "tags": [
+        "nonpubmed_research"
+      ],
+      "profile": "research_abstract",
+      "evidence": [
+        {
+          "rule": "research_labels",
+          "count": 2,
+          "domain": "zhongyibaodian.net",
+          "spans": [
+            {
+              "start_char": 808,
+              "end_char": 811
+            },
+            {
+              "start_char": 1912,
+              "end_char": 1915
+            }
+          ]
+        }
+      ],
+      "url": "https://zhongyibaodian.net/a/92266.html",
+      "output_file": "data_final/chunks_format_v2_test20k/part-000017.jsonl",
+      "output_line": 674,
+      "input_line": 17674,
+      "source_head": "混浊尿\n中医宝典 > 混浊尿\n即尿液不透明。正常新排出的尿液多为透明，放置后可出现微量絮状沉淀，新鲜尿液发生混浊，可见于：①尿酸盐沉淀：浓缩的酸性尿冷却后，可有淡红色的尿酸盐析出，此种沉淀加热或加碱时皆可溶解。②磷酸盐和碳酸盐沉淀：浓缩的碱性或中性尿排出体外，可有磷酸盐或碳酸盐析出，呈白色，加酸可溶解，碳酸盐沉淀遇酸还可生气泡。③脓尿或菌尿：如尿内含有大量白细胞、脓细胞及细菌等炎性渗出物时，刚排出则可混浊。菌尿呈云雾状，静置后不下沉;脓尿放置后可有白色云絮状沉淀。此种尿液不论加热或加酸，混浊皆不退。\n混浊尿的原因\n一、致病菌：引起肾盂肾炎的致病菌以大肠杆菌为最多，其次为副大肠杆菌，变形杆菌，粪链球菌等。\n二、传染途径：\n1、上行感染：上行感染是最常见的途径。当机体抵抗力下降、尿道粘膜有轻微损伤后，细菌易侵袭膀胱和肾脏造成感染。由于女性尿道远较男性短而宽，女婴尿道口常被粪便污染，故易致病。上行至肾脏的细菌首先侵犯肾盂粘膜，引起炎症，然后经肾盏，乳头部，肾小管上行，上侵犯肾实质。\n2、血行感染：细菌从身体内的病灶侵入血流，到达肾脏引起炎症，引起炎症，血行感染时，细菌首先到达肾皮质，并在该处形成多数小脓肿，然后沿肾小管向下行扩散到肾乳头和肾盂。\n3、淋巴道感染;\n4、直接感染：外伤或邻近肾脏的器官发生感染时，细菌可直接侵入肾脉引起炎症。\n混浊尿的诊断\n新鲜尿液发生混浊，可见于：①尿酸盐沉淀：浓缩的酸性尿冷却后，可有淡红色的尿酸盐析出，此种沉淀加热或加碱时皆可溶解。②磷酸盐和碳酸盐沉淀：浓缩的碱性或中性尿排出体外，可有磷酸盐或碳酸盐析出，呈白色，加酸可溶解，碳酸盐沉淀遇酸还可生气泡。③脓尿或菌尿：如尿内含有大量白细胞、脓细胞及细菌等炎性渗出物时，刚排出则可混浊。菌尿呈云雾状，静置后不下沉;脓尿放置后可有白色云絮状沉淀。此种尿液不论加热或加酸，混浊皆不退。\n为提高混浊尿 液检测的可靠性、准确性。方法:将尿液标本先用尿液分析仪11项做干化学分析,再离心经尿沉渣分析仪UDS镜检、报告。临床常见混浊尿液干化学分析后再经尿液沉渣分析各种有形成分为临床提供诊断依据具有重要意义。\n混浊尿的鉴别诊断\n一般而言，排出来的尿不清澈透明而呈混浊状，不是一种病，而是一种现象。应考虑有以下几种可能：\n结晶尿 多在排尿终末部分呈混浊尿 ，也可以在排尿开始或尿中间有一段混浊尿。无任何痛苦。把一滴尿放在玻片上于显微镜下观察，可见到各式各样的结晶。尿PH呈碱性或中性时多为磷酸盐结晶，尿中加入醋酸后，结晶溶解，尿色变清。尿PH呈酸性时，多为草酸盐或尿酸盐结晶，溶于碱性液体而不溶于醋酸或盐酸;胱氨酸结晶既不溶于酸，也不溶于碱，出现于胱氨酸结石患者的尿中。结晶尿一般不需要治疗，多饮些水，结晶多可溶解不再出现。\n脓尿 由于泌尿系感染所致。镜检可见到大量白细胞。多合并有膀胱刺激症状，如尿频、尿急、尿痛等。如久治不愈应考虑泌尿系结核或其他泌尿系器质病变，如畸形、结石、肿瘤等。脓尿常带有臭味。乳糜尿 全程尿皆是乳白色，似牛乳状，其中可有小葡萄粒样胶样物。有合并出血时则呈粉红色，多发生在患血丝症现出10余年后，也叫见于腹膜后肿瘤或炎症。一般患者无症状，只有在凝块较大时，可发生排尿困难;也可因凝块通过输尿管时，发生绞痛。\n乳糜尿 为间歇性发作，多发生在食入高脂肪性食物后。把乳糜尿倒入试管内，加入等量的乙醚，振荡后，取乙醚层内液体一滴放在玻片上，加上一滴苏丹Ⅲ染液，镜下观察，如为乳糜尿，可见到红色脂肪滴，并见下层尿液出浊变清。有时排尿后再用力排尿时，可排出淡乳白色液体或粘液，可能是前列腺液或精液。将这样的混浊液放在玻片上，置于显微镜下检查，前者可见到许多前列独盛，则外阴寒冷;肾阳不足，温煦失职，则精冷不育;阳气不充，则阴冷囊缩，房事不举。足阙阴肝经走行，循阴股，入毛中，过阴器，抵少腹。寒邪外侵，滞留肝经，结于阴器，则外阴寒冷，少腹挛急。\n混入精液：尿液可呈混浊，尿液检查蛋白定性阴性，镜检可见精子。\n污染：见于女性白带或其它化脓性疾病污染尿液，可做清洁中段尿检查加以鉴别。\n新鲜尿液发生混浊，可见于：①尿酸盐沉淀：浓缩的酸性尿冷却后，可有淡红色的尿酸盐析出，此种沉淀加热或加碱时皆可溶解。②磷酸盐和碳酸盐沉淀：浓缩的碱性或中性尿排出体外，可有磷酸盐或碳酸盐析出，呈白色，加酸可溶解，碳酸盐沉淀遇酸还可生气泡。③脓尿或菌尿：如尿内含有大量白细胞、脓细胞及细菌等炎性渗出物时，刚排出则可混浊。菌尿呈云雾状，静置后不下沉;脓尿放置后可有白色云絮状沉淀。此种尿液不论加热或加酸，混浊皆不退。\n为提高混浊尿液检测的可靠性、准确性。方法:将尿液标本先用尿液分析仪11项做干化学分析,再离心经尿沉渣分析仪UDS镜检、报告。临床常见混浊尿液干化学分析后再经尿液沉渣分析各种有形成分为临床提供诊断依据具有重要意义。",
+      "cleaning_warnings": []
+    },
+    "4055777": {
+      "tags": [
+        "nonpubmed_research"
+      ],
+      "profile": "research_abstract",
+      "evidence": [
+        {
+          "rule": "research_labels",
+          "count": 2,
+          "domain": "zhongyibaodian.net",
+          "spans": [
+            {
+              "start_char": 2886,
+              "end_char": 2889
+            },
+            {
+              "start_char": 3220,
+              "end_char": 3223
+            }
+          ]
+        }
+      ],
+      "url": "https://zhongyibaodian.net/a/130967.html",
+      "output_file": "data_final/chunks_format_v2_test20k/part-000017.jsonl",
+      "output_line": 682,
+      "input_line": 17682,
+      "source_head": "硬脑膜动静脉畸形\n中医宝典 > 硬脑膜动静脉畸形\n硬脑膜动静脉畸形(dural arteriovenous malformation，DAVM)是硬脑膜内的动静脉沟通或动静脉瘘，由硬脑膜动脉或颅内动脉的硬脑膜支供血，并回流至静脉窦或动脉化脑膜静脉。本质上DAVM是基于硬脑膜的一处或多处动静脉瘘，故以往也称之为硬脑膜动静脉瘘。但动静脉瘘绝大部分属于获得性病变，采用“硬脑膜动静脉畸形”这一名称更能体现部分病变的先天来源的特征。\n硬脑膜动静脉畸形的病因\n(一)发病原因\n目前对其发生机制尚无统一认识，归纳起来可分为先天性因素与后天性因素两类。有人认为硬膜动静脉畸形与先天性小动静脉回路扩张有关。Robinson认为颅内静脉窦的滋养血管均从颈外动脉系统衍化而来，如有发育异常，易形成颈外动脉-海绵窦瘘;而在胚胎早期，横窦与颈外动脉关系密切，故硬脑膜动静脉畸形 多发生在横窦区。另外，也有人认为硬脑膜动静脉畸形与静脉窦炎有关，外伤、手术等任何外界因素均可造成硬脑膜动静脉与静脉窦之间的网状交通开放，形成动静脉瘘。多数学者强调硬脑膜动静脉畸形和静脉窦炎关系密切，是由于静脉窦栓塞后新生血管形成所致。\n(二)发病机制\n本病的自然病程变化较大，难以预测。部分病变为偶然发现，可维持多年不变;部分病人有明确症状(如耳鸣或颅内杂音)，但病变不进行性发展，甚至形成的血栓可自然缓解，特别是海绵窦内DAVM，常发生自行闭塞。但另有部分病灶进行性扩大、破裂，引起颅内致命出血或神经功能损害。\n各种因素引起DAVM形成，由此引起一系列颅内血流动力学和病理生理改变，如图1所示：\n硬脑膜动静脉畸形的症状\n由于硬脑膜动静脉畸形 位于脑外，除非硬脑膜动静脉畸形回流入静脉窦后伴入窦皮质静脉逆流、硬脑膜动静脉畸形直接回流入皮质静脉或硬脑膜动静脉畸形伴大静脉池者，很少表现有神经系统症状和体征，硬脑膜动静脉畸形常见的症状和体征有：\n1.颅内血管杂音 这是硬脑膜动静脉畸形最常见的临床表现，67%～79%的病人有主观或客观的血管杂音。杂音表现为与脉搏一致，呈轰鸣音，持续性，成为病人最不堪忍受的症状。颅内血管杂音的程度与硬脑膜的血流量及部位有关，若椎动脉未参与供血，压迫患侧颈动脉杂音可减弱或消失。\n2.头痛 许多硬脑膜动静脉畸形的病人都有头痛，其可能的原因有：\n(1)硬脑膜动静脉畸形“盗血”严重，致使硬脑膜缺血。\n(2)颅内压增高。\n(3)颅内出血。\n(4)扩张的畸形血管对脑膜的刺激。\n(5)持续性颅内血管杂音可造成病人精神紧张及休息不好，亦可出现头痛。\n3.颅内压增高 硬脑膜动静脉畸形引起颅内压增高的因素有：\n(1)脑血流量和硬脑膜窦压力增高，伴随脑脊液吸收减少和脑脊液压力增高。\n(2)颅内外动脉直接与静脉窦沟通，大量动脉血直接入窦，使静脉窦压力增高，由于静脉窦压力增高，使皮质静脉回流障碍、脑淤血。\n(3)硬脑膜动静脉畸形直接回流入皮质静脉引起脑淤血。\n(4)继发性静脉窦血栓形成。\n(5)巨大硬脑膜下静脉湖引起的占位效应，或颅后窝动静脉畸形的占位效应引起脑脊液循环障碍，形成阻塞性脑积水。\n4.颅内出血 颅内出血是硬脑膜动静脉畸形的另一常见临床表现，有相当部分的病人以蛛网膜下腔出血为首发症状，主要为皮质引流静脉破裂，这是由于硬脑膜动静脉畸形缺乏毛细血管，动脉压力直接传入硬脑膜的引流静脉，当压力超过静脉壁所承受的负荷时，即破裂出血。文献报道85%的病人畸形血管的静脉端存在膨大的静脉瘤或曲张静脉，这才是出血的根源。不同部位的硬脑膜动静脉畸形引起颅内出血的发生率亦不同。颅前窝硬脑膜动静脉畸形常发生蛛网膜下腔出血或脑内出血，这是因为颅前窝硬脑膜动静脉畸形有一个独特的静脉回流方式，即血液先回流到前额叶的软脑膜静脉，再由这些静脉流入上矢状窦或海绵窦。引流静脉为皮质静脉的硬脑膜动静脉畸形，发生颅内出血的机会分别为20%和42%，畸形位于主要静脉窦附近的出血发生率为7.5%，位于远离主要静脉窦出血的发生率为51%。\n5.其他 少数可发生癫痫、耳鸣、轻偏瘫、失语、一过性黑矇等。海绵窦硬脑膜动静脉畸形可出现额眶或球后疼痛、突眼、视力下降、复视、眼球运动神经障碍等。\n根据患者的临床表现以及影像学，特别是脑血管造影的表现，一般可以做出诊断。\n硬脑膜动静脉畸形的诊断\n硬脑膜动静脉畸形的检查化验\n无特殊表现。\n1.脑血管造影 是DAVM诊断和分型的最重要手段，可以清楚地显示畸形血管自动脉期至静脉期各阶段表现，有利于病变的分型和了解血管造影改变与临床表现和预后间的关系，特别是观察累及的静脉窦有无栓塞和静脉回流的方向，对治疗方案的设计具有决定作用。\n血管造影的注意事项：\n(1)应做六血管造影，即双侧颈内动脉、颈外动脉和椎动脉分别造影。\n(2)病变在枕大孔区者，应加做主动脉弓造影。\n(3)摄片应放在动脉早期即开始，并适当维持到",
+      "cleaning_warnings": []
+    },
+    "2994049": {
+      "tags": [
+        "nonpubmed_research"
+      ],
+      "profile": "research_abstract",
+      "evidence": [
+        {
+          "rule": "research_labels",
+          "count": 2,
+          "domain": "www.a-hospital.com",
+          "spans": [
+            {
+              "start_char": 5517,
+              "end_char": 5520
+            },
+            {
+              "start_char": 5840,
+              "end_char": 5843
+            }
+          ]
+        }
+      ],
+      "url": "https://www.a-hospital.com/w/%E4%B8%AD%E5%8C%BB%E5%84%BF%E7%A7%91/%E9%BA%BB%E7%96%B9",
+      "output_file": "data_final/chunks_format_v2_test20k/part-000018.jsonl",
+      "output_line": 923,
+      "input_line": 18923,
+      "source_head": "中医儿科/麻疹\n跳转到： 导航, 搜索\n医学电子书 >> 《中医儿科学》 >> 时令疾病 >> 麻疹\n\n中医儿科学\n\n时令疾病\n麻疹\n奶麻\n风痧\n丹痧\n水痘\n痄腮\n顿咳\n小儿暑温\n夏季热\n\n中医儿科学目录\n麻疹是由外感麻毒时邪引起的一种急性出疹性时行疾病。以发热，咳嗽，流涕，眼泪汪汪，全身布发红色斑丘疹及早期口腔两颊粘膜出现麻疹粘膜斑为特征。因其疹点如麻粒大，故名麻疹，我国南方地区称为痧、痧疹。西医学亦称本病为麻疹。\n本病一年四季都有发生，但好发于冬、春二季，且常引起流行。发病年龄以6个月至5岁为多。本病发病过程中若治疗调护适当，出疹顺利，大多预后良好；反之，调护失宜，邪毒较重，正不胜邪，可引起逆证险证，危及生命。患病后一般可获终生免疫。\n麻疹在古代届儿科四大要证之一，严重危害儿童健康。二十世纪六十年代以来，我国普遍使用麻疹减毒疫苗预防接种，使本病发病率显著下降，有效地控制了大流行。近年来，临床上非典型麻疹病例增多，症状较轻，病程较短，麻疹逆证少见，发病有向较大年龄推移的现象，成人中未作过预防接种及未患过本病者的发病临床时有所见，值得引起注意。\n［病因病机］\n麻疹的主要发病原因为感受麻毒时邪。麻毒时邪从口鼻吸入，侵犯肺脾。肺主皮毛，属表，开窍于鼻，司呼吸。毒邪犯肺，早期邪郁肺卫，宣发失司，临床表现为发热、咳嗽、喷嚏、流涕等，类似伤风感冒，此为初热期。脾主肌肉和四末，麻毒入于气分，正气与毒邪抗争，驱邪外泄，皮疹透发于全身，并达于四末，疹点出齐，此为见形期。疹透之后，毒随疹泄，麻疹逐渐收没，热去津伤，进入收没期。这是麻疹顺证的病机演变规律。\n麻疹以外透为顺，内传为逆。若正虚不能托邪外出，或因邪盛化火内陷，均可导致麻疹透发不顺，形成逆证。如麻毒内归，或它邪乘机袭肺，灼津炼液为痰，痰热壅盛，肺气闭郁，则形成邪毒闭肺证。麻毒循经上攻咽喉，疫毒壅阻，咽喉不利，而致邪毒攻喉证。若麻毒炽盛，内陷厥阴，，蒙蔽心包，引动肝风，则可形成邪陷心肝证。少数患儿血分毒热炽盛，皮肤出现紫红色斑丘疹，融合成片；若患儿正气不足，麻毒内陷，正不胜邪，陌气外脱，可出现内闭外脱之险证。此外，麻毒移于大肠，可引起协热下利；毒结阳明，可出现口疮、牙疳；迫血妄行，可导致鼻衄、吐血、便血等证。\n［临床诊断］\n1．初起发热，流涕，咳嗽，两目畏光多泪，口腔两颊粘膜近臼齿处可见麻疹粘膜斑。\n2．典型皮疹自耳后发际及颈部开始，自上而下，蔓延全身，最后达于手足心。皮疹为玫瑰色斑丘疹，可散在分布，或不同程度融合。疹退后有糠麸样脱屑和棕褐色色素沉着。\n3．未接种过麻疹疫苗者，在流行季节，近期有麻疹患者接触史。\n4．实验室检查。血象可见白细胞总数减少。疾病早期患儿鼻、咽、眼分泌物涂片，可见多核巨细胞。应用荧光标记的特异抗体，检测患儿鼻咽分泌物或尿沉渣涂片的麻疹病毒抗原，有助于早期诊断。\n［辨证论治］\n一、辨证要点\n麻疹在发病过程中，主要需判断证候的顺逆，以利掌握证情及预后。\n顺证：身热不甚，常有微汗，神气清爽，咳嗽而不气促。3-4天后开始出疹，先见于耳后发际，渐次延及头面、颈部，而后急速蔓延至胸背腹部、四肢，最后鼻准部及手心、足心均见疹点，疹点色泽红活分布均匀，无其他合并证候。疹点均在三天内透发完毕，嗣后依次隐没回退，热退咳减，精神转佳，胃纳渐增，渐趋康复。\n逆证：见形期疹出不畅或疹出即没，或疹色紫暗；高热持续不降，或初热期至见形期体温当升不升，或身热骤降，肢厥身凉者。并见咳剧喘促，痰声辘辘；或声音嘶哑，咳如犬吠；或神昏谵语，惊厥抽风；或面色青灰，四肢厥冷，脉微欲绝等，均属逆证证候。\n二、治疗原则\n在治疗上，因麻为阳毒，以透为顺，故以“麻不厌透”、“麻喜清凉”为指导原则。因为本病病原是麻毒时邪，治疗目的在于驱邪透达于外，故在麻毒未曾尽泄之前总以透疹为要。\n透疹宜取清凉，辛凉透邪解热，不可过用苦寒之品，以免伤正而外邪内陷。还要按其不同阶段辨证论治，一般初热期以透表为主，见形期以凉解为主，收没期以养阴为主，同时注意透发防耗伤津液，清解勿过于寒凉，养阴忌滋腻留邪。\n若是已成逆证，治在祛邪安正。麻毒闭肺者，宜宣肺化痰解毒；热毒攻喉者，宜利咽下—痰解毒；邪陷心肝者，宜平肝熄风开窍；出现心阳虚衰之险证时，当急予温阳扶正固脱。\n三、分证论治\n（一）顺证\n1．邪犯肺卫（初热期）\n证候：发热，微恶风寒，鼻塞流涕，喷嚏，咳嗽，两眼红赤，泪水汪汪，倦怠思睡，小便短赤，大便稀溏。发热第2—3天，口腔两颊粘膜红赤，贴近臼齿处见微小灰白色麻疹粘膜斑，周围红晕，由少渐多。舌苔薄白或微黄，脉浮数。\n分析：邪犯肺卫，肺失清宜。麻毒由口鼻而入，首犯肺卫，邪郁于表，肺气不宜，故发热咳嗽，恶寒怕风，鼻塞流涕。热毒初盛，上熏苗窍，故两眼红赤，泪水汪汪，口内发出麻疹粘膜斑。麻为阳毒，症以热象为主，故小便短赤，苔黄脉数。毒兴于脾，运化",
+      "cleaning_warnings": []
+    },
+    "1736699": {
+      "tags": [
+        "nonpubmed_research"
+      ],
+      "profile": "research_abstract",
+      "evidence": [
+        {
+          "rule": "research_labels",
+          "count": 4,
+          "domain": "www.cnkang.com",
+          "spans": [
+            {
+              "start_char": 24,
+              "end_char": 27
+            },
+            {
+              "start_char": 56,
+              "end_char": 59
+            },
+            {
+              "start_char": 228,
+              "end_char": 231
+            },
+            {
+              "start_char": 321,
+              "end_char": 324
+            }
+          ]
+        }
+      ],
+      "url": "http://www.cnkang.com/jibing/byazl/237731.html",
+      "output_file": "data_final/chunks_format_v2_test20k/part-000019.jsonl",
+      "output_line": 739,
+      "input_line": 19739,
+      "source_head": "口腔上颌肿瘤\n现在了解口腔上颌肿瘤的治疗了吧。\n目的:分析口腔肿瘤治疗和重建术后患者上颌种植修复失败的影响因素.方法:27例病人,共植入131枚上颌种植体,25例患者佩戴了上颌种植义齿,12例接受了术前或术后的放射治疗,采用Kaplan-meier的方法评价种植体和修复体的生存率,Log-rank检验比较放疗和未放疗患者的种植体和修复体生存率,对所观察种植体的边缘骨吸收,种植体周围袋深度,菌斑指数,种植体周围出血指数以及吸烟与否等资料进行了统计学分析.结果:接受放疗和未接受放疗的患者之间,其种植体和修复体的5年累计生存率差异均有显着性(P＜0.01);种植体周围袋深度,菌斑指数,种植体周围出血指数以及吸烟与种植义齿失败之间无显着差异.结论:放疗是影响上颌种植修复失败的主要因素,其它因素尚需进一步探索.\n\n口腔上颌肿瘤怎么治疗好呢？想了解一下口腔上颌肿瘤的治疗方法。",
+      "cleaning_warnings": []
+    },
+    "763924": {
+      "tags": [
+        "toc_marker"
+      ],
+      "url": "https://youmed.vn/tin-tuc/suy-giap-co-chua-khoi-khong/",
+      "input_line": 8590,
+      "source_head": "Suy giáp có chữa khỏi không và câu trả lời từ bác sĩ\nNội dung bài viết\nToggle\nSuy giáp là bệnh gì?\nCách điều trị theo nhóm tuổi\nĐối với trẻ nhỏ\nĐối với người lớn\nĐối với thai phụ\nCách chăm sóc bệnh nhân suy giáp\nChú ý tác dụng phụ của thuốc\nCách theo dõi bệnh nhân suy giáp\n\nBạn có biết cứ 100 người trên thế giới, sẽ có 3 đến 5 người mắc suy giáp. Bệnh suy giáp có diễn tiến âm thầm. Tuy không quá nghiêm trọng nhưng nó sẽ để lại nhiều biến chứng nguy hiểm. Vậy bệnh suy giáp là gì? Suy giáp có chữa khỏi hay không? Bác sĩ Vũ Thành Đô sẽ giải đáp những thắc mắc này trong bài viết sau đây.\nSuy giáp là bệnh gì?\nSuy giáp là một bệnh lý nội tiết. Bệnh xuất phát từ rối loạn sản xuất tại tuyến giáp. Nó giảm lượng hormone ở tuyến giáp. Vì thế nó không đáp ứng được nhu cầu chuyển hóa bình thường của cơ thể. Tùy theo độ tuổi, biểu hiện bệnh sẽ có những đặc trưng riêng. Những cách gọi khác của bệnh là suy tuyến giáp, thiểu năng tuyến giáp, nhược năng tuyến giáp.\nCách điều trị theo nhóm tuổi\nĐối với trẻ nhỏ\nSuy giáp ở trẻ nhỏ hay còn được gọi là suy giáp bẩm sinh tiên phát. Bất kỳ nguyên nhân tác động tuyến giáp trong giai đoạn bào thai hay sau sinh. Hiện tượng này làm giảm lượng hormon giáp trong máu. Từ đó nó gây bệnh suy giáp.\nBiểu hiện suy giáp bẩm sinh\n\nVàng da sinh lý kéo dài nhiều hơn 1 tháng, không có bệnh lý gan mật. Ngoài ra trẻ khó yếu, khóc khàn. Da khô, lạnh. Bộ mặt phù niêm: khoảng cách hai mắt xa nhau, khe mi hẹp, mũi tẹt, lưỡi dày, miệng luôn há. Trẻ ăn ít, bụng to bè.\nVàng da kéo dài hơn 1 tháng là biểu hiện điển hình của suy giáp bẩm sinh\nSuy giáp có chữa khỏi ở trẻ nhỏ không?\n\nMột tin đáng mừng là có thể đưa suy giáp về bình giáp. Trẻ có thể phát triển theo đúng lứa tuổi mà không bị ảnh hưởng. Tuy nhiên việc điều trị sẽ thực hiện suốt đời.\nLiệu pháp thường dùng là thuốc hormone tổng hợp. Tại Việt Nam, thuốc đầu tay là Thyroxin. Khi dùng thuốc, ba mẹ cần chú ý thể trạng, hoạt động bình thường của trẻ. Trẻ sẽ trở lại nhanh nhẹn, đi học bình thường, cao bằng các bạn",
+      "cleaning_warnings": [],
+      "toc_excerpt": " giáp có chữa khỏi không và câu trả lời từ bác sĩ\nNội dung bài viết\nToggle\nSuy giáp là bệnh gì?\nCách điều trị theo nhóm tuổi\nĐối với trẻ nhỏ\nĐối với người lớn\nĐối với thai phụ\nCách chăm sóc bệnh nhân suy giáp\nChú ý tác dụng phụ của thuốc\nCách theo dõi bệnh nhân suy giáp\n\nBạn có biết cứ 100 người trên thế giới, sẽ có 3 đến 5 người mắc suy giáp. Bệnh suy giáp có diễn tiến âm thầm. Tuy không quá nghiêm trọng nhưng nó sẽ để lại nhiều biến chứng nguy hiểm. Vậy bệnh suy giáp là gì? Suy giáp có chữa khỏi hay không? Bác sĩ Vũ Thành Đô sẽ giải đáp những thắc mắc này trong bài viết sau đây.\nSuy giáp là bệnh gì?\nSuy giáp là một bệnh lý nội tiết. Bệnh xuất phát từ rối loạn sản xuất tại tuyến giáp. Nó giảm lượng hormone ở tuyến giáp. Vì thế nó không đáp ứng được nhu cầu chuyển hóa bình thường của cơ thể. Tùy theo độ tuổi, biểu hiện bệnh sẽ có những đặc trưng riêng. Những cách gọi khác của bệnh là suy tuyến giáp, thiểu năng tuyến giáp, nhược năng tuyến giáp.\nCách điều trị theo nhóm tuổi\nĐối với trẻ nhỏ\nSuy giáp ở trẻ nhỏ hay còn được gọi là suy giáp bẩm sinh tiên p"
+    },
+    "761340": {
+      "tags": [
+        "toc_marker"
+      ],
+      "url": "https://youmed.vn/tin-tuc/dau-nguc-o-phu-nu-co-thai/",
+      "input_line": 8633,
+      "source_head": "Đau ngực ở phụ nữ có thai: Có nguy hiểm hay không?\nNội dung bài viết\nToggle\n1. Những nguyên nhân nào gây ra đau ngực cấp tính?\nDo tim:\nDo mạch máu:\nDo mô phổi:\nDo các nguyên nhân hệ tiêu hoá:\nDo cơ xương khớp:\nDo nhiễm trùng:\nDo tâm lý:\n2. Đặc điểm của từng nhóm nguyên nhân đau ngực\nDo tim\nDo mạch máu\nBệnh lý ở mô phổi\nBệnh lý đường ruột\nBệnh lý cơ xương và tâm lý\n3. Bệnh lý thường gây đau ngực ở phụ nữ có thai là gì?\n4. Những nguyên nhân đau ngực nguy hiểm nhất ở thai phụ là gì?\nNhồi máu cơ tim cấp\nBóc tách động mạch chủ ngực\nThuyên tắc phổi\nThuyên tắc ối\n5. Kết luận về đau ngực ở phụ nữ có thai\n\nĐau ngực cấp tính – một triệu chứng rất nhạy cảm ở môi trường cấp cứu. Và nó đặc biệt được quan tâm ở đối tượng là thai phụ. Có nhiều nguyên nhân bệnh lý có thể gây ra đau ngực, ngoài việc loại trừ tất cả những nguyên nhân nguy hiểm có thể, các bác sĩ cần tìm hiểu đặc điểm đau ngực ở phụ nữ có thai thật kỹ lưỡng để chẩn đoán chính xác và điều trị. Bài viết sau đây sẽ liệt kê các nguyên nhân gây ra đau ngực. Sau đó sẽ giới thiệu nguyên nhân thường gặp nhất ở thai phụ cũng như những nguyên nhân nguy hiểm nhất.\n1. Những nguyên nhân nào gây ra đau ngực cấp tính?\nDo tim:\nCơn đau thắt ngực ổn định.\nCơn đau thắt ngực không ổn định.\nNhồi máu cơ tim cấp.\nViêm màng ngoài tim cấp.\nDo mạch máu:\nBóc tách động mạch chủ.\nThuyên tắc phổi.\nTăng áp động mạch phổi.\nDo mô phổi:\nViêm phổi/màng phổi.\nViêm khí phế quản.\nTràn khí màng phổi.\nDo các nguyên nhân hệ tiêu hoá:\nTrào ngược thực quản dạ dày.\nViêm loét dạ dày.\nBệnh túi mật.\nViêm tuỵ cấp.\n\nTrào ngược dạ dày thực quản là một bệnh phổ biến trong xã hội hiện đại ngày nay. Nhấn vào đây để tìm hiểu về Dấu hiệu nhận biết và cách phòng tránh hiệu quả trào ngược dạ dày thực quản.\nDo cơ xương khớp:\nViêm sụn sườn.\nBệnh đốt sống cổ.\nChấn thương.\nDo nhiễm trùng:\nBệnh giời leo.\nDo tâm lý:\nRối loạn lo âu.\n2. Đặc điểm của từng nhóm nguyên nhân đau ngực\nDo tim\nTim thiếu máu nuôi: Tim vốn được cung cấp máu nuôi bởi động mạch vành.\n\nCơn đau thường có cảm gi",
+      "cleaning_warnings": [],
+      "toc_excerpt": "au ngực ở phụ nữ có thai: Có nguy hiểm hay không?\nNội dung bài viết\nToggle\n1. Những nguyên nhân nào gây ra đau ngực cấp tính?\nDo tim:\nDo mạch máu:\nDo mô phổi:\nDo các nguyên nhân hệ tiêu hoá:\nDo cơ xương khớp:\nDo nhiễm trùng:\nDo tâm lý:\n2. Đặc điểm của từng nhóm nguyên nhân đau ngực\nDo tim\nDo mạch máu\nBệnh lý ở mô phổi\nBệnh lý đường ruột\nBệnh lý cơ xương và tâm lý\n3. Bệnh lý thường gây đau ngực ở phụ nữ có thai là gì?\n4. Những nguyên nhân đau ngực nguy hiểm nhất ở thai phụ là gì?\nNhồi máu cơ tim cấp\nBóc tách động mạch chủ ngực\nThuyên tắc phổi\nThuyên tắc ối\n5. Kết luận về đau ngực ở phụ nữ có thai\n\nĐau ngực cấp tính – một triệu chứng rất nhạy cảm ở môi trường cấp cứu. Và nó đặc biệt được quan tâm ở đối tượng là thai phụ. Có nhiều nguyên nhân bệnh lý có thể gây ra đau ngực, ngoài việc loại trừ tất cả những nguyên nhân nguy hiểm có thể, các bác sĩ cần tìm hiểu đặc điểm đau ngực ở phụ nữ có thai thật kỹ lưỡng để chẩn đoán chính xác và điều trị. Bài viết sau đây sẽ liệt kê các nguyên nhân gây ra đau ngực. Sau đó sẽ giới thiệu nguyên nhân thường gặp nhất ở t"
+    },
+    "765521": {
+      "tags": [
+        "toc_marker"
+      ],
+      "url": "https://youmed.vn/tin-tuc/ung-thu-mau-chan-doan-dieu-tri-va-cham-soc-benh/",
+      "input_line": 8666,
+      "source_head": "Bệnh ung thư máu sống được bao lâu?\nNội dung bài viết\nToggle\nUng thư máu sống được bao lâu?\n1. Bệnh bạch cầu\n2. Đau tuỷ\n3. Ung thư hạch\nChẩn đoán ung thư máu như thế nào?\n1. Xét nghiệm tuỷ\n2. Sinh thiết hạch\n3. Xét nghiệm khác\nCó những phương pháp nào điều trị ung thư máu?\n1. Hoá trị liệu\n2. Xạ trị\n3. Ghép tế bào gốc\n4. Tự ghép tế bào gốc\n5. Dị ghép tế bào gốc\n6. Ghép nửa thuận hợp\n7. Liệu pháp miễn dịch\nChăm sóc bệnh nhân ung thư máu như thế nào?\n\nUng thư máu là một tập hợp nhiều bệnh lý khác nhau. Do vậy điều trị ung thư máu nhiều điểm không đồng nhất. Khi được chẩn đoán là bệnh lý ác tính huyết học, bệnh nhân và người nhà đều thường rơi vào tâm lý hoang mang và bế tắc. Câu hỏi mà các bác sĩ thường xuyên nhận được từ người bệnh và thân nhân là bệnh ung thư máu sống được bao lâu. Hãy cùng Bác sĩ Đinh Gia Khánh tìm hiểu bài viết sau đây để được giải đáp thắc mắc trên, cũng như có cái nhìn đúng hơn về chẩn đoán và điều trị bệnh.\nUng thư máu sống được bao lâu?\nRất khó để xác định thời gian sống còn của bệnh nhân mắc ung thư máu. Bởi vì điều này còn phụ thuộc vào loại ung thư máu (bệnh bạch cầu, ung thư hạch bạch huyết hay bệnh đa u tủy), giai đoạn của bệnh, các phương pháp điều trị, thể trạng và đáp ứng điều trị của từng bệnh nhân, cũng như nhiều yếu tố khác.\nTuy nhiên, nói chung, nhiều bệnh nhân mắc ung thư máu có thể sống lâu dài và thậm chí được chữa khỏi hoàn toàn.\n1. Bệnh bạch cầu\nTrong đó bạch cầu cấp có thể tạm gọi đây là bệnh xấu nhất của ung thư máu. Nhưng có những nhóm rất tốt, rơi vào bạch cầu cấp lympho B ở trẻ em và nhóm tiên lượng ảm đạm nhất là bạch cầu cấp ở người lớn tuổi. Con số này còn phụ thuộc vào nhiều yếu tố tiên lượng. Một số ví dụ điển hình:\nBạch cầu cấp dòng lympho B\nTrẻ em nhỏ hơn 15 tuổi tiên lượng tốt có thời gian sống trên 5 năm là >90% với điều trị chuẩn.\nNhóm có đột biến xấu thì con số này chỉ là 60 – 80% dù với hoá trị liệu tăng cường.\nỞ người lớn thì xấu hơn rất nhiều, con số này chỉ là từ 15 – 40%.\nBạch cầu mạn dòng tuỷ\nSự phát triển",
+      "cleaning_warnings": [],
+      "toc_excerpt": "Bệnh ung thư máu sống được bao lâu?\nNội dung bài viết\nToggle\nUng thư máu sống được bao lâu?\n1. Bệnh bạch cầu\n2. Đau tuỷ\n3. Ung thư hạch\nChẩn đoán ung thư máu như thế nào?\n1. Xét nghiệm tuỷ\n2. Sinh thiết hạch\n3. Xét nghiệm khác\nCó những phương pháp nào điều trị ung thư máu?\n1. Hoá trị liệu\n2. Xạ trị\n3. Ghép tế bào gốc\n4. Tự ghép tế bào gốc\n5. Dị ghép tế bào gốc\n6. Ghép nửa thuận hợp\n7. Liệu pháp miễn dịch\nChăm sóc bệnh nhân ung thư máu như thế nào?\n\nUng thư máu là một tập hợp nhiều bệnh lý khác nhau. Do vậy điều trị ung thư máu nhiều điểm không đồng nhất. Khi được chẩn đoán là bệnh lý ác tính huyết học, bệnh nhân và người nhà đều thường rơi vào tâm lý hoang mang và bế tắc. Câu hỏi mà các bác sĩ thường xuyên nhận được từ người bệnh và thân nhân là bệnh ung thư máu sống được bao lâu. Hãy cùng Bác sĩ Đinh Gia Khánh tìm hiểu bài viết sau đây để được giải đáp thắc mắc trên, cũng như có cái nhìn đúng hơn về chẩn đoán và điều trị bệnh.\nUng thư máu sống được bao lâu?\nRất khó để xác định thời gian sống còn của bệnh nhân mắc ung thư máu. Bởi vì điề"
+    },
+    "762937": {
+      "tags": [
+        "toc_marker"
+      ],
+      "url": "https://youmed.vn/tin-tuc/nguoi-gia-hay-bi-loang-xuong/",
+      "input_line": 8801,
+      "source_head": "Vì sao người già hay bị loãng xương? Câu trả lời từ bác sĩ\nNội dung bài viết\nToggle\nNguyên nhân người già hay bị loãng xương\nLoãng xương nguyên phát\nLoãng xương thứ phát\nTriệu chứng của bệnh loãng xương\nCác dấu hiệu và triệu chứng của bệnh loãng xương giai đoạn đầu4 5\nCác dấu hiệu và triệu chứng của bệnh loãng xương giai đoạn muộn4 5\nBiến chứng của bệnh loãng xương\nGãy xương\nHạn chế khả năng di chuyển\nĐau\nNhập viện và chi phí y tế\nĐiều trị bệnh loãng xương\nĐiều trị loãng xương bằng thuốc\nCách phòng ngừa và điều trị loãng xương ở người cao tuổi không dùng thuốc\nCác biện pháp khác\n\nLoãng xương là bệnh lý thầm lặng thường gặp ở người cao tuổi. Cùng với quá trình lão hóa, chế độ sinh hoạt, tập luyện, ăn uống, các bệnh lý đồng mắc, các thuốc đang sử dụng cũng có thể làm bệnh loãng xương trở nên trầm trọng hơn. Nhận biết sớm các yếu tố này giúp chẩn đoán, điều trị loãng xương hiệu quả, nhằm ngăn chặn những biến chứng nguy hiểm. Sau đây, mời bạn cùng Bác sĩ Hà Phạm Trọng Khang tìm hiểu vì sao người già hay bị loãng xương và cách điều trị nhé.\nNguyên nhân người già hay bị loãng xương\nLoãng xương là tình trạng xương trở nên mỏng manh và dễ gãy, dẫn đến nguy cơ gãy cao hơn. Điều này xảy ra khi xương mất các khoáng chất như canxi nhanh hơn mức mà cơ thể có thể thay thế.\nỞ Úc, bệnh loãng xương ảnh hưởng đến 1/3 phụ nữ và 1/5 nam giới trên 50 tuổi.1\nNguồn tham khảo / Source\nWhy older people get osteoporosis and have falls\nNgày tham khảo: 03/10/2022\nLoãng xương ảnh hưởng đến khoảng 54 triệu người ở Hoa Kỳ.2\nNguồn tham khảo / Source\nOsteoporosis\nNgày tham khảo: 03/10/2022\nMặc dù bệnh này xảy ra ở cả nam và nữ, nhưng phụ nữ có nguy cơ mắc bệnh cao hơn nam giới bốn lần.3\nNguồn tham khảo / Source\nOsteoporosis costing all Australians A new burden of disease analysis – 2012 to 2022\nNgày tham khảo: 03/10/2022\nBệnh loãng xương được gọi là một căn bệnh thầm lặng. Vì bệnh thường không có triệu chứng và hiếm khi được chẩn đoán cho đến khi xương bị gãy hoặc nứt vỡ. Xương mô sống và luôn tron",
+      "cleaning_warnings": [],
+      "toc_excerpt": "ười già hay bị loãng xương? Câu trả lời từ bác sĩ\nNội dung bài viết\nToggle\nNguyên nhân người già hay bị loãng xương\nLoãng xương nguyên phát\nLoãng xương thứ phát\nTriệu chứng của bệnh loãng xương\nCác dấu hiệu và triệu chứng của bệnh loãng xương giai đoạn đầu4 5\nCác dấu hiệu và triệu chứng của bệnh loãng xương giai đoạn muộn4 5\nBiến chứng của bệnh loãng xương\nGãy xương\nHạn chế khả năng di chuyển\nĐau\nNhập viện và chi phí y tế\nĐiều trị bệnh loãng xương\nĐiều trị loãng xương bằng thuốc\nCách phòng ngừa và điều trị loãng xương ở người cao tuổi không dùng thuốc\nCác biện pháp khác\n\nLoãng xương là bệnh lý thầm lặng thường gặp ở người cao tuổi. Cùng với quá trình lão hóa, chế độ sinh hoạt, tập luyện, ăn uống, các bệnh lý đồng mắc, các thuốc đang sử dụng cũng có thể làm bệnh loãng xương trở nên trầm trọng hơn. Nhận biết sớm các yếu tố này giúp chẩn đoán, điều trị loãng xương hiệu quả, nhằm ngăn chặn những biến chứng nguy hiểm. Sau đây, mời bạn cùng Bác sĩ Hà Phạm Trọng Khang tìm hiểu vì sao người già hay bị loãng xương và cách điều trị nhé.\nNguyên nhân người già ha"
+    },
+    "766131": {
+      "tags": [
+        "toc_marker"
+      ],
+      "url": "https://youmed.vn/tin-tuc/vitamin-c-zink-co-tot-khong-gia-thanh-phan-va-cach-su-dung/",
+      "input_line": 8867,
+      "source_head": "Vitamin C + Zink có tốt không? Giá, công dụng và cách sử dụng\nNội dung bài viết\nToggle\nVitamin C + Zink là gì?\nCông dụng của viên vitamin C + Zink\nThành phần của sản phẩm C + Zink\nCông dụng của từng thành phần có trong vitamin C + Zink\nViên C + Zink có tốt không?\nNhững đối tượng nên sử dụng viên C + Zink\nCách dùng vitamin một cách hiệu quả\nCách bảo quản sản phẩm C + Zink\nNhững lưu ý quan trọng khi sử dụng vitamin này\nVitamin C + Zink giá bao nhiêu?\n\nNhững thông tin cần biết về sản phẩm vitamin C + Zink là gì? Viên vitamin C này có thể đem lại những lợi ích gì? Các điểm cần đặc biệt lưu ý khi sử dụng như tác dụng phụ cũng như cách sử dụng để sản phẩm đạt hiệu quả tối ưu? Hãy cùng Dược sĩ Nguyễn Ngọc Cẩm Tiên tìm hiểu kỹ hơn về loại viên uống này nhé!\nVitamin C + Zink là gì?\nSản phẩm vitamin C + Zink được đóng gói với mỗi lọ là 60 viên.\nC-zink là sản phẩm chức năng dạng viên uống hỗ trợ tăng cường sức khỏe cho người trưởng thành.\nĐối với nam giới, sản phẩm này giúp tăng cường sinh lực.\nĐối với nữ giới, sản phẩm vitamin C + Zink có tác dụng không những tăng cường sức khỏe mà còn có thể chống lão hóa rất tốt.\nXem thêm: Vitamin C dưỡng da: xu hướng làm đẹp hiệu quả\nCông dụng của viên vitamin C + Zink\nSản phẩm vitamin C + Zink có thể đem lại những lợi ích tuyệt với dưới đây:\nGiúp hỗ trợ chống lại tình trạng oxy hóa, chống lão hóa đồng thời tăng cường cải thiện sức khỏe.\nNgoài ra, sản phẩm giúp hỗ trợ làm nhanh liền các vết thương và các bệnh về da liễu.\nKhông những vậy, thành phần kẽm giúp tăng cường tổng hợp FSH (foline stimulating hormone) và testosterol. Đây là thành phần rất cần thiết cho nam giới trong việc tăng cường sinh lực.\nThành phần của sản phẩm C + Zink\nThành phần có trong công thức của mỗi viên vitamin C + Zink:\nVitamin C có hàm lượng trong mỗi viên là 300 mg.\nKẽm Sulfat monohydrate với hàm lượng là 5 mg.\nTá dược vừa đủ để đóng gói 1 viên:\nĐường kính.\nGelatin.\nCellulose.\nShellac.\nSiro đường.\nBột ngô.\nMagie.\nBột talc.\nCông dụng của từng thành phần có trong v",
+      "cleaning_warnings": [],
+      "toc_excerpt": "Zink có tốt không? Giá, công dụng và cách sử dụng\nNội dung bài viết\nToggle\nVitamin C + Zink là gì?\nCông dụng của viên vitamin C + Zink\nThành phần của sản phẩm C + Zink\nCông dụng của từng thành phần có trong vitamin C + Zink\nViên C + Zink có tốt không?\nNhững đối tượng nên sử dụng viên C + Zink\nCách dùng vitamin một cách hiệu quả\nCách bảo quản sản phẩm C + Zink\nNhững lưu ý quan trọng khi sử dụng vitamin này\nVitamin C + Zink giá bao nhiêu?\n\nNhững thông tin cần biết về sản phẩm vitamin C + Zink là gì? Viên vitamin C này có thể đem lại những lợi ích gì? Các điểm cần đặc biệt lưu ý khi sử dụng như tác dụng phụ cũng như cách sử dụng để sản phẩm đạt hiệu quả tối ưu? Hãy cùng Dược sĩ Nguyễn Ngọc Cẩm Tiên tìm hiểu kỹ hơn về loại viên uống này nhé!\nVitamin C + Zink là gì?\nSản phẩm vitamin C + Zink được đóng gói với mỗi lọ là 60 viên.\nC-zink là sản phẩm chức năng dạng viên uống hỗ trợ tăng cường sức khỏe cho người trưởng thành.\nĐối với nam giới, sản phẩm này giúp tăng cường sinh lực.\nĐối với nữ giới, sản phẩm vitamin C + Zink có tác dụng không những tăng cường "
+    },
+    "760353": {
+      "tags": [
+        "toc_marker"
+      ],
+      "url": "https://youmed.vn/tin-tuc/cach-chua-day-bung/",
+      "input_line": 8890,
+      "source_head": "Những cách chữa đầy bụng khó tiêu bạn nên biết\nNội dung bài viết\nToggle\nChứng đầy bụng là gì?\nNhững cách chữa đầy bụng\nThư giãn, giảm căng thẳng\nChườm ấm bụng và xoa bóp\nTập luyện thể dục thường xuyên\nDùng thuốc\nĂn uống đúng cách\nCách phòng tránh đầy bụng\nXây dựng chế độ ăn hợp lí\nChữa trị các bệnh lí mạn tính\n\nĐầy bụng khó tiêu đem lại nhiều phiền toái cho người bị mắc phải. Vậy làm cách nào để chúng ta giảm bớt những khó chịu khi gặp phải tình trạng này? Bài viết sau đây của Thạc sĩ, Bác sĩ Thái Việt Nguyên sẽ giới thiệu cho bạn cách chữa đầy bụng đơn giản và hiệu quả. Mời bạn cùng tìm hiểu nhé!\nChứng đầy bụng là gì?\nĐầy bụng là một hiện tượng mà hầu hết chúng ta đều từng mắc phải. Đa số cơn đầy bụng được miêu tả là cảm giác căng tức ở vùng bụng. Cảm giác đó đặc biệt rõ ràng ở vùng trên rốn. Đôi khi nó dễ gây nhầm lẫn với một cơn đau ngực thực sự. Chứng đầy bụng thường kèm theo những triệu chứng như:\nỢ nóng: Cảm giác nóng rát sau xương ức.\nỢ chua: Hiện tượng trào ngược một ít dịch vị từ dạ dày lên thực quản, vào khoang miệng mang theo vị chua hay đắng.\nKhó thở: Trong một số trường hợp, sự căng tức quá mức dễ gây nhầm lẫn với một cơn khó thở thực sự.\n\nSau khi đã tìm hiểu tổng quan về tình trạng đầy bụng, chúng ta hãy cùng tìm hiểu những cách chữa đầy bụng trong phần tiếp theo của bài viết này nhé.\nNhững cách chữa đầy bụng\nThư giãn, giảm căng thẳng\nSự căng thẳng, lo lắng, và các vấn đề tâm lí khác từ lâu đã được xem xét như một trong các nguyên nhân phổ biến của tình trạng rối loạn tiêu hóa. Nhiều bệnh nhân than phiền rằng họ trải qua cảm giác chướng bụng khó tiêu thường xuyên hơn khi tinh thần không thoải mái. Căng thẳng sẽ ảnh hưởng đến hệ thần kinh. Từ đó khiến đường ruột giảm các nhu động co bóp thức ăn. Kết quả là làm thức ăn ứ đọng gây ra hiện tượng đầy bụng. Vì vậy, thư giãn tinh thần cũng được xem như một cách chữa đầy bụng mà bạn nên thử.\nThư giãn tinh thần cũng giúp làm giảm nhẹ các triệu chứng đầy bụng\nMột số phương pháp có thể làm giảm lo lắng, bất an tạ",
+      "cleaning_warnings": [],
+      "toc_excerpt": "Những cách chữa đầy bụng khó tiêu bạn nên biết\nNội dung bài viết\nToggle\nChứng đầy bụng là gì?\nNhững cách chữa đầy bụng\nThư giãn, giảm căng thẳng\nChườm ấm bụng và xoa bóp\nTập luyện thể dục thường xuyên\nDùng thuốc\nĂn uống đúng cách\nCách phòng tránh đầy bụng\nXây dựng chế độ ăn hợp lí\nChữa trị các bệnh lí mạn tính\n\nĐầy bụng khó tiêu đem lại nhiều phiền toái cho người bị mắc phải. Vậy làm cách nào để chúng ta giảm bớt những khó chịu khi gặp phải tình trạng này? Bài viết sau đây của Thạc sĩ, Bác sĩ Thái Việt Nguyên sẽ giới thiệu cho bạn cách chữa đầy bụng đơn giản và hiệu quả. Mời bạn cùng tìm hiểu nhé!\nChứng đầy bụng là gì?\nĐầy bụng là một hiện tượng mà hầu hết chúng ta đều từng mắc phải. Đa số cơn đầy bụng được miêu tả là cảm giác căng tức ở vùng bụng. Cảm giác đó đặc biệt rõ ràng ở vùng trên rốn. Đôi khi nó dễ gây nhầm lẫn với một cơn đau ngực thực sự. Chứng đầy bụng thường kèm theo những triệu chứng như:\nỢ nóng: Cảm giác nóng rát sau xương ức.\nỢ chua: Hiện tượng trào ngược một ít dịch vị từ dạ dày lên thực quản, vào khoang miệng mang theo vị chua hay"
+    },
+    "759366": {
+      "tags": [
+        "toc_marker"
+      ],
+      "url": "https://youmed.vn/tin-tuc/acyclovir-boston-800/",
+      "input_line": 8895,
+      "source_head": "Acyclovir Boston 800 là thuốc gì? Công dụng, cách dùng và lưu ý\nNội dung bài viết\nToggle\nAcyclovir Boston 800 là thuốc gì?\nThành phần của thuốc Acyclovir Boston 800\nCông dụng của các thành phần\nAcyclovir Boston 800 có tác dụng gì?\nCách dùng và liều dùng Acyclovir Boston 800\nCách dùng\nLiều dùng cho từng đối tượng\nAcyclovir Boston 800 giá bao nhiêu?\nTác dụng phụ của Acyclovir Boston 800\nTương tác thuốc\nĐối tượng chống chỉ định dùng Acyclovir Boston 800\nPhụ nữ có thai và mẹ cho con bú có uống được Acyclovir Boston 800 hay không?\nThời kỳ mang thai\nThời kỳ cho con bú\nĐối tượng thận trọng khi dùng Acyclovir Boston 800\nXử lý khi quá liều Acyclovir Boston 800\nTriệu chứng\nĐiều trị\nTrường hợp quên liều Acyclovir Boston 800\nLưu ý gì khi sử dụng\nCách bảo quản\n\nThuốc Acyclovir Boston 800 có công dụng là gì? Thuốc được chỉ định sử dụng trên đối tượng nào? Khi sử dụng thuốc này bạn cần lưu ý điều gì? Trong bài viết dưới đây Dược sĩ Phan Tiểu Long sẽ đưa đến cho bạn những thông tin chi tiết nhất.\nHoạt chất: Acyclovir\nThuốc chứa thành phần tương tự: Acyclovir Stella 800mg, Medskin Acyclovir 800, Aciclovir MKP 800.\nAcyclovir Boston 800 là thuốc gì?\nThuốc Acyclovir Boston 800 được Công ty Cổ phần Dược phẩm Boston Việt Nam sản xuất. Thuốc có thành phần chính là acyclovir, dùng để điều trị và dự phòng nhiễm virus Herpes simplex , điều trị bệnh thuỷ đậu, bệnh zona.\nThuốc Acyclovir Boston 800 được chỉ định điều trị và dự phòng nhiễm virus Herpes simplex, điều trị bệnh thuỷ đậu, bệnh zona\nThành phần của thuốc Acyclovir Boston 800\nMỗi viên nén chứa:\nAcyclovir 800 mg\nThành phần tá dược: Natri starch glycolat, tinh bột tiền gelatin hoá, magnesi stearat, silicon dioxid, nước tinh khiết, ethanol 96%.\nCông dụng của các thành phần\nThành phần chính của thuốc Acyclovir Boston 800 là acyclovir. Đây là một thuốc kháng virus có cấu trúc tương tự nucleosid, có tác dụng chọn lọc trên tế bào nhiễm virus Herpes.\nKhi vào cơ thể, acyclovir được phosphoryl hóa để trở thành dạng có hoạt tính là acyclovir trip",
+      "cleaning_warnings": [],
+      "toc_excerpt": "on 800 là thuốc gì? Công dụng, cách dùng và lưu ý\nNội dung bài viết\nToggle\nAcyclovir Boston 800 là thuốc gì?\nThành phần của thuốc Acyclovir Boston 800\nCông dụng của các thành phần\nAcyclovir Boston 800 có tác dụng gì?\nCách dùng và liều dùng Acyclovir Boston 800\nCách dùng\nLiều dùng cho từng đối tượng\nAcyclovir Boston 800 giá bao nhiêu?\nTác dụng phụ của Acyclovir Boston 800\nTương tác thuốc\nĐối tượng chống chỉ định dùng Acyclovir Boston 800\nPhụ nữ có thai và mẹ cho con bú có uống được Acyclovir Boston 800 hay không?\nThời kỳ mang thai\nThời kỳ cho con bú\nĐối tượng thận trọng khi dùng Acyclovir Boston 800\nXử lý khi quá liều Acyclovir Boston 800\nTriệu chứng\nĐiều trị\nTrường hợp quên liều Acyclovir Boston 800\nLưu ý gì khi sử dụng\nCách bảo quản\n\nThuốc Acyclovir Boston 800 có công dụng là gì? Thuốc được chỉ định sử dụng trên đối tượng nào? Khi sử dụng thuốc này bạn cần lưu ý điều gì? Trong bài viết dưới đây Dược sĩ Phan Tiểu Long sẽ đưa đến cho bạn những thông tin chi tiết nhất.\nHoạt chất: Acyclovir\nThuốc chứa thành phần tương tự: Acyclovir Stella 800mg, Medskin "
+    },
+    "760963": {
+      "tags": [
+        "toc_marker"
+      ],
+      "url": "https://youmed.vn/tin-tuc/co-nen-nam-than-sau-sinh-khong/",
+      "input_line": 8980,
+      "source_head": "Có nên nằm than sau sinh không?\nNội dung bài viết\nToggle\n1. Tác hại của nằm than sau sinh\n1.1. Ngộ độc carbon monoxide (CO) và carbon dioxide (CO2)\n1.2. Bỏng do nằm than sau sinh\n1.3. Thay đổi thân nhiệt của bé\n1.4. Bệnh về da do nằm than sau sinh\n2. Những trường hợp đáng tiếc đã xảy ra do nằm than sau sinh\n3. Những phương pháp thay thế nằm than\n3.1. Mặc đồ ấm\n3.2. Ăn uống đầy đủ chất dinh dưỡng\n3.3. Sử dụng các thiết bị\n3.4. Giữ gìn vệ sinh sạch sẽ\n3.5. Vận động sớm\n\nĐể chào đón một “sinh linh” ra đời, người phụ nữ đã trải qua vô vàng khó khăn. Hơn thế nữa, thời điểm sinh nở, người phụ nữ tốn nhiều sức lực và gặp nhiều nguy hiểm như sinh khó, mất máu. Do đó, theo quan niệm dân gian xưa, người phụ nữ sau sinh rất yếu, dễ cảm lạnh nên cần được nằm than và đồng thời cũng để tránh những bệnh xương khớp về già. Vậy quan niệm nằm than hay xông hơi sau sinh của ông bà ta đối với hiện nay còn phù hợp hay không?\n1. Tác hại của nằm than sau sinh\n1.1. Ngộ độc carbon monoxide (CO) và carbon dioxide (CO2)\nKhi than được cháy lên sẽ tạo ra CO và CO2. Đặc biệt khí carbon monoxide (CO) đây là khí có khả năng cạnh tranh rất mạnh với Oxy trong cơ thể. Điều này dẫn đến cơ thể thiếu Oxy trầm trọng và có thể dẫn đến tử vong\nNhững dấu hiệu ngộ độc CO cần biết\nĐau đầu âm ỉ\nMệt mỏi\nChóng mặt\nBuồn nôn hoặc nôn\nKhó thở\nLú lẫn\nNhìn mờ\nMất ý thức\n\nNgộ độc carbon monoxide (CO) có thể đặc biệt nguy hiểm đối với những trường hợp đang ngủ. Những người này có thể tổn thương não không hồi phục hoặc thậm chí chết trước khi có bất kì dấu hiệu nào xảy ra.\nĐối với trẻ vừa mới sinh, trẻ thường thở nhanh hơn người lớn. Do đó trẻ càng dễ ngộ độc hơn người lớn.\nChú thích: các dấu hiệu ngộ độc carbon monoxide (CO)\nBiến chứng khi ngộ độc carbon monoxide (CO)\nTùy vào mức độ và thời gian tiếp xúc, ngộ độc carbon monoxide (CO) có thể gây ra\nTổn thương não vĩnh viễn\nTổn thương tim, có thể dẫn dến biến chứng đe doạn tính mạng\nTử vong\n1.2. Bỏng do nằm than sau sinh\nNhiệt độ từ bếp than thường tỏa ra không đều và vị",
+      "cleaning_warnings": [],
+      "toc_excerpt": "Có nên nằm than sau sinh không?\nNội dung bài viết\nToggle\n1. Tác hại của nằm than sau sinh\n1.1. Ngộ độc carbon monoxide (CO) và carbon dioxide (CO2)\n1.2. Bỏng do nằm than sau sinh\n1.3. Thay đổi thân nhiệt của bé\n1.4. Bệnh về da do nằm than sau sinh\n2. Những trường hợp đáng tiếc đã xảy ra do nằm than sau sinh\n3. Những phương pháp thay thế nằm than\n3.1. Mặc đồ ấm\n3.2. Ăn uống đầy đủ chất dinh dưỡng\n3.3. Sử dụng các thiết bị\n3.4. Giữ gìn vệ sinh sạch sẽ\n3.5. Vận động sớm\n\nĐể chào đón một “sinh linh” ra đời, người phụ nữ đã trải qua vô vàng khó khăn. Hơn thế nữa, thời điểm sinh nở, người phụ nữ tốn nhiều sức lực và gặp nhiều nguy hiểm như sinh khó, mất máu. Do đó, theo quan niệm dân gian xưa, người phụ nữ sau sinh rất yếu, dễ cảm lạnh nên cần được nằm than và đồng thời cũng để tránh những bệnh xương khớp về già. Vậy quan niệm nằm than hay xông hơi sau sinh của ông bà ta đối với hiện nay còn phù hợp hay không?\n1. Tác hại của nằm than sau sinh\n1.1. Ngộ độc carbon monoxide (CO) và carbon dioxide (CO2)\nKhi than được cháy lên sẽ tạo ra CO và C"
+    },
+    "761950": {
+      "tags": [
+        "toc_marker"
+      ],
+      "url": "https://youmed.vn/tin-tuc/hep-bao-quy-dau-co-nguy-hiem-khong/",
+      "input_line": 9023,
+      "source_head": "Hẹp bao quy đầu có nguy hiểm không?\nNội dung bài viết\nToggle\nNguyên nhân hẹp bao quy đầu\nHẹp bao quy đầu có nguy hiểm không?\nBệnh viêm nhiễm sinh dục\nSẹo xơ trên bao\nNghẹt quy đầu\nUng thư dương vật\nVô sinh\nHẹp bao quy đầu có ảnh hưởng gì không?\nĐối với trẻ em\nĐối với người lớn\nCách điều trị hẹp bao quy đầu\n\nHẹp bao quy đầu là tình trạng bao quy đầu không thể rút lại (kéo về phía sau) từ xung quanh đầu dương vật. Hẹp bao quy đầu là tình trạng khá thường gặp ở nam giới.Tuy không được xem là một bệnh lý nghiêm trọng nhưng nhiều người vẫn luôn bận tâm rằng “Hẹp bao quy đầu có nguy hiểm không?”. Hãy cùng Bác sĩ Phan Văn Giáo tháo gỡ mối bận tâm này cho bạn, cũng như tìm hiểu về những ảnh hưởng của bệnh và cách điều trị hiệu quả qua bài viết dưới đây.\nNguyên nhân hẹp bao quy đầu\nHẹp bao quy đầu là bình thường ở trẻ chưa cắt bao quy đầu và trẻ mới biết đi, vì bao quy đầu vẫn còn dính vào quy đầu. Nó sẽ bắt đầu tách ra một cách tự nhiên từ 2 đến 6 tuổi, mặc dù nó có thể xảy ra muộn hơn. Bao quy đầu có thể tự tuột vào khoảng 10 tuổi, ở một số bé trai.1\nNguồn tham khảo / Source\nWhat is phimosis?\nNgày tham khảo: 02/12/2021\n\nHẹp bao quy đầu có thể xảy ra tự nhiên. Có thể xuất hiện ở bé này nhưng một số bé thì không có. Tình trạng này cũng có thể xảy ra nếu bao quy đầu bị chấn thương. Điều này có thể gây hại cho da và để lại sẹo, khiến cho việc kéo bao quy đầu trở nên khó khăn hơn sau này.2\nNguồn tham khảo / Source\nEverything You Should Know About Phimosis\nNgày tham khảo: 02/12/2021\nNgoài ra một số nguyên nhân hẹp bao quy đầu có thể là:\nNhiễm trùng đường tiết niệu lặp đi lặp lại\nNhiễm trùng bao quy đầu\nNhiều lần xử lý thô bạo với bao quy đầu\n\nHẹp bao quy đầu có thể do tình trạng da bao gồm:\nBệnh chàm gây ngứa, đỏ, khô và nứt nẻ\nBệnh vảy nến dẫn đến mảng da bóng tróc và đóng vảy\nPhát ban ngứa\nSẹo trên bao quy đầu\n\nHẹp bao quy đầu\nHẹp bao quy đầu có nguy hiểm không?\nTheo các chuyên gia, nếu hẹp bao quy đầu không được phát hiện sớm và chữa trị kịp thời sẽ gây ra nhiều vấn đề nguy h",
+      "cleaning_warnings": [],
+      "toc_excerpt": "Hẹp bao quy đầu có nguy hiểm không?\nNội dung bài viết\nToggle\nNguyên nhân hẹp bao quy đầu\nHẹp bao quy đầu có nguy hiểm không?\nBệnh viêm nhiễm sinh dục\nSẹo xơ trên bao\nNghẹt quy đầu\nUng thư dương vật\nVô sinh\nHẹp bao quy đầu có ảnh hưởng gì không?\nĐối với trẻ em\nĐối với người lớn\nCách điều trị hẹp bao quy đầu\n\nHẹp bao quy đầu là tình trạng bao quy đầu không thể rút lại (kéo về phía sau) từ xung quanh đầu dương vật. Hẹp bao quy đầu là tình trạng khá thường gặp ở nam giới.Tuy không được xem là một bệnh lý nghiêm trọng nhưng nhiều người vẫn luôn bận tâm rằng “Hẹp bao quy đầu có nguy hiểm không?”. Hãy cùng Bác sĩ Phan Văn Giáo tháo gỡ mối bận tâm này cho bạn, cũng như tìm hiểu về những ảnh hưởng của bệnh và cách điều trị hiệu quả qua bài viết dưới đây.\nNguyên nhân hẹp bao quy đầu\nHẹp bao quy đầu là bình thường ở trẻ chưa cắt bao quy đầu và trẻ mới biết đi, vì bao quy đầu vẫn còn dính vào quy đầu. Nó sẽ bắt đầu tách ra một cách tự nhiên từ 2 đến 6 tuổi, mặc dù nó có thể xảy ra muộn hơn. Bao quy đầu có thể tự tuột vào khoảng 10 tuổi, ở một số bé "
+    },
+    "764534": {
+      "tags": [
+        "toc_marker"
+      ],
+      "url": "https://youmed.vn/tin-tuc/thuoc-dermovate-clobetasol/",
+      "input_line": 9090,
+      "source_head": "Bạn biết gì về thuốc bôi da Dermovate (clobetasol)?\nNội dung bài viết\nToggle\nThuốc Dermovate (clobetasol) là thuốc gì?\nThuốc Dermovate cream 15 g giá bao nhiêu?\nThuốc Dermovate có tác dụng gì?\nCách sử dụng thuốc Dermovate\nCó nên ngừng thuốc khi bệnh được kiểm soát?\nTrường hợp không nên sử dụng thuốc\nTác dụng phụ khi dùng thuốc\nTương tác thuốc với Dermovate\nCách bảo quản thuốc\n\nThuốc Dermovate (clobetasol) thường được sử dụng trong các trường hợp da bị ngứa, viêm da dị ứng. Vậy thuốc này còn sử dụng trong những trường hợp nào nữa không? Hãy cùng tìm hiểu về loại thuốc này qua bài viết sau của Dược sĩ Trịnh Anh Thoa.\nThành phần hoạt chất: clobetasol.\nNhà sản xuất : Glaxo Operation UK Limited.\nThuốc chứa thành phần tương tự: Eumovate.\nThuốc Dermovate (clobetasol) là thuốc gì?\nHoạt chất chính của thuốc là clobetasol, một corticosteroid tổng hợp. Vì thế thuốc có tác dụng tại chỗ tác dụng như chất chống viêm thông qua nhiều cơ chế ức chế phản ứng dị ứng pha muộn bao gồm:\nGiảm mật độ tế bào mast.\nỨc chế chuyển hóa acid arachidonic.\nGiảm hóa ứng động và hoạt hóa bạch cầu ái toan.\nGiảm sản sinh cytokine từ tế bào lympho, tế bào mono, tế bào mast và bạch cầu ái toan.\n\nThuốc Dermovate (clobetasol) có đặc tính chống viêm, chống ngứa và co mạch.\nKem bôi Dermovate 15 g\nThuốc Dermovate cream 15 g giá bao nhiêu?\nDermovate cream 15 gam có giá bán tham khảo 75.000 VNĐ/ Hộp 1 tuýp.\nHiện thuốc có bán phổ biến tại các nhà thuốc trên toàn quốc, giá bán có thể thay đổi tùy vào thời điểm và nhà cung cấp.\nThuốc Dermovate có tác dụng gì?\nThuốc sử dụng cho người lớn và trẻ em trên 12 tuổi nhằm làm giảm các triệu chứng viêm và ngứa của các bệnh da đáp ứng với steroid.\nCác bệnh này bao gồm:\nLichen phẳng.\nLupus ban đỏ dạng đĩa.\nViêm da dai dẳng khó chữa.\nBệnh vảy nến (trừ dạng mảng lan rộng).\n\nMột số bệnh da khác không đáp ứng thỏa đáng với các steroid hiệu lực thấp hơn.\nBạn nên thảo luận dùng bác sĩ trước khi dùng thuốc cho phụ nữ có thai và cho con bú.\nCách sử dụng thuốc Dermovate\nDermovate đư",
+      "cleaning_warnings": [],
+      "toc_excerpt": "n biết gì về thuốc bôi da Dermovate (clobetasol)?\nNội dung bài viết\nToggle\nThuốc Dermovate (clobetasol) là thuốc gì?\nThuốc Dermovate cream 15 g giá bao nhiêu?\nThuốc Dermovate có tác dụng gì?\nCách sử dụng thuốc Dermovate\nCó nên ngừng thuốc khi bệnh được kiểm soát?\nTrường hợp không nên sử dụng thuốc\nTác dụng phụ khi dùng thuốc\nTương tác thuốc với Dermovate\nCách bảo quản thuốc\n\nThuốc Dermovate (clobetasol) thường được sử dụng trong các trường hợp da bị ngứa, viêm da dị ứng. Vậy thuốc này còn sử dụng trong những trường hợp nào nữa không? Hãy cùng tìm hiểu về loại thuốc này qua bài viết sau của Dược sĩ Trịnh Anh Thoa.\nThành phần hoạt chất: clobetasol.\nNhà sản xuất : Glaxo Operation UK Limited.\nThuốc chứa thành phần tương tự: Eumovate.\nThuốc Dermovate (clobetasol) là thuốc gì?\nHoạt chất chính của thuốc là clobetasol, một corticosteroid tổng hợp. Vì thế thuốc có tác dụng tại chỗ tác dụng như chất chống viêm thông qua nhiều cơ chế ức chế phản ứng dị ứng pha muộn bao gồm:\nGiảm mật độ tế bào mast.\nỨc chế chuyển hóa acid arachidonic.\nGiảm hóa ứng động và hoạt hó"
+    },
+    "763547": {
+      "tags": [
+        "toc_marker"
+      ],
+      "url": "https://youmed.vn/tin-tuc/ra-mau-am-dao/",
+      "input_line": 9146,
+      "source_head": "Ra máu âm đạo ít có phải đã mang thai?\nNội dung bài viết\nToggle\nDịch âm đạo\nSinh lý tự nhiên ở nữ\nCác tính chất được xem là “máu báo”\nCác trường hợp khác\nRụng trứng\nKhối u lành tính ở tử cung\nSự phục hồi tử cung sau thai kì\nThai ngoài tử cung\nDọa sảy thai\nDo bệnh phụ khoa\nKết luận\n\nỞ nữ giới, đôi khi vùng âm đạo có xuất một ít dịch. Dịch âm đạo khá đa dạng, về máu sắc, lượng và tính chất dịch. Vậy đối với dịch âm đạo màu đỏ, ra ít, liệu là dấu hiệu gì? Mong rằng bài viết bên dưới có thể cung cấp đủ thông tin giải đáp ra máu âm đạo ít có phải đã mang thai không.\nBạn đã biết gì về “cậu bé” của nam giới? Mời bạn xem thêm video dưới đây để hiểu rõ hơn những vấn đề thường gặp của “cậu bé” nhé!\nDịch âm đạo\nÂm đạo được xem là “cửa ngõ” của tử cung. Việc âm đạo xuất hiện các dịch tiết thường được phụ nữ quan tâm lưu ý. Điều đó đôi khi phản ánh sức khỏe của các bạn.\nNội dung bài viết này đề cập đến vấn đề dịch tiết âm đạo có màu đỏ, nâu hoặc bầm. Và vấn đề được đặt ra trong trường hợp: Bạn đã có quan hệ tình dục hoặc đã tham gia kĩ thuật thụ tinh. Chúng ta chỉ xoay quanh vấn đề này mà thôi.\nDịch âm đạo do âm đạo, tuyến bài tiết ở cổ tử cung và đôi khi kể cả trong lòng tử cung xuất tiết. Dịch có màu sắc như đề cập ở trên mang cho các bạn lo lắng. Trước hết về màu sắc. Ở phụ nữ, mỗi tháng đều có hiện tượng rụng trứng, đi kèm việc dày lên của niêm mạc tử cung. Sau đó, nếu không được thụ tinh, tử cung sẽ phục hồi. Phần niêm mạc này bị bong ra, được đẩy ra ngoài kèm với dịch âm đạo và một ít máu tươi. Đó là kinh nguyệt bình thường của phụ nữ.\n\nChúng ta tập trung vào trường hợp: dịch tiết ra tính chất khác máu kinh. Dịch tiết có thể màu nâu hay nâu đỏ, lượng ít hơn máu kinh. Dịch có thể sệt hoặc loãng hơn. Vậy vấn đề đó có trong các trường hợp nào?\nDịch âm đạo có rất nhiều tính chất khác nhau\nSinh lý tự nhiên ở nữ\nBình thường, sau khi thụ tinh, phôi thai được vận động vào buồng tử qua vòi trứng. Sau khi vận động vào buồng tử cung, phôi thai bám vào lớp niêm mạc tử cung. Điều đó đô",
+      "cleaning_warnings": [],
+      "toc_excerpt": "Ra máu âm đạo ít có phải đã mang thai?\nNội dung bài viết\nToggle\nDịch âm đạo\nSinh lý tự nhiên ở nữ\nCác tính chất được xem là “máu báo”\nCác trường hợp khác\nRụng trứng\nKhối u lành tính ở tử cung\nSự phục hồi tử cung sau thai kì\nThai ngoài tử cung\nDọa sảy thai\nDo bệnh phụ khoa\nKết luận\n\nỞ nữ giới, đôi khi vùng âm đạo có xuất một ít dịch. Dịch âm đạo khá đa dạng, về máu sắc, lượng và tính chất dịch. Vậy đối với dịch âm đạo màu đỏ, ra ít, liệu là dấu hiệu gì? Mong rằng bài viết bên dưới có thể cung cấp đủ thông tin giải đáp ra máu âm đạo ít có phải đã mang thai không.\nBạn đã biết gì về “cậu bé” của nam giới? Mời bạn xem thêm video dưới đây để hiểu rõ hơn những vấn đề thường gặp của “cậu bé” nhé!\nDịch âm đạo\nÂm đạo được xem là “cửa ngõ” của tử cung. Việc âm đạo xuất hiện các dịch tiết thường được phụ nữ quan tâm lưu ý. Điều đó đôi khi phản ánh sức khỏe của các bạn.\nNội dung bài viết này đề cập đến vấn đề dịch tiết âm đạo có màu đỏ, nâu hoặc bầm. Và vấn đề được đặt ra trong trường hợp: Bạn đã có quan hệ tình dục hoặc đã tham gia kĩ thuật thụ tinh. C"
+    },
+    "570700": {
+      "tags": [
+        "toc_marker"
+      ],
+      "url": "https://tamanhhospital.vn/tin-tuc/hoi-nghi-khoa-hoc-thuong-nien-2023-vaas-has-haa/",
+      "input_line": 9220,
+      "source_head": "TT Chấn thương chỉnh hình tham gia Hội nghị Khoa học thường niên 2023 VAAS – HAS – HAA\nĐông đảo đội ngũ chuyên gia Nội soi khớp – Thay khớp – Y học thể thao của Hệ thống Bệnh viện đa khoa Tâm Anh hai miền đã cùng 600 chuyên gia, các bác sĩ trong nước và quốc tế đã hội ngộ tại Huế (25-27/5/2023), báo cáo trao đổi cập nhật thông tin kỹ thuật mới nhất trong lĩnh vực nội soi khớp và thay khớp.\nVào ngày 25 – 27/05/2023, một lực lượng đông đảo các chuyên gia Thay khớp – Nội soi khớp – Y học thể thao của Hệ thống BVĐK Tâm Anh đã đến tham dự, báo cáo nghiên cứu khoa học, trao đổi kiến thức…. với đồng nghiệp quốc tế và 600 bác sĩ trong cả nước tại Hội nghị Khoa học thường niên 2023 với chủ đề: Những cập nhật trong phẫu thuật thay khớp và nội soi khớp.\n\nĐây là Hội nghị Khoa học thường niên kết hợp giữa Hội Nội soi và Thay khớp Việt Nam (VAAS) lần thứ II, Liên chi hội Nội soi Cơ xương khớp TP.HCM (HAS) lần IX và Liên chi hội Thay khớp TP.HCM lần V (HAA). Đại diện Hệ thống BVĐK Tâm Anh, có sự tham gia của các bác sĩ, chuyên gia như:\nThS.BS.CKII Trần Anh Vũ, (Trưởng khoa Y học thể thao & Nội soi, Phó giám đốc Trung tâm Chấn thương Chỉnh hình) – Ủy viên Hội Nội soi Cơ xương khớp TP.HCM (HAS)\nThS.BS.CKI Lê Đình Khoa (Trưởng khoa Tái tạo khớp – Trung tâm Chấn thương Chỉnh hình BVĐK Tâm Anh Tp.HCM)\nThS.BS Nguyễn Quang Tôn Quyền (Phó khoa Chấn thương Chỉnh hình – BVĐK Tâm Anh Hà Nội) – Ủy viên Hội Nội soi và thay khớp Việt Nam (VAAS)\nThS.BS.CKI Đặng Khoa Học (Bác sĩ Trung tâm Chấn thương Chỉnh hình – BVĐK Tâm Anh Tp.HCM)\nThS.BSNT Vũ Trung Hiếu (Trung tâm Chấn thương Chỉnh hình – BVĐK Tâm Anh Hà Nội)\nThS.BS Nguyễn Ngọc Hân (Trung tâm Chấn thương Chỉnh hình – BVĐK Tâm Anh Hà Nội)\n\nHơn 100 báo cáo khoa học xoay quanh chủ đề “Những cập nhật trong phẫu thuật thay khớp và nội soi khớp” đã được báo cáo bởi chuyên gia, bác sĩ trong lĩnh vực nội soi khớp, thay khớp và y học thể thao đến từ Hoa Kỳ, Úc, Hàn Quốc, Singapore, Thái Lan… và Hội Nội soi khớp – Y học Thể thao Đông Nam Á (ASSA). Từ đó",
+      "cleaning_warnings": [],
+      "toc_excerpt": " báo cáo các chủ đề với thời gian cụ thể như sau:\nMục lục\n1. Ngày 26/05/2023\n2. Ngày 27/05/2023\nNgày 26/05/2023\nThS.BS.CKII Trần Anh Vũ báo cáo chuyên đề “Khâu dây chằng chéo trước bằng kỹ thuật Internal Brace”\nNgày 27/05/2023\nThS.BSNT Vũ Trung Hiếu báo cáo chuyên đề “Mảnh ghép gân tứ đầu nông lựa chọn mới cho tái tạo dây chằng chéo trước: nghiên cứu so sánh chức năng và cơ lực với mảnh ghép gân Hamstring”\nThS.BS.CKI Đặng Khoa Học báo cáo chuyên đề “Kết quả thay khớp gối theo động học sử dụng thiết kế medial pivot tại BVĐK Tâm Anh TP.HCM”\nThS.BS Nguyễn Quang Tôn Quyền báo cáo chuyên đề “Cố định gân ngoại khớp trong tái tạo dây chằng chéo trước: kỹ thuật để tránh trùng lấp đường hầm”\nThS.BS Nguyễn Ngọc Hân báo cáo chuyên đề “Thay khớp háng qua đường mổ trước trực tiếp Bikini: định vị cấu phần ổ cối theo mốc giải phẫu”\nThS.BS.CKI Lê Đình Khoa báo cáo chuyên đề “Đánh giá hiệu quả chiến lược giảm đau phòng ngừa ở bệnh nhân thay toàn bộ khớp gối tại BVĐK Tâm Anh TP.HCM”\n\nĐến với hội nghị lần này, Trung tâm Chấn thương Chỉnh hình – Hệ thống BVĐK T"
+    }
+  }
+}
