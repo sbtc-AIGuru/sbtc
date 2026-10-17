@@ -6,6 +6,16 @@ build-backend = "setuptools.build_meta"
 include = ["BackEnd*"]
 namespaces = false
 
+[tool.setuptools.package-data]
+"BackEnd.app.Retrieval" = [
+    "configs/*.toml",
+    "configs/*.json",
+    "resources/*.json",
+    "resources/*.txt",
+    "requirements*.txt",
+    "taxonomy/requirements.txt",
+]
+
 [project]
 name="sbtc-AIGuru"
 version="0.1"

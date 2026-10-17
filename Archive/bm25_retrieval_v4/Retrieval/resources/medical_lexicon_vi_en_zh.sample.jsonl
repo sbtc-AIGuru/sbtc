@@ -1,8 +1,0 @@
-{"concept_id": "Q12136", "type": "disease", "labels": {"vi": "suy thận", "en": "renal failure", "zh": "肾衰竭"}, "aliases": ["kidney failure", "hỏng thận", "bệnh thận mạn"], "ambiguity": false}
-{"concept_id": "Q12206", "type": "disease", "labels": {"vi": "tiểu đường", "en": "diabetes mellitus", "zh": "糖尿病"}, "aliases": ["đái tháo đường", "diabetes", "bệnh tiểu đường"], "ambiguity": false}
-{"concept_id": "Q12152", "type": "disease", "labels": {"vi": "viêm phổi", "en": "pneumonia", "zh": "肺炎"}, "aliases": ["nhiễm trùng phổi", "lung inflammation"], "ambiguity": false}
-{"concept_id": "Q12174", "type": "disease", "labels": {"vi": "cao huyết áp", "en": "hypertension", "zh": "高血压"}, "aliases": ["tăng huyết áp", "high blood pressure"], "ambiguity": false}
-{"concept_id": "Q181754", "type": "drug", "labels": {"vi": "paracetamol", "en": "paracetamol", "zh": "对乙酰氨基酚"}, "aliases": ["acetaminophen", "panadol", "hạ sốt"], "ambiguity": false}
-{"concept_id": "Q206977", "type": "drug", "labels": {"vi": "aspirin", "en": "aspirin", "zh": "阿司匹林"}, "aliases": ["acetylsalicylic acid", "thuốc kháng đông"], "ambiguity": false}
-{"concept_id": "Q80115", "type": "disease", "labels": {"vi": "ung thư phổi", "en": "lung cancer", "zh": "肺癌"}, "aliases": ["u ác tính phổi", "carcinoma of the lung"], "ambiguity": false}
-{"concept_id": "Q12156", "type": "disease", "labels": {"vi": "đột quỵ", "en": "stroke", "zh": "脑卒中"}, "aliases": ["tai biến mạch máu não", "tai biến", "apoplexy"], "ambiguity": false}

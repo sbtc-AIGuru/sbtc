@@ -24,10 +24,10 @@ from concurrent.futures import ProcessPoolExecutor, as_completed
 from pathlib import Path
 from typing import Dict, List, Optional, Set, Tuple
 
-# Thêm đường dẫn để nạp lexicon_data từ archive
+# Support direct script execution from outside the repository.
 repo_root = Path(__file__).resolve().parent.parent.parent
-sys.path.insert(0, str(repo_root / "sbtc" / "Archive" / "bm25_retrieval_v4"))
-from Retrieval.lexicon_data import (  # type: ignore
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
+from BackEnd.app.Retrieval.lexicon_data import (
     COLLOQUIAL_CONCEPTS,
     DISEASE_CONCEPTS,
     DRUG_CONCEPTS,
