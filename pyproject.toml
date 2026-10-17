@@ -11,6 +11,11 @@ name="sbtc-AIGuru"
 version="0.1"
 
 dependencies = [
-    "crawl4ai",
+    "crawl4ai==0.9.4",
+    "faiss-cpu>=1.15.1",
     "pyarrow>=25.0.1",
+    "sqlalchemy>=2.0,<3",
+    "psycopg>=3.1,<4",
+    "emoji>=2.16.0",
+    "whitespace-normalizer>=2025.9.14911",
 ]

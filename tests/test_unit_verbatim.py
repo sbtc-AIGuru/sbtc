@@ -119,6 +119,20 @@ class TestVerbatimCleaner(unittest.TestCase):
         expected = 'Bệnh nhân "A" có chỉ số < 0.10 U/L & âm tính.'
         self.assertEqual(self._clean(sample), expected)
 
+    def test_medical_comparisons_do_not_remove_intervening_paragraphs(self):
+        sample = (
+            "Liều dùng cho trẻ <5 tuổi cần được bác sĩ chỉ định.\n\n"
+            "Theo dõi huyết áp <90/60 mmHg và các triệu chứng liên quan.\n\n"
+            "Nhóm >65 tuổi cần theo dõi định kỳ. <strong>Giữ nguyên lời khuyên.</strong>"
+        )
+        cleaned = self._clean(sample)
+        self.assertIn("<5 tuổi", cleaned)
+        self.assertIn("<90/60 mmHg", cleaned)
+        self.assertIn(">65 tuổi", cleaned)
+        self.assertIn("các triệu chứng liên quan", cleaned)
+        self.assertIn("Giữ nguyên lời khuyên.", cleaned)
+        self.assertNotIn("<strong>", cleaned)
+
     def test_paragraph_structure_preserved(self):
         """Paragraph breaks (\n\n) must be preserved while intra-line spaces are collapsed."""
         sample = "Đoạn 1 chứa   nhiều    khoảng trắng.\n\n\n\nĐoạn 2 sau khoảng cách."

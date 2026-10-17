@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import argparse
+from contextlib import closing
 from itertools import chain
 import json
 from pathlib import Path
@@ -69,11 +70,15 @@ def index_results(database: sqlite3.Connection, raw: Path) -> int:
                 value = json.loads(line.decode("utf-8"))
                 if not isinstance(value, dict) or not isinstance(value.get("text"), str):
                     raise ValueError("Missing text field")
+                if "success" in value and not isinstance(value["success"], bool):
+                    raise ValueError("Invalid success flag")
+                if value.get("success", True) and not value["text"].strip():
+                    raise ValueError("Empty successful record")
+                if value.get("success") is False and (value["text"] or not value.get("error")):
+                    raise ValueError("Invalid failure record")
                 row_index = find_row_index(database, value)
-                if row_index is None:
-                    continue
-                success = int(value.get("success", True) is not False and bool(value["text"].strip()))
-                if not success and value["text"]:
+                success = int(value.get("success", True) is not False and bool(remove_link_targets(value["text"]).strip()))
+                if value.get("success") is False and value["text"]:
                     raise ValueError("Failure has nonempty text")
                 database.execute(
                     "INSERT INTO best VALUES (?, ?, ?) "
@@ -118,6 +123,11 @@ def write_canonical(
                     error="No article text after removing link targets",
                 )
                 row_success = False
+            value["success"] = row_success
+            if not row_success:
+                value["text"] = ""
+                if not value.get("error"):
+                    value["error"] = "No article text after removing link targets"
             writer.write(json.dumps(value, ensure_ascii=False) + "\n")
             if row_success:
                 success += 1
@@ -135,7 +145,7 @@ def compact(source: Path, raw: Path, output: Path, start: int, end: int) -> tupl
     output.parent.mkdir(parents=True, exist_ok=True)
     with TemporaryDirectory(prefix="crawl-compact-", dir=output.parent) as directory:
         temporary = Path(directory)
-        with sqlite3.connect(temporary / "index.sqlite3") as database:
+        with closing(sqlite3.connect(temporary / "index.sqlite3")) as database, database:
             create_index(database, source, start, end)
             raw_lines = index_results(database, raw)
             success, failed = write_canonical(

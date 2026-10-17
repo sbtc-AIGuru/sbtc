@@ -53,11 +53,11 @@ def run_shard(
         command = [
             sys.executable, str(CRAWLER),
             "--start", str(start), "--end", str(end),
-            "--batch-size", "1", "--concurrency", "1", "--http-concurrency", "1",
-            "--max-in-flight", "1", "--browser-recycle-after", "1",
+            "--batch-size", "50", "--concurrency", "2", "--http-concurrency", "8",
+            "--max-in-flight", "16", "--browser-recycle-after", "300",
             "--max-consecutive-blocked", "5",
             "--request-interval-seconds", str(request_interval_seconds),
-            "--fetch-mode", "auto", "--min-free-memory-gb", "0",
+            "--fetch-mode", "auto", "--min-free-memory-gb", "2",
             "--input", str(SOURCE), "--output", str(output),
         ]
         print(f"[Crawl shard] {start}-{end} attempt={attempt}", flush=True)

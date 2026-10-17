@@ -32,7 +32,7 @@ LONGCHAU_UI_PATTERN = re.compile(r"(?m)^[ \t]*Kích thước chữ[ \t]*\n[ \t]*
 STRIKETHROUGH_PATTERN = re.compile(r"~~(?!\s)(.+?)(?<!\s)~~")
 FENCE_PATTERN = re.compile(r"(?m)^[ \t]{0,3}(\x60{3,}|~{3,})[^\n]*\n(.*?)^[ \t]{0,3}\1[ \t]*(?:\n|$)", re.DOTALL)
 CODE_SPAN_PATTERN = re.compile(r"(?<![\\\x60])(\x60+)(?!\x60)([^\n]*?)(?<![\\\x60])\1(?!\x60)")
-ASTERISK_EMPHASIS_PATTERN = re.compile(r"(?<!\w)(\*{1,3})(?!\s)(.+?)(?<!\s)\1(?!\w)")
+ASTERISK_EMPHASIS_PATTERN = re.compile(r"(?<![^\W_])(\*{1,3})(?![\s*])(.+?)(?<!\s)\1(?![^\W_])")
 UNDERSCORE_EMPHASIS_PATTERN = re.compile(r"(?<!\w)(_{1,3})(?!\s)(.+?)(?<!\s)\1(?!\w)")
 
 PARAGRAPH_TAGS = frozenset(("p", "div", "article", "section", "h1", "h2", "h3", "h4", "h5", "h6", "blockquote", "ul", "ol", "table"))
@@ -109,6 +109,9 @@ def _html_text(text: str, state: _Cleanup) -> str:
 
     text = state.sub(HTML_TAG_PATTERN, strip_tag, text, "html_tag")
     state.warnings["incomplete_html"] += len(re.findall(r"(?:<br|</?(?:p|div|span|img)(?=[\s/]|[^\x00-\x7f]))[^\n>]*(?:\n|$)", text, re.IGNORECASE))
+    # Broken forum line breaks can run straight into Chinese article text.
+    # Remove only the tag prefix so none of that text is consumed.
+    text = state.sub(re.compile(r"<br(?=[^\x00-\x7f])", re.IGNORECASE), "\n", text, "incomplete_html_tag")
     return text
 
 

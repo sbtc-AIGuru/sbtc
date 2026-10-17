@@ -82,9 +82,11 @@ def load_url_range(
 
 
 def load_completed_ids(
-    output: Path, repair_tail: bool = False, include_failed: bool = False
+    output: Path, repair_tail: bool = False,
+    row_completion: dict[int, tuple[int, str]] | None = None,
+    legacy_completion: dict[int, str] | None = None,
 ) -> dict[int, str]:
-    """Read recorded IDs and URLs, optionally treating failures as complete."""
+    """Read successful IDs and their original URLs from an existing JSONL file."""
     completed: dict[int, str] = {}
     if not output.exists():
         return completed
@@ -103,6 +105,10 @@ def load_completed_ids(
                     include_failed and record.get("success") is False
                 ):
                     completed[int(record["id"])] = str(record["url"])
+                    if row_completion is not None and "row_index" in record:
+                        row_completion[int(record["row_index"])] = (int(record["id"]), str(record["url"]))
+                    elif legacy_completion is not None:
+                        legacy_completion[int(record["id"])] = str(record["url"])
                 if repair_tail and not line.endswith(b"\n"):
                     # A complete final JSON object still needs a separator before append.
                     with output.open("ab") as writable:
@@ -135,6 +141,8 @@ class JsonlWriter:
         self.output = output
         self.skip_failed_on_resume = skip_failed_on_resume
         self.completed_ids: dict[int, str] = {}
+        self.completed_rows: dict[int, tuple[int, str]] = {}
+        self.legacy_completed_ids: dict[int, str] = {}
         self._lock: TextIO | None = None
         self._handle: TextIO | None = None
 
@@ -145,9 +153,8 @@ class JsonlWriter:
         try:
             fcntl.flock(self._lock.fileno(), fcntl.LOCK_EX | fcntl.LOCK_NB)
             self.completed_ids = load_completed_ids(
-                self.output,
-                repair_tail=True,
-                include_failed=self.skip_failed_on_resume,
+                self.output, repair_tail=True, row_completion=self.completed_rows,
+                legacy_completion=self.legacy_completed_ids,
             )
             self._handle = self.output.open("a", encoding="utf-8", buffering=1)
         except (OSError, ValueError):

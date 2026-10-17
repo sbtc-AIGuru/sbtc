@@ -1,0 +1,452 @@
+[
+  {
+    "query_id": "q01",
+    "text": "Khách hàng có thể kiểm tra nguồn gốc thuốc mua tại nhà thuốc An Khang bằng cách nào?",
+    "source_vector_id": 39902,
+    "source_doc_id": 110787,
+    "source_sampling_seed": 42,
+    "query_kind": "corpus_informed_paraphrase",
+    "human_relevance_label": false
+  },
+  {
+    "query_id": "q02",
+    "text": "Vì sao rung lắc trẻ sơ sinh có thể gây tổn thương não và hệ thần kinh?",
+    "source_vector_id": 50884,
+    "source_doc_id": 113727,
+    "source_sampling_seed": 42,
+    "query_kind": "corpus_informed_paraphrase",
+    "human_relevance_label": false
+  },
+  {
+    "query_id": "q03",
+    "text": "Nicotine trong thuốc lá ảnh hưởng thế nào đến giấc ngủ?",
+    "source_vector_id": 44655,
+    "source_doc_id": 112106,
+    "source_sampling_seed": 42,
+    "query_kind": "corpus_informed_paraphrase",
+    "human_relevance_label": false
+  },
+  {
+    "query_id": "q04",
+    "text": "Ăn quá nhiều táo có thể ảnh hưởng gì đến lượng đường trong máu và cân nặng?",
+    "source_vector_id": 8847,
+    "source_doc_id": 103037,
+    "source_sampling_seed": 42,
+    "query_kind": "corpus_informed_paraphrase",
+    "human_relevance_label": false
+  },
+  {
+    "query_id": "q05",
+    "text": "Bếp ăn trường học phải kiểm soát và lưu mẫu thực phẩm theo quy trình nào?",
+    "source_vector_id": 77200,
+    "source_doc_id": 118434,
+    "source_sampling_seed": 42,
+    "query_kind": "corpus_informed_paraphrase",
+    "human_relevance_label": false
+  },
+  {
+    "query_id": "q06",
+    "text": "Glutathione có vai trò gì trong việc làm sáng da và giảm sắc tố melanin?",
+    "source_vector_id": 96269,
+    "source_doc_id": 120723,
+    "source_sampling_seed": 42,
+    "query_kind": "corpus_informed_paraphrase",
+    "human_relevance_label": false
+  },
+  {
+    "query_id": "q07",
+    "text": "Trong tử vi ngày 24 tháng 11 năm 2020, tuổi Mùi được nhắc nhở gì về sức khỏe?",
+    "source_vector_id": 63843,
+    "source_doc_id": 116155,
+    "source_sampling_seed": 42,
+    "query_kind": "corpus_informed_paraphrase",
+    "human_relevance_label": false
+  },
+  {
+    "query_id": "q08",
+    "text": "Tại sao đánh và quát mắng trẻ không phải cách dạy con hiệu quả?",
+    "source_vector_id": 69472,
+    "source_doc_id": 116669,
+    "source_sampling_seed": 42,
+    "query_kind": "corpus_informed_paraphrase",
+    "human_relevance_label": false
+  },
+  {
+    "query_id": "q09",
+    "text": "Cha mẹ nên tiếp cận và chia sẻ với con về tâm sinh lý tuổi dậy thì như thế nào?",
+    "source_vector_id": 27445,
+    "source_doc_id": 107782,
+    "source_sampling_seed": 42,
+    "query_kind": "corpus_informed_paraphrase",
+    "human_relevance_label": false
+  },
+  {
+    "query_id": "q10",
+    "text": "Những thành phần nào trong dầu gội và sản phẩm chăm sóc da có thể gây kích ứng?",
+    "source_vector_id": 44201,
+    "source_doc_id": 111986,
+    "source_sampling_seed": 42,
+    "query_kind": "corpus_informed_paraphrase",
+    "human_relevance_label": false
+  },
+  {
+    "query_id": "q11",
+    "text": "Đau bụng dưới khi mang thai tháng thứ tư cần được kiểm tra như thế nào?",
+    "source_vector_id": 35159,
+    "source_doc_id": 109609,
+    "source_sampling_seed": 42,
+    "query_kind": "corpus_informed_paraphrase",
+    "human_relevance_label": false
+  },
+  {
+    "query_id": "q12",
+    "text": "Tử vi tuổi Ngọ ngày 1 tháng 10 năm 2021 nói gì về công việc và quan hệ xã giao?",
+    "source_vector_id": 67235,
+    "source_doc_id": 116431,
+    "source_sampling_seed": 42,
+    "query_kind": "corpus_informed_paraphrase",
+    "human_relevance_label": false
+  },
+  {
+    "query_id": "q13",
+    "text": "Nhảy dây thường xuyên có lợi gì cho hệ tim mạch và khả năng phối hợp vận động?",
+    "source_vector_id": 42926,
+    "source_doc_id": 111588,
+    "source_sampling_seed": 42,
+    "query_kind": "corpus_informed_paraphrase",
+    "human_relevance_label": false
+  },
+  {
+    "query_id": "q14",
+    "text": "Vì sao mẹ đang cho con bú cần lưu ý khi dùng bạc hà và các sản phẩm từ sữa?",
+    "source_vector_id": 6735,
+    "source_doc_id": 102542,
+    "source_sampling_seed": 42,
+    "query_kind": "corpus_informed_paraphrase",
+    "human_relevance_label": false
+  },
+  {
+    "query_id": "q15",
+    "text": "Suy giãn tĩnh mạch chân xảy ra do đâu và tại sao nên phát hiện sớm?",
+    "source_vector_id": 77935,
+    "source_doc_id": 118577,
+    "source_sampling_seed": 42,
+    "query_kind": "corpus_informed_paraphrase",
+    "human_relevance_label": false
+  },
+  {
+    "query_id": "q16",
+    "text": "Phụ nữ mang thai có nên chạy bộ và điều gì quyết định khả năng vận động?",
+    "source_vector_id": 52195,
+    "source_doc_id": 114051,
+    "source_sampling_seed": 42,
+    "query_kind": "corpus_informed_paraphrase",
+    "human_relevance_label": false
+  },
+  {
+    "query_id": "q17",
+    "text": "Hội chứng cai rượu có thể gây sốt, run và mê sảng không?",
+    "source_vector_id": 49610,
+    "source_doc_id": 113399,
+    "source_sampling_seed": 42,
+    "query_kind": "corpus_informed_paraphrase",
+    "human_relevance_label": false
+  },
+  {
+    "query_id": "q18",
+    "text": "Điều trị ung thư đầu cổ hướng đến những mục tiêu nào ngoài loại bỏ khối u?",
+    "source_vector_id": 75181,
+    "source_doc_id": 117991,
+    "source_sampling_seed": 42,
+    "query_kind": "corpus_informed_paraphrase",
+    "human_relevance_label": false
+  },
+  {
+    "query_id": "q19",
+    "text": "Đánh răng như thế nào để hạn chế tổn thương nướu và mòn men răng?",
+    "source_vector_id": 19973,
+    "source_doc_id": 105944,
+    "source_sampling_seed": 42,
+    "query_kind": "corpus_informed_paraphrase",
+    "human_relevance_label": false
+  },
+  {
+    "query_id": "q20",
+    "text": "Nước sốt mè rang có phù hợp cho món salad giảm cân và có thể tự làm tại nhà không?",
+    "source_vector_id": 83260,
+    "source_doc_id": 119388,
+    "source_sampling_seed": 42,
+    "query_kind": "corpus_informed_paraphrase",
+    "human_relevance_label": false
+  },
+  {
+    "query_id": "q21",
+    "text": "Chất xơ hòa tan và không hòa tan khác nhau thế nào trong chế độ ăn?",
+    "source_vector_id": 54994,
+    "source_doc_id": 114727,
+    "source_sampling_seed": 42,
+    "query_kind": "corpus_informed_paraphrase",
+    "human_relevance_label": false
+  },
+  {
+    "query_id": "q22",
+    "text": "Người thiếu vitamin B2 có thể bổ sung từ những nguồn thực phẩm nào?",
+    "source_vector_id": 81583,
+    "source_doc_id": 119198,
+    "source_sampling_seed": 42,
+    "query_kind": "corpus_informed_paraphrase",
+    "human_relevance_label": false
+  },
+  {
+    "query_id": "q23",
+    "text": "Ngủ trưa quá lâu vì sao có thể gây choáng và đau đầu khi thức dậy?",
+    "source_vector_id": 16385,
+    "source_doc_id": 104961,
+    "source_sampling_seed": 42,
+    "query_kind": "corpus_informed_paraphrase",
+    "human_relevance_label": false
+  },
+  {
+    "query_id": "q24",
+    "text": "Ăn tiết canh hoặc thịt lợn chưa chín có liên quan thế nào đến nhiễm liên cầu lợn?",
+    "source_vector_id": 69135,
+    "source_doc_id": 116594,
+    "source_sampling_seed": 42,
+    "query_kind": "corpus_informed_paraphrase",
+    "human_relevance_label": false
+  },
+  {
+    "query_id": "q25",
+    "text": "Người dị ứng với đào và cherry có cần thận trọng khi ăn mận hậu không?",
+    "source_vector_id": 88047,
+    "source_doc_id": 119881,
+    "source_sampling_seed": 42,
+    "query_kind": "corpus_informed_paraphrase",
+    "human_relevance_label": false
+  },
+  {
+    "query_id": "q26",
+    "text": "Quế có những tác dụng nào được nhắc đến đối với đường huyết và chuyển hóa?",
+    "source_vector_id": 88577,
+    "source_doc_id": 119940,
+    "source_sampling_seed": 42,
+    "query_kind": "corpus_informed_paraphrase",
+    "human_relevance_label": false
+  },
+  {
+    "query_id": "q27",
+    "text": "Vì sao không nên dùng thùng sơn hoặc hộp nhựa không phù hợp để muối dưa hành?",
+    "source_vector_id": 43507,
+    "source_doc_id": 111762,
+    "source_sampling_seed": 42,
+    "query_kind": "corpus_informed_paraphrase",
+    "human_relevance_label": false
+  },
+  {
+    "query_id": "q28",
+    "text": "Lòng đỏ và lòng trắng trứng khác nhau thế nào về protein và chất dinh dưỡng?",
+    "source_vector_id": 9136,
+    "source_doc_id": 103126,
+    "source_sampling_seed": 42,
+    "query_kind": "corpus_informed_paraphrase",
+    "human_relevance_label": false
+  },
+  {
+    "query_id": "q29",
+    "text": "Làm khoai tây chiên tại nhà thế nào để giòn và đảm bảo vệ sinh thực phẩm?",
+    "source_vector_id": 85117,
+    "source_doc_id": 119573,
+    "source_sampling_seed": 42,
+    "query_kind": "corpus_informed_paraphrase",
+    "human_relevance_label": false
+  },
+  {
+    "query_id": "q30",
+    "text": "Nước mía chứa những khoáng chất và hợp chất thực vật nào được bài viết đề cập?",
+    "source_vector_id": 91892,
+    "source_doc_id": 120274,
+    "source_sampling_seed": 42,
+    "query_kind": "corpus_informed_paraphrase",
+    "human_relevance_label": false
+  },
+  {
+    "query_id": "q31",
+    "text": "Tử vi ngày 7 tháng 9 đưa ra lời nhắc gì cho cung Bạch Dương về tình cảm?",
+    "source_vector_id": 62642,
+    "source_doc_id": 115994,
+    "source_sampling_seed": 42,
+    "query_kind": "corpus_informed_paraphrase",
+    "human_relevance_label": false
+  },
+  {
+    "query_id": "q32",
+    "text": "Tử vi tuổi Hợi khuyên gì về tiết kiệm tiền và quan tâm đến người bạn đời?",
+    "source_vector_id": 64889,
+    "source_doc_id": 116240,
+    "source_sampling_seed": 42,
+    "query_kind": "corpus_informed_paraphrase",
+    "human_relevance_label": false
+  },
+  {
+    "query_id": "q33",
+    "text": "Phòng khám Vinmec Dương Đông đáp ứng nhu cầu chăm sóc sức khỏe nào tại Phú Quốc?",
+    "source_vector_id": 72944,
+    "source_doc_id": 117482,
+    "source_sampling_seed": 42,
+    "query_kind": "corpus_informed_paraphrase",
+    "human_relevance_label": false
+  },
+  {
+    "query_id": "q34",
+    "text": "Những thói quen hằng ngày nào giúp cuộc sống vui vẻ và hạnh phúc hơn?",
+    "source_vector_id": 44668,
+    "source_doc_id": 112108,
+    "source_sampling_seed": 42,
+    "query_kind": "corpus_informed_paraphrase",
+    "human_relevance_label": false
+  },
+  {
+    "query_id": "q35",
+    "text": "Dầu dừa và dầu bơ được sử dụng như thế nào để chăm sóc tóc khô?",
+    "source_vector_id": 96725,
+    "source_doc_id": 120768,
+    "source_sampling_seed": 42,
+    "query_kind": "corpus_informed_paraphrase",
+    "human_relevance_label": false
+  },
+  {
+    "query_id": "q36",
+    "text": "Vì sao chế độ ăn chay được nhiều người trẻ lựa chọn để cải thiện sức khỏe?",
+    "source_vector_id": 71134,
+    "source_doc_id": 117055,
+    "source_sampling_seed": 42,
+    "query_kind": "corpus_informed_paraphrase",
+    "human_relevance_label": false
+  },
+  {
+    "query_id": "q37",
+    "text": "Vitamin B trong chuối có liên quan thế nào đến hệ thần kinh và tâm trạng?",
+    "source_vector_id": 6328,
+    "source_doc_id": 102441,
+    "source_sampling_seed": 42,
+    "query_kind": "corpus_informed_paraphrase",
+    "human_relevance_label": false
+  },
+  {
+    "query_id": "q38",
+    "text": "Công đoàn ngành y tế Hà Nội biểu dương gia đình và con em cán bộ theo những hoạt động nào?",
+    "source_vector_id": 75462,
+    "source_doc_id": 118048,
+    "source_sampling_seed": 42,
+    "query_kind": "corpus_informed_paraphrase",
+    "human_relevance_label": false
+  },
+  {
+    "query_id": "q39",
+    "text": "Dùng chất tẩy rửa không rõ nguồn gốc có thể gây hại cho sức khỏe qua những đường nào?",
+    "source_vector_id": 43968,
+    "source_doc_id": 111915,
+    "source_sampling_seed": 42,
+    "query_kind": "corpus_informed_paraphrase",
+    "human_relevance_label": false
+  },
+  {
+    "query_id": "q40",
+    "text": "Các bước sơ chế, nhào bột và chiên khoai lang kén giòn gồm những gì?",
+    "source_vector_id": 85114,
+    "source_doc_id": 119572,
+    "source_sampling_seed": 42,
+    "query_kind": "corpus_informed_paraphrase",
+    "human_relevance_label": false
+  },
+  {
+    "query_id": "q41",
+    "text": "Gừng và bí đao được bài viết nhắc đến như thế nào khi hỗ trợ giảm buồn nôn ở bà bầu?",
+    "source_vector_id": 54084,
+    "source_doc_id": 114503,
+    "source_sampling_seed": 42,
+    "query_kind": "corpus_informed_paraphrase",
+    "human_relevance_label": false
+  },
+  {
+    "query_id": "q42",
+    "text": "Cà phê và giày cao gót có thể liên quan thế nào đến đau thắt lưng?",
+    "source_vector_id": 22533,
+    "source_doc_id": 106570,
+    "source_sampling_seed": 42,
+    "query_kind": "corpus_informed_paraphrase",
+    "human_relevance_label": false
+  },
+  {
+    "query_id": "q43",
+    "text": "Gạo lứt được bài viết đề cập có lợi ích gì cho da, tiêu hóa và mắt?",
+    "source_vector_id": 8520,
+    "source_doc_id": 102945,
+    "source_sampling_seed": 42,
+    "query_kind": "corpus_informed_paraphrase",
+    "human_relevance_label": false
+  },
+  {
+    "query_id": "q44",
+    "text": "Giảm cân bền vững cần thay đổi chế độ ăn và vận động như thế nào?",
+    "source_vector_id": 77496,
+    "source_doc_id": 118489,
+    "source_sampling_seed": 42,
+    "query_kind": "corpus_informed_paraphrase",
+    "human_relevance_label": false
+  },
+  {
+    "query_id": "q45",
+    "text": "Huyện Hoài Đức đang quản lý và vận động chấp hành an toàn thực phẩm theo hướng nào?",
+    "source_vector_id": 76723,
+    "source_doc_id": 118328,
+    "source_sampling_seed": 42,
+    "query_kind": "corpus_informed_paraphrase",
+    "human_relevance_label": false
+  },
+  {
+    "query_id": "q46",
+    "text": "Tìm bài viết về xử lý tình huống trẻ uống nhầm thuốc hoặc hóa chất độc hại.",
+    "source_vector_id": 18100,
+    "source_doc_id": 105491,
+    "source_sampling_seed": 42,
+    "query_kind": "corpus_informed_paraphrase",
+    "human_relevance_label": false
+  },
+  {
+    "query_id": "q47",
+    "text": "Khi tắm, vì sao cần tránh thay đổi nhiệt độ cơ thể đột ngột?",
+    "source_vector_id": 36765,
+    "source_doc_id": 110016,
+    "source_sampling_seed": 42,
+    "query_kind": "corpus_informed_paraphrase",
+    "human_relevance_label": false
+  },
+  {
+    "query_id": "q48",
+    "text": "Phòng tránh bệnh lây truyền qua đường tình dục cần lưu ý những biện pháp nào?",
+    "source_vector_id": 12702,
+    "source_doc_id": 104049,
+    "source_sampling_seed": 42,
+    "query_kind": "corpus_informed_paraphrase",
+    "human_relevance_label": false
+  },
+  {
+    "query_id": "q49",
+    "text": "Bài viết nêu những sai lầm nào của bà bầu có thể liên quan đến động thai hoặc sinh non?",
+    "source_vector_id": 9336,
+    "source_doc_id": 103177,
+    "source_sampling_seed": 42,
+    "query_kind": "corpus_informed_paraphrase",
+    "human_relevance_label": false
+  },
+  {
+    "query_id": "q50",
+    "text": "Thịt vịt có bao nhiêu năng lượng và những chất dinh dưỡng chính nào?",
+    "source_vector_id": 82074,
+    "source_doc_id": 119252,
+    "source_sampling_seed": 42,
+    "query_kind": "corpus_informed_paraphrase",
+    "human_relevance_label": false
+  }
+]

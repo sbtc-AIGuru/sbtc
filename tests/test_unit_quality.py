@@ -10,7 +10,7 @@ from pathlib import Path
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(PROJECT_ROOT / "Scripts/Clawler"))
 
-from quality import ARTICLE_LAYOUTS, http_article_error
+from quality import ARTICLE_LAYOUTS, article_content_issue, article_metadata, http_article_error
 
 
 class MockResult:
@@ -21,6 +21,109 @@ class MockResult:
 class TestQualityModule(unittest.TestCase):
     """Test ARTICLE_LAYOUTS configurations and validation logic."""
 
+    def test_short_medical_book_verse_requires_the_entire_source_body(self):
+        title = "医学观察歌诀"
+        body = "科学记录观察数据，合理讨论治疗建议，及时开展随访评估。"
+        html = f'<div class="cbody"><h1>{title}</h1><div class="spider">{body}</div></div>'
+        self.assertIsNone(http_article_error("qihuangzhishu.com", MockResult(html), f"{title}\n{body}"))
+        self.assertIsNotNone(http_article_error("qihuangzhishu.com", MockResult(html), f"{title}\n{body[:20]}"))
+        self.assertIsNotNone(http_article_error("qihuangzhishu.com", MockResult(html), title))
+
+    def test_people_modern_layout_requires_title_and_complete_body(self):
+        title = "Medical industry develops reliable treatment options"
+        first = "The article describes production processes and research methods for medicines."
+        last = "A final paragraph explains how product quality is monitored after manufacturing."
+        html = (f'<div class="rm_txt"><div class="col-1"><h1>{title}</h1>'
+                f'<div class="rm_txt_con"><div id="rm_txt_zw"><p>{first}</p><p>{last}</p></div>'
+                '<div class="related">Unrelated recommendations</div></div></div></div>')
+        self.assertIsNone(http_article_error("health.people.com.cn", MockResult(html), f"{title}\n{first}\n{last}"))
+        self.assertIsNotNone(http_article_error("health.people.com.cn", MockResult(html), f"{title}\n{first}"))
+        self.assertIsNotNone(http_article_error("health.people.com.cn", MockResult(html), f"{first}\n{last}"))
+
+    def test_short_chinese_heading_and_legacy_article_layouts(self):
+        body = "Clinical content describes symptoms, treatment and follow-up examinations. " * 4
+        cases = {
+            "qihuangzhishu.com": '<div class="cbody"><h1>2.1 引言</h1><div class="spider">{body}</div></div>',
+            "gan.39.net": '<h1>2.1 引言</h1><div class="artCon">{body}</div>',
+            "wei.39.net": '<div class="artbox"><h1>2.1 引言</h1><div class="article">{body}</div></div>',
+            "woman.39.net": '<p class="article_title">2.1 引言</p><div class="article_cur">{body}</div>',
+            "yanglao.familydoctor.com.cn": '<div class="article-titile"><h1>2.1 引言</h1></div><div id="viewContent">{body}</div>',
+        }
+        for host, template in cases.items():
+            with self.subTest(host=host):
+                result = MockResult(template.format(body=body))
+                self.assertIsNone(http_article_error(host, result, f"2.1 引言\n{body}"))
+                self.assertIsNotNone(http_article_error(host, result, "2.1 引言"))
+
+    def test_redirected_and_magazine_layouts_keep_complete_text(self):
+        title = "Complete article about appropriate medical care"
+        body = "The article explains symptoms, treatment options and follow-up examinations for patients. " * 3
+        cases = {
+            "baochinhphu.vn": '<h1 class="title">{title}</h1><div class="detail-content">{body}</div>',
+            "baocantho.com.vn": '<div class="noidungbai"><h1 class="h1magazine">{title}</h1><p>{body}</p></div>',
+            "dantri.com.vn": '<article class="e-magazine"><h1>{title}</h1><div class="e-magazine__body">{body}</div></article>',
+            "suckhoeviet.org.vn": '<article class="mastercms-emag-article"><h1 class="mastercms-emag-title">{title}</h1><p>{body}</p></article>',
+            "baophutho.vn": '<div id="dcontent"><h1 class="pTitle">{title}</h1><p>{body}</p></div>',
+        }
+        for host, template in cases.items():
+            with self.subTest(host=host):
+                result = MockResult(template.format(title=title, body=body))
+                self.assertIsNone(http_article_error(host, result, f"{title}\n{body}"))
+                self.assertIsNotNone(http_article_error(host, result, title))
+
+    def test_long_chau_ignores_nested_empty_product_cards(self):
+        title = "Complete medical article"
+        body = "The article explains symptoms, treatment options and follow-up examinations for patients. " * 4
+        html = (f'<div class="posts-detail_posts-detail-container__hash"><div class="bg-white"><h1>{title}</h1>'
+                f'<p>{body}</p></div><section><div class="bg-white"></div></section></div>')
+        self.assertIsNone(http_article_error("nhathuoclongchau.com.vn", MockResult(html), f"{title}\n{body}"))
+
+    def test_media_only_articles_require_ocr_or_transcription(self):
+        cases = {
+            "baocantho.com.vn": '<div class="noidungbai"><h1 class="h1magazine">Infographic</h1><p><img src="chart.png"/></p></div>',
+            "benhviennhitrunguong.gov.vn": '<div id="primary"><div class="entry-title"><h1>Medical video</h1></div><div class="entry-content"><div class="rll-youtube-player"></div></div></div>',
+        }
+        for host, html in cases.items():
+            with self.subTest(host=host):
+                self.assertIn("Unsupported content type", article_content_issue(host, MockResult(html), "https://example.test/article"))
+        body = "An actual medical article explains symptoms and appropriate follow-up care. " * 10
+        html = f'<div class="noidungbai"><h1 class="h1magazine">Medical article</h1><p>{body}</p><img src="illustration.png"/></div>'
+        self.assertIsNone(article_content_issue("baocantho.com.vn", MockResult(html), "https://example.test/article"))
+
+    def test_external_link_without_article_text_requires_separate_extraction(self):
+        html = ('<div id="primary"><div class="entry-title"><h1>Medical information</h1></div>'
+                '<div class="entry-content"><div class="entry-post_info">2018</div>'
+                '<a href="https://video.test/story">https://video.test/story</a></div></div>')
+        self.assertIn("external resource", article_content_issue("benhviennhitrunguong.gov.vn", MockResult(html), "https://example.test/article"))
+
+    def test_campaign_news_layouts_keep_title_and_complete_body(self):
+        title = "Doctors explain prevention and treatment choices"
+        body = "Patients should discuss symptoms and appropriate tests with their doctor before receiving treatment."
+        templates = {
+            "bachmai.gov.vn": '<div id="content-post"><h3>{title}</h3><div class="content-editor">{body}</div></div>',
+            "baoangiang.com.vn": '<div class="detail-title"><h1>{title}</h1></div><div id="newscontents">{body}</div>',
+            "baogialai.com.vn": '<h1 class="article__title">{title}</h1><div class="article__body">{body}</div>',
+            "baothanhhoa.vn": '<h1 class="article__title">{title}</h1><div class="article__body">{body}</div>',
+            "baoquangninh.vn": '<h1 class="article__title">{title}</h1><div class="article__body">{body}</div>',
+            "baotayninh.vn": '<div class="content-article"><h1>{title}</h1><div id="content-detail">{body}</div></div>',
+            "health.people.com.cn": '<div class="articleCont"><div class="title">{title}</div><div class="artDet">{body}</div></div>',
+        }
+        for domain, template in templates.items():
+            with self.subTest(domain=domain):
+                result = MockResult(template.format(title=title, body=body))
+                self.assertIsNone(http_article_error(domain, result, f"{title}\n{body}"))
+                self.assertIsNotNone(http_article_error(domain, result, title))
+                self.assertIsNotNone(http_article_error(domain, result, body))
+
+    def test_tam_anh_tool_widget_does_not_mask_article_body(self):
+        title = "A complete article about medical treatment"
+        body = "The article explains symptoms, treatment options and appropriate follow-up examinations for patients."
+        html = (f'<div class="post_info box_detail_post"><h1>{title}</h1>'
+                '<div class="div_tool">Date and search preference widget text</div></div>'
+                f'<div class="post_info box_detail_post"><p>{body}</p></div>')
+        self.assertIsNone(http_article_error("tamanhhospital.vn", MockResult(html), f"{title}\n{body}"))
+        self.assertIsNotNone(http_article_error("tamanhhospital.vn", MockResult(html), title))
+
     def test_39_net_subdomain_uses_shared_article_layout(self):
         """Question pages on ask.39.net can pass the configured HTTP gate."""
         title = "Question about treatment options"
@@ -28,10 +131,35 @@ class TestQualityModule(unittest.TestCase):
             "The doctor explains the symptoms, recommended tests, treatment "
             "options, and follow-up care for this condition."
         )
-        html = f"<h1 class='ask_tit'>{title}</h1><div class='ask_cont'>{body}</div>"
+        html = f"<h1 class='ask_tit'>{title}</h1><div class='ask_cont'>{body}</div><div class='doc_ans'>{body}</div>"
         self.assertIsNone(
             http_article_error("ask.39.net", MockResult(html), f"{title}\n{body}")
         )
+
+    def test_39_question_without_answer_is_incomplete(self):
+        title = "What treatment should a patient receive?"
+        question = "The question describes symptoms but there is no doctor answer on the page."
+        html = f"<h1 class='ask_tit'>{title}</h1><div class='ask_cont'>{question}</div>"
+        self.assertIsNotNone(http_article_error("ask.39.net", MockResult(html), f"{title}\n{question}"))
+
+    def test_modern_39_question_only_layout_excludes_related_disease_widgets(self):
+        title = "Question about symptoms"
+        question = "Symptoms started several days ago and the patient asks how to seek care."
+        html = (f"<div class='ask_cont'><h1 class='ask_tit'>{title}</h1>"
+                f"<div class='ask_hid'><p class='txt_ms'>{question}</p></div>"
+                "<section class='sys-box'>Related disease recommendations and consultation links</section></div>")
+        result = MockResult(html)
+        self.assertIsNone(http_article_error("ask.39.net", result, f"{title}\n{question}"))
+        self.assertEqual(article_metadata("ask.39.net", result), {"document_type": "question", "has_answer": False})
+
+    def test_modern_39_layout_does_not_drop_existing_answer(self):
+        title = "Question about symptoms"
+        question = "The patient describes recent symptoms and asks for advice."
+        answer = "The doctor explains which tests and follow-up examinations are appropriate."
+        html = (f"<h1 class='ask_tit'>{title}</h1><div class='ask_hid'><p class='txt_ms'>{question}</p></div>"
+                f"<div class='doc_ans'>{answer}</div>")
+        self.assertIsNotNone(http_article_error("ask.39.net", MockResult(html), f"{title}\n{question}"))
+        self.assertIsNone(http_article_error("ask.39.net", MockResult(html), f"{title}\n{question}\n{answer}"))
 
     def test_live_news_layouts_validate_article_body(self):
         """Known news layouts pass complete articles and reject missing body text."""

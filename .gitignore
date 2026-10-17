@@ -9,6 +9,7 @@ __pycache__/
 *.py[cod]
 .venv/
 .krun/
+.backfill/
 venv/
 env/
 .pytest_cache/
@@ -87,3 +88,10 @@ Desktop.ini
 .vscode/*
 !.vscode/settings.json
 .vscode/
+
+datav2/
+merge_report.json
+merged.jsonl
+/BackEnd/tests/metadata.json
+/tests/metadata.json
+/tests/metadata _1.json
