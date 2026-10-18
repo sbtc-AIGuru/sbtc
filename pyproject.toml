@@ -21,6 +21,9 @@ name="sbtc-AIGuru"
 version="0.1"
 
 dependencies = [
+    "fastapi>=0.141.1,<1",
+    "uvicorn>=0.53,<1",
+    "python-multipart>=0.0.32,<1",
     "requests>=2.32,<3",
     "crawl4ai==0.9.4",
     "faiss-cpu>=1.15.1",
