@@ -358,6 +358,7 @@ def test_real_qdrant_snapshot_restores_vectors_text_and_progress(config, tmp_pat
         payload = sample["payload"]
         with QdrantManager.from_manifest(
             Path(config["output"]) / "snapshot_manifest.json", url=restored["qdrant_url"],
+            dense_encoder=lambda texts: [sample["vector"]["dense"] for _ in texts],
         ) as client:
             hits = client.search_text(sample["vector"]["dense"], payload["chunk_text"],
                 query_filter={"must": [
@@ -366,6 +367,16 @@ def test_real_qdrant_snapshot_restores_vectors_text_and_progress(config, tmp_pat
                 ]})
             assert len(hits) == 1 and hits[0]["id"] == sample["id"]
             assert hits[0]["payload"] == payload
+            query = {"original_query": payload["chunk_text"],
+                     "eng_query": "English", "chinese_query": "中文"}
+            query_filter = {"must": [
+                {"key": field, "match": {"value": payload[field]}}
+                for field in ("chunk_id", "parent_id")
+            ]}
+            for method in (client.query_original_dense, client.query_multilingual_dense):
+                hits = method(query, query_filter=query_filter)
+                assert len(hits) == 1 and hits[0]["id"] == sample["id"]
+                assert hits[0]["payload"] == payload
         monkeypatch.setattr(runner, "load_encoder", lambda config: pytest.fail("Completed shards must not load the model"))
         runner.run_worker(restored, 0)
         runner.run_worker(restored, 1)

@@ -1,4 +1,4 @@
-"""Query the restored collection with caller-provided dense/sparse embeddings."""
+"""Read-only dense and multilingual hybrid queries for a restored collection."""
 
 from __future__ import annotations
 
@@ -6,7 +6,7 @@ import math
 import os
 import json
 from copy import deepcopy
-from collections.abc import Sequence
+from collections.abc import Callable, Sequence
 from pathlib import Path
 from urllib.parse import quote
 
@@ -21,6 +21,7 @@ class QdrantManager:
         dense_vector_name: str | None = None, sparse_vector_name: str | None = None,
         api_key: str | None = None, timeout: float = 30,
         bm25_options: dict | None = None,
+        dense_encoder: Callable[[list[str]], Sequence[Sequence[float]]] | None = None,
         session: requests.Session | None = None,
     ) -> None:
         self.url = (url or os.getenv("QDRANT_URL", "http://127.0.0.1:6333")).rstrip("/")
@@ -29,6 +30,7 @@ class QdrantManager:
         self.sparse_vector_name = sparse_vector_name or os.getenv("QDRANT_SPARSE_VECTOR_NAME", "bm25")
         self.api_key = api_key or os.getenv("QDRANT_API_KEY")
         self.timeout = timeout
+        self.dense_encoder = dense_encoder
         self.bm25_options = deepcopy(bm25_options) if bm25_options is not None else {
             "tokenizer": "multilingual", "stemmer": {"type": "none"},
             "stopwords": {}, "ascii_folding": False,
@@ -116,6 +118,55 @@ class QdrantManager:
         if not all(math.isfinite(value) for value in values) or not any(values):
             raise ValueError("Sparse values must be finite and nonzero as a vector")
         return {"query": {"indices": indices, "values": values}, "using": self.sparse_vector_name}
+
+    def query_original_dense(
+        self, query: dict[str, str], *, query_filter: dict | None = None,
+        with_payload: bool | list[str] = True,
+    ) -> list[dict]:
+        """Fuse dense(original_query) and BM25(VI/EN/ZH): 50 per branch, top 100."""
+        return self._query_hybrid(query, multilingual_dense=False,
+                                  query_filter=query_filter, with_payload=with_payload)
+
+    def query_multilingual_dense(
+        self, query: dict[str, str], *, query_filter: dict | None = None,
+        with_payload: bool | list[str] = True,
+    ) -> list[dict]:
+        """Fuse dense(VI/EN/ZH) and BM25(VI/EN/ZH): 50 per branch, top 100."""
+        return self._query_hybrid(query, multilingual_dense=True,
+                                  query_filter=query_filter, with_payload=with_payload)
+
+    def _query_hybrid(
+        self, query: dict[str, str], *, multilingual_dense: bool,
+        query_filter: dict | None, with_payload: bool | list[str],
+    ) -> list[dict]:
+        keys = ("original_query", "eng_query", "chinese_query")
+        if not isinstance(query, dict) or any(
+            not isinstance(query.get(key), str) or not query[key].strip() for key in keys
+        ):
+            raise ValueError("Query requires nonempty original_query, eng_query and chinese_query")
+        if self.dense_encoder is None:
+            raise ValueError("Configure dense_encoder with the same GTE encoder used to build the index")
+        texts = [query[key] for key in keys]
+        sparse = [self._sparse_query({
+            "text": text, "model": "qdrant/bm25", "options": self.bm25_options,
+        }) for text in texts]
+        dense_texts = texts if multilingual_dense else texts[:1]
+        vectors = self.dense_encoder(dense_texts)
+        if len(vectors) != len(dense_texts):
+            raise ValueError("dense_encoder must return one vector per query text")
+        branches = [self._dense_query(vector) for vector in vectors] + sparse
+        for branch in branches:
+            branch["limit"] = 50
+            if query_filter is not None:
+                branch["filter"] = query_filter
+        # Fusion ranks the union of all branches; each branch keeps its top-50 budget.
+        body = {
+            "prefetch": branches, "query": {"fusion": "rrf"}, "limit": 100,
+            "with_payload": with_payload, "with_vector": False,
+        }
+        if query_filter is not None:
+            body["filter"] = query_filter
+        return self._request("POST", self._path + "/points/query", body)["points"]
 
     def search(
         self, dense_vector: Sequence[float], sparse_vector: dict | None = None,

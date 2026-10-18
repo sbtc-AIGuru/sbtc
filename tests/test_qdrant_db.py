@@ -54,6 +54,107 @@ def clear_configuration(monkeypatch):
         monkeypatch.delenv(key, raising=False)
 
 
+@pytest.fixture
+def multilingual_query():
+    return {
+        "original_query": "Điều trị đái tháo đường bằng metformin 500 mg",
+        "eng_query": "Treating diabetes with metformin 500 mg",
+        "chinese_query": "使用二甲双胍 500 mg 治疗糖尿病",
+    }
+
+
+@pytest.mark.parametrize("method,dense_count", [
+    ("query_original_dense", 1), ("query_multilingual_dense", 3),
+])
+@pytest.mark.parametrize("filtered", [False, True])
+def test_multilingual_query_routes_texts_and_keeps_50_per_branch(
+    multilingual_query, method, dense_count, filtered,
+):
+    texts = list(multilingual_query.values())
+    embeddings = [[1, 0, 0], [0, 1, 0], [0, 0, 1]]
+    encoded = []
+
+    def encode(batch):
+        encoded.append(list(batch))
+        return embeddings[:len(batch)]
+
+    points = [{"id": str(i), "score": 1 / (i + 2),
+               "payload": {"chunk_id": f"{i}:c:0", "chunk_text": "nguyên văn 中文"}}
+              for i in range(100)]
+    session = Session(schema(named=True), Response({"points": points}))
+    manager = QdrantManager(dense_vector_name="gte", dense_encoder=encode, session=session)
+    query_filter = {"must": [{"key": "parent_id", "match": {"value": "7:p:0"}}]} if filtered else None
+    with_payload = ["chunk_id", "chunk_text"] if filtered else True
+    original = deepcopy((multilingual_query, embeddings, query_filter, manager.bm25_options))
+
+    hits = getattr(manager, method)(multilingual_query, query_filter=query_filter, with_payload=with_payload)
+
+    assert hits == points
+    assert encoded == [texts[:dense_count]]
+    assert [call[0] for call in session.calls] == ["GET", "POST"]
+    assert session.calls[-1][1].endswith("/points/query")
+    body = session.calls[-1][2]["json"]
+    assert body["query"] == {"fusion": "rrf"}
+    assert body["limit"] == 100 and body["with_vector"] is False
+    assert body["with_payload"] == with_payload
+    branches = body["prefetch"]
+    assert len(branches) == dense_count + 3
+    assert all(branch["limit"] == 50 for branch in branches)
+    assert [branch["query"] for branch in branches[:dense_count]] == embeddings[:dense_count]
+    assert all(branch["using"] == "gte" for branch in branches[:dense_count])
+    assert [branch["query"]["text"] for branch in branches[dense_count:]] == texts
+    assert all(branch["using"] == "bm25" and branch["query"]["model"] == "qdrant/bm25"
+               and branch["query"]["options"] == manager.bm25_options for branch in branches[dense_count:])
+    if filtered:
+        assert body["filter"] == query_filter
+        assert all(branch["filter"] == query_filter for branch in branches)
+    else:
+        assert "filter" not in body and all("filter" not in branch for branch in branches)
+    assert (multilingual_query, embeddings, query_filter, manager.bm25_options) == original
+
+
+@pytest.mark.parametrize("method", ["query_original_dense", "query_multilingual_dense"])
+@pytest.mark.parametrize("field,value", [
+    ("original_query", None), ("eng_query", ""), ("chinese_query", "  "), ("eng_query", 123),
+])
+def test_multilingual_query_rejects_missing_or_invalid_text_before_encoding(
+    multilingual_query, method, field, value,
+):
+    if value is None:
+        del multilingual_query[field]
+    else:
+        multilingual_query[field] = value
+    session = Session()
+    manager = QdrantManager(session=session, dense_encoder=lambda _: pytest.fail("Must not encode invalid input"))
+    with pytest.raises(ValueError, match="original_query, eng_query and chinese_query"):
+        getattr(manager, method)(multilingual_query)
+    assert session.calls == []
+
+
+def test_multilingual_query_requires_configured_encoder(multilingual_query):
+    session = Session()
+    with pytest.raises(ValueError, match="Configure dense_encoder"):
+        QdrantManager(session=session).query_original_dense(multilingual_query)
+    assert session.calls == []
+
+
+def test_multilingual_query_checks_sparse_index_before_encoding(multilingual_query):
+    session = Session(schema(sparse=False))
+    manager = QdrantManager(session=session, dense_encoder=lambda _: pytest.fail("Must not encode without BM25"))
+    with pytest.raises(RuntimeError, match="dense-only"):
+        manager.query_multilingual_dense(multilingual_query)
+    assert [call[0] for call in session.calls] == ["GET"]
+
+
+@pytest.mark.parametrize("vectors", [[], [[1, 0, 0]], [[1, 0], [1, 0], [1, 0]]])
+def test_multilingual_query_rejects_encoder_count_or_dimension_mismatch(multilingual_query, vectors):
+    session = Session(schema())
+    manager = QdrantManager(session=session, dense_encoder=lambda _: vectors)
+    with pytest.raises(ValueError):
+        manager.query_multilingual_dense(multilingual_query)
+    assert [call[0] for call in session.calls] == ["GET"]
+
+
 def test_hybrid_uses_unnamed_dense_and_preserves_payload_and_filter():
     points = [{"id": "point-1", "score": 0.75,
                "payload": {"chunk_id": "7:c:0", "doc_id": 7, "chunk_text": "nguồn 中文"}}]
