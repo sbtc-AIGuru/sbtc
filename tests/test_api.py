@@ -233,16 +233,40 @@ def test_jobs_queue_serially_and_queued_job_can_pause_and_resume(tmp_path,rerank
     assert maximum == 1 and len(transport.calls) == 2
 
 
-def test_setup_error_shown_actionably_without_marking_input_rows_bad(tmp_path):
+@pytest.mark.parametrize("stage,code", [("encoding", "ENCODER_MODEL_UNAVAILABLE"),
+                                        ("reranking", "RERANKER_MODEL_UNAVAILABLE")])
+def test_setup_error_shown_actionably_without_marking_input_rows_bad(tmp_path, stage, code):
     path = write_queries(tmp_path / "queries.parquet")
 
     def runner(*args,**kwargs):
-        raise PipelineSetupError("encoding","ENCODER_MODEL_UNAVAILABLE","Cần tải model GTE đúng revision.")
+        raise PipelineSetupError(stage,code,"Cần tải model đúng revision.")
 
     with TestClient(create_app(jobs_dir=tmp_path / "jobs",runner=runner)) as client:
         identifier = upload(client,path).json()["id"]
         job = wait_status(client,identifier,{"failed"})
         assert job["completed"] == 0 and job["failed"] == 0
-        assert job["error"] == {"stage":"encoding","type":"ENCODER_MODEL_UNAVAILABLE",
-                                "message":"Cần tải model GTE đúng revision."}
+        assert job["error"] == {"stage":stage,"type":code,"message":"Cần tải model đúng revision."}
         assert job["download_url"] is None and job["errors_url"] is None
+
+
+def test_server_reads_local_reranker_configuration(tmp_path, monkeypatch):
+    for name, value in {"DEVICE": "cpu", "MAX_CHUNKS": "25", "RERANKER_DEVICE": "cuda:0",
+                        "RERANKER_BATCH_SIZE": "2", "RERANKER_MAX_LENGTH": "4096",
+                        "RERANKER_TOKEN_BUDGET": "8192"}.items():
+        monkeypatch.setenv("PIPELINE_" + name, value)
+    app = create_app(jobs_dir=tmp_path / "jobs")
+    with TestClient(app):
+        options = app.state.jobs.options
+        assert options["device"] == "cpu" and options["reranker_device"] == "cuda:0"
+        assert options["max_chunks"] == 25
+        assert options["reranker_batch_size"] == 2
+        assert options["reranker_max_length"] == 4096
+        assert options["reranker_token_budget"] == 8192
+        assert not any("llm" in key for key in options)
+
+
+def test_server_default_chunk_budget_is_50(tmp_path, monkeypatch):
+    monkeypatch.delenv("PIPELINE_MAX_CHUNKS", raising=False)
+    app = create_app(jobs_dir=tmp_path / "jobs")
+    with TestClient(app):
+        assert app.state.jobs.options["max_chunks"] == 50

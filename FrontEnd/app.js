@@ -4,7 +4,7 @@ const $ = (id) => document.getElementById(id);
 const labels = {uploaded:"Đã tải lên",queued:"Trong hàng đợi",running:"Đang xử lý",pausing:"Đang tạm dừng",paused:"Đã tạm dừng",failed:"Cần xử lý lỗi",completed:"Hoàn tất"};
 const descriptions = {
   queued:"Tác vụ đang chờ lượt. Mỗi thời điểm server xử lý một file.",
-  running:"Đang truy hồi và xếp hạng. Tiến độ cập nhật khi một batch được lưu thành công.",
+  running:"Đang truy hồi và xếp hạng. Tiến độ cập nhật sau mỗi truy vấn được lưu thành công.",
   pausing:"Sẽ tạm dừng sau batch hiện tại. Checkpoint đã lưu được giữ nguyên.",
   paused:"Đã giữ lại checkpoint. Chọn Tiếp tục để xử lý phần còn lại.",
   failed:"Các dòng thành công vẫn được giữ lại. Kiểm tra lỗi rồi tiếp tục từ checkpoint.",

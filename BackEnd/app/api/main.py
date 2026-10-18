@@ -5,6 +5,7 @@ from contextlib import asynccontextmanager
 from datetime import datetime, timezone
 import asyncio
 import json
+import logging
 import os
 from pathlib import Path
 import shutil
@@ -18,7 +19,7 @@ from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
 import pyarrow.parquet as pq
 
-from ..pipeline import PipelineError, PipelinePaused, PipelineSetupError, _columns, run_pipeline
+from ..pipeline import DEFAULT_MAX_CHUNKS, PipelineError, PipelinePaused, PipelineSetupError, _columns, run_pipeline
 from ..Retrieval.utils import atomic_json, job_lock
 
 PROJECT_ROOT = Path(__file__).resolve().parents[3]
@@ -142,9 +143,15 @@ def create_app(*, jobs_dir=None, runner=run_pipeline, pipeline_options=None, max
     options = pipeline_options if pipeline_options is not None else {
         "manifest_path": os.getenv("PIPELINE_MANIFEST_PATH") or None,
         "device": os.getenv("PIPELINE_DEVICE", "cpu"),
+        "max_chunks": int(os.getenv("PIPELINE_MAX_CHUNKS", str(DEFAULT_MAX_CHUNKS))),
+        "reranker_device": os.getenv("PIPELINE_RERANKER_DEVICE") or None,
+        "reranker_batch_size": int(os.getenv("PIPELINE_RERANKER_BATCH_SIZE", "4")),
+        "reranker_max_length": int(os.getenv("PIPELINE_RERANKER_MAX_LENGTH", "8192")),
+        "reranker_token_budget": int(os.getenv("PIPELINE_RERANKER_TOKEN_BUDGET", "8192")),
         "model_cache": os.getenv("PIPELINE_MODEL_CACHE") or None,
         "resume_tag": os.getenv("PIPELINE_RESUME_TAG", ""),
     }
+    logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(name)s: %(message)s")
 
     @asynccontextmanager
     async def lifespan(application):
