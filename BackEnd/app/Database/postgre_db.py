@@ -94,6 +94,24 @@ class PostgreManager:
             chunk = session.get(Chunk, chunk_id)
             return chunk_to_record(chunk) if chunk is not None else None
 
+    def get_submission_chunks(
+        self, chunk_ids: Sequence[str], *, batch_size: int = 1_000,
+    ) -> dict[str, dict[str, Any] | None]:
+        """Resolve source text/identity in batches; missing IDs map explicitly to None."""
+        if batch_size < 1:
+            raise ValueError("batch_size must be positive")
+        identifiers = list(dict.fromkeys(chunk_ids))
+        records = dict.fromkeys(identifiers)
+        with self.session_factory() as session:
+            for offset in range(0, len(identifiers), batch_size):
+                rows = session.execute(
+                    select(Chunk.chunk_id, Chunk.doc_id, Chunk.chunk_text)
+                    .where(Chunk.chunk_id.in_(identifiers[offset:offset + batch_size])),
+                )
+                for row in rows.mappings():
+                    records[row["chunk_id"]] = dict(row)
+        return records
+
     def get_chunks_by_document(
         self, doc_id: int, *, limit: int = 100, offset: int = 0,
     ) -> list[dict[str, Any]]:
