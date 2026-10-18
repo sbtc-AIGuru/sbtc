@@ -1,4 +1,4 @@
-"""Small real Parquet/SQL round trips with mocked Qdrant REST and LLM transport."""
+"""Small real Parquet/SQL round trips with mocked Qdrant REST and local reranker scores."""
 
 from copy import deepcopy
 import json
@@ -22,7 +22,6 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 from BackEnd.app import pipeline
 from BackEnd.app.Database.postgre_db import PostgreManager
 from BackEnd.app.Database.qdrant_db import QdrantManager
-from BackEnd.app.LLM import llm_as_reranker
 
 
 def write_queries(path, identifiers=(30, 10, 20), **changed):
@@ -88,22 +87,10 @@ def factory(transport, managers):
 
 
 @pytest.fixture
-def llm(monkeypatch):
-    monkeypatch.setattr(llm_as_reranker, "MODEL_NAME", "fixture-open-model")
-    client = Mock()
-
-    def complete(**options):
-        request = json.loads(options["messages"][1]["content"])
-        result = request["documents"]
-        result["relevant_chunks"].reverse()
-        return SimpleNamespace(choices=[SimpleNamespace(
-            finish_reason="stop", message=SimpleNamespace(
-                refusal=None, content=json.dumps(result, ensure_ascii=False),
-            ),
-        )])
-
-    client.chat.completions.create.side_effect = complete
-    return client
+def reranker():
+    model = Mock()
+    model.score.side_effect = lambda query, texts: list(range(len(texts)))
+    return model
 
 
 @pytest.fixture
@@ -121,12 +108,12 @@ def database():
     manager.close()
 
 
-def arguments(transport, llm, **extra):
+def arguments(transport, reranker, **extra):
     return {"dense_encoder": lambda texts: [[1, 0, 0] for _ in texts],
-            "qdrant_factory": factory(transport, []), "llm_client": llm, **extra}
+            "qdrant_factory": factory(transport, []), "reranker": reranker, **extra}
 
 
-def test_end_to_end_four_branches_hydration_order_rerank_json_zip(tmp_path, database, llm):
+def test_end_to_end_four_branches_hydration_order_rerank_json_zip(tmp_path, database, reranker):
     path = write_queries(tmp_path / "translated.parquet")
     missing = point("1:c:0")
     del missing["payload"]["doc_id"]
@@ -143,8 +130,8 @@ def test_end_to_end_four_branches_hydration_order_rerank_json_zip(tmp_path, data
     event.listen(database.engine, "before_cursor_execute",
                  lambda *args: sql_calls.append(args[2]))
     result = pipeline.run_pipeline(
-        path, output, zip_path=archive, batch_size=3, workers=3, llm_workers=2,
-        **arguments(transport, llm, dense_encoder=encode, postgres_manager=database),
+        path, output, zip_path=archive, batch_size=3, workers=3,
+        **arguments(transport, reranker, dense_encoder=encode, postgres_manager=database),
     )
     assert encode_calls == [["VI 30", "VI 10", "VI 20"]]
     assert transport.completed[-1] == 30
@@ -156,7 +143,7 @@ def test_end_to_end_four_branches_hydration_order_rerank_json_zip(tmp_path, data
     }
     assert result[2] == {"id": 20, "relevant_docs": [], "relevant_chunks": []}
     assert len(sql_calls) == 1
-    assert llm.chat.completions.create.call_count == 2
+    assert reranker.score.call_count == 2
     for body in transport.calls:
         assert len(body["prefetch"]) == 4
         assert body["prefetch"][0]["query"] == [1, 0, 0]
@@ -174,11 +161,11 @@ def test_end_to_end_four_branches_hydration_order_rerank_json_zip(tmp_path, data
     assert database.get_chunk("1:c:0")["chunk_text"] == "Original source\n中文。"
 
 
-def test_failures_continue_and_resume_only_failed_row(tmp_path, llm):
+def test_failures_continue_and_resume_only_failed_row(tmp_path, reranker):
     path = write_queries(tmp_path / "queries.parquet")
     transport = Transport({i: [point(f"{i}:c:0", i)] for i in (30, 10, 20)}, failures={10})
     output = tmp_path / "submission.json"
-    options = arguments(transport, llm, resume_tag="fixture-v1")
+    options = arguments(transport, reranker, resume_tag="fixture-v1")
     with pytest.raises(pipeline.PipelineError) as error:
         pipeline.run_pipeline(path, output, **options)
     assert error.value.failures == [{"row": 1, "id": 10, "stage": "retrieval", "error_type": "Timeout"}]
@@ -193,87 +180,82 @@ def test_failures_continue_and_resume_only_failed_row(tmp_path, llm):
     result = pipeline.run_pipeline(path, output, resume=True, **options)
     assert [item["id"] for item in result] == [30, 10, 20]
     assert len(transport.calls) == 4
-    assert llm.chat.completions.create.call_count == 3
+    assert reranker.score.call_count == 3
     assert json.loads(output.with_suffix(".errors.json").read_text()) == []
 
 
 @pytest.mark.parametrize("change", ["missing", "wrong_doc", "wrong_text"])
-def test_missing_or_conflicting_database_records_do_not_make_predictions(tmp_path, database, llm, change):
+def test_missing_or_conflicting_database_records_do_not_make_predictions(tmp_path, database, reranker, change):
     path = write_queries(tmp_path / "queries.parquet", identifiers=(1,))
     bad = point("missing" if change == "missing" else "1:c:0", 2, None)
     if change == "wrong_text":
         bad["payload"].update(doc_id=None, chunk_text="Modified text")
     transport = Transport({1: [bad]})
     with pytest.raises(pipeline.PipelineError) as error:
-        pipeline.run_pipeline(path, **arguments(transport, llm, postgres_manager=database))
+        pipeline.run_pipeline(path, **arguments(transport, reranker, postgres_manager=database))
     assert error.value.failures[0]["stage"] == "hydration"
-    llm.chat.completions.create.assert_not_called()
+    reranker.score.assert_not_called()
 
 
-def test_llm_fabricated_ids_are_rejected_per_row(tmp_path, llm):
+@pytest.mark.parametrize("scores", [[0.5, 0.2], [float("nan")], [float("inf")]])
+def test_invalid_reranker_scores_rejected_per_row(tmp_path, reranker, scores):
     path = write_queries(tmp_path / "queries.parquet", identifiers=(1, 2))
     transport = Transport({1: [point("1:c:0")], 2: []})
-    llm.chat.completions.create.side_effect = None
-    llm.chat.completions.create.return_value = SimpleNamespace(choices=[SimpleNamespace(
-        finish_reason="stop", message=SimpleNamespace(refusal=None, content=json.dumps({
-            "id": 1, "relevant_docs": ["1"],
-            "relevant_chunks": [{"doc_id": "999", "chunk_text": "Invented"}],
-        })),
-    )])
+    reranker.score.side_effect = None
+    reranker.score.return_value = scores
     with pytest.raises(pipeline.PipelineError) as error:
-        pipeline.run_pipeline(path, tmp_path / "result.json", **arguments(transport, llm))
+        pipeline.run_pipeline(path, tmp_path / "result.json", **arguments(transport, reranker))
     assert len(error.value.failures) == 1
     assert error.value.failures[0]["stage"] == "reranking"
     journal = (tmp_path / "result.checkpoint.jsonl").read_text()
     assert '"id": 2' in journal and '"id": 1' not in journal
 
 
-def test_dedup_limits_and_original_identifiers(tmp_path, llm):
+def test_dedup_limits_and_original_identifiers(tmp_path, reranker):
     path = write_queries(tmp_path / "queries.parquet", identifiers=(1,))
     transport = Transport({1: [point("x", 7, "A &amp; B"), point("x", 7, "A &amp; B"),
                                point("y", 7, "a & B"), point("z", 8, "Other"),
                                point("empty", 9, "")]})
     result = pipeline.run_pipeline(path, top_k=250, branch_limit=100, max_docs=1, max_chunks=1,
-                                   **arguments(transport, llm))
+                                   **arguments(transport, reranker))
     assert result == [{"id": 1, "relevant_docs": ["7"],
                        "relevant_chunks": [{"doc_id": "8", "chunk_text": "Other"}]}]
     body = transport.calls[0]
     assert body["limit"] == 250 and all(p["limit"] == 100 for p in body["prefetch"])
-    request = json.loads(llm.chat.completions.create.call_args.kwargs["messages"][1]["content"])
-    assert len(request["documents"]["relevant_chunks"]) == 2
+    assert reranker.score.call_args.args == ("VI 1", ["A &amp; B", "Other"])
 
 
 @pytest.mark.parametrize("bad_record", ["translation", "duplicate_id", "null_id", "empty_query"])
-def test_invalid_records_fail_explicitly_without_discarding_other_queries(tmp_path, llm, bad_record):
+def test_invalid_records_fail_explicitly_without_discarding_other_queries(tmp_path, reranker, bad_record):
     changed = {"translation": {"english": [None, "EN 2"]},
                "duplicate_id": {"id": [1, 1]}, "null_id": {"id": [None, 2]},
                "empty_query": {"query": ["", "VI 2"]}}[bad_record]
     path = write_queries(tmp_path / "queries.parquet", identifiers=(1, 2), **changed)
     transport = Transport({})
     with pytest.raises(pipeline.PipelineError) as error:
-        pipeline.run_pipeline(path, **arguments(transport, llm))
+        pipeline.run_pipeline(path, **arguments(transport, reranker))
     assert len(error.value.failures) == 1 and error.value.failures[0]["stage"] == "input"
     assert len(transport.calls) == 1
 
 
-def test_schema_override_and_missing_translations(tmp_path, llm):
+def test_schema_override_and_missing_translations(tmp_path, reranker):
     path = tmp_path / "custom.parquet"
     pq.write_table(pa.table({"qid": [5], "vi": ["VI 5"], "en": ["EN 5"], "zh": ["中文 5"]}), path)
     transport = Transport({})
     result = pipeline.run_pipeline(path, columns={"id": "qid", "original_query": "vi",
                                                  "eng_query": "en", "chinese_query": "zh"},
-                                   **arguments(transport, llm))
+                                   **arguments(transport, reranker))
     assert result[0]["id"] == 5
     pq.write_table(pa.table({"id": [1], "query": ["VI 1"]}), path)
     with pytest.raises(ValueError, match="eng_query"):
-        pipeline.run_pipeline(path, **arguments(transport, llm))
+        pipeline.run_pipeline(path, **arguments(transport, reranker))
 
 
-def test_resume_rejects_changed_configuration_and_input(tmp_path, llm):
+def test_resume_rejects_changed_configuration_and_input(tmp_path, reranker):
     path = write_queries(tmp_path / "queries.parquet", identifiers=(1,))
     transport = Transport({}, failures={1})
     output = tmp_path / "result.json"
-    options = arguments(transport, llm, resume_tag="fixture-v1")
+    options = arguments(transport, reranker, resume_tag="fixture-v1")
     with pytest.raises(pipeline.PipelineError):
         pipeline.run_pipeline(path, output, **options)
     with pytest.raises(ValueError, match="configuration changed"):
@@ -307,21 +289,48 @@ def test_cli_entry_point_and_limit(tmp_path, monkeypatch):
                           "--eng-query-column", "english"]) == 0
     assert run.call_args.kwargs["limit"] == 2
     assert run.call_args.kwargs["columns"] == {"eng_query": "english"}
+    assert run.call_args.kwargs["max_chunks"] == 50
 
 
-def test_database_outage_only_fails_queries_requiring_hydration(tmp_path, llm):
+@pytest.mark.parametrize("options,expected_count", [({}, 50), ({"max_chunks": 12}, 12),
+                                                   ({"max_chunks": None}, 100), ({"max_chunks": 0}, 0)])
+def test_chunk_budget_is_applied_after_reranking_and_keeps_query_alignment(tmp_path, reranker, options, expected_count):
+    path = write_queries(tmp_path / "queries.parquet", identifiers=(30, 10))
+    hits = [point(f"{i}:c:0", i, f"Original source chunk {i}") for i in range(1, 101)]
+    transport = Transport({30: hits, 10: hits})
+    output, archive = tmp_path / "output.json", tmp_path / "output.zip"
+    predictions = pipeline.run_pipeline(path, output, zip_path=archive, workers=2,
+                                        **arguments(transport, reranker), **options)
+    assert [p["id"] for p in predictions] == [30, 10]
+    expected_chunks = [{"doc_id": str(i), "chunk_text": f"Original source chunk {i}"}
+                       for i in range(100, 100 - expected_count, -1)]
+    for prediction in predictions:
+        assert prediction["relevant_chunks"] == expected_chunks
+        assert prediction["relevant_docs"] == list(map(str, range(1, 101)))
+    assert all(len(call.args[1]) == 100 for call in reranker.score.call_args_list)
+    assert all(call["limit"] == 100 for call in transport.calls)
+    assert all(len(call["prefetch"]) == 4 for call in transport.calls)
+    journal = [json.loads(line) for line in output.with_suffix(".checkpoint.jsonl").read_text().splitlines()][1:]
+    assert all(record["chunk_ids"] == [f"{i}:c:0" for i in range(100, 100 - expected_count, -1)]
+               for record in journal)
+    with zipfile.ZipFile(archive) as zipped:
+        assert zipped.namelist() == ["output.json"]
+        assert json.loads(zipped.read("output.json")) == predictions
+
+
+def test_database_outage_only_fails_queries_requiring_hydration(tmp_path, reranker):
     path = write_queries(tmp_path / "queries.parquet", identifiers=(1, 2))
     transport = Transport({1: [point("missing", 1, None)], 2: [point("2:c:0", 2)]})
     database = Mock()
     database.get_submission_chunks.side_effect = RuntimeError("private database details")
     output = tmp_path / "result.json"
     with pytest.raises(pipeline.PipelineError) as error:
-        pipeline.run_pipeline(path, output, **arguments(transport, llm, postgres_manager=database))
+        pipeline.run_pipeline(path, output, **arguments(transport, reranker, postgres_manager=database))
     assert error.value.failures == [{"row": 0, "id": 1, "stage": "hydration", "error_type": "RuntimeError"}]
     database.get_submission_chunks.assert_called_once_with(["missing"])
     database.close.assert_not_called()
     assert '"id": 2' in output.with_suffix(".checkpoint.jsonl").read_text()
-    assert llm.chat.completions.create.call_count == 1
+    assert reranker.score.call_count == 1
 
 
 @pytest.mark.parametrize("hits", [
@@ -330,11 +339,11 @@ def test_database_outage_only_fails_queries_requiring_hydration(tmp_path, llm):
     [point("chunk", 1.5)], [point("chunk", True)], [point("chunk", "uuid")],
     [{"payload": None}],
 ])
-def test_invalid_source_identity_and_payloads_are_explicit_failures(tmp_path, llm, hits):
+def test_invalid_source_identity_and_payloads_are_explicit_failures(tmp_path, reranker, hits):
     path = write_queries(tmp_path / "queries.parquet", identifiers=(1,))
     with pytest.raises(pipeline.PipelineError):
-        pipeline.run_pipeline(path, **arguments(Transport({1: hits}), llm))
-    llm.chat.completions.create.assert_not_called()
+        pipeline.run_pipeline(path, **arguments(Transport({1: hits}), reranker))
+    reranker.score.assert_not_called()
 
 
 @pytest.mark.parametrize("legacy_api",[True,False])
@@ -402,13 +411,13 @@ def test_cpu_encoder_uses_pinned_local_cls_and_existing_window_aggregation(monke
     ({}, [30,10,20]), ({"start":2}, [10,20]), ({"end":2}, [30,10]),
     ({"start":2,"end":2}, [10]), ({"start":2,"end":3,"limit":1}, [10]),
 ])
-def test_inclusive_row_ranges_keep_ids_order_and_checkpoint_positions(tmp_path, llm, bounds, expected):
+def test_inclusive_row_ranges_keep_ids_order_and_checkpoint_positions(tmp_path, reranker, bounds, expected):
     path = write_queries(tmp_path / "queries.parquet")
     transport = Transport({})
     output = tmp_path / "output.json"
     progress = []
     results = pipeline.run_pipeline(path, output, batch_size=1, progress_callback=progress.append,
-                                    **bounds, **arguments(transport, llm))
+                                    **bounds, **arguments(transport, reranker))
     assert [p["id"] for p in results] == expected
     assert len(transport.calls) == len(expected)
     records = [json.loads(line) for line in output.with_suffix(".checkpoint.jsonl").read_text().splitlines()][1:]
@@ -417,15 +426,15 @@ def test_inclusive_row_ranges_keep_ids_order_and_checkpoint_positions(tmp_path, 
 
 
 @pytest.mark.parametrize("bounds", [{"start":0},{"end":0},{"start":4},{"end":4},{"start":3,"end":2}])
-def test_invalid_row_ranges_rejected_before_processing(tmp_path, llm, bounds):
+def test_invalid_row_ranges_rejected_before_processing(tmp_path, reranker, bounds):
     path = write_queries(tmp_path / "queries.parquet")
     transport = Transport({})
     with pytest.raises(ValueError):
-        pipeline.run_pipeline(path, **bounds, **arguments(transport, llm))
+        pipeline.run_pipeline(path, **bounds, **arguments(transport, reranker))
     assert not transport.calls
 
 
-def test_pause_at_durable_batch_boundary_and_resume(tmp_path, llm):
+def test_pause_at_durable_batch_boundary_and_resume(tmp_path, reranker):
     path = write_queries(tmp_path / "queries.parquet")
     output = tmp_path / "output.json"
     transport = Transport({})
@@ -435,7 +444,7 @@ def test_pause_at_durable_batch_boundary_and_resume(tmp_path, llm):
         if values["completed"] == 1:
             stop.set()
 
-    options = arguments(transport, llm, resume_tag="range-fixture")
+    options = arguments(transport, reranker, resume_tag="range-fixture")
     with pytest.raises(pipeline.PipelinePaused):
         pipeline.run_pipeline(path, output, start=2, batch_size=1,
                               stop_event=stop, progress_callback=progress, **options)
@@ -496,15 +505,79 @@ def test_qdrant_setup_checked_once_before_encoding_rows(tmp_path,monkeypatch,kin
     encode.assert_not_called()
 
 
-def test_encoder_initialization_failure_is_not_repeated_per_batch(tmp_path,llm,monkeypatch):
+def test_encoder_initialization_failure_is_not_repeated_per_batch(tmp_path,reranker,monkeypatch):
     path = write_queries(tmp_path / "queries.parquet")
     transport = Transport({})
     loader = Mock(side_effect=pipeline.PipelineSetupError("encoding","ENCODER_MODEL_UNAVAILABLE","Model unavailable"))
     monkeypatch.setattr(pipeline,"load_dense_encoder",loader)
-    options = arguments(transport,llm)
+    options = arguments(transport,reranker)
     options.pop("dense_encoder")
     with pytest.raises(pipeline.PipelineSetupError):
         pipeline.run_pipeline(path,tmp_path / "output.json",batch_size=1,**options)
     loader.assert_called_once()
     assert not transport.calls
     assert not (tmp_path / "output.errors.json").exists()
+
+
+def test_local_reranker_loaded_once_and_checkpoints_visible_within_batch(tmp_path, monkeypatch):
+    path = write_queries(tmp_path / "queries.parquet", identifiers=(1, 2, 3))
+    output = tmp_path / "output.json"
+    transport = Transport({i: [point(f"{i}:c:0")] for i in (1, 2, 3)})
+    model = Mock()
+    saved = []
+
+    def score(query, texts):
+        saved.append(len(output.with_suffix(".checkpoint.jsonl").read_text().splitlines()) - 1)
+        return [0.9] * len(texts)
+
+    model.score.side_effect = score
+    loader = Mock(return_value=model)
+    monkeypatch.setattr(pipeline, "QwenReranker", loader)
+    options = arguments(transport, model)
+    options.pop("reranker")
+    progress = []
+    predictions = pipeline.run_pipeline(path, output, batch_size=2, reranker_device="cpu",
+                                        progress_callback=progress.append, **options)
+    assert len(predictions) == 3
+    loader.assert_called_once()
+    assert saved == [0, 1, 2]
+    assert {p["completed"] for p in progress} == {0, 1, 2, 3}
+
+
+def test_missing_qwen_cache_is_a_safe_setup_failure(tmp_path, monkeypatch, reranker):
+    path = write_queries(tmp_path / "queries.parquet", identifiers=(1,))
+    transport = Transport({1: [point("1:c:0")]})
+    loader = Mock(side_effect=OSError("private model path"))
+    monkeypatch.setattr(pipeline, "QwenReranker", loader)
+    options = arguments(transport, reranker)
+    options.pop("reranker")
+    with pytest.raises(pipeline.PipelineSetupError) as error:
+        pipeline.run_pipeline(path, **options)
+    assert error.value.stage == "reranking" and error.value.code == "RERANKER_MODEL_UNAVAILABLE"
+    assert "private model path" not in str(error.value)
+    loader.assert_called_once()
+
+
+def test_reranker_failure_retains_other_rows_and_retries_on_resume(tmp_path, reranker):
+    path = write_queries(tmp_path / "queries.parquet", identifiers=(1, 2))
+    transport = Transport({i: [point(f"{i}:c:0")] for i in (1, 2)})
+    output = tmp_path / "output.json"
+    options = arguments(transport, reranker, resume_tag="qwen-fixture-v1")
+    reranker.score.side_effect = [RuntimeError("inference failure"), [0.9]]
+    with pytest.raises(pipeline.PipelineError) as error:
+        pipeline.run_pipeline(path, output, **options)
+    assert error.value.failures == [{"row": 0, "id": 1, "stage": "reranking", "error_type": "RuntimeError"}]
+    with pytest.raises(ValueError, match="configuration changed"):
+        pipeline.run_pipeline(path, output, resume=True, reranker_max_length=4096, **options)
+    reranker.score.side_effect = lambda query, texts: [0.9] * len(texts)
+    predictions = pipeline.run_pipeline(path, output, resume=True, **options)
+    assert [p["id"] for p in predictions] == [1, 2]
+    assert len(transport.calls) == 3
+
+
+def test_equal_reranker_scores_preserve_retrieval_order(tmp_path, reranker):
+    path = write_queries(tmp_path / "queries.parquet", identifiers=(1,))
+    transport = Transport({1: [point("a", 1, "first"), point("b", 2, "second")]})
+    reranker.score.side_effect = lambda query, texts: [0.5] * len(texts)
+    predictions = pipeline.run_pipeline(path, **arguments(transport, reranker))
+    assert [c["chunk_text"] for c in predictions[0]["relevant_chunks"]] == ["first", "second"]
