@@ -1,4 +1,4 @@
-"""Four-branch Qdrant retrieval -> source hydration -> LLM reranking -> BTC JSON."""
+"""Four-branch Qdrant retrieval -> source hydration -> local Qwen reranking -> BTC JSON."""
 
 from __future__ import annotations
 
@@ -9,9 +9,11 @@ from contextlib import ExitStack
 import hashlib
 import json
 import logging
+import math
 import os
 from pathlib import Path
 from threading import Event, Lock, local
+from time import monotonic
 import zipfile
 
 import pyarrow as pa
@@ -20,11 +22,12 @@ import requests
 
 from .Database.postgre_db import PostgreManager
 from .Database.qdrant_db import QdrantManager
-from .LLM import llm_as_reranker
+from .Retrieval.qwen_reranker import QwenReranker, MODEL_NAME, MODEL_REVISION, INSTRUCTION
 from .Retrieval.export import btc_normalized
 from .Retrieval.utils import atomic_json, sha_file, source_id
 
 LOGGER = logging.getLogger(__name__)
+DEFAULT_MAX_CHUNKS = 50
 GTE_CONFIG = {
     "model": "Alibaba-NLP/gte-multilingual-base",
     "revision": "9bbca17d9273fd0d03d5725c7a4b0f6b45142062",
@@ -257,17 +260,19 @@ def _checkpoint(path: Path, signature: str, resume: bool) -> dict[int, dict]:
 def run_pipeline(
     parquet_path: str | Path, output_path: str | Path | None = None, *,
     zip_path: str | Path | None = None, columns: dict | None = None,
-    batch_size: int = 16, workers: int = 4, llm_workers: int = 2,
+    batch_size: int = 16, workers: int = 4,
     top_k: int = 100, branch_limit: int = 50,
-    max_docs: int | None = None, max_chunks: int | None = None,
+    max_docs: int | None = None, max_chunks: int | None = DEFAULT_MAX_CHUNKS,
     limit: int | None = None, query_filter: dict | None = None,
     start: int | None = None, end: int | None = None,
     manifest_path: str | Path | None = None, qdrant_url: str | None = None,
-    timeout: float = 30, llm_timeout: float = 120,
+    timeout: float = 30,
     device: str = "cpu", encoder_batch_size: int = 8,
     model_cache: str | Path | None = None,
+    reranker_device: str | None = None, reranker_batch_size: int = 4,
+    reranker_max_length: int = 8192, reranker_token_budget: int = 8192,
     dense_encoder: Callable | None = None, qdrant_factory: Callable | None = None,
-    postgres_manager: PostgreManager | None = None, llm_client=None,
+    postgres_manager: PostgreManager | None = None, reranker=None,
     checkpoint_path: str | Path | None = None, resume: bool = False,
     resume_tag: str = "",
     progress_callback: Callable | None = None, stop_event: Event | None = None,
@@ -275,22 +280,25 @@ def run_pipeline(
     """Return BTC predictions in input order and optionally write JSON plus ZIP.
 
     ``qdrant_factory(encoder)`` must return an owned manager per worker. Injected
-    PostgreSQL/LLM clients remain caller-owned. A checkpoint stores successful rows
+    PostgreSQL/reranker instances remain caller-owned. A checkpoint stores successful rows
     and original chunk IDs; failed rows are retried on resume. With injected
     components, supply a stable ``resume_tag`` identifying their configuration.
     Missing translations are errors: the four-branch method requires VI/EN/ZH.
-    No relevance cutoff is assumed; defaults retain all 100 fused candidates.
+    Defaults rerank 100 fused candidates, then retain at most 50 chunks.
+    Pass max_chunks=None to retain all chunks; document candidates are independent.
     ``start``/``end`` are inclusive 1-based input row positions, not query IDs.
-    Omitted bounds select the first/last row. Progress follows durable batches;
+    Omitted bounds select the first/last row. Progress follows durable queries;
     stop_event pauses before the next batch without losing committed rows.
     """
-    if min(batch_size, workers, llm_workers, top_k, branch_limit, encoder_batch_size) < 1:
+    if min(batch_size, workers, top_k, branch_limit, encoder_batch_size, reranker_batch_size) < 1:
         raise ValueError("Batch sizes, worker counts and retrieval limits must be positive")
-    if timeout <= 0 or llm_timeout <= 0 or (limit is not None and limit < 1):
+    if timeout <= 0 or (limit is not None and limit < 1):
         raise ValueError("Timeouts and limit must be positive")
+    if not 1 <= reranker_max_length <= 32768 or reranker_token_budget < reranker_max_length:
+        raise ValueError("Require reranker_max_length <= 32768 and reranker_token_budget >= reranker_max_length")
     if any(value is not None and value < 0 for value in (max_docs, max_chunks)):
         raise ValueError("Output budgets must be nonnegative")
-    injected = any(value is not None for value in (dense_encoder, qdrant_factory, postgres_manager, llm_client))
+    injected = any(value is not None for value in (dense_encoder, qdrant_factory, postgres_manager, reranker))
     if resume and injected and not resume_tag:
         raise ValueError("Set resume_tag to identify injected component configuration")
     parquet_path = Path(parquet_path)
@@ -335,8 +343,10 @@ def run_pipeline(
         "collection": os.getenv("QDRANT_COLLECTION", "sbtc_gte_multilingual"),
         "dense_vector": os.getenv("QDRANT_DENSE_VECTOR_NAME"),
         "sparse_vector": os.getenv("QDRANT_SPARSE_VECTOR_NAME", "bm25"),
-        "database": os.getenv("DATABASE_URL"), "llm": llm_as_reranker.MODEL_NAME,
-        "llm_url": llm_as_reranker.LLM_BASE_URL, "resume_tag": resume_tag,
+        "database": os.getenv("DATABASE_URL"), "resume_tag": resume_tag,
+        "reranker": {"model": MODEL_NAME, "revision": MODEL_REVISION,
+                     "instruction": INSTRUCTION, "max_length": reranker_max_length,
+                     "device": reranker_device or device, "window_pooling": "max-v1"},
     }
     if start is not None or end is not None:
         settings["range"] = [start, end]
@@ -394,7 +404,6 @@ def run_pipeline(
 
     with ExitStack() as resources:
         retrieval_pool = resources.enter_context(ThreadPoolExecutor(max_workers=workers))
-        rerank_pool = resources.enter_context(ThreadPoolExecutor(max_workers=llm_workers))
         journal = resources.enter_context(checkpoint.open("a", encoding="utf-8")) if checkpoint else None
         index = 0
         try:
@@ -432,6 +441,8 @@ def run_pipeline(
                     except ValueError as exc:
                         failed(row, identifier, "input", exc)
                 if active:
+                    batch_started = monotonic()
+                    LOGGER.info("Encoding %d queries (rows %d–%d)", len(active), active[0][0] + 1, active[-1][0] + 1)
                     if not checked_qdrant and qdrant_factory is None:
                         _check_qdrant(url=qdrant_url, manifest_path=manifest_path, timeout=timeout)
                         checked_qdrant = True
@@ -452,6 +463,7 @@ def run_pipeline(
                         report_progress()
                         continue
                     retrieved = list(retrieval_pool.map(retrieve, active))
+                    LOGGER.info("Encoding/retrieval finished in %.1fs; hydrating source fields", monotonic() - batch_started)
                     needed = set()
                     for _, _, _, hits in retrieved:
                         if isinstance(hits, Exception):
@@ -481,46 +493,56 @@ def run_pipeline(
                             ready.append((row, identifier, query, docs, chunks, identities))
                         except Exception as exc:
                             failed(row, identifier, "hydration", database_error or exc)
-                    if any(item[4] for item in ready) and llm_client is None:
+                    if any(item[4] for item in ready) and reranker is None:
+                        LOGGER.info("Loading local Qwen reranker on %s", reranker_device or device)
                         try:
-                            if not llm_as_reranker.LLM_API_KEY:
-                                raise ValueError("LLM_API_KEY must be configured")
-                            llm_client = resources.enter_context(llm_as_reranker.OpenAI(
-                                api_key=llm_as_reranker.LLM_API_KEY,
-                                base_url=llm_as_reranker.LLM_BASE_URL, timeout=llm_timeout,
-                            ))
-                        except Exception as exc:
-                            for row, identifier, _, _, chunks, _ in ready:
-                                if chunks:
-                                    failed(row, identifier, "reranking", exc)
-                            ready = [item for item in ready if not item[4]]
+                            reranker = QwenReranker(
+                                device=reranker_device or device, batch_size=reranker_batch_size,
+                                max_length=reranker_max_length, token_budget=reranker_token_budget,
+                                cache_dir=_model_cache(model_cache),
+                            )
+                        except OSError as exc:
+                            raise PipelineSetupError(
+                                "reranking", "RERANKER_MODEL_UNAVAILABLE",
+                                "Chưa nạp được Qwen3-Reranker-0.6B từ cache. Tải model đúng revision "
+                                "theo PIPELINE.md và đặt PIPELINE_MODEL_CACHE; pipeline không tự tải model.",
+                            ) from exc
 
                     def finish(item):
                         row, identifier, query, docs, chunks, identities = item
                         try:
-                            prediction = llm_as_reranker.rerank(
-                                query["original_query"],
-                                {"id": identifier, "relevant_docs": docs, "relevant_chunks": chunks},
-                                client=llm_client,
-                            )
+                            started = monotonic()
+                            if chunks:
+                                LOGGER.info("Reranking query id=%s: %d chunks", identifier, len(chunks))
+                                scores = reranker.score(query["original_query"], [c["chunk_text"] for c in chunks])
+                                if len(scores) != len(chunks) or not all(math.isfinite(s) for s in scores):
+                                    raise ValueError("Reranker must return one finite score per candidate")
+                                order = sorted(range(len(chunks)), key=lambda i: scores[i], reverse=True)
+                                chunks = [chunks[i] for i in order]
+                            prediction = {"id": identifier, "relevant_docs": docs, "relevant_chunks": chunks}
                             prediction["relevant_docs"] = prediction["relevant_docs"][:max_docs]
                             prediction["relevant_chunks"] = prediction["relevant_chunks"][:max_chunks]
                             chunk_ids = [identities[(c["doc_id"], c["chunk_text"])]
                                          for c in prediction["relevant_chunks"]]
+                            LOGGER.info("Finished query id=%s in %.1fs", identifier, monotonic() - started)
                             return {"row": row, "prediction": prediction, "chunk_ids": chunk_ids}
                         except Exception as exc:
                             return row, identifier, exc
 
-                    for result in rerank_pool.map(finish, ready):
+                    # One local model, bounded pair batches; avoid competing GPU/CPU forwards.
+                    for item in ready:
+                        result = finish(item)
                         if isinstance(result, tuple):
                             failed(result[0], result[1], "reranking", result[2])
                         else:
                             completed[result["row"]] = result
                             if journal:
                                 journal.write(json.dumps(result, ensure_ascii=False) + "\n")
-                    if journal:
-                        journal.flush()
-                        os.fsync(journal.fileno())
+                                journal.flush()
+                                os.fsync(journal.fileno())
+                        if errors_path:
+                            atomic_json(errors_path, failures)
+                        report_progress()
                 report_progress()
                 LOGGER.info("Processed %d/%d queries; %d failed", index - first, total, len(failures))
                 if index >= stop:
@@ -553,15 +575,19 @@ def main(argv=None) -> int:
     parser.add_argument("--zip", dest="zip_path", type=Path)
     parser.add_argument("--manifest", dest="manifest_path", type=Path)
     parser.add_argument("--qdrant-url")
-    for name, default in (("batch-size", 16), ("workers", 4), ("llm-workers", 2),
-                          ("top-k", 100), ("branch-limit", 50), ("encoder-batch-size", 8)):
+    for name, default in (("batch-size", 16), ("workers", 4),
+                          ("top-k", 100), ("branch-limit", 50), ("encoder-batch-size", 8),
+                          ("reranker-batch-size", 4), ("reranker-max-length", 8192),
+                          ("reranker-token-budget", 8192)):
         parser.add_argument("--" + name, type=int, default=default)
-    for name in ("max-docs", "max-chunks", "limit", "start", "end"):
+    parser.add_argument("--max-chunks", type=int, default=DEFAULT_MAX_CHUNKS,
+                        help="Maximum chunks after Qwen reranking (default: 50)")
+    for name in ("max-docs", "limit", "start", "end"):
         parser.add_argument("--" + name, type=int)
     parser.add_argument("--device", default="cpu")
     parser.add_argument("--model-cache", type=Path)
+    parser.add_argument("--reranker-device", help="Defaults to --device")
     parser.add_argument("--timeout", type=float, default=30)
-    parser.add_argument("--llm-timeout", type=float, default=120)
     parser.add_argument("--resume", action="store_true")
     parser.add_argument("--resume-tag", default="")
     for field in COLUMN_ALIASES:

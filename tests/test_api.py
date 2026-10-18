@@ -19,7 +19,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 from BackEnd.app.api.main import create_app
 from BackEnd.app.pipeline import PipelineSetupError, run_pipeline
 from BackEnd.app.Retrieval.utils import atomic_json
-from test_pipeline import Transport, arguments, llm, point, write_queries
+from test_pipeline import Transport, arguments, reranker, point, write_queries
 
 
 def wait_status(client, identifier, states):
@@ -37,11 +37,11 @@ def upload(client, path, data=None, filename="queries.parquet"):
     return client.post("/api/jobs", files={"file":(filename,path.read_bytes(),"application/octet-stream")}, data=data or {})
 
 
-def test_upload_range_real_pipeline_status_zip_and_static_ui(tmp_path, llm):
+def test_upload_range_real_pipeline_status_zip_and_static_ui(tmp_path, reranker):
     path = write_queries(tmp_path / "queries.parquet")
     transport = Transport({10:[point("10:c:0",10)],20:[point("20:c:0",20)]})
     root = tmp_path / "jobs"
-    application = create_app(jobs_dir=root, pipeline_options=arguments(transport,llm,resume_tag="api-v1"))
+    application = create_app(jobs_dir=root, pipeline_options=arguments(transport,reranker,resume_tag="api-v1"))
     with TestClient(application) as client:
         assert client.get("/").status_code == 200
         assert "Truy hồi y khoa" in client.get("/").text
@@ -68,11 +68,11 @@ def test_upload_range_real_pipeline_status_zip_and_static_ui(tmp_path, llm):
         assert client.post(f"/api/jobs/{identifier}/pause").status_code == 409
 
 
-def test_blank_bounds_run_every_row_and_persist_after_restart(tmp_path,llm):
+def test_blank_bounds_run_every_row_and_persist_after_restart(tmp_path,reranker):
     path = write_queries(tmp_path / "queries.parquet")
     root = tmp_path / "jobs"
     transport = Transport({})
-    options = arguments(transport,llm,resume_tag="api-v1")
+    options = arguments(transport,reranker,resume_tag="api-v1")
     with TestClient(create_app(jobs_dir=root,pipeline_options=options)) as client:
         response = upload(client,path,{"start":"","end":""})
         assert response.status_code == 202
@@ -86,11 +86,11 @@ def test_blank_bounds_run_every_row_and_persist_after_restart(tmp_path,llm):
     assert len(transport.calls) == 3
 
 
-def test_failure_report_and_resume_only_missing_rows_after_restart(tmp_path,llm):
+def test_failure_report_and_resume_only_missing_rows_after_restart(tmp_path,reranker):
     path = write_queries(tmp_path / "queries.parquet")
     root = tmp_path / "jobs"
     transport = Transport({},failures={10})
-    options = arguments(transport,llm,resume_tag="api-v1")
+    options = arguments(transport,reranker,resume_tag="api-v1")
     with TestClient(create_app(jobs_dir=root,pipeline_options=options)) as client:
         identifier = upload(client,path).json()["id"]
         job = wait_status(client,identifier,{"failed"})
@@ -114,7 +114,7 @@ def test_failure_report_and_resume_only_missing_rows_after_restart(tmp_path,llm)
     assert len(transport.calls) == 4
 
 
-def test_pause_waits_for_batch_and_resume_keeps_saved_rows(tmp_path,llm):
+def test_pause_waits_for_batch_and_resume_keeps_saved_rows(tmp_path,reranker):
     path = write_queries(tmp_path / "queries.parquet")
     root = tmp_path / "jobs"
     transport = Transport({})
@@ -135,7 +135,7 @@ def test_pause_waits_for_batch_and_resume_keeps_saved_rows(tmp_path,llm):
         kwargs["progress_callback"] = on_progress
         return run_pipeline(*args,**kwargs)
 
-    application = create_app(jobs_dir=root,runner=runner,pipeline_options=arguments(transport,llm,resume_tag="api-v1"))
+    application = create_app(jobs_dir=root,runner=runner,pipeline_options=arguments(transport,reranker,resume_tag="api-v1"))
     with TestClient(application) as client:
         identifier = upload(client,path,{"batch_size":"1"}).json()["id"]
         try:
@@ -179,11 +179,11 @@ def test_invalid_upload_size_schema_and_job_paths(tmp_path):
         assert upload(client,path).status_code == 400
 
 
-def test_recover_final_json_before_zip_and_status_update(tmp_path,llm):
+def test_recover_final_json_before_zip_and_status_update(tmp_path,reranker):
     path = write_queries(tmp_path / "queries.parquet",identifiers=(1,))
     root = tmp_path / "jobs"
     transport = Transport({})
-    options = arguments(transport,llm,resume_tag="api-v1")
+    options = arguments(transport,reranker,resume_tag="api-v1")
     with TestClient(create_app(jobs_dir=root,pipeline_options=options)) as client:
         identifier = upload(client,path).json()["id"]
         assert wait_status(client,identifier,{"completed","failed"})["status"] == "completed"
@@ -199,7 +199,7 @@ def test_recover_final_json_before_zip_and_status_update(tmp_path,llm):
     assert len(transport.calls) == 1
 
 
-def test_jobs_queue_serially_and_queued_job_can_pause_and_resume(tmp_path,llm):
+def test_jobs_queue_serially_and_queued_job_can_pause_and_resume(tmp_path,reranker):
     path = write_queries(tmp_path / "queries.parquet",identifiers=(1,))
     transport = Transport({})
     entered, release = Event(), Event()
@@ -217,7 +217,7 @@ def test_jobs_queue_serially_and_queued_job_can_pause_and_resume(tmp_path,llm):
             running -= 1
 
     application = create_app(jobs_dir=tmp_path / "jobs",runner=runner,
-                             pipeline_options=arguments(transport,llm,resume_tag="api-v1"))
+                             pipeline_options=arguments(transport,reranker,resume_tag="api-v1"))
     with TestClient(application) as client:
         first = upload(client,path).json()["id"]
         try:
