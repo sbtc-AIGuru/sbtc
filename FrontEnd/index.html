@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#145c50">
+  <title>SBTC · Truy hồi y khoa</title>
+  <link rel="stylesheet" href="/assets/styles.css">
+  <script src="/assets/app.js" defer></script>
+</head>
+<body>
+  <header class="site-header">
+    <a class="brand" href="/" aria-label="SBTC · Trang chủ">
+      <span class="brand-mark" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none"><path d="M9 3h6v6h6v6h-6v6H9v-6H3V9h6V3Z" fill="currentColor"/></svg></span>
+      <strong>SBTC</strong><span class="brand-divider"></span><span>Medical Retrieval</span>
+    </a>
+    <span id="connection" class="connection"><span class="status-dot"></span><span>Đang kết nối</span></span>
+  </header>
+
+  <main class="workspace">
+    <div class="page-intro">
+      <div><p class="eyebrow">KHÔNG GIAN XỬ LÝ DỮ LIỆU</p><h1>Truy hồi y khoa.</h1><p class="intro-copy">Tải lên truy vấn. Chọn phạm vi. Nhận kết quả nguồn.</p></div>
+      <div class="save-note"><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="m5 12 4 4L19 6M7 21h10a2 2 0 0 0 2-2v-5M5 9V5a2 2 0 0 1 2-2h8" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Checkpoint được lưu<br><strong>sau mỗi batch</strong></span></div>
+    </div>
+
+    <p id="notice" class="notice" role="alert" hidden></p>
+
+    <div class="workspace-grid">
+      <section class="panel upload-panel" aria-labelledby="upload-heading">
+        <div class="panel-heading"><span class="section-number">01</span><h2 id="upload-heading">Thiết lập lần chạy</h2></div>
+        <form id="upload-form">
+          <label for="file" class="field-label">File truy vấn <span class="required">*</span></label>
+          <div id="drop-zone" class="drop-zone">
+            <input id="file" name="file" type="file" accept=".parquet" required aria-describedby="file-hint file-summary">
+            <svg class="upload-icon" viewBox="0 0 40 40" fill="none" aria-hidden="true"><path d="M24 6H12a3 3 0 0 0-3 3v22a3 3 0 0 0 3 3h16a3 3 0 0 0 3-3V13L24 6Z" stroke="currentColor" stroke-width="1.5"/><path d="M24 6v8h7M20 28V18m-4 4 4-4 4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            <strong id="file-summary">Kéo thả file Parquet vào đây</strong><span>hoặc <span class="text-link">chọn file từ máy tính</span></span>
+            <small>.parquet · Tối đa 128 MB mặc định</small>
+          </div>
+          <p id="file-hint" class="field-hint">Cần có ID, truy vấn tiếng Việt và bản dịch Anh, Trung.</p>
+
+          <div class="form-section-heading"><h3>Phạm vi xử lý</h3><span>Tùy chọn</span></div>
+          <div class="range-grid">
+            <div><label for="start" class="field-label">Từ dòng</label><input id="start" name="start" type="number" min="1" step="1" placeholder="Dòng đầu tiên" inputmode="numeric" aria-describedby="range-hint"></div>
+            <span class="range-dash" aria-hidden="true">—</span>
+            <div><label for="end" class="field-label">Đến dòng</label><input id="end" name="end" type="number" min="1" step="1" placeholder="Dòng cuối cùng" inputmode="numeric" aria-describedby="range-hint"></div>
+          </div>
+          <p id="range-hint" class="field-hint">Đếm từ 1, gồm cả hai đầu. Để trống để chạy hết file.</p>
+
+          <div class="batch-row"><div><label for="batch-size" class="field-label">Số truy vấn mỗi batch</label><p class="field-hint">Lưu checkpoint khi batch hoàn tất.</p></div><select id="batch-size" name="batch_size"><option value="8">8 dòng</option><option value="16" selected>16 dòng</option><option value="32">32 dòng</option><option value="64">64 dòng</option></select></div>
+          <div id="upload-progress-wrap" class="upload-progress-wrap" hidden><div class="progress-caption"><span>Đang tải file lên</span><span id="upload-percent">0%</span></div><progress id="upload-progress" max="100" value="0" aria-label="Tiến độ tải file"></progress></div>
+          <button id="submit-button" class="button button-primary start-button" type="submit" disabled><span>Bắt đầu xử lý</span><span aria-hidden="true">↗</span></button>
+          <p class="form-footnote">Có thể đóng trang và quay lại theo dõi tác vụ.</p>
+        </form>
+      </section>
+
+      <section class="panel results-panel" aria-labelledby="results-heading">
+        <div class="panel-heading"><span class="section-number">02</span><h2 id="results-heading">Tiến độ &amp; kết quả</h2><span id="job-badge" class="badge" hidden></span></div>
+        <div id="empty-state" class="empty-state">
+          <div class="empty-illustration" aria-hidden="true"><span class="paper paper-back"></span><span class="paper paper-front"><span></span><span></span><span></span><i>↗</i></span></div>
+          <h3>Sẵn sàng cho lần chạy đầu tiên</h3><p>Chọn file và bắt đầu xử lý.<br>Tiến độ, checkpoint và file ZIP sẽ xuất hiện ở đây.</p>
+          <div class="workflow"><span>Parquet</span><span aria-hidden="true">→</span><span>Truy hồi</span><span aria-hidden="true">→</span><span>output.zip</span></div>
+        </div>
+        <div id="job-detail" class="job-detail" hidden>
+          <p class="eyebrow detail-eyebrow">FILE ĐANG THEO DÕI</p><h3 id="job-filename" class="job-filename"></h3><p id="job-meta" class="job-meta"></p>
+          <div class="metrics"><div><span>Đã lưu</span><strong id="completed-count">0</strong></div><div><span>Cần thử lại</span><strong id="failed-count">0</strong></div><div><span>Tổng truy vấn</span><strong id="total-count">0</strong></div></div>
+          <div class="progress-caption"><span id="progress-label">Đang chờ</span><strong id="progress-percent">0%</strong></div><progress id="job-progress" value="0" max="100" aria-label="Tiến độ truy hồi"></progress>
+          <p id="job-status-copy" class="status-copy" aria-live="polite"></p>
+          <div id="job-error" class="job-error" hidden><p id="job-error-text"></p><a id="errors-link" hidden>Tải chi tiết lỗi</a></div>
+          <div class="job-actions"><button id="pause-button" type="button" class="button button-secondary" hidden>Tạm dừng sau batch</button><button id="resume-button" type="button" class="button button-primary" hidden>Tiếp tục từ checkpoint <span aria-hidden="true">↗</span></button><a id="download-link" class="button button-primary" download="output.zip" hidden>Tải output.zip <span aria-hidden="true">↓</span></a></div>
+          <div class="checkpoint-note"><span class="checkpoint-icon" aria-hidden="true">✓</span><p>Giữ nguyên tiến độ đã lưu.<br><span>Tiếp tục chỉ xử lý những dòng còn thiếu hoặc bị lỗi.</span></p></div>
+        </div>
+      </section>
+    </div>
+
+    <section class="history-section" aria-labelledby="history-heading"><div class="history-heading"><h2 id="history-heading">Các lần chạy</h2><span id="history-count">0 tác vụ</span></div><p id="history-empty" class="history-empty">Chưa có tác vụ. Lần chạy mới sẽ được lưu tại đây.</p><div id="job-history" class="job-history"></div></section>
+    <footer><span>SBTC · R2AI 2026</span><span>Document &amp; Chunk Retrieval</span></footer>
+  </main>
+</body>
+</html>
