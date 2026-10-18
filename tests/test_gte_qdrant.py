@@ -20,6 +20,7 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 from Scripts.Qdrant import build_gte_qdrant as runner
 from Scripts.Qdrant import restore_qdrant_snapshot as restore
+from BackEnd.app.Database.qdrant_db import QdrantManager
 
 NOTEBOOK = ROOT / "BackEnd/app/Database/Notebook/Qdrant_GTE_Snapshot_2GPU.ipynb"
 
@@ -30,12 +31,12 @@ def config(tmp_path):
     documents = []
     for number in range(100):
         documents.append({"doc_id": number, "url": f"https://example.org/{number}",
-                          "source_language": "vi", "children": [{
+            "source_language": "vi", "children": [{
             "chunk_id": f"{number}:c{offset}", "parent_id": f"{number}:p0",
             "chunk_order": offset, "start_char": 0, "end_char": 20,
             "chunk_text": "" if number % 11 == 0 else f"English / tiếng Việt / 中文 {number} {offset}",
             "retrieval_eligible": number % 2 == 0,
-        } for offset in range(3)]})
+        } for offset in range(3)], "parents": [{"parent_id": f"{number}:p0"}]})
     source.write_text("".join(json.dumps(doc, ensure_ascii=False) + "\n" for doc in documents))
     state, output = tmp_path / "state", tmp_path / "output"
     state.mkdir()
@@ -44,7 +45,9 @@ def config(tmp_path):
             "expected_documents": 100, "expected_chunks": 300, "dimension": 16,
             "model": "Alibaba-NLP/gte-multilingual-base", "revision": "model-revision",
             "code_revision": "code-revision", "max_length": 8192,
-            "collection": "sbtc_test", "state_dir": str(state), "output": str(output),
+            "collection": "sbtc_test", "qdrant_url": "http://127.0.0.1:6333",
+            "state_dir": str(state), "output": str(output),
+            "bm25_options": runner.BM25_OPTIONS,
             "output_budget_root": str(output), "output_limit_bytes": 1024**3,
             "binary": os.environ.get("QDRANT_TEST_BINARY", "/not-installed/qdrant"),
             "hnsw_m": 8, "ef_construction": 32, "indexing_threshold_kb": 1,
@@ -73,11 +76,67 @@ def test_source_shards_payload_and_checksum(config):
     assert len({row["chunk_id"] for row in rows}) == 300
     assert any(row["empty_text"] and row["chunk_text"] == "" for row in rows)
     assert any(row["retrieval_eligible"] is False for row in rows)
+    assert all(row["parent_id"] == f"{row['doc_id']}:p0" for row in rows)
     assert all(row["url"] and row["source_language"] == "vi" for row in rows)
     with pytest.raises(ValueError, match="SHA-256"):
         runner.validate_source({**config, "source_sha256": "wrong"})
     with pytest.raises(ValueError, match="counts"):
         runner.validate_source({**config, "expected_chunks": 301})
+
+
+def test_source_rejects_unknown_parent_before_gpu(config):
+    path = Path(config["source"])
+    documents = [json.loads(line) for line in path.read_text().splitlines()]
+    documents[0]["children"][0]["parent_id"] = "not-a-source-parent"
+    path.write_text("\n".join(json.dumps(doc) for doc in documents))
+    with pytest.raises(ValueError, match="Unknown parent_id"):
+        runner.validate_source(config)
+
+
+@pytest.mark.parametrize("field,value", [("chunk_id", ""), ("parent_id", None), ("doc_id", 999)])
+def test_source_id_contract(config, field, value):
+    document = json.loads(Path(config["source"]).read_text().splitlines()[0])
+    child = {**document["children"][0], field: value}
+    with pytest.raises(ValueError, match=field):
+        runner.make_record(document, child, 1)
+
+
+def test_real_dataset_ids_are_kept_verbatim():
+    path = ROOT / "datav2/merged.jsonl"
+    if not path.exists():
+        pytest.skip("Local datav2 source not available")
+    with path.open() as stream:
+        document = json.loads(next(stream))
+    parent_ids = {parent["parent_id"] for parent in document["parents"]}
+    for child in document["children"]:
+        payload = runner.make_record(document, child, 1)
+        assert payload["chunk_id"] == child["chunk_id"]
+        assert payload["parent_id"] == child["parent_id"] in parent_ids
+        assert payload["doc_id"] == child["doc_id"] == document["doc_id"]
+
+
+def test_collection_has_disk_sparse_idf_and_keyword_indexes(config, monkeypatch):
+    monkeypatch.setattr(runner.requests, "get", lambda *args, **kwargs: SimpleNamespace(status_code=404))
+    calls = []
+    monkeypatch.setattr(runner, "api", lambda config, method, path, body: calls.append((path, body)))
+    runner.create_collection(config)
+    body = calls[0][1]
+    assert body["vectors"]["dense"]["size"] == 16
+    assert body["sparse_vectors"]["bm25"] == {"modifier": "idf", "index": {"on_disk": True}}
+    assert {call[1]["field_name"] for call in calls[1:]} == {"chunk_id", "parent_id"}
+    assert all(call[1]["field_schema"] == {"type": "keyword", "on_disk": True} for call in calls[1:])
+
+
+def test_resume_signature_includes_bm25_and_rejects_old_dense_manifest(config, tmp_path):
+    changed = {**config, "bm25_options": {**config["bm25_options"], "ascii_folding": True}}
+    assert runner.signature(config) != runner.signature(changed)
+    legacy = runner.signature(config)
+    del legacy["vector_schema"]
+    (tmp_path / "snapshot_manifest.json").write_text(json.dumps({
+        "signature": legacy, "qdrant_version": runner.QDRANT_VERSION,
+    }))
+    with pytest.raises(ValueError, match="does not match"):
+        runner.restore_for_resume({**config, "resume_from": str(tmp_path)})
 
 
 def test_upsert_retries_acknowledgement_loss_with_same_ids(config, monkeypatch):
@@ -97,6 +156,10 @@ def test_upsert_retries_acknowledgement_loss_with_same_ids(config, monkeypatch):
     runner.upsert_batch(config, rows, vectors, None)
     assert calls[0] == calls[1] and len(points) == 2
     assert {point["payload"]["chunk_id"] for point in points.values()} == {row["chunk_id"] for row in rows}
+    assert all(set(point["vector"]) == {"dense", "bm25"} for point in points.values())
+    for point in points.values():
+        assert point["vector"]["bm25"]["text"] == point["payload"]["chunk_text"]
+        assert point["vector"]["bm25"]["options"] == runner.BM25_OPTIONS
 
 
 def test_interrupted_worker_replays_uncommitted_batch_without_duplicate_points(config, monkeypatch):
@@ -202,6 +265,26 @@ def test_recovery_snapshot_waits_for_in_flight_point_count_to_settle(config, mon
     assert len(calls) == 2 and manifest["points"] == 2
 
 
+def test_restore_validation_failure_cannot_publish_complete_manifest(config, monkeypatch):
+    folder = Path(config["state_dir"]) / "snapshots" / config["collection"]
+    folder.mkdir(parents=True)
+    snapshot = folder / "test.snapshot"
+    with tarfile.open(snapshot, "w") as archive:
+        item = tarfile.TarInfo("test.bin")
+        item.size = 1
+        archive.addfile(item, io.BytesIO(b"x"))
+    monkeypatch.setattr(runner, "count_points", lambda config: 1)
+    monkeypatch.setattr(runner, "api", lambda *args, **kwargs: {"name": snapshot.name})
+
+    def fail(*args):
+        raise ValueError("Hybrid restore failed")
+
+    monkeypatch.setattr(runner, "verify_snapshot_restore", fail)
+    with pytest.raises(ValueError, match="Hybrid restore failed"):
+        runner.export_snapshot(config, complete=True)
+    assert not (Path(config["output"]) / "snapshot_manifest.json").exists()
+
+
 def test_notebook_is_standalone_and_matches_sources():
     notebook = json.loads(NOTEBOOK.read_text())
     assert notebook["metadata"]["kaggle"]["isGpuEnabled"]
@@ -216,6 +299,7 @@ def test_notebook_is_standalone_and_matches_sources():
                 exec(source.split("runner_path.write_text")[0], embedded)
     assert embedded["runner_source"] == Path(runner.__file__).read_text()
     assert embedded["restore_source"] == Path(restore.__file__).read_text()
+    assert embedded["client_source"] == (ROOT / "BackEnd/app/Database/qdrant_db.py").read_text()
 
 
 def unused_port():
@@ -265,7 +349,34 @@ def test_real_qdrant_snapshot_restores_vectors_text_and_progress(config, tmp_pat
         assert len(points) == 300
         assert any(point["payload"]["empty_text"] for point in points)
         assert any("中文" in point["payload"]["chunk_text"] for point in points)
-        assert all(len(point["vector"]) == 16 for point in points)
+        assert all(len(point["vector"]["dense"]) == 16 and "bm25" in point["vector"] for point in points)
+        assert all(point["payload"]["parent_id"] == f"{point['payload']['doc_id']}:p0" for point in points)
+        assert manifest["restore_verification"]["verified"]
+        assert manifest["restore_verification"]["search"]["hybrid"]
+        assert restore.verify(Path(config["output"]), restored["qdrant_url"])["hybrid"]
+        sample = next(point for point in points if point["vector"]["bm25"]["indices"])
+        payload = sample["payload"]
+        with QdrantManager.from_manifest(
+            Path(config["output"]) / "snapshot_manifest.json", url=restored["qdrant_url"],
+            dense_encoder=lambda texts: [sample["vector"]["dense"] for _ in texts],
+        ) as client:
+            hits = client.search_text(sample["vector"]["dense"], payload["chunk_text"],
+                query_filter={"must": [
+                    {"key": field, "match": {"value": payload[field]}}
+                    for field in ("chunk_id", "parent_id")
+                ]})
+            assert len(hits) == 1 and hits[0]["id"] == sample["id"]
+            assert hits[0]["payload"] == payload
+            query = {"original_query": payload["chunk_text"],
+                     "eng_query": "English", "chinese_query": "中文"}
+            query_filter = {"must": [
+                {"key": field, "match": {"value": payload[field]}}
+                for field in ("chunk_id", "parent_id")
+            ]}
+            for method in (client.query_original_dense, client.query_multilingual_dense):
+                hits = method(query, query_filter=query_filter)
+                assert len(hits) == 1 and hits[0]["id"] == sample["id"]
+                assert hits[0]["payload"] == payload
         monkeypatch.setattr(runner, "load_encoder", lambda config: pytest.fail("Completed shards must not load the model"))
         runner.run_worker(restored, 0)
         runner.run_worker(restored, 1)

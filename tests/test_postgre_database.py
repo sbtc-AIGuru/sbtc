@@ -122,6 +122,37 @@ def test_round_trip_preserves_all_fields_and_original_child_order(manager):
     assert manager.get_chunks_by_document(1, offset=1) == record["children"][1:]
 
 
+def test_submission_chunks_batch_missing_ids_and_parameterized_lookup(manager):
+    manager.add_documents([sample_document(1), sample_document(2)])
+    statements = []
+
+    def capture(connection, cursor, statement, parameters, context, executemany):
+        statements.append((statement, parameters))
+
+    event.listen(manager.engine, "before_cursor_execute", capture)
+    try:
+        malicious = "missing'); DROP TABLE chunk; --"
+        records = manager.get_submission_chunks(
+            ["2:c:1", "1:c:1", "2:c:1", malicious, "missing"], batch_size=2,
+        )
+        assert list(records) == ["2:c:1", "1:c:1", malicious, "missing"]
+        assert records["1:c:1"] == {
+            "chunk_id": "1:c:1", "doc_id": 1, "chunk_text": "Tiếng Việt\n中文。",
+        }
+        assert records["2:c:1"]["doc_id"] == 2
+        assert records[malicious] is None and records["missing"] is None
+        assert len(statements) == 2
+        assert all(malicious not in sql for sql, _ in statements)
+        statements.clear()
+        assert manager.get_submission_chunks([]) == {}
+        assert statements == []
+        with pytest.raises(ValueError, match="positive"):
+            manager.get_submission_chunks(["1:c:1"], batch_size=0)
+    finally:
+        event.remove(manager.engine, "before_cursor_execute", capture)
+    assert manager.get_document(1) == sample_document(1)
+
+
 def test_skipped_document_and_explicit_null_are_not_lost(manager):
     skipped = {"doc_id": 2, "url": "https://example.com/failed", "status": "skipped",
                "parents": [], "children": [], "reason": "crawl_failed", "input_line": 2}

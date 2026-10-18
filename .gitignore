@@ -64,6 +64,8 @@ postgres-data/
 data/
 datasets/
 checkpoints/
+/artifacts/api-jobs/
+/artifacts/model-cache/
 *.pt
 *.pth
 *.ckpt

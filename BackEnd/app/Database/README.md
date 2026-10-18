@@ -155,3 +155,90 @@ Test mặc định dùng SQLite trong RAM để kiểm tra round-trip JSON, tran
 ràng buộc. Để kiểm tra JSONB và DDL PostgreSQL, đặt `SBTC_TEST_DATABASE_URL` tới
 một **database test riêng** rồi chạy cùng lệnh. Các test tạo schema có tên riêng,
 không xóa schema hiện có. Không dùng database production để chạy test.
+
+## Truy vấn Qdrant dense và hybrid
+
+`qdrant_db.py` cung cấp `QdrantManager`, sử dụng REST và connection pool của
+`requests`. Constructor không kết nối mạng hoặc tải model. Các phương thức chỉ
+đọc dữ liệu; không tạo collection, sparse index hoặc sửa snapshot.
+
+Snapshot dense-only cũ trên VM dùng collection `sbtc_gte_multilingual`, vector
+dense **không có tên**, 768 chiều, Cosine. Notebook hybrid mới dùng hai tên
+`dense` và `bm25`; client nhận ra tên `dense` hoặc đọc chính xác từ manifest.
+`search_dense()` dùng được với cả hai schema. `search()`
+thực hiện hybrid bằng hai nhánh `prefetch` dense/sparse rồi fusion RRF mặc định;
+có thể chọn `fusion="dbsf"`. Kết quả là danh sách point `{id, score, payload}`
+theo thứ tự Qdrant trả về; payload mặc định chứa `chunk_text` và metadata gốc.
+Score hybrid là fusion score, không phải cosine hoặc xác suất relevance.
+
+`search()` nhận **vector đã encode**. `search_text(dense_vector, query_text)`
+nhận câu hỏi cho nhánh native BM25, vẫn cần dense vector đã encode. Dense query phải
+dùng đúng `Alibaba-NLP/gte-multilingual-base`, revision
+`9bbca17d9273fd0d03d5725c7a4b0f6b45142062`, code revision
+`40ced75c3017eb27626c9d4ea981bde21a2662f4`, CLS pooling và L2 normalization theo
+manifest. Sparse query dạng `{"indices": [...], "values": [...]}` phải dùng cùng
+encoder, token IDs và quy tắc trọng số với dữ liệu sparse đã index. Không chuyển
+trực tiếp score/hit BM25 Lucene thành sparse query vector.
+
+Với output notebook hybrid, nên dùng manifest để giữ đúng BM25 options:
+
+```python
+with QdrantManager.from_manifest("snapshot_manifest.json") as database:
+    hits = database.search_text(dense_query_vector, query_text, top_k=20)
+```
+
+Xem hướng dẫn đầy đủ tại `Scripts/Qdrant/README_HYBRID_RESTORE.md`; notebook
+đóng gói bản hướng dẫn này thành `README_RESTORE.md` cùng client và query mẫu.
+
+```python
+import json
+from pathlib import Path
+from BackEnd.app.Database import QdrantManager
+
+# File do bước encode query của ứng dụng tạo: dense là mảng 768 số.
+vectors = json.loads(Path("query_vectors.json").read_text(encoding="utf-8"))
+
+with QdrantManager() as database:
+    dense_hits = database.search_dense(vectors["dense"], top_k=20)
+
+    # Chỉ chạy khi collection đã có sparse vector "bm25" được nạp dữ liệu.
+    hybrid_hits = database.search(
+        vectors["dense"], vectors["bm25"], top_k=20, prefetch_limit=200,
+        query_filter={"must": [{"key": "source_language", "match": {"value": "vi"}}]},
+    )
+```
+
+Collection dense-only cũ chưa có sparse vector. Gọi `search()` lúc này báo lỗi rõ ràng,
+không tự trả dense dưới tên hybrid. Sau khi quản trị viên thêm và nạp sparse
+index, gọi `refresh_collection()` hoặc tạo manager mới để cập nhật schema cache.
+Chỉ khai báo sparse vector trong schema chưa đủ; cần nạp vector cho các điểm.
+
+Cấu hình qua constructor hoặc biến môi trường:
+
+| Biến | Mặc định |
+|---|---|
+| `QDRANT_URL` | `http://127.0.0.1:6333` |
+| `QDRANT_COLLECTION` | `sbtc_gte_multilingual` |
+| `QDRANT_DENSE_VECTOR_NAME` | Không đặt; dùng unnamed hoặc tự nhận tên `dense` |
+| `QDRANT_SPARSE_VECTOR_NAME` | `bm25` |
+| `QDRANT_API_KEY` | Không đặt |
+
+Qdrant trên VM chỉ bind localhost. Nếu ứng dụng chạy trên máy cá nhân, mở tunnel
+trong terminal riêng rồi đặt `QDRANT_URL=http://127.0.0.1:16333`:
+
+```bash
+ssh -N -L 127.0.0.1:16333:127.0.0.1:6333 \
+  -p 58431 ezycloudx-admin@14.226.225.67
+```
+
+Kiểm tra offline, không cần Qdrant server hoặc model:
+
+```bash
+.venv/bin/python -m pytest tests/test_qdrant_db.py -q
+```
+
+Các test xác minh schema có/không có sparse, unnamed/named vectors, fusion,
+filter ở cả hai nhánh, payload, native BM25 query options, validation và lỗi HTTP.
+Integration snapshot/restore của notebook dùng binary thật qua
+`QDRANT_TEST_BINARY` trong `tests/test_gte_qdrant.py`; test đó dùng fixture nhỏ,
+không chạy embedding full hoặc đổi collection trên VM.

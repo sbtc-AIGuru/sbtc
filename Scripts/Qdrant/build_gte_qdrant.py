@@ -1,4 +1,4 @@
-"""Kaggle T4 x2: GTE embeddings -> disk-backed Qdrant -> portable snapshot."""
+"""Kaggle T4 x2: GTE + native BM25 -> verified portable hybrid snapshot."""
 
 import argparse
 import gc
@@ -25,6 +25,20 @@ import requests
 QDRANT_VERSION = "1.19.2"
 QDRANT_URL = f"https://github.com/qdrant/qdrant/releases/download/v{QDRANT_VERSION}/qdrant-x86_64-unknown-linux-musl.tar.gz"
 QDRANT_SHA256 = "50b253243309ed0ae50a19f678f0d0adcc4f0b567b3bd2c5c0c7e02fa8404bb6"
+DENSE_VECTOR = "dense"
+SPARSE_VECTOR = "bm25"
+BM25_OPTIONS = {"tokenizer": "multilingual", "stemmer": {"type": "none"},
+                "stopwords": {}, "ascii_folding": False}
+
+
+def vector_schema(config: dict) -> dict:
+    return {"dense": DENSE_VECTOR, "sparse": SPARSE_VECTOR,
+            "bm25_model": "qdrant/bm25", "bm25_options": config["bm25_options"],
+            "modifier": "idf"}
+
+
+def bm25_document(text: str, config: dict) -> dict:
+    return {"text": text, "model": "qdrant/bm25", "options": config["bm25_options"]}
 
 
 def padded_batches(order: list[int], lengths: list[int], batch_size: int, token_budget: int):
@@ -141,16 +155,21 @@ def checksum(path: Path) -> str:
 
 
 def signature(config: dict) -> dict:
-    return {key: config[key] for key in (
+    return {**{key: config[key] for key in (
         "source_sha256", "expected_documents", "expected_chunks", "model", "revision",
         "code_revision", "dimension", "max_length", "collection",
-    )}
+    )}, "vector_schema": vector_schema(config), "payload_schema_version": 2}
 
 
 def make_record(document: dict, child: dict, line: int) -> dict:
     text = child["chunk_text"]
     if not isinstance(text, str):
         raise ValueError(f"Non-string chunk_text at source line {line}")
+    for field in ("chunk_id", "parent_id"):
+        if not isinstance(child.get(field), str) or not child[field].strip():
+            raise ValueError(f"Missing or invalid {field} at source line {line}")
+    if "doc_id" in child and child["doc_id"] != document["doc_id"]:
+        raise ValueError(f"Child doc_id differs from its document at source line {line}")
     return {
         "chunk_id": child["chunk_id"], "doc_id": document["doc_id"],
         "parent_id": child["parent_id"], "chunk_order": child["chunk_order"],
@@ -180,8 +199,11 @@ def validate_source(config: dict) -> dict:
         for documents, raw in enumerate(stream, start=1):
             digest.update(raw)
             document = json.loads(raw)
+            parent_ids = {parent["parent_id"] for parent in document.get("parents", [])}
             for child in document.get("children", []):
                 record = make_record(document, child, documents)
+                if record["parent_id"] not in parent_ids:
+                    raise ValueError(f"Unknown parent_id at source line {documents}: {record['parent_id']}")
                 payload = (json.dumps(record, ensure_ascii=False) + "\n").encode("utf-8")
                 payload_bytes += len(payload)
                 compressed_bytes += len(compressor.compress(payload))
@@ -214,18 +236,24 @@ def check_resources(config: dict, source: dict) -> None:
         raise RuntimeError(f"Qdrant state must be on disk, not {kind}: {state}")
     vectors = config["expected_chunks"] * config["dimension"] * 4
     graph = config["expected_chunks"] * (8 * config["hnsw_m"] + 128)
-    collection = vectors + graph + source["payload_bytes"]
+    # Sparse postings/token IDs and keyword payload indexes add storage. This is
+    # a conservative planning allowance, not a measured BM25 compression ratio.
+    sparse_budget = source["payload_bytes"]
+    collection = vectors + graph + source["payload_bytes"] + sparse_budget
     # Covers segment rewrites, the collection, snapshot temporary data and export.
     required = 4 * collection + 4 * 1024**3
     free = shutil.disk_usage(state).free
     print(f"Qdrant disk ({kind}): free={free / 1024**3:.2f} GiB; budget={required / 1024**3:.2f} GiB", flush=True)
     if free < required:
         raise RuntimeError("Not enough state disk space for Qdrant plus snapshot copies")
-    estimated_export = vectors + graph + int(source["gzip_payload_bytes"] * 1.5) + 512 * 1024**2
+    estimated_export = vectors + graph + int(source["gzip_payload_bytes"] * 2) + 512 * 1024**2
     budget = output_budget(config)
     print(f"Output: remaining={budget / 1024**3:.2f} GiB; estimated compressed snapshot={estimated_export / 1024**3:.2f} GiB", flush=True)
     if budget < estimated_export:
-        raise RuntimeError("Output budget is too small for the estimated snapshot; use a larger output filesystem")
+        print("WARNING: hybrid export may exceed Output quota; final size is checked exactly. "
+              "An oversized snapshot stays in state and the run is not marked complete.", flush=True)
+    if budget < vectors * 0.8 + 512 * 1024**2:
+        raise RuntimeError("Output budget cannot reasonably hold the dense vectors alone")
     host = psutil.virtual_memory()
     maximum = Path("/sys/fs/cgroup/memory.max")
     limit = int(maximum.read_text()) if maximum.exists() and maximum.read_text().strip().isdigit() else host.total
@@ -326,19 +354,26 @@ def create_collection(config: dict) -> None:
     response = requests.get(config["qdrant_url"] + f"/collections/{name}", timeout=30)
     if response.status_code != 404:
         response.raise_for_status()
-        vectors = response.json()["result"]["config"]["params"]["vectors"]
-        if vectors["size"] != config["dimension"] or vectors["distance"] != "Cosine":
-            raise ValueError("Existing collection vector configuration does not match")
-        return
-    api(config, "PUT", f"/collections/{name}", {
-        "vectors": {"size": config["dimension"], "distance": "Cosine", "on_disk": True,
-                    "datatype": "float32"},
-        "on_disk_payload": True, "shard_number": 1,
-        "hnsw_config": {"m": 0, "on_disk": True, "max_indexing_threads": 2},
-        "optimizers_config": {"default_segment_number": 2, "max_segment_size": 500_000,
-                              "indexing_threshold": config["indexing_threshold_kb"],
-                              "max_optimization_threads": 1},
-    })
+        params = response.json()["result"]["config"]["params"]
+        vectors = params["vectors"].get(DENSE_VECTOR, {})
+        sparse = (params.get("sparse_vectors") or {}).get(SPARSE_VECTOR, {})
+        if (vectors.get("size") != config["dimension"] or vectors.get("distance") != "Cosine"
+                or sparse.get("modifier") != "idf"):
+            raise ValueError("Existing collection is not the matching dense+BM25 schema; use new state")
+    else:
+        api(config, "PUT", f"/collections/{name}", {
+            "vectors": {DENSE_VECTOR: {"size": config["dimension"], "distance": "Cosine", "on_disk": True,
+                                       "datatype": "float32"}},
+            "sparse_vectors": {SPARSE_VECTOR: {"modifier": "idf", "index": {"on_disk": True}}},
+            "on_disk_payload": True, "shard_number": 1,
+            "hnsw_config": {"m": 0, "on_disk": True, "max_indexing_threads": 2},
+            "optimizers_config": {"default_segment_number": 2, "max_segment_size": 500_000,
+                                  "indexing_threshold": config["indexing_threshold_kb"],
+                                  "max_optimization_threads": 1},
+        })
+    for field in ("chunk_id", "parent_id"):
+        api(config, "PUT", f"/collections/{name}/index?wait=true",
+            {"field_name": field, "field_schema": {"type": "keyword", "on_disk": True}})
 
 
 def point_id(chunk_id: str) -> str:
@@ -348,7 +383,10 @@ def point_id(chunk_id: str) -> str:
 def upsert_batch(config: dict, records: list[dict], vectors: np.ndarray, session) -> None:
     for start in range(0, len(records), config["upsert_batch_size"]):
         rows = records[start:start + config["upsert_batch_size"]]
-        points = [{"id": point_id(row["chunk_id"]), "vector": vector.tolist(), "payload": row}
+        points = [{"id": point_id(row["chunk_id"]),
+                   "vector": {DENSE_VECTOR: vector.tolist(),
+                              SPARSE_VECTOR: bm25_document(row["chunk_text"], config)},
+                   "payload": row}
                   for row, vector in zip(rows, vectors[start:start + len(rows)], strict=True)]
         # An acknowledgement can be lost after Qdrant commits. Stable UUIDs make
         # replaying this upsert safe; progress is written only after wait=true.
@@ -472,18 +510,72 @@ def wait_for_index(config: dict) -> dict:
     raise TimeoutError("HNSW optimization timed out; export a recovery snapshot instead of claiming success")
 
 
-def check_search(config: dict) -> None:
+def check_search(config: dict) -> dict:
     name = config["collection"]
     points = api(config, "POST", f"/collections/{name}/points/scroll",
-                 {"limit": 1, "with_vector": True, "with_payload": True})["points"]
-    if not points or "chunk_text" not in points[0]["payload"]:
-        raise ValueError("Collection has no readable point with chunk text")
+                 {"limit": 64, "with_vector": True, "with_payload": True,
+                  "filter": {"must": [{"key": "empty_text", "match": {"value": False}}]}})["points"]
+    point = next((p for p in points if p["vector"].get(SPARSE_VECTOR, {}).get("indices")), None)
+    if point is None:
+        raise ValueError("Collection has no nonempty text for hybrid verification")
+    payload, vectors = point["payload"], point["vector"]
+    if not all(payload.get(key) for key in ("chunk_text", "chunk_id", "parent_id")):
+        raise ValueError("Missing chunk_text/chunk_id/parent_id in restored payload")
+    if point["id"] != point_id(payload["chunk_id"]) or len(vectors[DENSE_VECTOR]) != config["dimension"]:
+        raise ValueError("Stored point ID or dense vector does not match the source contract")
+    if not vectors[SPARSE_VECTOR]["indices"]:
+        raise ValueError("BM25 vector is empty for the hybrid smoke-test point")
     result = api(config, "POST", f"/collections/{name}/points/query", {
-        "query": points[0]["vector"], "limit": 3, "with_payload": True,
+        "query": vectors[DENSE_VECTOR], "using": DENSE_VECTOR, "limit": 3, "with_payload": True,
     })["points"]
     if not result or result[0]["score"] < 0.99:
         raise ValueError("Stored-vector similarity smoke test failed")
-    print("SEARCH PASSED: vectors and chunk payloads are readable", flush=True)
+    sparse_query = {"query": bm25_document(payload["chunk_text"], config), "using": SPARSE_VECTOR}
+    lexical = api(config, "POST", f"/collections/{name}/points/query", {
+        **sparse_query, "limit": 3, "with_payload": True,
+    })["points"]
+    hybrid = api(config, "POST", f"/collections/{name}/points/query", {
+        "prefetch": [{"query": vectors[DENSE_VECTOR], "using": DENSE_VECTOR, "limit": 20},
+                     {**sparse_query, "limit": 20}],
+        "query": {"fusion": "rrf"}, "limit": 3, "with_payload": True,
+    })["points"]
+    if not lexical or not hybrid:
+        raise ValueError("BM25/hybrid search returned no results")
+    for hit in lexical + hybrid:
+        if not all(key in hit["payload"] for key in ("chunk_id", "parent_id", "chunk_text")):
+            raise ValueError("Hybrid results lost source metadata")
+    filtered = api(config, "POST", f"/collections/{name}/points/scroll", {
+        "limit": 1, "with_payload": True,
+        "filter": {"must": [{"key": "chunk_id", "match": {"value": payload["chunk_id"]}},
+                             {"key": "parent_id", "match": {"value": payload["parent_id"]}}]},
+    })["points"]
+    if not filtered or filtered[0]["payload"] != payload:
+        raise ValueError("chunk_id/parent_id payload lookup did not round-trip")
+    print("SEARCH PASSED: dense, BM25, hybrid RRF and chunk/parent metadata", flush=True)
+    return {"point_id": point["id"], "chunk_id": payload["chunk_id"], "parent_id": payload["parent_id"],
+            "dense": True, "bm25": True, "hybrid": True, "payload_lookup": True}
+
+
+def verify_snapshot_restore(config: dict, raw: Path, points: int) -> dict:
+    name = config["collection"] + "_restore_check"
+    existing = api(config, "GET", "/collections")["collections"]
+    if any(item["name"] == name for item in existing):
+        raise ValueError(f"Restore verification collection already exists: {name}")
+    api(config, "PUT", f"/collections/{name}/snapshots/recover?wait=true",
+        {"location": raw.resolve().as_uri(), "priority": "snapshot"}, timeout=3600)
+    try:
+        restored = {**config, "collection": name}
+        if count_points(restored) != points:
+            raise ValueError("Snapshot restore changed the exact point count")
+        info = api(restored, "GET", f"/collections/{name}")
+        for field in ("chunk_id", "parent_id"):
+            if field not in info["payload_schema"]:
+                raise ValueError(f"Restored snapshot lost the {field} keyword index")
+        report = check_search(restored)
+        return {"verified": True, "points": points, "search": report}
+    finally:
+        # Only the temporary collection created above belongs to this check.
+        api(config, "DELETE", f"/collections/{name}?timeout=120")
 
 
 def export_snapshot(config: dict, complete: bool) -> dict:
@@ -502,12 +594,13 @@ def export_snapshot(config: dict, complete: bool) -> dict:
     if not raw.is_file() or not tarfile.is_tarfile(raw):
         raise ValueError("Qdrant did not produce a valid collection snapshot archive")
     raw_sha256 = checksum(raw)
+    verification = verify_snapshot_restore(config, raw, points) if complete else {"verified": False}
     prefix = "sbtc_gte_multilingual" if complete else "RECOVERY_sbtc_gte_multilingual"
     source = raw
     if raw.stat().st_size > output_budget(config):
         source = Path(config["state_dir"]) / f"{prefix}.snapshot.gz"
         print("Compressing snapshot losslessly outside Kaggle Output", flush=True)
-        with raw.open("rb") as reader, gzip.open(source, "wb", compresslevel=1) as writer:
+        with raw.open("rb") as reader, gzip.open(source, "wb", compresslevel=6) as writer:
             shutil.copyfileobj(reader, writer, length=8 * 1024**2)
         digest = hashlib.sha256()
         with gzip.open(source, "rb") as reader:
@@ -534,12 +627,14 @@ def export_snapshot(config: dict, complete: bool) -> dict:
     manifest = {
         "complete": complete, "collection": name, "qdrant_version": QDRANT_VERSION,
         "signature": signature(config), "points": points, "progress": progress,
+        "vector_schema": vector_schema(config), "restore_verification": verification,
         "snapshot_file": target.name, "snapshot_bytes": target.stat().st_size,
         "snapshot_sha256": exported_sha256, "raw_snapshot_sha256": raw_sha256,
         "raw_snapshot_bytes": raw.stat().st_size,
         "embedding": {"pooling": "CLS", "normalized": True, "inference": "float16",
                       "storage": "float32", "long_text": "8192-token windows, content-length-weighted mean, L2"},
         "payload": "chunk_text, chunk_id, doc_id, parent_id, offsets, URL, language and flags",
+        "payload_indexes": {"chunk_id": "keyword", "parent_id": "keyword"},
     }
     write_json(Path(config["output"]) / "snapshot_manifest.json", manifest)
     print(f"{'SUCCESS' if complete else 'RECOVERY ONLY'}: {target}; {manifest['points']:,} points", flush=True)
@@ -608,7 +703,15 @@ def run_pipeline(config: dict, config_path: Path) -> None:
         if count_points(config) != config["expected_chunks"]:
             raise ValueError("Qdrant count differs from the corpus (missing or duplicate chunk IDs)")
         wait_for_index(config)
-        check_search(config)
+        search_report = check_search(config)
+        sample = api(config, "POST", f"/collections/{config['collection']}/points", {
+            "ids": [search_report["point_id"]], "with_payload": True, "with_vector": True,
+        })[0]
+        write_json(output / "hybrid_query_example.json", {
+            "text": sample["payload"]["chunk_text"], "dense_vector": sample["vector"][DENSE_VECTOR],
+            "chunk_id": sample["payload"]["chunk_id"], "parent_id": sample["payload"]["parent_id"],
+            "note": "Stored-vector restore smoke test. Encode each new query with the pinned GTE model.",
+        })
         export_snapshot(config, complete=True)
         write_json(output / "pipeline_status.json", {"success": True, "stage": "snapshot_exported"})
     except Exception as error:
