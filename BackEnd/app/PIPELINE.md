@@ -1,189 +1,147 @@
 # Medical retrieval pipeline
 
-Run from the repository root in the existing `.venv`. The module is
-`BackEnd/app/pipeline.py`; there was no pipeline implementation in this checkout.
+Run from the repository root with the existing `.venv`:
 
 ```bash
-.venv/bin/python -m BackEnd.app.pipeline /path/to/query_translated.parquet \
-  --output artifacts/pipeline/submission.json \
-  --zip artifacts/pipeline/submission.zip \
-  --batch-size 16 --workers 4 --llm-workers 2
+.venv/bin/python -m BackEnd.app.pipeline query_translated.parquet \
+  --output artifacts/pipeline/output.json --zip artifacts/pipeline/output.zip \
+  --batch-size 16 --workers 4 --reranker-device cuda:0
 ```
 
-Use `--limit 3` and a different output path for a small service smoke test.
-Omit `--limit` for the full dataset. `--help` lists all options.
+Omit `--reranker-device` to use the encoder's `--device` (default `cpu`).
+Use `--start 1 --end 16` for a small run. Bounds are inclusive, 1-based input
+row positions; omitted bounds run the entire file. IDs and output order remain
+unchanged. See also the [upload API](api/README.md).
 
-The [local upload API and UI](api/README.md) accept a Parquet file and return
-`output.zip`, with persistent jobs, pause/resume, and live batch progress.
-`--start`/`--end` (or Python `start`/`end`) select inclusive, 1-based row positions.
-Omitted bounds run from the first/to the last row. They preserve original query
-IDs; the selected range is part of the checkpoint fingerprint. Python callers can
-also pass `progress_callback` and `stop_event` for durable batch progress/pause.
+## Models and services
 
-## Services and models
+- Qdrant requires the existing hybrid GTE + BM25 collection. Set `QDRANT_URL`,
+  `QDRANT_COLLECTION` and existing vector/BM25 configuration, or pass `--manifest`
+  from a hybrid snapshot. The collection is checked before embedding.
+- The pinned GTE encoder reuses `Scripts/Qdrant/build_gte_qdrant.encode_records`:
+  normalized CLS, 8192-token windows, weighted window fusion without truncation.
+  VI queries are encoded together once per input batch.
+- Qwen3-Reranker-0.6B runs locally with Transformers/PyTorch already available
+  in the project environment. It needs no OpenAI client, endpoint, or API key.
+- PostgreSQL is used only for missing `doc_id`/`chunk_text` fields via the existing
+  `PostgreManager.get_submission_chunks(ids)`, in parameterized batches of up to
+  1000 IDs. Complete Qdrant payloads need no SQL lookup. Set `DATABASE_URL` if needed.
 
-- Configure the existing `QDRANT_URL`, `QDRANT_COLLECTION`, optional
-  `QDRANT_API_KEY`, and vector-name environment settings. The default collection
-  is `sbtc_gte_multilingual`. It must contain a populated **hybrid** index with
-  GTE dense vectors and native `bm25` sparse vectors. A dense-only snapshot cannot
-  run the four-branch query. The pipeline does not create or alter indexes.
-- Prefer `--manifest /path/to/snapshot_manifest.json` from the restored hybrid
-  snapshot. The existing `from_manifest` reads collection, vector names and BM25
-  options; the pipeline checks its embedding signature against the pinned model.
-- The default encoder loads **cached files only**, with the GTE weights/code
-  revisions used by the notebook. It reuses `encode_records` and normalization
-  from `Scripts/Qdrant/build_gte_qdrant.py`: normalized CLS vectors, 8192-token
-  windows, and content-length-weighted fusion. No input is truncated. The model
-  is initialized once; Vietnamese queries are encoded together once per batch.
-  CPU is the default; use `--device cuda:0` when desired. PyTorch, Transformers,
-  NumPy and psutil are already present in the project environment; no packages
-  or model files are installed/downloaded by this pipeline. Missing cached
-  weights/code are reported as encoding failures.
-- The loader detects a downloaded `artifacts/model-cache` automatically, or uses
-  `PIPELINE_MODEL_CACHE` / `--model-cache` when provided. Otherwise the existing
-  Hugging Face cache remains the fallback. Both pinned repositories are needed:
+Both model loaders use cached files only. Set `PIPELINE_MODEL_CACHE` or
+`--model-cache`; the downloaded project cache is automatically detected.
+Download pinned public files explicitly before starting jobs:
 
-  ```bash
-  .venv/bin/hf download Alibaba-NLP/gte-multilingual-base \
-    config.json model.safetensors tokenizer.json tokenizer_config.json special_tokens_map.json \
-    --revision 9bbca17d9273fd0d03d5725c7a4b0f6b45142062 --cache-dir artifacts/model-cache
-  .venv/bin/hf download Alibaba-NLP/new-impl configuration.py modeling.py \
-    --revision 40ced75c3017eb27626c9d4ea981bde21a2662f4 --cache-dir artifacts/model-cache
-  ```
+```bash
+.venv/bin/hf download Alibaba-NLP/gte-multilingual-base \
+  config.json model.safetensors tokenizer.json tokenizer_config.json special_tokens_map.json \
+  --revision 9bbca17d9273fd0d03d5725c7a4b0f6b45142062 --cache-dir artifacts/model-cache
+.venv/bin/hf download Alibaba-NLP/new-impl configuration.py modeling.py \
+  --revision 40ced75c3017eb27626c9d4ea981bde21a2662f4 --cache-dir artifacts/model-cache
+.venv/bin/hf download Qwen/Qwen3-Reranker-0.6B \
+  config.json model.safetensors tokenizer.json tokenizer_config.json merges.txt vocab.json \
+  --revision e61197ed45024b0ed8a2d74b80b4d909f1255473 --cache-dir artifacts/model-cache
+```
 
-  Downloads are an explicit setup step, not performed on upload. The cache is
-  ignored by Git. The loader handles Transformers 5's removal of the legacy
-  tokenizer window method while keeping the original BOS/content/EOS sequence,
-  restores the pinned model's legacy encoder padding-mask expansion, and pins
-  tokenizer configuration code too, without an interactive trust prompt.
-  Model-load setup errors stop once and surface an actionable message rather
-  than repeating an `OSError` for every query in every batch.
-- Set `MODEL_NAME`, `LLM_BASE_URL`, and `LLM_API_KEY` for the existing
-  `LLM/llm_as_reranker.py`. Its OpenAI-compatible client is reused across bounded
-  concurrent calls. Configure a competition-eligible open model according to
-  [asked.md](../../asked.md). No model choice or remote provider is introduced.
-- Configure the existing `DATABASE_URL` only when Qdrant lacks `doc_id` or
-  `chunk_text`. `PostgreManager.get_submission_chunks(ids)` selects just
-  `chunk_id`, `doc_id`, and `chunk_text` in parameterized batches of at most
-  1,000 IDs. It returns a keyed mapping with `None` for missing records.
-  Complete Qdrant payloads need no SQL lookup. No schema/import operations run.
+Qwen weights are about 1.2 GB. Cache files are ignored by Git. Setup failures
+surface as `ENCODER_MODEL_UNAVAILABLE` / `RERANKER_MODEL_UNAVAILABLE`, rather
+than marking every row as invalid input. No models are downloaded on upload.
 
-The existing managers/reranker load environment settings through their existing
-dotenv support. Credentials are never written into checkpoints or error reports.
+## Retrieval and reranking
 
-## Input and retrieval
+The translated input schema is `id` (integer), `query`, `english`, `chinese`.
+The existing 1200-row dataset was inspected. Column overrides are available via
+`--id-column`, `--original-query-column`, `--eng-query-column`,
+`--chinese-query-column`, or the Python `columns` mapping. Missing translations,
+invalid IDs, duplicates, and blank queries fail explicitly; no translation runs.
 
-The inspected `query_translated.parquet` has 1,200 rows and columns `id` (int64),
-`query`, `english`, `chinese`. A complete streaming audit found 1,200 unique IDs
-and no missing/empty query translations. The pipeline reads Parquet record
-batches and detects these columns from the schema. Explicit overrides are
-available as `--id-column`, `--original-query-column`, `--eng-query-column`, and
-`--chinese-query-column`; Python callers can pass the equivalent `columns` dict.
-Ambiguous columns/types, duplicate IDs, null IDs, and blank translations fail
-explicitly. The untranslated `query.parquet` alone lacks the required EN/ZH
-inputs; the pipeline does not translate or substitute Vietnamese text for them.
+`QdrantManager.query_original_dense` is the four-branch implementation:
+**GTE dense VI + native BM25 VI/EN/ZH**, fused by Qdrant RRF. The six-branch
+`query_multilingual_dense` is not used. Defaults remain 50 points per branch and
+100 fused points; configure `--branch-limit` / `--top-k` to change coverage.
 
-`QdrantManager.query_original_dense` is the selected implementation: **one dense
-Vietnamese query plus BM25 Vietnamese/English/Chinese**, fused by the existing
-Qdrant RRF. `query_multilingual_dense` has six branches and is not called.
-One fused query retrieves chunk points; distinct payload document IDs in fused
-rank order form document candidates. There is no redundant document search or
-second fusion implementation. Qdrant point UUIDs are never used as source IDs.
+Source document/chunk IDs are preserved. Conflicting PostgreSQL/Qdrant metadata
+fails the affected query. Chunk deduplication uses the existing BTC text
+normalization; output always retains the original source text.
 
-Defaults preserve the existing 50 candidates per branch and 100 fused points.
-`--branch-limit` and `--top-k` can increase candidate coverage. The competition
-specification gives no fixed per-query document/chunk cap. All candidates are
-retained by default; `--max-docs` and `--max-chunks` are optional independent
-output budgets, not relevance thresholds. These defaults have not been tuned
-against relevance labels; no Recall/F2 improvement is claimed.
+`Retrieval/qwen_reranker.py` scores each original VI query–chunk pair using the
+[official Qwen yes/no prompt and logits](https://huggingface.co/Qwen/Qwen3-Reranker-0.6B).
+There is no text generation. Python stably sorts scores descending, keeping
+retrieval order on ties. Only chunks are reordered; document order is preserved.
+The model can neither invent IDs nor rewrite chunks because it returns scores.
 
-The pipeline checks PostgreSQL/Qdrant agreement whenever it hydrates an ID.
-Missing records or conflicting identity/text fail the affected query. Document
-IDs remain source integer IDs serialized as strings, following the existing
-exporter. Chunks are deduplicated by document and the existing BTC text
-normalization, keeping the first source occurrence and its unmodified text.
-Blank chunk texts are excluded, but their retrieved document IDs remain.
+One model is initialized per pipeline run and reused for every query. Retrieval
+uses bounded parallel workers with persistent sessions; model forwards run
+sequentially in bounded pair batches to avoid concurrent GPU allocations.
+Controls (also exposed as `PIPELINE_RERANKER_*` API environment variables):
 
-`llm_as_reranker.rerank(query, documents, client=...)` runs after hydration, before
-optional output truncation. Its existing strict schema and candidate-multiset
-validation reject hallucinated IDs, altered text, missing candidates, and changed
-document order. Only chunks are reordered. Empty candidate lists make no LLM
-request. Exact source chunk IDs are mapped back from validated `(doc_id, text)`
-pairs and retained in the checkpoint for audit; they are not extra submission
-fields.
+| CLI option | Default | Meaning |
+| --- | --- | --- |
+| `--reranker-device` | Same as `--device` | CPU or e.g. `cuda:0` |
+| `--reranker-batch-size` | 4 | Maximum pairs per model forward |
+| `--reranker-max-length` | 8192 | Maximum tokens per window, up to 32768 |
+| `--reranker-token-budget` | 8192 | Padded tokens per forward; must be at least max length |
 
-## Submission and recovery
+Each window retains the complete query. Long chunks are split into document
+windows and assigned their maximum window score; source text is never truncated
+in the submission. A query that leaves no document context fails explicitly;
+increase both context length and token budget if resources permit. CPU uses
+float32, CUDA float16, SDPA attention, no KV cache, and final-position logits only.
+These settings bound inference work; there is no claim of measured Recall/F2 gains.
 
-The contract is established by [asked.md](../../asked.md) and the existing
-`Retrieval/export.py`, rather than the uppercase conceptual output names:
+The default output is at most **50 chunks per query**, selected after Qwen reranks
+all 100 fused candidates. Fewer candidates remain fewer; no padding or invented
+chunks are added. `--max-chunks` changes this output budget; Python callers can
+pass `max_chunks=None` to retain all chunks. `--max-docs` remains independent and
+unlimited by default. The competition specifies no numeric candidate cap; 50 is
+the requested project default, not a competition rule. Calibrate budgets against
+validation labels; no Recall/F2 improvement is assumed.
+
+## Submission, checkpoints and recovery
+
+The schema was checked directly against the official [Submission Instructions
+and Evaluation](https://leaderboard.aiguru.com.vn/competitions/15/) on 2026-10-18,
+and agrees with [asked.md](../../asked.md):
 
 ```json
-[
-  {
-    "id": 1,
-    "relevant_docs": ["123"],
-    "relevant_chunks": [{"doc_id": "123", "chunk_text": "Exact source text"}]
-  }
-]
+[{"id": 1, "relevant_docs": ["123"], "relevant_chunks": [{"doc_id": "123", "chunk_text": "Exact source text"}]}]
 ```
 
-`id` is an integer. Both retrieval lists are always present. Ranking is array
-order; optional `chunk_order` is omitted. The competition evaluates chunk text,
-not our internal chunk IDs. Output contains no medical answer or explanation.
-The optional ZIP contains exactly the JSON file at its root. The full submission
-must contain all 1,200 competition queries; `--limit` is for local checks only.
+IDs are source integer document IDs serialized as strings. The competition
+requires chunk text, not internal chunk IDs. `chunk_order` is optional; the
+submitted array position is used when it is omitted, so Qwen ranking is retained
+without adding a source-position field. ZIP contains exactly one JSON file at its
+root. A competition submission must cover all **1200 queries**; an explicit
+start/end test range remains a partial local export. Empty retrieval is a valid
+result with two empty lists; no medical answer or explanation is generated.
 
-Retrieval uses a persistent manager/HTTP session per worker. LLM requests use a
-separate pool (default two workers). SQL hydration is once per query batch over
-the deduplicated set of missing IDs. Batch barriers and explicit row indices keep
-the original query order regardless of worker completion order. Input/candidate
-work is bounded by batch size; returned predictions/checkpoint entries are kept
-in memory, proportional to the final output size.
+- `output.checkpoint.jsonl` records the input/configuration fingerprint and each
+  successful row with original chunk IDs. Each successful query is flushed and
+  fsynced before progress is published, including within an unfinished batch.
+- `output.errors.json` records failed row positions, IDs, stages and exception
+  types. Independent queries continue. A failed query prevents final JSON/ZIP;
+  the pipeline never silently falls back to an unranked success.
+- Repeat the command with `--resume` to retry only unfinished/failed rows.
+  Interrupted final journal appends are discarded. Changed input, retrieval
+  configuration, chunk budget, Qwen revision/instruction/context/device reject the checkpoint.
+  **Checkpoints from the previous LLM reranker require a new job/output path.**
+- Pause remains at the next input batch boundary. Already checkpointed rows
+  survive a restart. Model/retrieval progress and per-query durations are logged.
+  API state advances after each durable query; no special frontend changes needed.
 
-With JSON output, two sidecars are used:
+Python callers use `run_pipeline(...)`; tests can inject `dense_encoder(texts)`,
+`qdrant_factory(encoder)`, `postgres_manager`, and `reranker.score(query,texts)`.
+Injected components are caller-owned and require a stable `resume_tag` on resume.
+The former `llm_client`, `llm_workers`, `llm_timeout` arguments and CLI flags have
+been removed. The separate legacy LLM module is not imported by this pipeline.
 
-- `submission.checkpoint.jsonl`: configuration/input fingerprint and successful
-  rows, including their original source chunk IDs. Successful batches are flushed
-  and synced. Only a truncated final journal append is discarded on resume.
-- `submission.errors.json`: failed row positions, query IDs, stages and exception
-  types. Raw service exception text is excluded because it may contain secrets.
-
-Any failed query makes `run_pipeline` raise `PipelineError` (CLI exit 1) **after**
-processing independent rows. No final JSON/ZIP is written on a failed run.
-Empty retrieval results are valid successful predictions with two empty lists.
-The pipeline does not silently fall back to unreranked results on an LLM error.
-
-Repeat the same command with `--resume` to reuse successful rows and retry failures.
-Input/configuration changes reject the checkpoint. Set `--resume-tag` to an index
-generation identifier when the same collection endpoint can change without a
-new manifest; change it for new retrieval data/model configuration. Existing
-final JSON/ZIP files are not overwritten: choose a new output for a completed run.
-Interrupted rows may be recomputed, but committed rows are not reretrieved.
-
-## Python interface and checks
-
-```python
-from BackEnd.app.pipeline import run_pipeline
-
-predictions = run_pipeline(
-    "query_translated.parquet", "artifacts/pipeline/submission.json",
-    zip_path="artifacts/pipeline/submission.zip", workers=4, llm_workers=2,
-)
-```
-
-Tests can inject a `dense_encoder(texts)`, `qdrant_factory(encoder)` returning one
-owned manager per worker, and caller-owned `postgres_manager` / `llm_client`.
-Injected components require a stable `resume_tag` on resume. The module does not
-close caller-owned database/LLM clients.
+## Focused checks
 
 ```bash
-.venv/bin/python -m pytest -q \
-  tests/test_pipeline.py tests/test_postgre_database.py \
-  tests/test_llm_reranker.py tests/test_qdrant_db.py tests/test_gte_qdrant.py
+.venv/bin/python -m pytest -q tests/test_qwen_reranker.py tests/test_pipeline.py tests/test_api.py
 ```
 
-Pipeline tests use real Parquet files and SQLAlchemy/SQLite with mocked Qdrant REST
-and LLM completion transport. Live PostgreSQL, Qdrant retrieval, real GTE weights,
-and live LLM inference are not established by those tests. Existing live database
-tests require an explicit isolated test database; snapshot tests require an
-explicit Qdrant test binary.
+Fixtures use real Parquet/SQLAlchemy SQLite and mocked Qdrant/reranker boundaries.
+Qwen unit tests also run a real tiny randomly initialized Qwen3 model, without
+network access or pretrained weights. They do not establish live database or
+retrieval quality. Full-weight smoke tests must be run separately on synthetic
+inputs before processing a large dataset.

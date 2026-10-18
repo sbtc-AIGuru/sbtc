@@ -16,14 +16,14 @@ flowchart TD
     F --> G
     G --> H{"Thiếu doc_id hoặc chunk_text?"}
     H -- Có --> I["PostgreSQL: lấy bổ sung theo batch"]
-    H -- Không --> J["LLM rerank chunk, kiểm tra ID và nguyên văn"]
+    H -- Không --> J["Qwen3-Reranker-0.6B xếp hạng và chọn tối đa 50 chunk/query"]
     I --> J
-    J --> K["Lưu kết quả thành công vào checkpoint sau mỗi batch"]
+    J --> K["Lưu checkpoint sau mỗi query thành công"]
     K -- "Batch tiếp theo hoặc tiếp tục sau lỗi" --> B
     K -- "Toàn bộ dòng được chọn đã thành công" --> L["output.json → output.zip"]
 ```
 
-Pipeline giữ nguyên ID và thứ tự truy vấn. LLM chỉ xếp hạng chunk nguồn;
+Pipeline giữ nguyên ID và thứ tự truy vấn. Qwen chạy cục bộ, chỉ xếp hạng chunk nguồn;
 kết quả gồm `id`, `relevant_docs`, `relevant_chunks` với `doc_id`, `chunk_text`.
 Tác vụ còn lỗi chưa xuất ZIP.
 
@@ -40,7 +40,7 @@ Frontend nằm trong `FrontEnd`, được FastAPI phục vụ trực tiếp, kh�
 
 - Upload `query_translated.parquet` có các cột `id`, `query`, `english`, `chinese`.
 - Start–end tính theo dòng từ **1**, gồm cả hai đầu; để trống để chạy hết file.
-- Mặc định **16 truy vấn/batch**. Có thể tạm dừng và tiếp tục từ checkpoint.
+- Mặc định **16 truy vấn/batch**, **50 chunk/query sau rerank**. Có thể tạm dừng và tiếp tục từ checkpoint.
 - Tác vụ lưu tại `artifacts/api-jobs/<job-id>/`, vẫn giữ sau khi đóng trang hoặc restart server.
 
 Có thể chạy trực tiếp bằng CLI:
@@ -54,8 +54,9 @@ Có thể chạy trực tiếp bằng CLI:
 
 - `QDRANT_URL`, `QDRANT_COLLECTION`: collection đã nạp dữ liệu **hybrid GTE + BM25**.
 - `DATABASE_URL`: PostgreSQL để bổ sung dữ liệu thiếu trong payload Qdrant.
-- `MODEL_NAME`, `LLM_BASE_URL`, `LLM_API_KEY`: model reranker qua API tương thích OpenAI.
-- Model GTE đúng revision có sẵn trong cache. Có thể đặt `PIPELINE_MODEL_CACHE`;
+- Qwen3-Reranker-0.6B có sẵn trong cache, không cần API key cho rerank.
+- `PIPELINE_RERANKER_DEVICE=cuda:0` để dùng GPU; mặc định theo `PIPELINE_DEVICE` (`cpu`).
+- Model GTE và Qwen đúng revision có sẵn trong cache. Có thể đặt `PIPELINE_MODEL_CACHE`;
   pipeline tự nhận `artifacts/model-cache` nếu đã tải tại đó.
 
 Chi tiết: [Pipeline](BackEnd/app/PIPELINE.md) · [API và checkpoint](BackEnd/app/api/README.md) · [BM25 riêng](BackEnd/app/Retrieval/README.md).

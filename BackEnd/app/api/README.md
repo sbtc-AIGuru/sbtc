@@ -45,38 +45,43 @@ artifacts/api-jobs/<job-id>/
 
 - Upload được sao chép theo block 1 MiB; tên file từ trình duyệt không được dùng
   làm đường dẫn lưu trữ. Kiểm tra schema/range trước khi xếp hàng chạy.
-- Checkpoint lưu từng kết quả cùng vị trí dòng và chunk ID nguồn. Sau mỗi batch,
-  journal được flush/fsync rồi cập nhật trạng thái đã lưu. Batch đang dở có thể
+- Checkpoint lưu từng kết quả cùng vị trí dòng và chunk ID nguồn. Sau mỗi query thành công,
+  journal được flush/fsync rồi cập nhật trạng thái đã lưu. Query đang dở có thể
   được chạy lại; dòng đã commit không cần truy hồi lại.
 - Lịch sử, file upload và checkpoint ở trên đĩa, không phụ thuộc vào tab trình
   duyệt. Đóng trang không hủy tác vụ. Khởi động lại server đánh dấu tác vụ dang
   dở thành `paused`; chọn Tiếp tục để khôi phục.
-- Tạm dừng có hiệu lực tại ranh giới batch, không cắt ngang một request LLM.
+- Tạm dừng có hiệu lực tại ranh giới batch, không cắt ngang bước chấm điểm Qwen.
   Shutdown thông thường cũng chờ batch hiện tại lưu xong. Tác vụ đang xếp hàng
   được giữ trên đĩa để tiếp tục sau lần khởi động sau.
 - Lỗi từng dòng được lưu trong báo cáo lỗi; không tạo ZIP thành công giả khi
   còn dòng lỗi. Chỉ những dòng thiếu/lỗi được thử lại khi tiếp tục.
-- Fingerprint kiểm tra file input, khoảng dòng và cấu hình truy hồi. Nếu đổi
+- Fingerprint kiểm tra file input, khoảng dòng, cấu hình truy hồi và giới hạn chunk. Nếu đổi
   model/collection/schema, dùng tác vụ mới. Xem thêm [pipeline](../PIPELINE.md).
 
 Server chạy một tác vụ pipeline tại một thời điểm để giới hạn tài nguyên model.
-Trong từng tác vụ, pipeline vẫn dùng các worker truy hồi/LLM có giới hạn.
+Trong từng tác vụ, pipeline vẫn dùng các worker truy hồi có giới hạn và một model Qwen chấm điểm theo batch token.
 Khóa thư mục ngăn hai process API cùng xử lý các checkpoint. Dùng `--workers 1`;
 giao diện này dành cho thao tác cục bộ, không có lớp đăng nhập nhiều người dùng.
 Không dùng `--reload` khi đang chạy một batch dài.
 
 ## Cấu hình server
 
-Giữ nguyên cấu hình Qdrant, PostgreSQL và LLM đã dùng cho pipeline. API không tạo
+Giữ nguyên cấu hình Qdrant và PostgreSQL đã dùng cho pipeline. API không tạo
 index, sửa database hoặc tải model. Qdrant cần hybrid GTE + BM25; GTE cần có sẵn
-trong cache; LLM dùng endpoint đã cấu hình. Các biến tùy chọn bổ sung:
+trong cache cùng Qwen3-Reranker-0.6B; rerank không gọi endpoint LLM. Các biến tùy chọn bổ sung:
 
 | Biến | Mặc định | Ý nghĩa |
 | --- | --- | --- |
 | `PIPELINE_JOBS_DIR` | `artifacts/api-jobs` trong dự án | Nơi lưu tác vụ |
 | `PIPELINE_MAX_UPLOAD_BYTES` | `134217728` | Giới hạn upload, mặc định 128 MiB |
+| `PIPELINE_MAX_CHUNKS` | `50` | Số chunk tối đa mỗi query, chọn sau Qwen rerank; không giảm số candidate truy hồi |
 | `PIPELINE_DEVICE` | `cpu` | Thiết bị encoder, ví dụ `cuda:0` |
-| `PIPELINE_MODEL_CACHE` | Cache trong dự án nếu có, hoặc Hugging Face cache mặc định | Nơi đã tải model GTE và code ghim revision |
+| `PIPELINE_RERANKER_DEVICE` | Theo `PIPELINE_DEVICE` | Thiết bị Qwen, ví dụ `cuda:0` |
+| `PIPELINE_RERANKER_BATCH_SIZE` | `4` | Số cặp query–chunk tối đa mỗi forward |
+| `PIPELINE_RERANKER_MAX_LENGTH` | `8192` | Context mỗi cửa sổ, tối đa 32768 token |
+| `PIPELINE_RERANKER_TOKEN_BUDGET` | `8192` | Tổng token sau padding mỗi forward, phải ≥ max length |
+| `PIPELINE_MODEL_CACHE` | Cache trong dự án nếu có, hoặc Hugging Face cache mặc định | Nơi đã tải GTE/code và Qwen đúng revision |
 | `PIPELINE_MANIFEST_PATH` | Không có | Manifest của hybrid snapshot |
 | `PIPELINE_RESUME_TAG` | Chuỗi rỗng | Phiên bản dữ liệu/index khi không có manifest mới |
 
@@ -85,10 +90,10 @@ exception và giai đoạn xử lý; không lưu raw exception có thể chứa 
 
 Trước khi encode, pipeline kiểm tra collection Qdrant có tồn tại và có sparse
 vector BM25. Các lỗi cấu hình như `QDRANT_COLLECTION_MISSING`,
-`QDRANT_HYBRID_REQUIRED`, `ENCODER_MODEL_UNAVAILABLE` hiện thông báo cụ thể trên
+`QDRANT_HYBRID_REQUIRED`, `ENCODER_MODEL_UNAVAILABLE`, `RERANKER_MODEL_UNAVAILABLE` hiện thông báo cụ thể trên
 giao diện và dừng tác vụ ngay; không đánh dấu hàng loạt truy vấn là dữ liệu lỗi.
 Sau khi sửa môi trường, tiếp tục tác vụ với cấu hình kết nối không đổi. Nếu đổi
-URL/tên collection, tạo tác vụ mới để tránh trộn checkpoint khác cấu hình.
+URL/tên collection hoặc giới hạn chunk, tạo tác vụ mới để tránh trộn checkpoint khác cấu hình.
 
 ## HTTP API
 
@@ -118,6 +123,6 @@ Trình duyệt kiểm tra trạng thái mỗi hai giây (tám giây khi tab ẩn
 node --check FrontEnd/app.js
 ```
 
-Tests HTTP sử dụng ASGI TestClient với pipeline thật trên Parquet nhỏ, Qdrant/LLM
-transport được mock. Bao phủ upload, range, ZIP, báo cáo lỗi, tiếp tục, khôi phục
+Tests HTTP sử dụng ASGI TestClient với pipeline thật trên Parquet nhỏ, Qdrant và điểm Qwen
+được mock. Bao phủ upload, range, ZIP, báo cáo lỗi, tiếp tục, khôi phục
 sau restart và tạm dừng đúng ranh giới batch; không chạy model hoặc truy hồi thật.
