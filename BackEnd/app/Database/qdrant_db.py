@@ -122,23 +122,30 @@ class QdrantManager:
     def query_original_dense(
         self, query: dict[str, str], *, query_filter: dict | None = None,
         with_payload: bool | list[str] = True,
+        top_k: int = 100, branch_limit: int = 50,
     ) -> list[dict]:
-        """Fuse dense(original_query) and BM25(VI/EN/ZH): 50 per branch, top 100."""
+        """Fuse dense(original_query) and BM25(VI/EN/ZH); default 50/branch, top 100."""
         return self._query_hybrid(query, multilingual_dense=False,
-                                  query_filter=query_filter, with_payload=with_payload)
+                                  query_filter=query_filter, with_payload=with_payload,
+                                  top_k=top_k, branch_limit=branch_limit)
 
     def query_multilingual_dense(
         self, query: dict[str, str], *, query_filter: dict | None = None,
         with_payload: bool | list[str] = True,
+        top_k: int = 100, branch_limit: int = 50,
     ) -> list[dict]:
-        """Fuse dense(VI/EN/ZH) and BM25(VI/EN/ZH): 50 per branch, top 100."""
+        """Fuse dense(VI/EN/ZH) and BM25(VI/EN/ZH); default 50/branch, top 100."""
         return self._query_hybrid(query, multilingual_dense=True,
-                                  query_filter=query_filter, with_payload=with_payload)
+                                  query_filter=query_filter, with_payload=with_payload,
+                                  top_k=top_k, branch_limit=branch_limit)
 
     def _query_hybrid(
         self, query: dict[str, str], *, multilingual_dense: bool,
         query_filter: dict | None, with_payload: bool | list[str],
+        top_k: int, branch_limit: int,
     ) -> list[dict]:
+        if top_k < 1 or branch_limit < 1:
+            raise ValueError("top_k and branch_limit must be positive")
         keys = ("original_query", "eng_query", "chinese_query")
         if not isinstance(query, dict) or any(
             not isinstance(query.get(key), str) or not query[key].strip() for key in keys
@@ -156,12 +163,12 @@ class QdrantManager:
             raise ValueError("dense_encoder must return one vector per query text")
         branches = [self._dense_query(vector) for vector in vectors] + sparse
         for branch in branches:
-            branch["limit"] = 50
+            branch["limit"] = branch_limit
             if query_filter is not None:
                 branch["filter"] = query_filter
-        # Fusion ranks the union of all branches; each branch keeps its top-50 budget.
+        # Fusion ranks the union of all branches, each with its own candidate budget.
         body = {
-            "prefetch": branches, "query": {"fusion": "rrf"}, "limit": 100,
+            "prefetch": branches, "query": {"fusion": "rrf"}, "limit": top_k,
             "with_payload": with_payload, "with_vector": False,
         }
         if query_filter is not None:
