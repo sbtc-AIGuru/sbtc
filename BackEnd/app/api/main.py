@@ -19,7 +19,10 @@ from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
 import pyarrow.parquet as pq
 
-from ..pipeline import DEFAULT_MAX_CHUNKS, PipelineError, PipelinePaused, PipelineSetupError, _columns, run_pipeline
+from ..pipeline import (
+    DEFAULT_BRANCH_LIMIT, DEFAULT_TOP_K,
+    PipelineError, PipelinePaused, PipelineSetupError, _columns, run_pipeline,
+)
 from ..Retrieval.utils import atomic_json, job_lock
 
 PROJECT_ROOT = Path(__file__).resolve().parents[3]
@@ -143,7 +146,10 @@ def create_app(*, jobs_dir=None, runner=run_pipeline, pipeline_options=None, max
     options = pipeline_options if pipeline_options is not None else {
         "manifest_path": os.getenv("PIPELINE_MANIFEST_PATH") or None,
         "device": os.getenv("PIPELINE_DEVICE", "cpu"),
-        "max_chunks": int(os.getenv("PIPELINE_MAX_CHUNKS", str(DEFAULT_MAX_CHUNKS))),
+        "top_k": int(os.getenv("PIPELINE_TOP_K", str(DEFAULT_TOP_K))),
+        "branch_limit": int(os.getenv("PIPELINE_BRANCH_LIMIT", str(DEFAULT_BRANCH_LIMIT))),
+        "max_chunks": int(os.environ["PIPELINE_MAX_CHUNKS"]) if os.getenv("PIPELINE_MAX_CHUNKS") else None,
+        "rerank": os.getenv("PIPELINE_RERANK", "0").lower() in {"1", "true", "yes"},
         "reranker_device": os.getenv("PIPELINE_RERANKER_DEVICE") or None,
         "reranker_batch_size": int(os.getenv("PIPELINE_RERANKER_BATCH_SIZE", "4")),
         "reranker_max_length": int(os.getenv("PIPELINE_RERANKER_MAX_LENGTH", "8192")),

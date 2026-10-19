@@ -41,7 +41,9 @@ def test_upload_range_real_pipeline_status_zip_and_static_ui(tmp_path, reranker)
     path = write_queries(tmp_path / "queries.parquet")
     transport = Transport({10:[point("10:c:0",10)],20:[point("20:c:0",20)]})
     root = tmp_path / "jobs"
-    application = create_app(jobs_dir=root, pipeline_options=arguments(transport,reranker,resume_tag="api-v1"))
+    options = arguments(transport,reranker,resume_tag="api-v1")
+    options.pop("rerank")
+    application = create_app(jobs_dir=root, pipeline_options=options)
     with TestClient(application) as client:
         assert client.get("/").status_code == 200
         assert "Truy hồi y khoa" in client.get("/").text
@@ -66,6 +68,7 @@ def test_upload_range_real_pipeline_status_zip_and_static_ui(tmp_path, reranker)
         assert len(client.get("/api/jobs").json()) == 1
         assert client.post(f"/api/jobs/{identifier}/resume").status_code == 409
         assert client.post(f"/api/jobs/{identifier}/pause").status_code == 409
+        reranker.score.assert_not_called()
 
 
 def test_blank_bounds_run_every_row_and_persist_after_restart(tmp_path,reranker):
@@ -250,7 +253,8 @@ def test_setup_error_shown_actionably_without_marking_input_rows_bad(tmp_path, s
 
 
 def test_server_reads_local_reranker_configuration(tmp_path, monkeypatch):
-    for name, value in {"DEVICE": "cpu", "MAX_CHUNKS": "25", "RERANKER_DEVICE": "cuda:0",
+    for name, value in {"DEVICE": "cpu", "TOP_K": "400", "BRANCH_LIMIT": "200",
+                        "MAX_CHUNKS": "25", "RERANK": "1", "RERANKER_DEVICE": "cuda:0",
                         "RERANKER_BATCH_SIZE": "2", "RERANKER_MAX_LENGTH": "4096",
                         "RERANKER_TOKEN_BUDGET": "8192"}.items():
         monkeypatch.setenv("PIPELINE_" + name, value)
@@ -259,14 +263,22 @@ def test_server_reads_local_reranker_configuration(tmp_path, monkeypatch):
         options = app.state.jobs.options
         assert options["device"] == "cpu" and options["reranker_device"] == "cuda:0"
         assert options["max_chunks"] == 25
+        assert options["rerank"] is True
+        assert options["top_k"] == 400 and options["branch_limit"] == 200
         assert options["reranker_batch_size"] == 2
         assert options["reranker_max_length"] == 4096
         assert options["reranker_token_budget"] == 8192
         assert not any("llm" in key for key in options)
 
 
-def test_server_default_chunk_budget_is_50(tmp_path, monkeypatch):
+def test_server_defaults_disable_reranking_and_keep_all_candidates(tmp_path, monkeypatch):
     monkeypatch.delenv("PIPELINE_MAX_CHUNKS", raising=False)
+    monkeypatch.delenv("PIPELINE_RERANK", raising=False)
+    monkeypatch.delenv("PIPELINE_TOP_K", raising=False)
+    monkeypatch.delenv("PIPELINE_BRANCH_LIMIT", raising=False)
     app = create_app(jobs_dir=tmp_path / "jobs")
     with TestClient(app):
-        assert app.state.jobs.options["max_chunks"] == 50
+        assert app.state.jobs.options["max_chunks"] is None
+        assert app.state.jobs.options["rerank"] is False
+        assert app.state.jobs.options["top_k"] == 200
+        assert app.state.jobs.options["branch_limit"] == 100

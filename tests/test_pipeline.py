@@ -110,7 +110,7 @@ def database():
 
 def arguments(transport, reranker, **extra):
     return {"dense_encoder": lambda texts: [[1, 0, 0] for _ in texts],
-            "qdrant_factory": factory(transport, []), "reranker": reranker, **extra}
+            "qdrant_factory": factory(transport, []), "rerank": True, "reranker": reranker, **extra}
 
 
 def test_end_to_end_four_branches_hydration_order_rerank_json_zip(tmp_path, database, reranker):
@@ -148,8 +148,8 @@ def test_end_to_end_four_branches_hydration_order_rerank_json_zip(tmp_path, data
         assert len(body["prefetch"]) == 4
         assert body["prefetch"][0]["query"] == [1, 0, 0]
         assert [p["query"]["text"].split()[0] for p in body["prefetch"][1:]] == ["VI", "EN", "中文"]
-        assert body["query"] == {"fusion": "rrf"} and body["limit"] == 100
-        assert all(p["limit"] == 50 for p in body["prefetch"])
+        assert body["query"] == {"fusion": "rrf"} and body["limit"] == 200
+        assert all(p["limit"] == 100 for p in body["prefetch"])
     assert json.loads(output.read_text()) == result
     with zipfile.ZipFile(archive) as zipped:
         assert zipped.namelist() == ["submission.json"]
@@ -289,11 +289,72 @@ def test_cli_entry_point_and_limit(tmp_path, monkeypatch):
                           "--eng-query-column", "english"]) == 0
     assert run.call_args.kwargs["limit"] == 2
     assert run.call_args.kwargs["columns"] == {"eng_query": "english"}
+    assert run.call_args.kwargs["max_chunks"] is None
+    assert run.call_args.kwargs["rerank"] is False
+    assert run.call_args.kwargs["top_k"] == 200
+    assert run.call_args.kwargs["branch_limit"] == 100
+
+
+def test_cli_can_enable_reranking_and_chunk_limit(tmp_path, monkeypatch):
+    run = Mock(return_value=[])
+    monkeypatch.setattr(pipeline, "run_pipeline", run)
+    assert pipeline.main([str(tmp_path / "queries.parquet"), "--rerank", "--max-chunks", "50"]) == 0
+    assert run.call_args.kwargs["rerank"] is True
     assert run.call_args.kwargs["max_chunks"] == 50
 
 
-@pytest.mark.parametrize("options,expected_count", [({}, 50), ({"max_chunks": 12}, 12),
-                                                   ({"max_chunks": None}, 100), ({"max_chunks": 0}, 0)])
+@pytest.mark.parametrize("injected_reranker", [False, True])
+def test_default_skips_qwen_and_retains_all_rrf_candidates_in_query_order(
+    tmp_path, monkeypatch, reranker, injected_reranker,
+):
+    path = write_queries(tmp_path / "queries.parquet", identifiers=(30, 10))
+    hits = [point(f"{i}:c:0", i, f"Source {i}") for i in range(1, 201)]
+    transport = Transport({30: hits, 10: hits})
+    loader = Mock(side_effect=AssertionError("Qwen must not be loaded"))
+    monkeypatch.setattr(pipeline, "QwenReranker", loader)
+    options = arguments(transport, reranker)
+    options.pop("rerank")
+    if not injected_reranker:
+        options.pop("reranker")
+    output = tmp_path / "output.json"
+    archive = tmp_path / "output.zip"
+    predictions = pipeline.run_pipeline(path, output, zip_path=archive, workers=2, **options)
+    loader.assert_not_called()
+    reranker.score.assert_not_called()
+    assert transport.completed == [10, 30]
+    assert [p["id"] for p in predictions] == [30, 10]
+    expected = [{"doc_id": str(i), "chunk_text": f"Source {i}"} for i in range(1, 201)]
+    assert all(p["relevant_chunks"] == expected for p in predictions)
+    assert all(p["relevant_docs"] == list(map(str, range(1, 201))) for p in predictions)
+    assert all(len(call["prefetch"]) == 4 and call["limit"] == 200 for call in transport.calls)
+    records = [json.loads(line) for line in output.with_suffix(".checkpoint.jsonl").read_text().splitlines()][1:]
+    assert all(r["chunk_ids"] == [f"{i}:c:0" for i in range(1, 201)] for r in records)
+    with zipfile.ZipFile(archive) as zipped:
+        assert json.loads(zipped.read("output.json")) == predictions
+
+
+def test_disabled_reranker_hydrates_missing_fields_and_rejects_resume_in_other_mode(tmp_path, database, reranker):
+    path = write_queries(tmp_path / "queries.parquet", identifiers=(1, 2))
+    transport = Transport({1: [point("1:c:0", text=None)]}, failures=(2,))
+    options = arguments(transport, reranker, rerank=False, postgres_manager=database, resume_tag="raw-v1")
+    output = tmp_path / "output.json"
+    with pytest.raises(pipeline.PipelineError):
+        pipeline.run_pipeline(path, output, **options)
+    with pytest.raises(ValueError, match="configuration changed"):
+        pipeline.run_pipeline(path, output, resume=True, **{**options, "rerank": True})
+    transport.failures.clear()
+    predictions = pipeline.run_pipeline(path, output, resume=True, **options)
+    assert predictions == [
+        {"id": 1, "relevant_docs": ["1"],
+         "relevant_chunks": [{"doc_id": "1", "chunk_text": "Original source\n中文。"}]},
+        {"id": 2, "relevant_docs": [], "relevant_chunks": []},
+    ]
+    reranker.score.assert_not_called()
+    assert len(transport.calls) == 3
+
+
+@pytest.mark.parametrize("options,expected_count", [({}, 100), ({"max_chunks": 12}, 12),
+                                                   ({"max_chunks": 50}, 50), ({"max_chunks": 0}, 0)])
 def test_chunk_budget_is_applied_after_reranking_and_keeps_query_alignment(tmp_path, reranker, options, expected_count):
     path = write_queries(tmp_path / "queries.parquet", identifiers=(30, 10))
     hits = [point(f"{i}:c:0", i, f"Original source chunk {i}") for i in range(1, 101)]
@@ -308,7 +369,7 @@ def test_chunk_budget_is_applied_after_reranking_and_keeps_query_alignment(tmp_p
         assert prediction["relevant_chunks"] == expected_chunks
         assert prediction["relevant_docs"] == list(map(str, range(1, 101)))
     assert all(len(call.args[1]) == 100 for call in reranker.score.call_args_list)
-    assert all(call["limit"] == 100 for call in transport.calls)
+    assert all(call["limit"] == 200 for call in transport.calls)
     assert all(len(call["prefetch"]) == 4 for call in transport.calls)
     journal = [json.loads(line) for line in output.with_suffix(".checkpoint.jsonl").read_text().splitlines()][1:]
     assert all(record["chunk_ids"] == [f"{i}:c:0" for i in range(100, 100 - expected_count, -1)]
