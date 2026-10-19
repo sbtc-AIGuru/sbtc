@@ -30,6 +30,7 @@ LOGGER = logging.getLogger(__name__)
 DEFAULT_TOP_K = 200
 DEFAULT_BRANCH_LIMIT = 100
 DEFAULT_MAX_CHUNKS = None
+SUBMISSION_FORMAT = "integer-doc-ids-v1"
 GTE_CONFIG = {
     "model": "Alibaba-NLP/gte-multilingual-base",
     "revision": "9bbca17d9273fd0d03d5725c7a4b0f6b45142062",
@@ -185,13 +186,13 @@ def _columns(schema: pa.Schema, overrides: dict | None) -> dict[str, str]:
     return result
 
 
-def _doc_id(value) -> str:
+def _doc_id(value) -> int:
     if isinstance(value, str) and value.isascii() and value.isdecimal() and str(int(value)) == value:
         value = int(value)
-    return str(source_id(value))
+    return source_id(value)
 
 
-def _candidates(hits: list[dict], metadata: dict) -> tuple[list[str], list[dict], dict]:
+def _candidates(hits: list[dict], metadata: dict) -> tuple[list[int], list[dict], dict]:
     docs, chunks, identities = [], [], {}
     seen_docs, seen_text, seen_ids = set(), set(), {}
     for hit in hits:
@@ -343,6 +344,7 @@ def run_pipeline(
     if manifest and any(manifest["signature"].get(k) != v for k, v in GTE_CONFIG.items()):
         raise ValueError("Manifest embedding model differs from the pinned GTE encoder")
     settings = {
+        "submission_format": SUBMISSION_FORMAT,
         "input": sha_file(parquet_path), "columns": mapping, "top_k": top_k,
         "branch_limit": branch_limit, "max_docs": max_docs, "max_chunks": max_chunks,
         "limit": limit, "filter": query_filter, "manifest": manifest, "gte": GTE_CONFIG,

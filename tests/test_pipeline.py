@@ -137,9 +137,9 @@ def test_end_to_end_four_branches_hydration_order_rerank_json_zip(tmp_path, data
     assert transport.completed[-1] == 30
     assert [item["id"] for item in result] == [30, 10, 20]
     assert result[0] == {
-        "id": 30, "relevant_docs": ["1", "2"],
-        "relevant_chunks": [{"doc_id": "2", "chunk_text": "Second source."},
-                            {"doc_id": "1", "chunk_text": "Original source\n中文。"}],
+        "id": 30, "relevant_docs": [1, 2],
+        "relevant_chunks": [{"doc_id": 2, "chunk_text": "Second source."},
+                            {"doc_id": 1, "chunk_text": "Original source\n中文。"}],
     }
     assert result[2] == {"id": 20, "relevant_docs": [], "relevant_chunks": []}
     assert len(sql_calls) == 1
@@ -218,8 +218,8 @@ def test_dedup_limits_and_original_identifiers(tmp_path, reranker):
                                point("empty", 9, "")]})
     result = pipeline.run_pipeline(path, top_k=250, branch_limit=100, max_docs=1, max_chunks=1,
                                    **arguments(transport, reranker))
-    assert result == [{"id": 1, "relevant_docs": ["7"],
-                       "relevant_chunks": [{"doc_id": "8", "chunk_text": "Other"}]}]
+    assert result == [{"id": 1, "relevant_docs": [7],
+                       "relevant_chunks": [{"doc_id": 8, "chunk_text": "Other"}]}]
     body = transport.calls[0]
     assert body["limit"] == 250 and all(p["limit"] == 100 for p in body["prefetch"])
     assert reranker.score.call_args.args == ("VI 1", ["A &amp; B", "Other"])
@@ -323,9 +323,9 @@ def test_default_skips_qwen_and_retains_all_rrf_candidates_in_query_order(
     reranker.score.assert_not_called()
     assert transport.completed == [10, 30]
     assert [p["id"] for p in predictions] == [30, 10]
-    expected = [{"doc_id": str(i), "chunk_text": f"Source {i}"} for i in range(1, 201)]
+    expected = [{"doc_id": i, "chunk_text": f"Source {i}"} for i in range(1, 201)]
     assert all(p["relevant_chunks"] == expected for p in predictions)
-    assert all(p["relevant_docs"] == list(map(str, range(1, 201))) for p in predictions)
+    assert all(p["relevant_docs"] == list(range(1, 201)) for p in predictions)
     assert all(len(call["prefetch"]) == 4 and call["limit"] == 200 for call in transport.calls)
     records = [json.loads(line) for line in output.with_suffix(".checkpoint.jsonl").read_text().splitlines()][1:]
     assert all(r["chunk_ids"] == [f"{i}:c:0" for i in range(1, 201)] for r in records)
@@ -345,8 +345,8 @@ def test_disabled_reranker_hydrates_missing_fields_and_rejects_resume_in_other_m
     transport.failures.clear()
     predictions = pipeline.run_pipeline(path, output, resume=True, **options)
     assert predictions == [
-        {"id": 1, "relevant_docs": ["1"],
-         "relevant_chunks": [{"doc_id": "1", "chunk_text": "Original source\n中文。"}]},
+        {"id": 1, "relevant_docs": [1],
+         "relevant_chunks": [{"doc_id": 1, "chunk_text": "Original source\n中文。"}]},
         {"id": 2, "relevant_docs": [], "relevant_chunks": []},
     ]
     reranker.score.assert_not_called()
@@ -363,11 +363,11 @@ def test_chunk_budget_is_applied_after_reranking_and_keeps_query_alignment(tmp_p
     predictions = pipeline.run_pipeline(path, output, zip_path=archive, workers=2,
                                         **arguments(transport, reranker), **options)
     assert [p["id"] for p in predictions] == [30, 10]
-    expected_chunks = [{"doc_id": str(i), "chunk_text": f"Original source chunk {i}"}
+    expected_chunks = [{"doc_id": i, "chunk_text": f"Original source chunk {i}"}
                        for i in range(100, 100 - expected_count, -1)]
     for prediction in predictions:
         assert prediction["relevant_chunks"] == expected_chunks
-        assert prediction["relevant_docs"] == list(map(str, range(1, 101)))
+        assert prediction["relevant_docs"] == list(range(1, 101))
     assert all(len(call.args[1]) == 100 for call in reranker.score.call_args_list)
     assert all(call["limit"] == 200 for call in transport.calls)
     assert all(len(call["prefetch"]) == 4 for call in transport.calls)
@@ -642,3 +642,35 @@ def test_equal_reranker_scores_preserve_retrieval_order(tmp_path, reranker):
     reranker.score.side_effect = lambda query, texts: [0.5] * len(texts)
     predictions = pipeline.run_pipeline(path, **arguments(transport, reranker))
     assert [c["chunk_text"] for c in predictions[0]["relevant_chunks"]] == ["first", "second"]
+
+
+def test_string_and_integer_payload_ids_export_as_integers_without_duplicate_documents(tmp_path, reranker):
+    path = write_queries(tmp_path / "queries.parquet", identifiers=(1,))
+    hits = [point("7:c:0", "7", "First"), point("7:c:1", 7, "Second")]
+    output, archive = tmp_path / "output.json", tmp_path / "output.zip"
+    result = pipeline.run_pipeline(path, output, zip_path=archive,
+                                   **arguments(Transport({1: hits}), reranker, rerank=False))
+    assert result == [{"id": 1, "relevant_docs": [7], "relevant_chunks": [
+        {"doc_id": 7, "chunk_text": "First"}, {"doc_id": 7, "chunk_text": "Second"},
+    ]}]
+    journal = [json.loads(line) for line in output.with_suffix(".checkpoint.jsonl").read_text().splitlines()]
+    assert journal[1]["prediction"] == result[0]
+    assert journal[1]["chunk_ids"] == ["7:c:0", "7:c:1"]
+    with zipfile.ZipFile(archive) as zipped:
+        prediction = json.loads(zipped.read("output.json"))[0]
+    assert type(prediction["relevant_docs"][0]) is int
+    assert all(type(chunk["doc_id"]) is int for chunk in prediction["relevant_chunks"])
+
+
+
+def test_submission_format_change_rejects_checkpoint(tmp_path, monkeypatch, reranker):
+    path = write_queries(tmp_path / "queries.parquet", identifiers=(1,))
+    transport = Transport({}, failures=(1,))
+    options = arguments(transport, reranker, resume_tag="mode-v1")
+    output = tmp_path / "output.json"
+    with pytest.raises(pipeline.PipelineError):
+        pipeline.run_pipeline(path, output, **options)
+    monkeypatch.setattr(pipeline, "SUBMISSION_FORMAT", "different-format")
+    with pytest.raises(ValueError, match="configuration changed"):
+        pipeline.run_pipeline(path, output, resume=True, **options)
+    assert len(transport.calls) == 1
