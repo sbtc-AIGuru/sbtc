@@ -19,15 +19,20 @@ Các dependency FastAPI/Uvicorn/python-multipart được khai báo trong
 2. Tùy chọn **Từ dòng** / **Đến dòng**. Đây là vị trí dòng **1-based**, gồm cả
    hai đầu, không phải query ID. Để trống cả hai để chạy hết file. Chỉ nhập start
    thì chạy tới cuối; chỉ nhập end thì chạy từ dòng đầu. ID gốc vẫn được giữ.
-3. Chọn số dòng mỗi batch (mặc định 16), rồi bấm **Bắt đầu xử lý**.
+3. Chọn search **4 nhánh** (dense VI + BM25 VI/EN/ZH) hoặc **6 nhánh** (dense và
+   BM25 VI/EN/ZH); tùy chọn bật **Qwen3-Reranker-0.6B**. Mặc định 4 nhánh, tắt Qwen.
+   Phần **Giới hạn ứng viên và kết quả** cho phép đổi ứng viên/nhánh, top-k sau
+   fusion và số chunk tối đa; để trống số chunk để giữ hết sau khử trùng lặp.
+   Chọn số dòng mỗi batch (mặc định 16), rồi bấm **Bắt đầu xử lý**.
 4. Theo dõi số dòng đã lưu. Có thể **Tạm dừng sau batch** hoặc đóng trang rồi quay
    lại. Khi tác vụ dừng/lỗi, bấm **Tiếp tục từ checkpoint**.
 5. Khi hoàn tất, bấm **Tải output.zip**. ZIP chứa duy nhất `output.json` ở gốc,
    đúng schema `id`, `relevant_docs`, `relevant_chunks[{doc_id,chunk_text}]`.
+   `id`, các phần tử `relevant_docs` và `doc_id` đều là số nguyên JSON.
 
 Chạy một khoảng dòng chỉ tạo kết quả của khoảng đó. Bài nộp toàn bộ cuộc thi
 cần xử lý tất cả các dòng. Pipeline không dịch file chỉ có truy vấn tiếng Việt:
-file phải có đủ ID, query VI, English và Chinese như hợp đồng truy hồi bốn nhánh.
+file phải có đủ ID, query VI, English và Chinese cho cả hai chế độ search.
 
 ## Lưu trữ và checkpoint
 
@@ -48,6 +53,9 @@ artifacts/api-jobs/<job-id>/
 - Checkpoint lưu từng kết quả cùng vị trí dòng và chunk ID nguồn. Sau mỗi query thành công,
   journal được flush/fsync rồi cập nhật trạng thái đã lưu. Query đang dở có thể
   được chạy lại; dòng đã commit không cần truy hồi lại.
+- `state.json` lưu `pipeline_config` của từng job: `search_mode`, `rerank`, `top_k`,
+  `branch_limit`, `max_chunks`. Resume dùng lại các lựa chọn này, kể cả khi đổi
+  mặc định server sau restart; lựa chọn trên form chỉ áp dụng cho job mới.
 - Lịch sử, file upload và checkpoint ở trên đĩa, không phụ thuộc vào tab trình
   duyệt. Đóng trang không hủy tác vụ. Khởi động lại server đánh dấu tác vụ dang
   dở thành `paused`; chọn Tiếp tục để khôi phục.
@@ -60,7 +68,8 @@ artifacts/api-jobs/<job-id>/
   model/collection/schema, dùng tác vụ mới. Xem thêm [pipeline](../PIPELINE.md).
 
 Server chạy một tác vụ pipeline tại một thời điểm để giới hạn tài nguyên model.
-Trong từng tác vụ, pipeline vẫn dùng các worker truy hồi có giới hạn và một model Qwen chấm điểm theo batch token.
+Trong từng tác vụ, pipeline dùng các worker truy hồi có giới hạn. Mặc định bỏ qua
+Qwen, giữ thứ tự RRF và mọi chunk sau khử trùng lặp để ưu tiên recall.
 Khóa thư mục ngăn hai process API cùng xử lý các checkpoint. Dùng `--workers 1`;
 giao diện này dành cho thao tác cục bộ, không có lớp đăng nhập nhiều người dùng.
 Không dùng `--reload` khi đang chạy một batch dài.
@@ -69,13 +78,18 @@ Không dùng `--reload` khi đang chạy một batch dài.
 
 Giữ nguyên cấu hình Qdrant và PostgreSQL đã dùng cho pipeline. API không tạo
 index, sửa database hoặc tải model. Qdrant cần hybrid GTE + BM25; GTE cần có sẵn
-trong cache cùng Qwen3-Reranker-0.6B; rerank không gọi endpoint LLM. Các biến tùy chọn bổ sung:
+trong cache. Chỉ cần Qwen3-Reranker-0.6B khi bật rerank; rerank không gọi endpoint LLM.
+Các biến tùy chọn bổ sung:
 
 | Biến | Mặc định | Ý nghĩa |
 | --- | --- | --- |
 | `PIPELINE_JOBS_DIR` | `artifacts/api-jobs` trong dự án | Nơi lưu tác vụ |
 | `PIPELINE_MAX_UPLOAD_BYTES` | `134217728` | Giới hạn upload, mặc định 128 MiB |
-| `PIPELINE_MAX_CHUNKS` | `50` | Số chunk tối đa mỗi query, chọn sau Qwen rerank; không giảm số candidate truy hồi |
+| `PIPELINE_BRANCH_LIMIT` | `100` | Số ứng viên mỗi nhánh dense/BM25 trước fusion |
+| `PIPELINE_TOP_K` | `200` | Số ứng viên sau fusion |
+| `PIPELINE_SEARCH_MODE` | `4-branch` | Mặc định của form, `4-branch` hoặc `6-branch` |
+| `PIPELINE_RERANK` | `0` | Bỏ qua Qwen; đặt `1` để bật lại |
+| `PIPELINE_MAX_CHUNKS` | Để trống | Giữ mọi chunk sau khử trùng lặp; đặt `50` nếu muốn giới hạn, sau rerank nếu có |
 | `PIPELINE_DEVICE` | `cpu` | Thiết bị encoder, ví dụ `cuda:0` |
 | `PIPELINE_RERANKER_DEVICE` | Theo `PIPELINE_DEVICE` | Thiết bị Qwen, ví dụ `cuda:0` |
 | `PIPELINE_RERANKER_BATCH_SIZE` | `4` | Số cặp query–chunk tối đa mỗi forward |
@@ -88,6 +102,10 @@ trong cache cùng Qwen3-Reranker-0.6B; rerank không gọi endpoint LLM. Các bi
 Thư mục tác vụ mặc định được bỏ qua trong `.gitignore`. Lỗi dịch vụ chỉ lưu loại
 exception và giai đoạn xử lý; không lưu raw exception có thể chứa thông tin kết nối.
 
+Các biến môi trường đặt mặc định cho job mới; form có thể ghi đè từng lựa chọn.
+Sau cập nhật định dạng ID số nguyên, restart server và tạo job mới; checkpoint
+cũ dùng ID chuỗi không được trộn với định dạng mới.
+
 Trước khi encode, pipeline kiểm tra collection Qdrant có tồn tại và có sparse
 vector BM25. Các lỗi cấu hình như `QDRANT_COLLECTION_MISSING`,
 `QDRANT_HYBRID_REQUIRED`, `ENCODER_MODEL_UNAVAILABLE`, `RERANKER_MODEL_UNAVAILABLE` hiện thông báo cụ thể trên
@@ -99,7 +117,8 @@ URL/tên collection hoặc giới hạn chunk, tạo tác vụ mới để trán
 
 | Method | Endpoint | Chức năng |
 | --- | --- | --- |
-| POST | `/api/jobs` | Upload multipart `file`, tùy chọn `start`, `end`, `batch_size`; trả 202 |
+| POST | `/api/jobs` | Upload multipart `file`, tùy chọn range, batch, search/rerank và giới hạn; trả 202 |
+| GET | `/api/config` | Chế độ search được hỗ trợ và cấu hình mặc định cho form |
 | GET | `/api/jobs` | Lịch sử tác vụ, mới nhất trước |
 | GET | `/api/jobs/{id}` | Trạng thái, số dòng đã lưu/lỗi, URL tải kết quả |
 | POST | `/api/jobs/{id}/pause` | Dừng tại checkpoint batch tiếp theo |
@@ -115,6 +134,11 @@ curl -F 'file=@query_translated.parquet' -F start=1 -F end=20 \
 
 Các trạng thái: `queued`, `running`, `pausing`, `paused`, `failed`, `completed`.
 Trình duyệt kiểm tra trạng thái mỗi hai giây (tám giây khi tab ẩn).
+
+Multipart hỗ trợ `search_mode=4-branch|6-branch`, `rerank=true|false`,
+`top_k`, `branch_limit` (số nguyên dương), `max_chunks` (số nguyên ≥ 0 hoặc `all`).
+Bỏ qua tham số để dùng mặc định server; `max_chunks=all` ghi đè mọi giới hạn
+mặc định và giữ hết chunk. UI tự gửi `all` khi ô số chunk để trống.
 
 ## Kiểm thử
 

@@ -1,4 +1,4 @@
-"""Four-branch Qdrant retrieval -> source hydration -> optional Qwen reranking -> BTC JSON."""
+"""Configurable hybrid Qdrant retrieval -> source hydration -> optional Qwen -> BTC JSON."""
 
 from __future__ import annotations
 
@@ -30,6 +30,7 @@ LOGGER = logging.getLogger(__name__)
 DEFAULT_TOP_K = 200
 DEFAULT_BRANCH_LIMIT = 100
 DEFAULT_MAX_CHUNKS = None
+SEARCH_METHODS = {"4-branch": "query_original_dense", "6-branch": "query_multilingual_dense"}
 SUBMISSION_FORMAT = "integer-doc-ids-v1"
 GTE_CONFIG = {
     "model": "Alibaba-NLP/gte-multilingual-base",
@@ -161,7 +162,7 @@ def _check_qdrant(*, url, manifest_path, timeout):
         if manager.sparse_vector_name not in sparse:
             raise PipelineSetupError(
                 "retrieval", "QDRANT_HYBRID_REQUIRED",
-                "Collection hiện không có vector BM25. Pipeline bốn nhánh cần collection hybrid GTE + BM25; "
+                "Collection hiện không có vector BM25. Pipeline cần collection hybrid GTE + BM25; "
                 "snapshot chỉ có dense chưa đủ để chạy.",
             )
 
@@ -265,6 +266,7 @@ def run_pipeline(
     zip_path: str | Path | None = None, columns: dict | None = None,
     batch_size: int = 16, workers: int = 4,
     top_k: int = DEFAULT_TOP_K, branch_limit: int = DEFAULT_BRANCH_LIMIT,
+    search_mode: str = "4-branch",
     max_docs: int | None = None, max_chunks: int | None = DEFAULT_MAX_CHUNKS,
     limit: int | None = None, query_filter: dict | None = None,
     start: int | None = None, end: int | None = None,
@@ -287,7 +289,8 @@ def run_pipeline(
     PostgreSQL/reranker instances remain caller-owned. A checkpoint stores successful rows
     and original chunk IDs; failed rows are retried on resume. With injected
     components, supply a stable ``resume_tag`` identifying their configuration.
-    Missing translations are errors: the four-branch method requires VI/EN/ZH.
+    Missing translations are errors: both search modes require VI/EN/ZH.
+    search_mode selects the existing four- or six-branch Qdrant method.
     Defaults retrieve 100 per branch and retain all 200 fused candidates in RRF order
     after source deduplication. Set rerank=True to enable Qwen scoring; max_chunks
     optionally limits output. Document candidates are independent.
@@ -297,6 +300,8 @@ def run_pipeline(
     """
     if min(batch_size, workers, top_k, branch_limit, encoder_batch_size) < 1:
         raise ValueError("Batch sizes, worker counts and retrieval limits must be positive")
+    if search_mode not in SEARCH_METHODS:
+        raise ValueError("search_mode must be '4-branch' or '6-branch'")
     if timeout <= 0 or (limit is not None and limit < 1):
         raise ValueError("Timeouts and limit must be positive")
     if rerank:
@@ -344,7 +349,7 @@ def run_pipeline(
     if manifest and any(manifest["signature"].get(k) != v for k, v in GTE_CONFIG.items()):
         raise ValueError("Manifest embedding model differs from the pinned GTE encoder")
     settings = {
-        "submission_format": SUBMISSION_FORMAT,
+        "submission_format": SUBMISSION_FORMAT, "search_mode": search_mode,
         "input": sha_file(parquet_path), "columns": mapping, "top_k": top_k,
         "branch_limit": branch_limit, "max_docs": max_docs, "max_chunks": max_chunks,
         "limit": limit, "filter": query_filter, "manifest": manifest, "gte": GTE_CONFIG,
@@ -386,7 +391,8 @@ def run_pipeline(
                 thread_state.manager = manager
                 with manager_lock:
                     managers.append(manager)
-            hits = thread_state.manager.query_original_dense(
+            search = getattr(thread_state.manager, SEARCH_METHODS[search_mode])
+            hits = search(
                 query, query_filter=query_filter, with_payload=True,
                 top_k=top_k, branch_limit=branch_limit,
             )
@@ -460,7 +466,9 @@ def run_pipeline(
                         # in every batch. Surface them once, before row processing.
                         dense_encoder = load_dense_encoder(device=device, batch_size=encoder_batch_size,
                                                            cache_dir=model_cache)
-                    texts = list(dict.fromkeys(query["original_query"] for _, _, query in active))
+                    dense_fields = (("original_query", "eng_query", "chinese_query")
+                                    if search_mode == "6-branch" else ("original_query",))
+                    texts = list(dict.fromkeys(query[field] for _, _, query in active for field in dense_fields))
                     try:
                         vectors = dense_encoder(texts)
                         if len(vectors) != len(texts):
@@ -584,6 +592,7 @@ def main(argv=None) -> int:
     parser.add_argument("--zip", dest="zip_path", type=Path)
     parser.add_argument("--manifest", dest="manifest_path", type=Path)
     parser.add_argument("--qdrant-url")
+    parser.add_argument("--search-mode", choices=SEARCH_METHODS, default="4-branch")
     for name, default in (("batch-size", 16), ("workers", 4),
                           ("top-k", DEFAULT_TOP_K), ("branch-limit", DEFAULT_BRANCH_LIMIT), ("encoder-batch-size", 8),
                           ("reranker-batch-size", 4), ("reranker-max-length", 8192),

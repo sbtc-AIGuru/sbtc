@@ -20,7 +20,7 @@
   <main class="workspace">
     <div class="page-intro">
       <div><p class="eyebrow">KHÔNG GIAN XỬ LÝ DỮ LIỆU</p><h1>Truy hồi y khoa.</h1><p class="intro-copy">Tải lên truy vấn. Chọn phạm vi. Nhận kết quả nguồn.</p></div>
-      <div class="save-note"><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="m5 12 4 4L19 6M7 21h10a2 2 0 0 0 2-2v-5M5 9V5a2 2 0 0 1 2-2h8" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Checkpoint được lưu<br><strong>sau mỗi batch</strong></span></div>
+      <div class="save-note"><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="m5 12 4 4L19 6M7 21h10a2 2 0 0 0 2-2v-5M5 9V5a2 2 0 0 1 2-2h8" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Checkpoint được lưu<br><strong>sau mỗi query</strong></span></div>
     </div>
 
     <p id="notice" class="notice" role="alert" hidden></p>
@@ -46,7 +46,24 @@
           </div>
           <p id="range-hint" class="field-hint">Đếm từ 1, gồm cả hai đầu. Để trống để chạy hết file.</p>
 
-          <div class="batch-row"><div><label for="batch-size" class="field-label">Số truy vấn mỗi batch</label><p class="field-hint">Lưu checkpoint khi batch hoàn tất.</p></div><select id="batch-size" name="batch_size"><option value="8">8 dòng</option><option value="16" selected>16 dòng</option><option value="32">32 dòng</option><option value="64">64 dòng</option></select></div>
+          <fieldset id="retrieval-settings" class="retrieval-settings" disabled>
+            <legend>Truy hồi và xếp hạng</legend>
+            <label for="search-mode" class="field-label">Chế độ search</label>
+            <select id="search-mode" name="search_mode" aria-describedby="search-hint"><option value="4-branch">4 nhánh · Dense VI + BM25 ba ngôn ngữ</option><option value="6-branch">6 nhánh · Dense và BM25 ba ngôn ngữ</option></select>
+            <p id="search-hint" class="field-hint"></p>
+            <label class="rerank-option" for="rerank"><input id="rerank" name="rerank" type="checkbox" aria-describedby="rerank-hint"><span>Bật Qwen3-Reranker-0.6B</span></label>
+            <p id="rerank-hint" class="field-hint"></p>
+            <details class="retrieval-advanced"><summary>Giới hạn ứng viên và kết quả</summary>
+              <div class="retrieval-grid">
+                <div><label for="branch-limit" class="field-label">Ứng viên mỗi nhánh</label><input id="branch-limit" name="branch_limit" type="number" min="1" step="1" value="100" required></div>
+                <div><label for="top-k" class="field-label">Top-k sau fusion</label><input id="top-k" name="top_k" type="number" min="1" step="1" value="200" required></div>
+              </div>
+              <label for="max-chunks" class="field-label">Số chunk tối đa mỗi query</label><input id="max-chunks" name="max_chunks" type="number" min="0" step="1" placeholder="Không giới hạn" aria-describedby="chunk-limit-hint">
+              <p id="chunk-limit-hint" class="field-hint">Để trống để giữ hết chunk sau khử trùng lặp. Khi bật reranker, giới hạn áp dụng sau xếp hạng.</p>
+            </details>
+          </fieldset>
+
+          <div class="batch-row"><div><label for="batch-size" class="field-label">Số truy vấn mỗi batch</label><p class="field-hint">Checkpoint lưu sau mỗi query; tạm dừng sau batch.</p></div><select id="batch-size" name="batch_size"><option value="8">8 dòng</option><option value="16" selected>16 dòng</option><option value="32">32 dòng</option><option value="64">64 dòng</option></select></div>
           <div id="upload-progress-wrap" class="upload-progress-wrap" hidden><div class="progress-caption"><span>Đang tải file lên</span><span id="upload-percent">0%</span></div><progress id="upload-progress" max="100" value="0" aria-label="Tiến độ tải file"></progress></div>
           <button id="submit-button" class="button button-primary start-button" type="submit" disabled><span>Bắt đầu xử lý</span><span aria-hidden="true">↗</span></button>
           <p class="form-footnote">Có thể đóng trang và quay lại theo dõi tác vụ.</p>
@@ -61,7 +78,7 @@
           <div class="workflow"><span>Parquet</span><span aria-hidden="true">→</span><span>Truy hồi</span><span aria-hidden="true">→</span><span>output.zip</span></div>
         </div>
         <div id="job-detail" class="job-detail" hidden>
-          <p class="eyebrow detail-eyebrow">FILE ĐANG THEO DÕI</p><h3 id="job-filename" class="job-filename"></h3><p id="job-meta" class="job-meta"></p>
+          <p class="eyebrow detail-eyebrow">FILE ĐANG THEO DÕI</p><h3 id="job-filename" class="job-filename"></h3><p id="job-meta" class="job-meta"></p><p id="job-config" class="job-meta"></p>
           <div class="metrics"><div><span>Đã lưu</span><strong id="completed-count">0</strong></div><div><span>Cần thử lại</span><strong id="failed-count">0</strong></div><div><span>Tổng truy vấn</span><strong id="total-count">0</strong></div></div>
           <div class="progress-caption"><span id="progress-label">Đang chờ</span><strong id="progress-percent">0%</strong></div><progress id="job-progress" value="0" max="100" aria-label="Tiến độ truy hồi"></progress>
           <p id="job-status-copy" class="status-copy" aria-live="polite"></p>

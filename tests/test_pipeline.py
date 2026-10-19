@@ -63,7 +63,9 @@ class Transport:
                 "vectors": {"dense": {"size": 3}}, "sparse_vectors": {"bm25": {}},
             }}})
         body = deepcopy(options["json"])
-        identifier = int(body["prefetch"][1]["query"]["text"].split()[-1])
+        original_bm25 = next(branch["query"]["text"] for branch in body["prefetch"]
+                             if isinstance(branch["query"], dict) and "text" in branch["query"])
+        identifier = int(original_bm25.split()[-1])
         with self.lock:
             self.calls.append(body)
         if identifier in self.failures:
@@ -113,7 +115,8 @@ def arguments(transport, reranker, **extra):
             "qdrant_factory": factory(transport, []), "rerank": True, "reranker": reranker, **extra}
 
 
-def test_end_to_end_four_branches_hydration_order_rerank_json_zip(tmp_path, database, reranker):
+@pytest.mark.parametrize("search_mode,dense_count", [("4-branch", 1), ("6-branch", 3)])
+def test_end_to_end_search_hydration_order_rerank_json_zip(tmp_path, database, reranker, search_mode, dense_count):
     path = write_queries(tmp_path / "translated.parquet")
     missing = point("1:c:0")
     del missing["payload"]["doc_id"]
@@ -131,9 +134,10 @@ def test_end_to_end_four_branches_hydration_order_rerank_json_zip(tmp_path, data
                  lambda *args: sql_calls.append(args[2]))
     result = pipeline.run_pipeline(
         path, output, zip_path=archive, batch_size=3, workers=3,
-        **arguments(transport, reranker, dense_encoder=encode, postgres_manager=database),
+        **arguments(transport, reranker, dense_encoder=encode, postgres_manager=database, search_mode=search_mode),
     )
-    assert encode_calls == [["VI 30", "VI 10", "VI 20"]]
+    assert encode_calls == [[f"{lang} {identifier}" for identifier in (30, 10, 20)
+                             for lang in (("VI", "EN", "中文") if dense_count == 3 else ("VI",))]]
     assert transport.completed[-1] == 30
     assert [item["id"] for item in result] == [30, 10, 20]
     assert result[0] == {
@@ -145,9 +149,9 @@ def test_end_to_end_four_branches_hydration_order_rerank_json_zip(tmp_path, data
     assert len(sql_calls) == 1
     assert reranker.score.call_count == 2
     for body in transport.calls:
-        assert len(body["prefetch"]) == 4
+        assert len(body["prefetch"]) == dense_count + 3
         assert body["prefetch"][0]["query"] == [1, 0, 0]
-        assert [p["query"]["text"].split()[0] for p in body["prefetch"][1:]] == ["VI", "EN", "中文"]
+        assert [p["query"]["text"].split()[0] for p in body["prefetch"][dense_count:]] == ["VI", "EN", "中文"]
         assert body["query"] == {"fusion": "rrf"} and body["limit"] == 200
         assert all(p["limit"] == 100 for p in body["prefetch"])
     assert json.loads(output.read_text()) == result
@@ -225,6 +229,48 @@ def test_dedup_limits_and_original_identifiers(tmp_path, reranker):
     assert reranker.score.call_args.args == ("VI 1", ["A &amp; B", "Other"])
 
 
+def test_string_and_integer_payload_ids_export_as_integers_without_duplicate_documents(tmp_path, reranker):
+    path = write_queries(tmp_path / "queries.parquet", identifiers=(1,))
+    hits = [point("7:c:0", "7", "First"), point("7:c:1", 7, "Second")]
+    output, archive = tmp_path / "output.json", tmp_path / "output.zip"
+    result = pipeline.run_pipeline(path, output, zip_path=archive,
+                                   **arguments(Transport({1: hits}), reranker, rerank=False))
+    assert result == [{"id": 1, "relevant_docs": [7], "relevant_chunks": [
+        {"doc_id": 7, "chunk_text": "First"}, {"doc_id": 7, "chunk_text": "Second"},
+    ]}]
+    journal = [json.loads(line) for line in output.with_suffix(".checkpoint.jsonl").read_text().splitlines()]
+    assert journal[1]["prediction"] == result[0]
+    assert journal[1]["chunk_ids"] == ["7:c:0", "7:c:1"]
+    with zipfile.ZipFile(archive) as zipped:
+        prediction = json.loads(zipped.read("output.json"))[0]
+    assert type(prediction["relevant_docs"][0]) is int
+    assert all(type(chunk["doc_id"]) is int for chunk in prediction["relevant_chunks"])
+
+
+def test_search_and_submission_format_changes_reject_checkpoint(tmp_path, monkeypatch, reranker):
+    path = write_queries(tmp_path / "queries.parquet", identifiers=(1,))
+    transport = Transport({}, failures=(1,))
+    options = arguments(transport, reranker, resume_tag="mode-v1")
+    output = tmp_path / "output.json"
+    with pytest.raises(pipeline.PipelineError):
+        pipeline.run_pipeline(path, output, **options)
+    with pytest.raises(ValueError, match="configuration changed"):
+        pipeline.run_pipeline(path, output, resume=True, search_mode="6-branch", **options)
+    monkeypatch.setattr(pipeline, "SUBMISSION_FORMAT", "different-format")
+    with pytest.raises(ValueError, match="configuration changed"):
+        pipeline.run_pipeline(path, output, resume=True, **options)
+    assert len(transport.calls) == 1
+
+
+def test_invalid_search_mode_rejected_before_services_or_checkpoint(tmp_path, reranker):
+    path = write_queries(tmp_path / "queries.parquet", identifiers=(1,))
+    transport = Transport({})
+    with pytest.raises(ValueError, match="search_mode"):
+        pipeline.run_pipeline(path, tmp_path / "output.json", search_mode="other", **arguments(transport, reranker))
+    assert not transport.calls
+    assert not (tmp_path / "output.checkpoint.jsonl").exists()
+
+
 @pytest.mark.parametrize("bad_record", ["translation", "duplicate_id", "null_id", "empty_query"])
 def test_invalid_records_fail_explicitly_without_discarding_other_queries(tmp_path, reranker, bad_record):
     changed = {"translation": {"english": [None, "EN 2"]},
@@ -293,14 +339,17 @@ def test_cli_entry_point_and_limit(tmp_path, monkeypatch):
     assert run.call_args.kwargs["rerank"] is False
     assert run.call_args.kwargs["top_k"] == 200
     assert run.call_args.kwargs["branch_limit"] == 100
+    assert run.call_args.kwargs["search_mode"] == "4-branch"
 
 
 def test_cli_can_enable_reranking_and_chunk_limit(tmp_path, monkeypatch):
     run = Mock(return_value=[])
     monkeypatch.setattr(pipeline, "run_pipeline", run)
-    assert pipeline.main([str(tmp_path / "queries.parquet"), "--rerank", "--max-chunks", "50"]) == 0
+    assert pipeline.main([str(tmp_path / "queries.parquet"), "--rerank", "--max-chunks", "50",
+                          "--search-mode", "6-branch"]) == 0
     assert run.call_args.kwargs["rerank"] is True
     assert run.call_args.kwargs["max_chunks"] == 50
+    assert run.call_args.kwargs["search_mode"] == "6-branch"
 
 
 @pytest.mark.parametrize("injected_reranker", [False, True])
@@ -642,35 +691,3 @@ def test_equal_reranker_scores_preserve_retrieval_order(tmp_path, reranker):
     reranker.score.side_effect = lambda query, texts: [0.5] * len(texts)
     predictions = pipeline.run_pipeline(path, **arguments(transport, reranker))
     assert [c["chunk_text"] for c in predictions[0]["relevant_chunks"]] == ["first", "second"]
-
-
-def test_string_and_integer_payload_ids_export_as_integers_without_duplicate_documents(tmp_path, reranker):
-    path = write_queries(tmp_path / "queries.parquet", identifiers=(1,))
-    hits = [point("7:c:0", "7", "First"), point("7:c:1", 7, "Second")]
-    output, archive = tmp_path / "output.json", tmp_path / "output.zip"
-    result = pipeline.run_pipeline(path, output, zip_path=archive,
-                                   **arguments(Transport({1: hits}), reranker, rerank=False))
-    assert result == [{"id": 1, "relevant_docs": [7], "relevant_chunks": [
-        {"doc_id": 7, "chunk_text": "First"}, {"doc_id": 7, "chunk_text": "Second"},
-    ]}]
-    journal = [json.loads(line) for line in output.with_suffix(".checkpoint.jsonl").read_text().splitlines()]
-    assert journal[1]["prediction"] == result[0]
-    assert journal[1]["chunk_ids"] == ["7:c:0", "7:c:1"]
-    with zipfile.ZipFile(archive) as zipped:
-        prediction = json.loads(zipped.read("output.json"))[0]
-    assert type(prediction["relevant_docs"][0]) is int
-    assert all(type(chunk["doc_id"]) is int for chunk in prediction["relevant_chunks"])
-
-
-
-def test_submission_format_change_rejects_checkpoint(tmp_path, monkeypatch, reranker):
-    path = write_queries(tmp_path / "queries.parquet", identifiers=(1,))
-    transport = Transport({}, failures=(1,))
-    options = arguments(transport, reranker, resume_tag="mode-v1")
-    output = tmp_path / "output.json"
-    with pytest.raises(pipeline.PipelineError):
-        pipeline.run_pipeline(path, output, **options)
-    monkeypatch.setattr(pipeline, "SUBMISSION_FORMAT", "different-format")
-    with pytest.raises(ValueError, match="configuration changed"):
-        pipeline.run_pipeline(path, output, resume=True, **options)
-    assert len(transport.calls) == 1

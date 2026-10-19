@@ -10,7 +10,7 @@ import os
 from pathlib import Path
 import shutil
 from threading import Event, RLock
-from typing import Annotated
+from typing import Annotated, Literal
 from uuid import UUID, uuid4
 import zipfile
 
@@ -20,7 +20,7 @@ from fastapi.staticfiles import StaticFiles
 import pyarrow.parquet as pq
 
 from ..pipeline import (
-    DEFAULT_BRANCH_LIMIT, DEFAULT_TOP_K,
+    DEFAULT_BRANCH_LIMIT, DEFAULT_TOP_K, SEARCH_METHODS,
     PipelineError, PipelinePaused, PipelineSetupError, _columns, run_pipeline,
 )
 from ..Retrieval.utils import atomic_json, job_lock
@@ -111,7 +111,8 @@ class Jobs:
                     directory / "input.parquet", output, zip_path=archive,
                     start=state["start"], end=state["end"], batch_size=state["batch_size"],
                     resume=(directory / "output.checkpoint.jsonl").exists(),
-                    progress_callback=progress, stop_event=event, **self.options,
+                    progress_callback=progress, stop_event=event,
+                    **{**self.options, **state.get("pipeline_config", {})},
                 )
             if not output.is_file() or not archive.is_file():
                 raise RuntimeError("Pipeline did not produce its output artifacts")
@@ -148,6 +149,7 @@ def create_app(*, jobs_dir=None, runner=run_pipeline, pipeline_options=None, max
         "device": os.getenv("PIPELINE_DEVICE", "cpu"),
         "top_k": int(os.getenv("PIPELINE_TOP_K", str(DEFAULT_TOP_K))),
         "branch_limit": int(os.getenv("PIPELINE_BRANCH_LIMIT", str(DEFAULT_BRANCH_LIMIT))),
+        "search_mode": os.getenv("PIPELINE_SEARCH_MODE", "4-branch"),
         "max_chunks": int(os.environ["PIPELINE_MAX_CHUNKS"]) if os.getenv("PIPELINE_MAX_CHUNKS") else None,
         "rerank": os.getenv("PIPELINE_RERANK", "0").lower() in {"1", "true", "yes"},
         "reranker_device": os.getenv("PIPELINE_RERANKER_DEVICE") or None,
@@ -157,6 +159,15 @@ def create_app(*, jobs_dir=None, runner=run_pipeline, pipeline_options=None, max
         "model_cache": os.getenv("PIPELINE_MODEL_CACHE") or None,
         "resume_tag": os.getenv("PIPELINE_RESUME_TAG", ""),
     }
+    job_defaults = {
+        "search_mode": options.get("search_mode", "4-branch"),
+        "rerank": options.get("rerank", False),
+        "top_k": options.get("top_k", DEFAULT_TOP_K),
+        "branch_limit": options.get("branch_limit", DEFAULT_BRANCH_LIMIT),
+        "max_chunks": options.get("max_chunks"),
+    }
+    if job_defaults["search_mode"] not in SEARCH_METHODS:
+        raise ValueError("PIPELINE_SEARCH_MODE must be '4-branch' or '6-branch'")
     logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(name)s: %(message)s")
 
     @asynccontextmanager
@@ -184,6 +195,11 @@ def create_app(*, jobs_dir=None, runner=run_pipeline, pipeline_options=None, max
         start: Annotated[int | None, Form(ge=1)] = None,
         end: Annotated[int | None, Form(ge=1)] = None,
         batch_size: Annotated[int, Form(ge=1, le=256)] = 16,
+        search_mode: Annotated[Literal["4-branch", "6-branch"] | None, Form()] = None,
+        rerank: Annotated[bool | None, Form()] = None,
+        top_k: Annotated[int | None, Form(ge=1)] = None,
+        branch_limit: Annotated[int | None, Form(ge=1)] = None,
+        max_chunks: Annotated[str | None, Form(pattern=r"^(all|[0-9]+)$")] = None,
     ):
         filename = (file.filename or "").replace("\\", "/").rsplit("/", 1)[-1]
         if not filename.lower().endswith(".parquet"):
@@ -210,10 +226,18 @@ def create_app(*, jobs_dir=None, runner=run_pipeline, pipeline_options=None, max
             first, last = start or 1, end if end is not None else rows
             if not rows or first > last or last > rows:
                 raise HTTPException(422, "Khoảng start–end không hợp lệ hoặc vượt số dòng trong file.")
+            config = dict(job_defaults)
+            for key, value in {"search_mode": search_mode, "rerank": rerank,
+                               "top_k": top_k, "branch_limit": branch_limit}.items():
+                if value is not None:
+                    config[key] = value
+            if max_chunks is not None:
+                config["max_chunks"] = None if max_chunks == "all" else int(max_chunks)
             state = {
                 "id": identifier, "filename": filename, "size": size, "rows": rows,
                 "start": first, "end": last, "total": last - first + 1,
                 "batch_size": batch_size, "columns": mapping, "status": "uploaded",
+                "pipeline_config": config,
                 "completed": 0, "failed": 0, "attempts": 0, "error": None,
                 "created_at": timestamp(), "updated_at": timestamp(),
             }
@@ -267,6 +291,10 @@ def create_app(*, jobs_dir=None, runner=run_pipeline, pipeline_options=None, max
     @application.get("/api/health")
     def health():
         return {"status": "ok"}
+
+    @application.get("/api/config")
+    def configuration():
+        return {"search_modes": list(SEARCH_METHODS), "defaults": job_defaults}
 
     @application.get("/", include_in_schema=False)
     def index():
