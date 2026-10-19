@@ -41,10 +41,14 @@ def test_upload_range_real_pipeline_status_zip_and_static_ui(tmp_path, reranker)
     path = write_queries(tmp_path / "queries.parquet")
     transport = Transport({10:[point("10:c:0",10)],20:[point("20:c:0",20)]})
     root = tmp_path / "jobs"
-    application = create_app(jobs_dir=root, pipeline_options=arguments(transport,reranker,resume_tag="api-v1"))
+    options = arguments(transport,reranker,resume_tag="api-v1")
+    options.pop("rerank")
+    application = create_app(jobs_dir=root, pipeline_options=options)
     with TestClient(application) as client:
         assert client.get("/").status_code == 200
-        assert "Truy hồi y khoa" in client.get("/").text
+        html = client.get("/").text
+        assert "Truy hồi y khoa" in html
+        assert 'id="search-mode"' in html and 'id="rerank"' in html
         assert client.get("/assets/app.js").status_code == 200
         assert client.get("/assets/styles.css").status_code == 200
         assert client.get("/api/health").json() == {"status":"ok"}
@@ -66,6 +70,7 @@ def test_upload_range_real_pipeline_status_zip_and_static_ui(tmp_path, reranker)
         assert len(client.get("/api/jobs").json()) == 1
         assert client.post(f"/api/jobs/{identifier}/resume").status_code == 409
         assert client.post(f"/api/jobs/{identifier}/pause").status_code == 409
+        reranker.score.assert_not_called()
 
 
 def test_blank_bounds_run_every_row_and_persist_after_restart(tmp_path,reranker):
@@ -250,7 +255,8 @@ def test_setup_error_shown_actionably_without_marking_input_rows_bad(tmp_path, s
 
 
 def test_server_reads_local_reranker_configuration(tmp_path, monkeypatch):
-    for name, value in {"DEVICE": "cpu", "MAX_CHUNKS": "25", "RERANKER_DEVICE": "cuda:0",
+    for name, value in {"DEVICE": "cpu", "TOP_K": "400", "BRANCH_LIMIT": "200",
+                        "MAX_CHUNKS": "25", "RERANK": "1", "SEARCH_MODE": "6-branch", "RERANKER_DEVICE": "cuda:0",
                         "RERANKER_BATCH_SIZE": "2", "RERANKER_MAX_LENGTH": "4096",
                         "RERANKER_TOKEN_BUDGET": "8192"}.items():
         monkeypatch.setenv("PIPELINE_" + name, value)
@@ -259,14 +265,110 @@ def test_server_reads_local_reranker_configuration(tmp_path, monkeypatch):
         options = app.state.jobs.options
         assert options["device"] == "cpu" and options["reranker_device"] == "cuda:0"
         assert options["max_chunks"] == 25
+        assert options["rerank"] is True
+        assert options["search_mode"] == "6-branch"
+        assert options["top_k"] == 400 and options["branch_limit"] == 200
         assert options["reranker_batch_size"] == 2
         assert options["reranker_max_length"] == 4096
         assert options["reranker_token_budget"] == 8192
         assert not any("llm" in key for key in options)
 
 
-def test_server_default_chunk_budget_is_50(tmp_path, monkeypatch):
+def test_server_defaults_disable_reranking_and_keep_all_candidates(tmp_path, monkeypatch):
     monkeypatch.delenv("PIPELINE_MAX_CHUNKS", raising=False)
+    monkeypatch.delenv("PIPELINE_RERANK", raising=False)
+    monkeypatch.delenv("PIPELINE_TOP_K", raising=False)
+    monkeypatch.delenv("PIPELINE_BRANCH_LIMIT", raising=False)
+    monkeypatch.delenv("PIPELINE_SEARCH_MODE", raising=False)
     app = create_app(jobs_dir=tmp_path / "jobs")
     with TestClient(app):
-        assert app.state.jobs.options["max_chunks"] == 50
+        assert app.state.jobs.options["max_chunks"] is None
+        assert app.state.jobs.options["rerank"] is False
+        assert app.state.jobs.options["top_k"] == 200
+        assert app.state.jobs.options["branch_limit"] == 100
+
+
+@pytest.mark.parametrize("search_mode,branch_count", [("4-branch", 4), ("6-branch", 6)])
+@pytest.mark.parametrize("enable_rerank", [False, True])
+def test_job_search_and_rerank_choices_control_pipeline_and_integer_zip(tmp_path, reranker, search_mode, branch_count, enable_rerank):
+    path = write_queries(tmp_path / "queries.parquet", identifiers=(30, 10))
+    hits = [point("7:c:0", "7", "First"), point("8:c:0", 8, "Second")]
+    transport = Transport({30: hits, 10: hits})
+    options = arguments(transport, reranker, rerank=not enable_rerank)
+    with TestClient(create_app(jobs_dir=tmp_path / "jobs", pipeline_options=options)) as client:
+        response = upload(client, path, {"search_mode": search_mode, "rerank": str(enable_rerank).lower(),
+                                        "top_k": "3", "branch_limit": "2", "max_chunks": "1"})
+        assert response.status_code == 202, response.text
+        identifier = response.json()["id"]
+        job = wait_status(client, identifier, {"completed", "failed"})
+        assert job["status"] == "completed", job
+        assert job["pipeline_config"] == {"search_mode": search_mode, "rerank": enable_rerank,
+                                          "top_k": 3, "branch_limit": 2, "max_chunks": 1}
+        assert all(len(call["prefetch"]) == branch_count and call["limit"] == 3 for call in transport.calls)
+        assert all(p["limit"] == 2 for call in transport.calls for p in call["prefetch"])
+        with zipfile.ZipFile(io.BytesIO(client.get(job["download_url"]).content)) as archive:
+            predictions = json.loads(archive.read("output.json"))
+        assert [p["id"] for p in predictions] == [30, 10]
+        expected_chunk = {"doc_id": 8, "chunk_text": "Second"} if enable_rerank else {"doc_id": 7, "chunk_text": "First"}
+        for prediction in predictions:
+            assert prediction["relevant_docs"] == [7, 8]
+            assert prediction["relevant_chunks"] == [expected_chunk]
+            assert all(type(doc) is int for doc in prediction["relevant_docs"])
+            assert type(prediction["relevant_chunks"][0]["doc_id"]) is int
+    assert reranker.score.call_count == (2 if enable_rerank else 0)
+
+
+def test_job_choices_survive_restart_and_changed_server_defaults(tmp_path, reranker):
+    path = write_queries(tmp_path / "queries.parquet", identifiers=(1, 2))
+    transport = Transport({i: [point(f"{i}:c:0", i)] for i in (1, 2)}, failures=(2,))
+    root = tmp_path / "jobs"
+    options = arguments(transport, reranker, resume_tag="persisted-choices-v1")
+    with TestClient(create_app(jobs_dir=root, pipeline_options=options)) as client:
+        identifier = upload(client, path, {"search_mode": "6-branch", "rerank": "true",
+                                          "top_k": "5", "branch_limit": "4", "max_chunks": "1"}).json()["id"]
+        job = wait_status(client, identifier, {"failed"})
+        assert job["completed"] == 1
+        config = job["pipeline_config"]
+    assert json.loads((root / identifier / "state.json").read_text())["pipeline_config"] == config
+    transport.failures.clear()
+    changed = {**options, "search_mode": "4-branch", "rerank": False,
+               "top_k": 2, "branch_limit": 1, "max_chunks": None}
+    with TestClient(create_app(jobs_dir=root, pipeline_options=changed)) as client:
+        defaults = client.get("/api/config").json()
+        assert defaults["search_modes"] == ["4-branch", "6-branch"]
+        assert defaults["defaults"]["search_mode"] == "4-branch"
+        assert client.post(f"/api/jobs/{identifier}/resume").status_code == 202
+        job = wait_status(client, identifier, {"completed", "failed"})
+        assert job["status"] == "completed", job
+        assert job["pipeline_config"] == config
+        assert job["completed"] == 2
+    assert len(transport.calls) == 3
+    assert all(len(call["prefetch"]) == 6 and call["limit"] == 5 for call in transport.calls)
+    assert reranker.score.call_count == 2
+
+
+@pytest.mark.parametrize("data", [{"search_mode": "8-branch"}, {"rerank": "maybe"},
+                                  {"top_k": "0"}, {"branch_limit": "0"},
+                                  {"max_chunks": "-1"}, {"max_chunks": "invalid"}])
+def test_invalid_search_settings_rejected_without_creating_jobs(tmp_path, data):
+    path = write_queries(tmp_path / "queries.parquet")
+    with TestClient(create_app(jobs_dir=tmp_path / "jobs")) as client:
+        assert upload(client, path, data).status_code == 422
+        assert client.get("/api/jobs").json() == []
+
+
+def test_unlimited_chunks_override_server_budget_and_config_exposes_only_choices(tmp_path, reranker):
+    path = write_queries(tmp_path / "queries.parquet", identifiers=(1,))
+    transport = Transport({1: [point("a", 7, "First"), point("b", 8, "Second")]})
+    options = arguments(transport, reranker, max_chunks=1, qdrant_url="http://private-connection")
+    with TestClient(create_app(jobs_dir=tmp_path / "jobs", pipeline_options=options)) as client:
+        config = client.get("/api/config").json()
+        assert config["defaults"] == {"search_mode": "4-branch", "rerank": True,
+                                      "top_k": 200, "branch_limit": 100, "max_chunks": 1}
+        assert "private-connection" not in json.dumps(config)
+        identifier = upload(client, path, {"max_chunks": "all"}).json()["id"]
+        job = wait_status(client, identifier, {"completed", "failed"})
+        assert job["status"] == "completed", job
+        assert job["pipeline_config"]["max_chunks"] is None
+        with zipfile.ZipFile(io.BytesIO(client.get(job["download_url"]).content)) as archive:
+            assert len(json.loads(archive.read("output.json"))[0]["relevant_chunks"]) == 2

@@ -1,4 +1,4 @@
-"""Four-branch Qdrant retrieval -> source hydration -> local Qwen reranking -> BTC JSON."""
+"""Configurable hybrid Qdrant retrieval -> source hydration -> optional Qwen -> BTC JSON."""
 
 from __future__ import annotations
 
@@ -27,7 +27,11 @@ from .Retrieval.export import btc_normalized
 from .Retrieval.utils import atomic_json, sha_file, source_id
 
 LOGGER = logging.getLogger(__name__)
-DEFAULT_MAX_CHUNKS = 50
+DEFAULT_TOP_K = 200
+DEFAULT_BRANCH_LIMIT = 100
+DEFAULT_MAX_CHUNKS = None
+SEARCH_METHODS = {"4-branch": "query_original_dense", "6-branch": "query_multilingual_dense"}
+SUBMISSION_FORMAT = "integer-doc-ids-v1"
 GTE_CONFIG = {
     "model": "Alibaba-NLP/gte-multilingual-base",
     "revision": "9bbca17d9273fd0d03d5725c7a4b0f6b45142062",
@@ -158,7 +162,7 @@ def _check_qdrant(*, url, manifest_path, timeout):
         if manager.sparse_vector_name not in sparse:
             raise PipelineSetupError(
                 "retrieval", "QDRANT_HYBRID_REQUIRED",
-                "Collection hiện không có vector BM25. Pipeline bốn nhánh cần collection hybrid GTE + BM25; "
+                "Collection hiện không có vector BM25. Pipeline cần collection hybrid GTE + BM25; "
                 "snapshot chỉ có dense chưa đủ để chạy.",
             )
 
@@ -183,13 +187,13 @@ def _columns(schema: pa.Schema, overrides: dict | None) -> dict[str, str]:
     return result
 
 
-def _doc_id(value) -> str:
+def _doc_id(value) -> int:
     if isinstance(value, str) and value.isascii() and value.isdecimal() and str(int(value)) == value:
         value = int(value)
-    return str(source_id(value))
+    return source_id(value)
 
 
-def _candidates(hits: list[dict], metadata: dict) -> tuple[list[str], list[dict], dict]:
+def _candidates(hits: list[dict], metadata: dict) -> tuple[list[int], list[dict], dict]:
     docs, chunks, identities = [], [], {}
     seen_docs, seen_text, seen_ids = set(), set(), {}
     for hit in hits:
@@ -261,7 +265,8 @@ def run_pipeline(
     parquet_path: str | Path, output_path: str | Path | None = None, *,
     zip_path: str | Path | None = None, columns: dict | None = None,
     batch_size: int = 16, workers: int = 4,
-    top_k: int = 100, branch_limit: int = 50,
+    top_k: int = DEFAULT_TOP_K, branch_limit: int = DEFAULT_BRANCH_LIMIT,
+    search_mode: str = "4-branch",
     max_docs: int | None = None, max_chunks: int | None = DEFAULT_MAX_CHUNKS,
     limit: int | None = None, query_filter: dict | None = None,
     start: int | None = None, end: int | None = None,
@@ -269,6 +274,7 @@ def run_pipeline(
     timeout: float = 30,
     device: str = "cpu", encoder_batch_size: int = 8,
     model_cache: str | Path | None = None,
+    rerank: bool = False,
     reranker_device: str | None = None, reranker_batch_size: int = 4,
     reranker_max_length: int = 8192, reranker_token_budget: int = 8192,
     dense_encoder: Callable | None = None, qdrant_factory: Callable | None = None,
@@ -283,19 +289,26 @@ def run_pipeline(
     PostgreSQL/reranker instances remain caller-owned. A checkpoint stores successful rows
     and original chunk IDs; failed rows are retried on resume. With injected
     components, supply a stable ``resume_tag`` identifying their configuration.
-    Missing translations are errors: the four-branch method requires VI/EN/ZH.
-    Defaults rerank 100 fused candidates, then retain at most 50 chunks.
-    Pass max_chunks=None to retain all chunks; document candidates are independent.
+    Missing translations are errors: both search modes require VI/EN/ZH.
+    search_mode selects the existing four- or six-branch Qdrant method.
+    Defaults retrieve 100 per branch and retain all 200 fused candidates in RRF order
+    after source deduplication. Set rerank=True to enable Qwen scoring; max_chunks
+    optionally limits output. Document candidates are independent.
     ``start``/``end`` are inclusive 1-based input row positions, not query IDs.
     Omitted bounds select the first/last row. Progress follows durable queries;
     stop_event pauses before the next batch without losing committed rows.
     """
-    if min(batch_size, workers, top_k, branch_limit, encoder_batch_size, reranker_batch_size) < 1:
+    if min(batch_size, workers, top_k, branch_limit, encoder_batch_size) < 1:
         raise ValueError("Batch sizes, worker counts and retrieval limits must be positive")
+    if search_mode not in SEARCH_METHODS:
+        raise ValueError("search_mode must be '4-branch' or '6-branch'")
     if timeout <= 0 or (limit is not None and limit < 1):
         raise ValueError("Timeouts and limit must be positive")
-    if not 1 <= reranker_max_length <= 32768 or reranker_token_budget < reranker_max_length:
-        raise ValueError("Require reranker_max_length <= 32768 and reranker_token_budget >= reranker_max_length")
+    if rerank:
+        if reranker_batch_size < 1:
+            raise ValueError("Reranker batch size must be positive")
+        if not 1 <= reranker_max_length <= 32768 or reranker_token_budget < reranker_max_length:
+            raise ValueError("Require reranker_max_length <= 32768 and reranker_token_budget >= reranker_max_length")
     if any(value is not None and value < 0 for value in (max_docs, max_chunks)):
         raise ValueError("Output budgets must be nonnegative")
     injected = any(value is not None for value in (dense_encoder, qdrant_factory, postgres_manager, reranker))
@@ -336,6 +349,7 @@ def run_pipeline(
     if manifest and any(manifest["signature"].get(k) != v for k, v in GTE_CONFIG.items()):
         raise ValueError("Manifest embedding model differs from the pinned GTE encoder")
     settings = {
+        "submission_format": SUBMISSION_FORMAT, "search_mode": search_mode,
         "input": sha_file(parquet_path), "columns": mapping, "top_k": top_k,
         "branch_limit": branch_limit, "max_docs": max_docs, "max_chunks": max_chunks,
         "limit": limit, "filter": query_filter, "manifest": manifest, "gte": GTE_CONFIG,
@@ -346,7 +360,7 @@ def run_pipeline(
         "database": os.getenv("DATABASE_URL"), "resume_tag": resume_tag,
         "reranker": {"model": MODEL_NAME, "revision": MODEL_REVISION,
                      "instruction": INSTRUCTION, "max_length": reranker_max_length,
-                     "device": reranker_device or device, "window_pooling": "max-v1"},
+                     "device": reranker_device or device, "window_pooling": "max-v1"} if rerank else None,
     }
     if start is not None or end is not None:
         settings["range"] = [start, end]
@@ -377,7 +391,8 @@ def run_pipeline(
                 thread_state.manager = manager
                 with manager_lock:
                     managers.append(manager)
-            hits = thread_state.manager.query_original_dense(
+            search = getattr(thread_state.manager, SEARCH_METHODS[search_mode])
+            hits = search(
                 query, query_filter=query_filter, with_payload=True,
                 top_k=top_k, branch_limit=branch_limit,
             )
@@ -451,7 +466,9 @@ def run_pipeline(
                         # in every batch. Surface them once, before row processing.
                         dense_encoder = load_dense_encoder(device=device, batch_size=encoder_batch_size,
                                                            cache_dir=model_cache)
-                    texts = list(dict.fromkeys(query["original_query"] for _, _, query in active))
+                    dense_fields = (("original_query", "eng_query", "chinese_query")
+                                    if search_mode == "6-branch" else ("original_query",))
+                    texts = list(dict.fromkeys(query[field] for _, _, query in active for field in dense_fields))
                     try:
                         vectors = dense_encoder(texts)
                         if len(vectors) != len(texts):
@@ -493,7 +510,7 @@ def run_pipeline(
                             ready.append((row, identifier, query, docs, chunks, identities))
                         except Exception as exc:
                             failed(row, identifier, "hydration", database_error or exc)
-                    if any(item[4] for item in ready) and reranker is None:
+                    if rerank and any(item[4] for item in ready) and reranker is None:
                         LOGGER.info("Loading local Qwen reranker on %s", reranker_device or device)
                         try:
                             reranker = QwenReranker(
@@ -512,7 +529,7 @@ def run_pipeline(
                         row, identifier, query, docs, chunks, identities = item
                         try:
                             started = monotonic()
-                            if chunks:
+                            if rerank and chunks:
                                 LOGGER.info("Reranking query id=%s: %d chunks", identifier, len(chunks))
                                 scores = reranker.score(query["original_query"], [c["chunk_text"] for c in chunks])
                                 if len(scores) != len(chunks) or not all(math.isfinite(s) for s in scores):
@@ -529,7 +546,7 @@ def run_pipeline(
                         except Exception as exc:
                             return row, identifier, exc
 
-                    # One local model, bounded pair batches; avoid competing GPU/CPU forwards.
+                    # Commit each query durably; optional model forwards stay sequential.
                     for item in ready:
                         result = finish(item)
                         if isinstance(result, tuple):
@@ -575,17 +592,19 @@ def main(argv=None) -> int:
     parser.add_argument("--zip", dest="zip_path", type=Path)
     parser.add_argument("--manifest", dest="manifest_path", type=Path)
     parser.add_argument("--qdrant-url")
+    parser.add_argument("--search-mode", choices=SEARCH_METHODS, default="4-branch")
     for name, default in (("batch-size", 16), ("workers", 4),
-                          ("top-k", 100), ("branch-limit", 50), ("encoder-batch-size", 8),
+                          ("top-k", DEFAULT_TOP_K), ("branch-limit", DEFAULT_BRANCH_LIMIT), ("encoder-batch-size", 8),
                           ("reranker-batch-size", 4), ("reranker-max-length", 8192),
                           ("reranker-token-budget", 8192)):
         parser.add_argument("--" + name, type=int, default=default)
     parser.add_argument("--max-chunks", type=int, default=DEFAULT_MAX_CHUNKS,
-                        help="Maximum chunks after Qwen reranking (default: 50)")
+                        help="Maximum output chunks per query (default: all retrieved chunks)")
     for name in ("max-docs", "limit", "start", "end"):
         parser.add_argument("--" + name, type=int)
     parser.add_argument("--device", default="cpu")
     parser.add_argument("--model-cache", type=Path)
+    parser.add_argument("--rerank", action="store_true", help="Enable local Qwen reranking (disabled by default)")
     parser.add_argument("--reranker-device", help="Defaults to --device")
     parser.add_argument("--timeout", type=float, default=30)
     parser.add_argument("--resume", action="store_true")

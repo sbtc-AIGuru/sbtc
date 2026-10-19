@@ -5,9 +5,12 @@ Run from the repository root with the existing `.venv`:
 ```bash
 .venv/bin/python -m BackEnd.app.pipeline query_translated.parquet \
   --output artifacts/pipeline/output.json --zip artifacts/pipeline/output.zip \
-  --batch-size 16 --workers 4 --reranker-device cuda:0
+  --batch-size 16 --workers 4
 ```
 
+Qwen reranking is disabled by default to retain retrieval coverage. No Qwen
+weights are loaded and no chunks are dropped by an output cap unless requested.
+To enable it again, add `--rerank --max-chunks 50 --reranker-device cuda:0`.
 Omit `--reranker-device` to use the encoder's `--device` (default `cpu`).
 Use `--start 1 --end 16` for a small run. Bounds are inclusive, 1-based input
 row positions; omitted bounds run the entire file. IDs and output order remain
@@ -21,13 +24,14 @@ unchanged. See also the [upload API](api/README.md).
 - The pinned GTE encoder reuses `Scripts/Qdrant/build_gte_qdrant.encode_records`:
   normalized CLS, 8192-token windows, weighted window fusion without truncation.
   VI queries are encoded together once per input batch.
-- Qwen3-Reranker-0.6B runs locally with Transformers/PyTorch already available
+- When enabled, Qwen3-Reranker-0.6B runs locally with Transformers/PyTorch already available
   in the project environment. It needs no OpenAI client, endpoint, or API key.
 - PostgreSQL is used only for missing `doc_id`/`chunk_text` fields via the existing
   `PostgreManager.get_submission_chunks(ids)`, in parameterized batches of up to
   1000 IDs. Complete Qdrant payloads need no SQL lookup. Set `DATABASE_URL` if needed.
 
-Both model loaders use cached files only. Set `PIPELINE_MODEL_CACHE` or
+Both model loaders use cached files only; the default mode needs only GTE.
+Set `PIPELINE_MODEL_CACHE` or
 `--model-cache`; the downloaded project cache is automatically detected.
 Download pinned public files explicitly before starting jobs:
 
@@ -54,16 +58,22 @@ The existing 1200-row dataset was inspected. Column overrides are available via
 `--chinese-query-column`, or the Python `columns` mapping. Missing translations,
 invalid IDs, duplicates, and blank queries fail explicitly; no translation runs.
 
-`QdrantManager.query_original_dense` is the four-branch implementation:
-**GTE dense VI + native BM25 VI/EN/ZH**, fused by Qdrant RRF. The six-branch
-`query_multilingual_dense` is not used. Defaults remain 50 points per branch and
-100 fused points; configure `--branch-limit` / `--top-k` to change coverage.
+`--search-mode 4-branch` (default) uses `QdrantManager.query_original_dense`:
+**GTE dense VI + native BM25 VI/EN/ZH**, fused by Qdrant RRF.
+`--search-mode 6-branch` uses the existing `query_multilingual_dense`:
+**GTE dense VI/EN/ZH + native BM25 VI/EN/ZH**. The six-branch mode batch-encodes
+the three existing translations once per unique text, then reuses those vectors.
+The UI selects either method per job. The pipeline defaults to 100 points per branch and
+200 fused points; configure `--branch-limit` / `--top-k` to change coverage.
+The API exposes these as `PIPELINE_BRANCH_LIMIT` / `PIPELINE_TOP_K`.
 
 Source document/chunk IDs are preserved. Conflicting PostgreSQL/Qdrant metadata
 fails the affected query. Chunk deduplication uses the existing BTC text
 normalization; output always retains the original source text.
 
-`Retrieval/qwen_reranker.py` scores each original VI query–chunk pair using the
+By default, fused candidates keep their Qdrant RRF order after source hydration
+and deduplication. With `rerank=True` (Python), `--rerank` (CLI), or
+`PIPELINE_RERANK=1` (API), `Retrieval/qwen_reranker.py` scores each original VI query–chunk pair using the
 [official Qwen yes/no prompt and logits](https://huggingface.co/Qwen/Qwen3-Reranker-0.6B).
 There is no text generation. Python stably sorts scores descending, keeping
 retrieval order on ties. Only chunks are reordered; document order is preserved.
@@ -88,25 +98,26 @@ increase both context length and token budget if resources permit. CPU uses
 float32, CUDA float16, SDPA attention, no KV cache, and final-position logits only.
 These settings bound inference work; there is no claim of measured Recall/F2 gains.
 
-The default output is at most **50 chunks per query**, selected after Qwen reranks
-all 100 fused candidates. Fewer candidates remain fewer; no padding or invented
-chunks are added. `--max-chunks` changes this output budget; Python callers can
-pass `max_chunks=None` to retain all chunks. `--max-docs` remains independent and
-unlimited by default. The competition specifies no numeric candidate cap; 50 is
-the requested project default, not a competition rule. Calibrate budgets against
+The default output retains **all chunks from the 200 fused candidates** after
+source deduplication. Fewer candidates remain fewer; no padding or invented
+chunks are added. `--max-chunks 50` explicitly limits the output to 50, after
+optional Qwen reranking; Python's `max_chunks=None` is the default.
+`--max-docs` remains independent and unlimited by default. The competition
+specifies no numeric candidate cap. Calibrate budgets against
 validation labels; no Recall/F2 improvement is assumed.
 
 ## Submission, checkpoints and recovery
 
-The schema was checked directly against the official [Submission Instructions
+The field names were checked directly against the official [Submission Instructions
 and Evaluation](https://leaderboard.aiguru.com.vn/competitions/15/) on 2026-10-18,
 and agrees with [asked.md](../../asked.md):
 
 ```json
-[{"id": 1, "relevant_docs": ["123"], "relevant_chunks": [{"doc_id": "123", "chunk_text": "Exact source text"}]}]
+[{"id": 1, "relevant_docs": [123], "relevant_chunks": [{"doc_id": 123, "chunk_text": "Exact source text"}]}]
 ```
 
-IDs are source integer document IDs serialized as strings. The competition
+IDs are source integer document IDs serialized as **JSON integers**, including
+IDs read as numeric strings from Qdrant payloads. The competition
 requires chunk text, not internal chunk IDs. `chunk_order` is optional; the
 submitted array position is used when it is omitted, so Qwen ranking is retained
 without adding a source-position field. ZIP contains exactly one JSON file at its
@@ -119,10 +130,17 @@ result with two empty lists; no medical answer or explanation is generated.
   fsynced before progress is published, including within an unfinished batch.
 - `output.errors.json` records failed row positions, IDs, stages and exception
   types. Independent queries continue. A failed query prevents final JSON/ZIP;
-  the pipeline never silently falls back to an unranked success.
+  enabled Qwen failures never silently fall back to unranked results.
 - Repeat the command with `--resume` to retry only unfinished/failed rows.
   Interrupted final journal appends are discarded. Changed input, retrieval
-  configuration, chunk budget, Qwen revision/instruction/context/device reject the checkpoint.
+  configuration, search mode, submission format, chunk budget, reranking mode and
+  enabled Qwen revision/instruction/context/device reject the checkpoint.
+  The API saves search/rerank choices and candidate/output budgets per job; resume
+  uses that saved configuration, even if the server's defaults change.
+  Choose a new job/output when changing a job's mode. **Checkpoints from the
+  previous string-ID format require a new job/output.**
+  Use a new job/output for the widened 100-per-branch / 200-fused defaults;
+  checkpoints created with the former 50/100 limits require those original limits to resume.
   **Checkpoints from the previous LLM reranker require a new job/output path.**
 - Pause remains at the next input batch boundary. Already checkpointed rows
   survive a restart. Model/retrieval progress and per-query durations are logged.

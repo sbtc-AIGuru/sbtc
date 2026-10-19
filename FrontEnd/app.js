@@ -16,6 +16,23 @@ let selectedId = localStorage.getItem("sbtc-selected-job");
 let selectedFile = null;
 let uploading = false;
 let actionBusy = false;
+let configurationReady = false;
+
+function searchHints() {
+  $("search-hint").textContent = $("search-mode").value === "6-branch"
+    ? "Dense VI/EN/ZH + BM25 VI/EN/ZH. Encode ba bản truy vấn nên tốn thời gian hơn."
+    : "Dense VI + BM25 VI/EN/ZH. Dùng bản dịch có sẵn trong file.";
+  $("rerank-hint").textContent = $("rerank").checked
+    ? "Chấm lại chunk bằng Qwen cục bộ; cần model trong cache và thêm thời gian xử lý."
+    : "Giữ thứ tự RRF từ Qdrant, không nạp hoặc chạy Qwen.";
+}
+
+function configurationLabel(config) {
+  if (!config) return "Tác vụ cũ · Chưa lưu lựa chọn search";
+  const mode = config.search_mode === "6-branch" ? "6 nhánh" : "4 nhánh";
+  const chunks = config.max_chunks == null ? "Giữ hết chunk" : `Tối đa ${config.max_chunks} chunk`;
+  return `${mode} · RRK ${config.rerank ? "bật" : "tắt"} · ${config.branch_limit}/nhánh · Top ${config.top_k} · ${chunks}`;
+}
 
 function notice(message = "") {
   $("notice").textContent = message;
@@ -60,7 +77,7 @@ function render() {
     const name = document.createElement("strong");
     name.textContent = item.filename;
     const detail = document.createElement("small");
-    detail.textContent = `Dòng ${format.format(item.start)}–${format.format(item.end)} · ${new Date(item.created_at).toLocaleString("vi-VN")}`;
+    detail.textContent = `Dòng ${format.format(item.start)}–${format.format(item.end)} · ${new Date(item.created_at).toLocaleString("vi-VN")} · ${configurationLabel(item.pipeline_config)}`;
     left.append(name, detail);
     const right = document.createElement("span");
     right.className = "history-right";
@@ -83,6 +100,7 @@ function render() {
   $("job-badge").dataset.status = job.status;
   $("job-filename").textContent = job.filename;
   $("job-meta").textContent = `Dòng ${format.format(job.start)}–${format.format(job.end)} / ${format.format(job.rows)} · Batch ${job.batch_size} · Lần chạy ${job.attempts}`;
+  $("job-config").textContent = configurationLabel(job.pipeline_config);
   $("completed-count").textContent = format.format(job.completed);
   $("failed-count").textContent = format.format(job.failed);
   $("total-count").textContent = format.format(job.total);
@@ -111,6 +129,18 @@ function select(identifier) {
 
 async function refresh() {
   try {
+    if (!configurationReady) {
+      const {defaults} = await request("/api/config");
+      $("search-mode").value = defaults.search_mode;
+      $("rerank").checked = defaults.rerank;
+      $("top-k").value = defaults.top_k;
+      $("branch-limit").value = defaults.branch_limit;
+      $("max-chunks").value = defaults.max_chunks ?? "";
+      configurationReady = true;
+      $("retrieval-settings").disabled = uploading;
+      $("submit-button").disabled = !selectedFile || uploading;
+      searchHints();
+    }
     jobs = await request("/api/jobs");
     connection(true);
     if (!jobs.some((job) => job.id === selectedId) && jobs.length) select(jobs[0].id);
@@ -128,10 +158,12 @@ function chooseFile(file) {
     $("file").value = "";
   } else selectedFile = file;
   $("file-summary").textContent = selectedFile ? selectedFile.name : "Kéo thả file Parquet vào đây";
-  $("submit-button").disabled = !selectedFile || uploading;
+  $("submit-button").disabled = !selectedFile || uploading || !configurationReady;
 }
 
 $("file").addEventListener("change", (event) => chooseFile(event.target.files[0]));
+$("search-mode").addEventListener("change", searchHints);
+$("rerank").addEventListener("change", searchHints);
 for (const name of ["dragenter","dragover"]) $("drop-zone").addEventListener(name, (event) => {
   event.preventDefault();
   $("drop-zone").classList.add("dragging");
@@ -150,7 +182,7 @@ $("drop-zone").addEventListener("drop", (event) => {
 $("upload-form").addEventListener("submit", async (event) => {
   event.preventDefault();
   notice();
-  if (!selectedFile || uploading) return;
+  if (!selectedFile || uploading || !configurationReady) return;
   const start = $("start").value;
   const end = $("end").value;
   if (start && end && Number(start) > Number(end)) return notice("Dòng bắt đầu phải nhỏ hơn hoặc bằng dòng kết thúc.");
@@ -159,9 +191,15 @@ $("upload-form").addEventListener("submit", async (event) => {
   if (start) data.append("start", start);
   if (end) data.append("end", end);
   data.append("batch_size", $("batch-size").value);
+  data.append("search_mode", $("search-mode").value);
+  data.append("rerank", String($("rerank").checked));
+  data.append("top_k", $("top-k").value);
+  data.append("branch_limit", $("branch-limit").value);
+  data.append("max_chunks", $("max-chunks").value || "all");
   uploading = true;
   $("submit-button").disabled = true;
   $("file").disabled = true;
+  $("retrieval-settings").disabled = true;
   $("upload-progress-wrap").hidden = false;
   $("upload-progress").value = 0;
   $("upload-percent").textContent = "0%";
@@ -196,6 +234,7 @@ $("upload-form").addEventListener("submit", async (event) => {
     uploading = false;
     $("submit-button").disabled = !selectedFile;
     $("file").disabled = false;
+    $("retrieval-settings").disabled = false;
     $("upload-progress-wrap").hidden = true;
   }
 });
