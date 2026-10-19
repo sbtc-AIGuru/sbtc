@@ -1,5 +1,6 @@
 """Small offline checks plus real snapshot/restore when QDRANT_TEST_BINARY is set."""
 
+import ast
 import gzip
 import hashlib
 import io
@@ -9,7 +10,7 @@ from pathlib import Path
 import socket
 import sys
 import tarfile
-from types import SimpleNamespace
+from types import ModuleType, SimpleNamespace
 
 import numpy as np
 import pytest
@@ -285,6 +286,20 @@ def test_restore_validation_failure_cannot_publish_complete_manifest(config, mon
     assert not (Path(config["output"]) / "snapshot_manifest.json").exists()
 
 
+@pytest.fixture
+def notebook_sources():
+    tree = ast.parse("".join(json.loads(NOTEBOOK.read_text())["cells"][6]["source"]))
+    return {node.targets[0].id: ast.literal_eval(node.value) for node in tree.body
+            if isinstance(node, ast.Assign) and isinstance(node.value, ast.Constant)}
+
+
+@pytest.fixture
+def notebook_runner(notebook_sources):
+    module = ModuleType("qwen3_notebook_test")
+    exec(compile(notebook_sources["runner_source"], "<qwen3_notebook_runner>", "exec"), module.__dict__)
+    return module
+
+
 def test_notebook_is_standalone_and_matches_sources():
     notebook = json.loads(NOTEBOOK.read_text())
     assert notebook["metadata"]["kaggle"]["isGpuEnabled"]
@@ -297,9 +312,131 @@ def test_notebook_is_standalone_and_matches_sources():
             assert cell["execution_count"] is None and cell["outputs"] == []
             if source.startswith("runner_source ="):
                 exec(source.split("runner_path.write_text")[0], embedded)
-    assert embedded["runner_source"] == Path(runner.__file__).read_text()
+    # The notebook uses Qwen3/float16 storage; the standalone GTE runner stays intact.
+    changed_functions = {"vector_schema", "encode_records", "load_encoder", "signature",
+                         "check_resources", "create_collection", "wait_for_index",
+                         "export_snapshot", "run_pipeline"}
+    original = {node.name: ast.dump(node) for node in ast.parse(Path(runner.__file__).read_text()).body
+                if isinstance(node, ast.FunctionDef)}
+    for node in ast.parse(embedded["runner_source"]).body:
+        if isinstance(node, ast.FunctionDef) and node.name not in changed_functions:
+            assert ast.dump(node) == original[node.name], node.name
     assert embedded["restore_source"] == Path(restore.__file__).read_text()
-    assert embedded["client_source"] == (ROOT / "BackEnd/app/Database/qdrant_db.py").read_text()
+    client = (ROOT / "BackEnd/app/Database/qdrant_db.py").read_text()
+    client = client.replace('"sbtc_gte_multilingual"', '"sbtc_qwen3_embedding_0_6b_1024"')
+    client = client.replace("same GTE encoder", "same Qwen3 encoder")
+    client = client.replace("snapshot's GTE model/revision and CLS\n        pooling",
+        "snapshot's Qwen3 model/revision and last-token\n        pooling with left padding, L2 normalization and the documented query instruction")
+    assert embedded["client_source"] == client
+
+
+def test_notebook_qwen3_float32_inference_and_empty_long_chunks(notebook_runner, monkeypatch):
+    from tokenizers import Tokenizer, models, pre_tokenizers
+    import transformers
+
+    backend = Tokenizer(models.WordLevel(
+        {"[UNK]": 0, "[PAD]": 1, "[EOS]": 2, "one": 3, "two": 4}, unk_token="[UNK]"))
+    backend.pre_tokenizer = pre_tokenizers.Whitespace()
+    tokenizer = transformers.PreTrainedTokenizerFast(
+        tokenizer_object=backend, unk_token="[UNK]", pad_token="[PAD]", eos_token="[EOS]",
+        model_input_names=["input_ids", "attention_mask"])
+    model = transformers.Qwen3Model(transformers.Qwen3Config(
+        vocab_size=5, hidden_size=32, intermediate_size=64, num_hidden_layers=1,
+        num_attention_heads=2, num_key_value_heads=1, head_dim=16, pad_token_id=1,
+        max_position_embeddings=64, attn_implementation="sdpa"))
+    loaded = {}
+
+    def load_tokenizer(*args, **kwargs):
+        tokenizer.padding_side = kwargs["padding_side"]
+        return tokenizer
+
+    def load_model(*args, **kwargs):
+        loaded.update(kwargs)
+        return model.to(dtype=kwargs["torch_dtype"])
+
+    monkeypatch.setattr(transformers.AutoTokenizer, "from_pretrained", load_tokenizer)
+    monkeypatch.setattr(transformers.AutoModel, "from_pretrained", load_model)
+    monkeypatch.setattr(torch.cuda, "is_available", lambda: True)
+    monkeypatch.setattr(torch.cuda, "device_count", lambda: 1)
+    monkeypatch.setattr(torch.cuda, "synchronize", lambda device: None)
+    monkeypatch.setattr(torch.cuda, "get_device_name", lambda rank: "CPU test")
+    cpu = torch.device("cpu")
+    monkeypatch.setattr(torch, "device", lambda name: cpu)
+    config = {"model": "Qwen/Qwen3-Embedding-0.6B", "revision": "test", "dimension": 32,
+              "rank": 0, "batch_size": 8, "max_length": 3, "token_budget": 24}
+    previous_threads = torch.get_num_threads()
+    try:
+        _, forward = notebook_runner.load_encoder(config)
+        assert loaded["torch_dtype"] == torch.float32
+        assert next(model.parameters()).dtype == torch.float32
+        assert tokenizer.padding_side == "left" and model.config.use_cache is False
+        records = [{"text": text} for text in ("", "one two one two", "two")]
+        vectors, long_count = notebook_runner.encode_records(records, tokenizer, forward, config)
+        pieces = []
+        for ids in ([2], [3, 4, 3], [4]):
+            with torch.inference_mode():
+                pieces.append(model(input_ids=torch.tensor([ids]), use_cache=False)
+                              .last_hidden_state[0, -1].numpy())
+        pieces = notebook_runner.normalize_vectors(np.array(pieces))
+        expected = notebook_runner.normalize_vectors(np.array([
+            pieces[0], 3 * pieces[1] + pieces[2], pieces[2]]))
+        np.testing.assert_allclose(vectors, expected, atol=1e-5)
+        assert long_count == 1 and vectors.dtype == np.float32
+    finally:
+        torch.set_num_threads(previous_threads)
+
+
+def test_notebook_stores_1024_float16_and_keeps_bm25_payload(config, notebook_runner, monkeypatch):
+    config = {**config, "dimension": 1024}
+    monkeypatch.setattr(notebook_runner.requests, "get",
+                        lambda *args, **kwargs: SimpleNamespace(status_code=404))
+    calls = []
+    monkeypatch.setattr(notebook_runner, "api",
+                        lambda config, method, path, body: calls.append((path, body)))
+    notebook_runner.create_collection(config)
+    body = calls[0][1]
+    assert body["vectors"]["dense"] == {
+        "size": 1024, "distance": "Cosine", "on_disk": True, "datatype": "float16"}
+    assert body["sparse_vectors"]["bm25"] == {"modifier": "idf", "index": {"on_disk": True}}
+    assert body["on_disk_payload"] is True
+    assert {call[1]["field_name"] for call in calls[1:]} == {"chunk_id", "parent_id"}
+    assert notebook_runner.signature(config)["vector_schema"]["dense_datatype"] == "float16"
+
+
+def test_notebook_rejects_existing_float32_collection(config, notebook_runner, monkeypatch):
+    params = {"vectors": {"dense": {"size": 1024, "distance": "Cosine", "datatype": "float32"}},
+              "sparse_vectors": {"bm25": {"modifier": "idf"}}}
+    monkeypatch.setattr(notebook_runner.requests, "get", lambda *args, **kwargs: SimpleNamespace(
+        status_code=200, raise_for_status=lambda: None,
+        json=lambda: {"result": {"config": {"params": params}}}))
+    with pytest.raises(ValueError, match="use new state"):
+        notebook_runner.create_collection({**config, "dimension": 1024})
+
+
+def test_notebook_resource_budget_uses_float16(config, notebook_runner, monkeypatch):
+    config = {**config, "dimension": 1024, "expected_chunks": 4_342_218,
+              "output_limit_bytes": 10 * 1024**3, "hnsw_m": 32}
+    monkeypatch.setattr(notebook_runner.psutil, "disk_partitions",
+                        lambda **kwargs: [SimpleNamespace(mountpoint="/", fstype="ext4")])
+    monkeypatch.setattr(notebook_runner.shutil, "disk_usage", lambda path: SimpleNamespace(
+        free=(1000 if Path(path) == Path(config["state_dir"]) else 20) * 1024**3))
+    notebook_runner.check_resources(config, {"payload_bytes": 0, "gzip_payload_bytes": 0})
+
+
+def test_notebook_manifest_separates_inference_and_storage(config, notebook_runner, monkeypatch):
+    folder = Path(config["state_dir"]) / "snapshots" / config["collection"]
+    folder.mkdir(parents=True)
+    with tarfile.open(folder / "test.snapshot", "w") as archive:
+        item = tarfile.TarInfo("test.bin")
+        item.size = 4
+        archive.addfile(item, io.BytesIO(b"test"))
+    monkeypatch.setattr(notebook_runner, "count_points", lambda config: 1)
+    monkeypatch.setattr(notebook_runner, "api", lambda *args, **kwargs: {"name": "test.snapshot"})
+    manifest = notebook_runner.export_snapshot(config, complete=False)
+    assert manifest["embedding"]["inference"] == "float32"
+    assert manifest["embedding"]["storage"] == "float16"
+    assert manifest["embedding"]["pooling"] == "last_token"
+    assert manifest["vector_schema"]["dense_datatype"] == "float16"
 
 
 def unused_port():

@@ -70,3 +70,16 @@ Sau cập nhật này cần restart API và tạo job mới: checkpoint cũ dùn
 không dùng chung với định dạng ID số nguyên.
 
 Chi tiết: [Pipeline](BackEnd/app/PIPELINE.md) · [API và checkpoint](BackEnd/app/api/README.md) · [BM25 riêng](BackEnd/app/Retrieval/README.md).
+
+## Hẹn tắt máy lúc 03:00
+
+```bash
+bash Scripts/shutdown_at_0300.sh --dry-run  # Xem giờ dự kiến, chưa đặt lịch
+sudo bash Scripts/shutdown_at_0300.sh       # Đặt lịch một lần, giờ Việt Nam
+bash Scripts/shutdown_at_0300.sh --status   # Xem lịch
+sudo bash Scripts/shutdown_at_0300.sh --cancel
+```
+
+Script dừng API của dự án trước một phút, chờ tối đa 45 giây rồi ngắt nếu còn kẹt,
+sau đó yêu cầu tắt máy lúc 03:00. Checkpoint/output đã lưu vẫn còn. Có thể đóng
+terminal sau khi đặt lịch; máy cần đang thức. Lịch không lặp hằng ngày và mất sau reboot.
