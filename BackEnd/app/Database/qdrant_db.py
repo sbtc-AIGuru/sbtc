@@ -13,6 +13,22 @@ from urllib.parse import quote
 import requests
 
 
+def parse_dense_weight(value=None) -> float:
+    if value is None or (isinstance(value, str) and not value.strip()):
+        return 0.5
+    if isinstance(value, bool):
+        raise ValueError("dense_weight must be a number between 0 and 1")
+    try:
+        weight = float(value)
+    except (TypeError, ValueError, OverflowError):
+        raise ValueError("dense_weight must be a number between 0 and 1") from None
+    if math.isnan(weight):
+        return 0.5
+    if not math.isfinite(weight) or not 0 <= weight <= 1:
+        raise ValueError("dense_weight must be a number between 0 and 1")
+    return weight
+
+
 class QdrantManager:
     """Read-only Qdrant queries; never create collections, indexes or models."""
 
@@ -122,27 +138,27 @@ class QdrantManager:
     def query_original_dense(
         self, query: dict[str, str], *, query_filter: dict | None = None,
         with_payload: bool | list[str] = True,
-        top_k: int = 100, branch_limit: int = 50,
+        top_k: int = 100, branch_limit: int = 50, dense_weight: float | None = 0.5,
     ) -> list[dict]:
-        """Fuse dense(original_query) and BM25(VI/EN/ZH); default 50/branch, top 100."""
+        """Weighted RRF of dense(original_query) and BM25(VI/EN/ZH); default 50/branch, top 100."""
         return self._query_hybrid(query, multilingual_dense=False,
                                   query_filter=query_filter, with_payload=with_payload,
-                                  top_k=top_k, branch_limit=branch_limit)
+                                  top_k=top_k, branch_limit=branch_limit, dense_weight=dense_weight)
 
     def query_multilingual_dense(
         self, query: dict[str, str], *, query_filter: dict | None = None,
         with_payload: bool | list[str] = True,
-        top_k: int = 100, branch_limit: int = 50,
+        top_k: int = 100, branch_limit: int = 50, dense_weight: float | None = 0.5,
     ) -> list[dict]:
-        """Fuse dense(VI/EN/ZH) and BM25(VI/EN/ZH); default 50/branch, top 100."""
+        """Weighted RRF of dense(VI/EN/ZH) and BM25(VI/EN/ZH); default 50/branch, top 100."""
         return self._query_hybrid(query, multilingual_dense=True,
                                   query_filter=query_filter, with_payload=with_payload,
-                                  top_k=top_k, branch_limit=branch_limit)
+                                  top_k=top_k, branch_limit=branch_limit, dense_weight=dense_weight)
 
     def _query_hybrid(
         self, query: dict[str, str], *, multilingual_dense: bool,
         query_filter: dict | None, with_payload: bool | list[str],
-        top_k: int, branch_limit: int,
+        top_k: int, branch_limit: int, dense_weight: float | None,
     ) -> list[dict]:
         if top_k < 1 or branch_limit < 1:
             raise ValueError("top_k and branch_limit must be positive")
@@ -151,24 +167,32 @@ class QdrantManager:
             not isinstance(query.get(key), str) or not query[key].strip() for key in keys
         ):
             raise ValueError("Query requires nonempty original_query, eng_query and chinese_query")
-        if self.dense_encoder is None:
+        weight = parse_dense_weight(dense_weight)
+        if weight > 0 and self.dense_encoder is None:
             raise ValueError("Configure dense_encoder with the same GTE encoder used to build the index")
         texts = [query[key] for key in keys]
         sparse = [self._sparse_query({
             "text": text, "model": "qdrant/bm25", "options": self.bm25_options,
-        }) for text in texts]
+        }) for text in texts] if weight < 1 else []
         dense_texts = texts if multilingual_dense else texts[:1]
-        vectors = self.dense_encoder(dense_texts)
-        if len(vectors) != len(dense_texts):
-            raise ValueError("dense_encoder must return one vector per query text")
-        branches = [self._dense_query(vector) for vector in vectors] + sparse
+        dense = []
+        if weight > 0:
+            vectors = self.dense_encoder(dense_texts)
+            if len(vectors) != len(dense_texts):
+                raise ValueError("dense_encoder must return one vector per query text")
+            dense = [self._dense_query(vector) for vector in vectors]
+        branches = dense + sparse
+        # Divide each group's weight across its languages, in prefetch order.
+        # Omit zero-weight groups so their candidates cannot fill the result tail.
+        weights = ([weight / len(dense)] * len(dense) if dense else [])
+        weights += [(1 - weight) / 3] * len(sparse)
         for branch in branches:
             branch["limit"] = branch_limit
             if query_filter is not None:
                 branch["filter"] = query_filter
         # Fusion ranks the union of all branches, each with its own candidate budget.
         body = {
-            "prefetch": branches, "query": {"fusion": "rrf"}, "limit": top_k,
+            "prefetch": branches, "query": {"rrf": {"k": 2, "weights": weights}}, "limit": top_k,
             "with_payload": with_payload, "with_vector": False,
         }
         if query_filter is not None:

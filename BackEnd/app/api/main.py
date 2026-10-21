@@ -21,7 +21,7 @@ import pyarrow.parquet as pq
 
 from ..pipeline import (
     DEFAULT_BRANCH_LIMIT, DEFAULT_TOP_K, SEARCH_METHODS,
-    PipelineError, PipelinePaused, PipelineSetupError, _columns, run_pipeline,
+    PipelineError, PipelinePaused, PipelineSetupError, _columns, _embedding_columns, run_pipeline,
 )
 from ..Retrieval.utils import atomic_json, job_lock
 
@@ -220,9 +220,10 @@ def create_app(*, jobs_dir=None, runner=run_pipeline, pipeline_options=None, max
             try:
                 with pq.ParquetFile(directory / "input.parquet") as parquet:
                     mapping = _columns(parquet.schema_arrow, None)
+                    _embedding_columns(parquet.schema_arrow, options.get("dense_encoder"))
                     rows = parquet.metadata.num_rows
             except (ValueError, OSError) as exc:
-                raise HTTPException(400, "Parquet không hợp lệ hoặc thiếu cột id/query/english/chinese.") from exc
+                raise HTTPException(400, "Parquet cần id/query/english/chinese, ba vector và metadata GTE từ notebook Colab.") from exc
             first, last = start or 1, end if end is not None else rows
             if not rows or first > last or last > rows:
                 raise HTTPException(422, "Khoảng start–end không hợp lệ hoặc vượt số dòng trong file.")

@@ -162,6 +162,14 @@ không xóa schema hiện có. Không dùng database production để chạy tes
 `requests`. Constructor không kết nối mạng hoặc tải model. Các phương thức chỉ
 đọc dữ liệu; không tạo collection, sparse index hoặc sửa snapshot.
 
+Weighted RRF chạy trong Qdrant (1.17+) trên hợp các ứng viên. Hai hàm nhận thêm
+`dense_weight` (mặc định `0.5`, giá trị từ 0 đến 1): cả nhóm dense nhận trọng số
+này, cả nhóm BM25 nhận `1 - dense_weight`, chia đều cho các nhánh trong nhóm.
+Giá trị `0` chỉ chạy BM25, `1` chỉ chạy dense. Pipeline lấy giá trị theo từng dòng
+từ cột `dense_weight` trong Parquet; thiếu/rỗng/NaN dùng `0.5`.
+Pipeline và caller gọi trực tiếp đều nhận tối đa `top_k` point sau fusion.
+Doc ID chỉ lấy từ các point trong top-k, không lấy thêm ứng viên ngoài top-k.
+
 Snapshot dense-only cũ trên VM dùng collection `sbtc_gte_multilingual`, vector
 dense **không có tên**, 768 chiều, Cosine. Notebook hybrid mới dùng hai tên
 `dense` và `bm25`; client nhận ra tên `dense` hoặc đọc chính xác từ manifest.

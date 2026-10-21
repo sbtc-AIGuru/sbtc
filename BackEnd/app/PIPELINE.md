@@ -3,7 +3,7 @@
 Run from the repository root with the existing `.venv`:
 
 ```bash
-.venv/bin/python -m BackEnd.app.pipeline query_translated.parquet \
+.venv/bin/python -m BackEnd.app.pipeline artifacts/query-embeddings/query_rewritten_final_embeddings.parquet \
   --output artifacts/pipeline/output.json --zip artifacts/pipeline/output.zip \
   --batch-size 16 --workers 4
 ```
@@ -11,7 +11,7 @@ Run from the repository root with the existing `.venv`:
 Qwen reranking is disabled by default to retain retrieval coverage. No Qwen
 weights are loaded and no chunks are dropped by an output cap unless requested.
 To enable it again, add `--rerank --max-chunks 50 --reranker-device cuda:0`.
-Omit `--reranker-device` to use the encoder's `--device` (default `cpu`).
+Omit `--reranker-device` to use `--device` (default `cpu`).
 Use `--start 1 --end 16` for a small run. Bounds are inclusive, 1-based input
 row positions; omitted bounds run the entire file. IDs and output order remain
 unchanged. See also the [upload API](api/README.md).
@@ -20,40 +20,44 @@ unchanged. See also the [upload API](api/README.md).
 
 - Qdrant requires the existing hybrid GTE + BM25 collection. Set `QDRANT_URL`,
   `QDRANT_COLLECTION` and existing vector/BM25 configuration, or pass `--manifest`
-  from a hybrid snapshot. The collection is checked before embedding.
-- The pinned GTE encoder reuses `Scripts/Qdrant/build_gte_qdrant.encode_records`:
-  normalized CLS, 8192-token windows, weighted window fusion without truncation.
-  VI queries are encoded together once per input batch.
+  from a hybrid snapshot. The collection is checked before retrieval.
+- Dense vectors are read from the Parquet produced by
+  [Query_GTE_Embeddings_Colab.ipynb](Database/Notebook/Query_GTE_Embeddings_Colab.ipynb).
+  The pipeline never automatically loads GTE or computes query embeddings.
+  The file must match the pinned GTE model/code revisions and pooling settings.
 - When enabled, Qwen3-Reranker-0.6B runs locally with Transformers/PyTorch already available
   in the project environment. It needs no OpenAI client, endpoint, or API key.
-- PostgreSQL is used only for missing `doc_id`/`chunk_text` fields via the existing
+- PostgreSQL is used only for missing `doc_id`/`chunk_text` fields of top-k chunks via the existing
   `PostgreManager.get_submission_chunks(ids)`, in parameterized batches of up to
   1000 IDs. Complete Qdrant payloads need no SQL lookup. Set `DATABASE_URL` if needed.
 
-Both model loaders use cached files only; the default mode needs only GTE.
+The default mode requires no local embedding or reranker weights. When reranking
+is enabled, the Qwen loader uses cached files only.
 Set `PIPELINE_MODEL_CACHE` or
 `--model-cache`; the downloaded project cache is automatically detected.
 Download pinned public files explicitly before starting jobs:
 
 ```bash
-.venv/bin/hf download Alibaba-NLP/gte-multilingual-base \
-  config.json model.safetensors tokenizer.json tokenizer_config.json special_tokens_map.json \
-  --revision 9bbca17d9273fd0d03d5725c7a4b0f6b45142062 --cache-dir artifacts/model-cache
-.venv/bin/hf download Alibaba-NLP/new-impl configuration.py modeling.py \
-  --revision 40ced75c3017eb27626c9d4ea981bde21a2662f4 --cache-dir artifacts/model-cache
 .venv/bin/hf download Qwen/Qwen3-Reranker-0.6B \
   config.json model.safetensors tokenizer.json tokenizer_config.json merges.txt vocab.json \
   --revision e61197ed45024b0ed8a2d74b80b4d909f1255473 --cache-dir artifacts/model-cache
 ```
 
 Qwen weights are about 1.2 GB. Cache files are ignored by Git. Setup failures
-surface as `ENCODER_MODEL_UNAVAILABLE` / `RERANKER_MODEL_UNAVAILABLE`, rather
+surface as `RERANKER_MODEL_UNAVAILABLE`, rather
 than marking every row as invalid input. No models are downloaded on upload.
 
 ## Retrieval and reranking
 
-The translated input schema is `id` (integer), `query`, `english`, `chinese`.
-The existing 1200-row dataset was inspected. Column overrides are available via
+The input retains `id` (integer), `query`, `english`, `chinese`, and adds
+`vector_original`, `vector_english`, `vector_chinese` (fixed-size lists of 768
+float32 values) and `query_sha256`. The notebook's `query_embedding` schema
+metadata identifies model/code revisions, language/vector mapping and pooling.
+Missing/incompatible metadata is rejected before contacting services; each row's
+text hash, finite values and L2 norms are validated before retrieval. Text remains
+available for BM25 and optional Qwen reranking. Text-only CLI/API uploads must be
+embedded with the notebook first; there is no automatic encoder fallback.
+Column overrides for text/ID are available via
 `--id-column`, `--original-query-column`, `--eng-query-column`,
 `--chinese-query-column`, or the Python `columns` mapping. Missing translations,
 invalid IDs, duplicates, and blank queries fail explicitly; no translation runs.
@@ -61,11 +65,50 @@ invalid IDs, duplicates, and blank queries fail explicitly; no translation runs.
 `--search-mode 4-branch` (default) uses `QdrantManager.query_original_dense`:
 **GTE dense VI + native BM25 VI/EN/ZH**, fused by Qdrant RRF.
 `--search-mode 6-branch` uses the existing `query_multilingual_dense`:
-**GTE dense VI/EN/ZH + native BM25 VI/EN/ZH**. The six-branch mode batch-encodes
-the three existing translations once per unique text, then reuses those vectors.
-The UI selects either method per job. The pipeline defaults to 100 points per branch and
-200 fused points; configure `--branch-limit` / `--top-k` to change coverage.
+**GTE dense VI/EN/ZH + native BM25 VI/EN/ZH**. Both modes use the stored vectors,
+aligned by input row and language, even when different rows have identical text.
+The UI selects either method per job. The pipeline defaults to 100 points per branch
+and returns the top 200 fused points for documents and chunks; configure
+`--branch-limit` / `--top-k` to change coverage. Document IDs are collected only
+from these top-k results, in Qdrant RRF order.
 The API exposes these as `PIPELINE_BRANCH_LIMIT` / `PIPELINE_TOP_K`.
+
+### Adaptive dense/lexical weights
+
+An optional `dense_weight` column controls each input query independently.
+Missing columns, null/NaN values and blank strings default to `0.5`. Numeric
+values (including numeric strings) must be finite and between 0 and 1; invalid
+values fail that row as input errors. No embedding is recomputed when weights change.
+
+The weight belongs to the whole dense group; `1 - dense_weight` belongs to the
+whole lexical group. It is divided equally among that group's language branches:
+
+| Mode | Each dense branch | Each BM25 branch |
+| --- | --- | --- |
+| 4-branch | `dense_weight` | `(1 - dense_weight) / 3` |
+| 6-branch | `dense_weight / 3` | `(1 - dense_weight) / 3` |
+
+The request sends these weights in prefetch order through Qdrant's native
+`{"rrf": {"k": 2, "weights": [...]}}` query. This uses Qdrant's rank-weighting
+semantics and requires [Qdrant 1.17+](https://qdrant.tech/documentation/search/hybrid-queries/#weighted-rrf).
+At weight 0 only BM25 branches run; at weight 1 only dense branches run, so the
+zero-weight group's candidates cannot fill unused result positions.
+
+Preserve the notebook's schema metadata when adding the optional column, e.g.:
+
+```python
+import pyarrow as pa
+import pyarrow.parquet as pq
+
+table = pq.read_table('query_rewritten_final_embeddings.parquet')
+weights = [None] * table.num_rows  # Set each row's chosen weight; None uses 0.5.
+table = table.append_column('dense_weight', pa.array(weights, type=pa.float32()))
+pq.write_table(table, 'query_adaptive.parquet', compression='zstd')
+```
+
+Create a new job/output after changing weights or switching from the previous
+unweighted RRF pipeline. Checkpoint signatures include the input file and fusion
+version, so resume cannot mix results produced with different weights.
 
 Source document/chunk IDs are preserved. Conflicting PostgreSQL/Qdrant metadata
 fails the affected query. Chunk deduplication uses the existing BTC text
@@ -98,13 +141,19 @@ increase both context length and token budget if resources permit. CPU uses
 float32, CUDA float16, SDPA attention, no KV cache, and final-position logits only.
 These settings bound inference work; there is no claim of measured Recall/F2 gains.
 
-The default output retains **all chunks from the 200 fused candidates** after
-source deduplication. Fewer candidates remain fewer; no padding or invented
-chunks are added. `--max-chunks 50` explicitly limits the output to 50, after
-optional Qwen reranking; Python's `max_chunks=None` is the default.
-`--max-docs` remains independent and unlimited by default. The competition
-specifies no numeric candidate cap. Calibrate budgets against
-validation labels; no Recall/F2 improvement is assumed.
+`relevant_docs` retains **unique document IDs from the top-k fused results**, in
+RRF order. IDs stay integers and appear once. Qdrant returns at most `top_k`
+points in one query; candidates outside top-k are not requested for document IDs.
+`max_docs` / `--max-docs` optionally caps the document list and is unlimited by default.
+
+`relevant_chunks` retains **chunks from the top 200 fused points** after source
+deduplication. Candidates below top-k do not refill chunks removed by deduplication.
+`--max-chunks 50` further limits chunks after optional Qwen reranking;
+Python's `max_chunks=None` is the default. Chunk limits, empty chunk text and
+reranking do not truncate the document list. The competition specifies no numeric
+candidate cap. Calibrate budgets against validation labels; no Recall/F2 improvement
+is assumed. Create a new job/output when switching from the all-branch-document
+policy; its checkpoints cannot be mixed with top-k-only results.
 
 ## Submission, checkpoints and recovery
 
@@ -148,6 +197,11 @@ result with two empty lists; no medical answer or explanation is generated.
 
 Python callers use `run_pipeline(...)`; tests can inject `dense_encoder(texts)`,
 `qdrant_factory(encoder)`, `postgres_manager`, and `reranker.score(query,texts)`.
+The explicit Python `dense_encoder` injection remains compatible with legacy
+text-only callers; embedded inputs always take precedence and never call it.
+`encoder_batch_size` / `--encoder-batch-size` are retained for compatibility and
+do not affect precomputed vectors. Existing text-input checkpoints require a new
+job/output when switching to the embedded Parquet.
 Injected components are caller-owned and require a stable `resume_tag` on resume.
 The former `llm_client`, `llm_workers`, `llm_timeout` arguments and CLI flags have
 been removed. The separate legacy LLM module is not imported by this pipeline.

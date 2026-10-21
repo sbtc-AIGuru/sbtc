@@ -36,7 +36,7 @@
             <strong id="file-summary">Kéo thả file Parquet vào đây</strong><span>hoặc <span class="text-link">chọn file từ máy tính</span></span>
             <small>.parquet · Tối đa 128 MB mặc định</small>
           </div>
-          <p id="file-hint" class="field-hint">Cần có ID, truy vấn tiếng Việt và bản dịch Anh, Trung.</p>
+          <p id="file-hint" class="field-hint">Dùng file Parquet đã có 3 vector từ notebook Colab, kèm ID và query Việt, Anh, Trung. Có thể thêm dense_weight từ 0 đến 1; để trống dùng 0.5.</p>
 
           <div class="form-section-heading"><h3>Phạm vi xử lý</h3><span>Tùy chọn</span></div>
           <div class="range-grid">
@@ -56,10 +56,10 @@
             <details class="retrieval-advanced"><summary>Giới hạn ứng viên và kết quả</summary>
               <div class="retrieval-grid">
                 <div><label for="branch-limit" class="field-label">Ứng viên mỗi nhánh</label><input id="branch-limit" name="branch_limit" type="number" min="1" step="1" value="100" required></div>
-                <div><label for="top-k" class="field-label">Top-k sau fusion</label><input id="top-k" name="top_k" type="number" min="1" step="1" value="200" required></div>
+                <div><label for="top-k" class="field-label">Top-k chunk sau RRF</label><input id="top-k" name="top_k" type="number" min="1" step="1" value="200" required></div>
               </div>
               <label for="max-chunks" class="field-label">Số chunk tối đa mỗi query</label><input id="max-chunks" name="max_chunks" type="number" min="0" step="1" placeholder="Không giới hạn" aria-describedby="chunk-limit-hint">
-              <p id="chunk-limit-hint" class="field-hint">Để trống để giữ hết chunk sau khử trùng lặp. Khi bật reranker, giới hạn áp dụng sau xếp hạng.</p>
+              <p id="chunk-limit-hint" class="field-hint">Để trống để giữ hết chunk trong top-k sau khử trùng lặp. Reranker xếp hạng trước khi giới hạn chunk. Doc ID chỉ lấy trong top-k theo thứ tự RRF.</p>
             </details>
           </fieldset>
 

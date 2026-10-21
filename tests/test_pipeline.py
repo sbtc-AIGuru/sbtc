@@ -1,6 +1,7 @@
 """Small real Parquet/SQL round trips with mocked Qdrant REST and local reranker scores."""
 
 from copy import deepcopy
+import hashlib
 import json
 from pathlib import Path
 import sys
@@ -30,6 +31,26 @@ def write_queries(path, identifiers=(30, 10, 20), **changed):
               "chinese": [f"中文 {i}" for i in identifiers]}
     values.update(changed)
     pq.write_table(pa.table(values), path)
+    return path
+
+
+def write_embedded_queries(path, identifiers=(30, 10, 20), **changed):
+    write_queries(path, identifiers, **changed)
+    table = pq.read_table(path)
+    rows = table.to_pylist()
+    for index, name in enumerate(pipeline.VECTOR_COLUMNS.values()):
+        values = [[float(position == (row * 3 + index) % 768) for position in range(768)]
+                  for row in range(len(rows))]
+        table = table.append_column(name, pa.array(values, type=pa.list_(pa.float32(), 768)))
+    hashes = [hashlib.sha256(json.dumps([row[k] for k in ('query', 'english', 'chinese')],
+                                      ensure_ascii=False, separators=(',', ':')).encode()).hexdigest()
+              for row in rows]
+    table = table.append_column('query_sha256', pa.array(hashes, type=pa.string()))
+    metadata = {b'query_embedding': json.dumps({
+        'format_version': 1, 'encoder': pipeline.EMBEDDING_CONFIG,
+        'vector_columns': dict(zip(('query', 'english', 'chinese'), pipeline.VECTOR_COLUMNS.values())),
+    }).encode()}
+    pq.write_table(table.replace_schema_metadata(metadata), path)
     return path
 
 
@@ -74,7 +95,7 @@ class Transport:
         time.sleep(0.03 if identifier == 30 else 0.001)
         with self.lock:
             self.completed.append(identifier)
-        return Response({"points": deepcopy(self.points.get(identifier, []))})
+        return Response({"points": deepcopy(self.points.get(identifier, [])[:body["limit"]])})
 
     def close(self):
         self.closed = True
@@ -152,7 +173,8 @@ def test_end_to_end_search_hydration_order_rerank_json_zip(tmp_path, database, r
         assert len(body["prefetch"]) == dense_count + 3
         assert body["prefetch"][0]["query"] == [1, 0, 0]
         assert [p["query"]["text"].split()[0] for p in body["prefetch"][dense_count:]] == ["VI", "EN", "中文"]
-        assert body["query"] == {"fusion": "rrf"} and body["limit"] == 200
+        assert body["query"] == {"rrf": {"k": 2, "weights": [0.5 / dense_count] * dense_count + [0.5 / 3] * 3}}
+        assert body["limit"] == 200
         assert all(p["limit"] == 100 for p in body["prefetch"])
     assert json.loads(output.read_text()) == result
     with zipfile.ZipFile(archive) as zipped:
@@ -595,7 +617,7 @@ def test_missing_cached_encoder_has_actionable_safe_error(monkeypatch):
                                       ("timeout","QDRANT_UNAVAILABLE"),
                                       ("dense_only","QDRANT_HYBRID_REQUIRED")])
 def test_qdrant_setup_checked_once_before_encoding_rows(tmp_path,monkeypatch,kind,code):
-    path = write_queries(tmp_path / "queries.parquet")
+    path = write_embedded_queries(tmp_path / "queries.parquet")
     manager = QdrantManager("http://fixture",session=Mock())
     manager.refresh_collection = Mock(return_value={"config":{"params":{"sparse_vectors":{}}}})
     if kind == "missing":
@@ -615,16 +637,16 @@ def test_qdrant_setup_checked_once_before_encoding_rows(tmp_path,monkeypatch,kin
     encode.assert_not_called()
 
 
-def test_encoder_initialization_failure_is_not_repeated_per_batch(tmp_path,reranker,monkeypatch):
+def test_text_only_input_rejected_without_loading_encoder(tmp_path,reranker,monkeypatch):
     path = write_queries(tmp_path / "queries.parquet")
     transport = Transport({})
     loader = Mock(side_effect=pipeline.PipelineSetupError("encoding","ENCODER_MODEL_UNAVAILABLE","Model unavailable"))
     monkeypatch.setattr(pipeline,"load_dense_encoder",loader)
     options = arguments(transport,reranker)
     options.pop("dense_encoder")
-    with pytest.raises(pipeline.PipelineSetupError):
+    with pytest.raises(ValueError, match="vector_original"):
         pipeline.run_pipeline(path,tmp_path / "output.json",batch_size=1,**options)
-    loader.assert_called_once()
+    loader.assert_not_called()
     assert not transport.calls
     assert not (tmp_path / "output.errors.json").exists()
 

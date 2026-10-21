@@ -15,7 +15,13 @@ Các dependency FastAPI/Uvicorn/python-multipart được khai báo trong
 
 ## Cách sử dụng
 
-1. Chọn hoặc kéo thả một file `.parquet`, ví dụ `query_translated.parquet`.
+1. Chọn hoặc kéo thả file `query_rewritten_final_embeddings.parquet` tạo bằng
+   [notebook Colab](../Database/Notebook/Query_GTE_Embeddings_Colab.ipynb).
+   File cần ba cột `vector_original`, `vector_english`, `vector_chinese`,
+   `query_sha256` và metadata GTE, ngoài các cột text. Pipeline không chạy embedding.
+   Có thể thêm `dense_weight` từ 0 đến 1 cho từng dòng; thiếu/rỗng/NaN dùng `0.5`.
+   Trọng số áp dụng cho cả nhóm dense, phần còn lại cho nhóm BM25, chia đều theo
+   ngôn ngữ trong nhóm. Xem [adaptive weights](../PIPELINE.md#adaptive-denselexical-weights).
 2. Tùy chọn **Từ dòng** / **Đến dòng**. Đây là vị trí dòng **1-based**, gồm cả
    hai đầu, không phải query ID. Để trống cả hai để chạy hết file. Chỉ nhập start
    thì chạy tới cuối; chỉ nhập end thì chạy từ dòng đầu. ID gốc vẫn được giữ.
@@ -29,6 +35,12 @@ Các dependency FastAPI/Uvicorn/python-multipart được khai báo trong
 5. Khi hoàn tất, bấm **Tải output.zip**. ZIP chứa duy nhất `output.json` ở gốc,
    đúng schema `id`, `relevant_docs`, `relevant_chunks[{doc_id,chunk_text}]`.
    `id`, các phần tử `relevant_docs` và `doc_id` đều là số nguyên JSON.
+
+`relevant_docs` giữ các doc ID duy nhất trong top-k sau RRF, theo thứ tự RRF.
+Qdrant chỉ trả tối đa top-k point; không lấy thêm doc ID ngoài top-k.
+Giới hạn chunk áp dụng riêng cho `relevant_chunks`; giới hạn ứng viên/nhánh vẫn
+giữ nguyên. Tạo job mới sau cập nhật này; checkpoint của cơ chế lấy toàn bộ
+doc ID ngoài top-k không tương thích với kết quả mới.
 
 Chạy một khoảng dòng chỉ tạo kết quả của khoảng đó. Bài nộp toàn bộ cuộc thi
 cần xử lý tất cả các dòng. Pipeline không dịch file chỉ có truy vấn tiếng Việt:
@@ -77,8 +89,9 @@ Không dùng `--reload` khi đang chạy một batch dài.
 ## Cấu hình server
 
 Giữ nguyên cấu hình Qdrant và PostgreSQL đã dùng cho pipeline. API không tạo
-index, sửa database hoặc tải model. Qdrant cần hybrid GTE + BM25; GTE cần có sẵn
-trong cache. Chỉ cần Qwen3-Reranker-0.6B khi bật rerank; rerank không gọi endpoint LLM.
+index, sửa database hoặc tải model. Qdrant cần hybrid GTE + BM25. Không cần
+model GTE trên máy chạy server. Chỉ cần Qwen3-Reranker-0.6B trong cache khi bật
+rerank; rerank không gọi endpoint LLM.
 Các biến tùy chọn bổ sung:
 
 | Biến | Mặc định | Ý nghĩa |
@@ -90,12 +103,12 @@ Các biến tùy chọn bổ sung:
 | `PIPELINE_SEARCH_MODE` | `4-branch` | Mặc định của form, `4-branch` hoặc `6-branch` |
 | `PIPELINE_RERANK` | `0` | Bỏ qua Qwen; đặt `1` để bật lại |
 | `PIPELINE_MAX_CHUNKS` | Để trống | Giữ mọi chunk sau khử trùng lặp; đặt `50` nếu muốn giới hạn, sau rerank nếu có |
-| `PIPELINE_DEVICE` | `cpu` | Thiết bị encoder, ví dụ `cuda:0` |
+| `PIPELINE_DEVICE` | `cpu` | Thiết bị mặc định cho Qwen reranker, ví dụ `cuda:0` |
 | `PIPELINE_RERANKER_DEVICE` | Theo `PIPELINE_DEVICE` | Thiết bị Qwen, ví dụ `cuda:0` |
 | `PIPELINE_RERANKER_BATCH_SIZE` | `4` | Số cặp query–chunk tối đa mỗi forward |
 | `PIPELINE_RERANKER_MAX_LENGTH` | `8192` | Context mỗi cửa sổ, tối đa 32768 token |
 | `PIPELINE_RERANKER_TOKEN_BUDGET` | `8192` | Tổng token sau padding mỗi forward, phải ≥ max length |
-| `PIPELINE_MODEL_CACHE` | Cache trong dự án nếu có, hoặc Hugging Face cache mặc định | Nơi đã tải GTE/code và Qwen đúng revision |
+| `PIPELINE_MODEL_CACHE` | Cache trong dự án nếu có, hoặc Hugging Face cache mặc định | Nơi đã tải Qwen đúng revision nếu bật rerank |
 | `PIPELINE_MANIFEST_PATH` | Không có | Manifest của hybrid snapshot |
 | `PIPELINE_RESUME_TAG` | Chuỗi rỗng | Phiên bản dữ liệu/index khi không có manifest mới |
 
@@ -106,9 +119,9 @@ Các biến môi trường đặt mặc định cho job mới; form có thể gh
 Sau cập nhật định dạng ID số nguyên, restart server và tạo job mới; checkpoint
 cũ dùng ID chuỗi không được trộn với định dạng mới.
 
-Trước khi encode, pipeline kiểm tra collection Qdrant có tồn tại và có sparse
+Trước khi truy xuất, pipeline kiểm tra collection Qdrant có tồn tại và có sparse
 vector BM25. Các lỗi cấu hình như `QDRANT_COLLECTION_MISSING`,
-`QDRANT_HYBRID_REQUIRED`, `ENCODER_MODEL_UNAVAILABLE`, `RERANKER_MODEL_UNAVAILABLE` hiện thông báo cụ thể trên
+`QDRANT_HYBRID_REQUIRED`, `RERANKER_MODEL_UNAVAILABLE` hiện thông báo cụ thể trên
 giao diện và dừng tác vụ ngay; không đánh dấu hàng loạt truy vấn là dữ liệu lỗi.
 Sau khi sửa môi trường, tiếp tục tác vụ với cấu hình kết nối không đổi. Nếu đổi
 URL/tên collection hoặc giới hạn chunk, tạo tác vụ mới để tránh trộn checkpoint khác cấu hình.
@@ -128,7 +141,7 @@ URL/tên collection hoặc giới hạn chunk, tạo tác vụ mới để trán
 | GET | `/api/health` | API đang hoạt động; không kiểm tra dịch vụ model/database |
 
 ```bash
-curl -F 'file=@query_translated.parquet' -F start=1 -F end=20 \
+curl -F 'file=@query_rewritten_final_embeddings.parquet' -F start=1 -F end=20 \
   -F batch_size=8 http://127.0.0.1:8000/api/jobs
 ```
 

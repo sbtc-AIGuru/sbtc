@@ -20,7 +20,7 @@ let configurationReady = false;
 
 function searchHints() {
   $("search-hint").textContent = $("search-mode").value === "6-branch"
-    ? "Dense VI/EN/ZH + BM25 VI/EN/ZH. Encode ba bản truy vấn nên tốn thời gian hơn."
+    ? "Dense VI/EN/ZH + BM25 VI/EN/ZH. Dùng ba vector có sẵn trong file."
     : "Dense VI + BM25 VI/EN/ZH. Dùng bản dịch có sẵn trong file.";
   $("rerank-hint").textContent = $("rerank").checked
     ? "Chấm lại chunk bằng Qwen cục bộ; cần model trong cache và thêm thời gian xử lý."
@@ -31,7 +31,7 @@ function configurationLabel(config) {
   if (!config) return "Tác vụ cũ · Chưa lưu lựa chọn search";
   const mode = config.search_mode === "6-branch" ? "6 nhánh" : "4 nhánh";
   const chunks = config.max_chunks == null ? "Giữ hết chunk" : `Tối đa ${config.max_chunks} chunk`;
-  return `${mode} · RRK ${config.rerank ? "bật" : "tắt"} · ${config.branch_limit}/nhánh · Top ${config.top_k} · ${chunks}`;
+  return `${mode} · RRK ${config.rerank ? "bật" : "tắt"} · ${config.branch_limit}/nhánh · Top ${config.top_k} chunk · ${chunks}`;
 }
 
 function notice(message = "") {

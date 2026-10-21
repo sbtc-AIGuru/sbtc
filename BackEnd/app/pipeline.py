@@ -21,7 +21,7 @@ import pyarrow.parquet as pq
 import requests
 
 from .Database.postgre_db import PostgreManager
-from .Database.qdrant_db import QdrantManager
+from .Database.qdrant_db import QdrantManager, parse_dense_weight
 from .Retrieval.qwen_reranker import QwenReranker, MODEL_NAME, MODEL_REVISION, INSTRUCTION
 from .Retrieval.export import btc_normalized
 from .Retrieval.utils import atomic_json, sha_file, source_id
@@ -43,6 +43,16 @@ COLUMN_ALIASES = {
     "original_query": ("query", "original_query"),
     "eng_query": ("english", "eng_query", "english_query"),
     "chinese_query": ("chinese", "chinese_query"),
+}
+VECTOR_COLUMNS = {
+    "original_query": "vector_original",
+    "eng_query": "vector_english",
+    "chinese_query": "vector_chinese",
+}
+EMBEDDING_CONFIG = {
+    **GTE_CONFIG, "pooling": "CLS", "normalized": True, "storage_dtype": "float32",
+    "query_prefix": "",
+    "window_aggregation": "token-weighted mean of L2-normalized windows, then L2",
 }
 
 
@@ -187,6 +197,53 @@ def _columns(schema: pa.Schema, overrides: dict | None) -> dict[str, str]:
     return result
 
 
+def _embedding_columns(schema: pa.Schema, dense_encoder=None) -> list[str]:
+    metadata = schema.metadata or {}
+    if dense_encoder is not None and not (
+        set(VECTOR_COLUMNS.values()) & set(schema.names) or b"query_embedding" in metadata
+    ):
+        # Keep the explicit Python encoder injection; never load an encoder automatically.
+        return []
+    names = [*VECTOR_COLUMNS.values(), "query_sha256"]
+    if not set(names) <= set(schema.names):
+        raise ValueError("Parquet cần vector_original/vector_english/vector_chinese và query_sha256 từ notebook Colab.")
+    try:
+        provenance = json.loads(metadata[b"query_embedding"])
+    except (KeyError, ValueError, UnicodeDecodeError) as exc:
+        raise ValueError("Parquet thiếu metadata query_embedding hợp lệ từ notebook Colab.") from exc
+    if not isinstance(provenance, dict) or provenance.get("format_version") != 1:
+        raise ValueError("Unsupported query embedding format")
+    encoder = provenance.get("encoder")
+    if not isinstance(encoder, dict) or any(encoder.get(k) != v for k, v in EMBEDDING_CONFIG.items()):
+        raise ValueError("Query embedding metadata differs from the pinned GTE index encoder")
+    expected_mapping = {COLUMN_ALIASES[key][0]: value for key, value in VECTOR_COLUMNS.items()}
+    if provenance.get("vector_columns") != expected_mapping:
+        raise ValueError("Query embedding language/vector mapping differs from the notebook")
+    for name in VECTOR_COLUMNS.values():
+        if schema.field(name).type != pa.list_(pa.float32(), GTE_CONFIG["dimension"]):
+            raise ValueError(f"{name} must contain {GTE_CONFIG['dimension']} float32 values")
+    if not pa.types.is_string(schema.field("query_sha256").type):
+        raise ValueError("query_sha256 must be a string column")
+    return names
+
+
+def _query_vectors(record: dict, query: dict) -> dict:
+    content = json.dumps([query[key] for key in VECTOR_COLUMNS], ensure_ascii=False, separators=(",", ":"))
+    if record["query_sha256"] != hashlib.sha256(content.encode("utf-8")).hexdigest():
+        raise ValueError("Query text differs from the cached embedding hash")
+    vectors = {}
+    for key, column in VECTOR_COLUMNS.items():
+        vector = record[column]
+        if vector is None or len(vector) != GTE_CONFIG["dimension"] or any(
+            value is None or not math.isfinite(value) for value in vector
+        ):
+            raise ValueError(f"Invalid cached vector: {column}")
+        if not math.isclose(math.fsum(value * value for value in vector), 1, rel_tol=0, abs_tol=2e-5):
+            raise ValueError(f"Cached vector is not L2-normalized: {column}")
+        vectors[key] = vector
+    return vectors
+
+
 def _doc_id(value) -> int:
     if isinstance(value, str) and value.isascii() and value.isdecimal() and str(int(value)) == value:
         value = int(value)
@@ -290,10 +347,12 @@ def run_pipeline(
     and original chunk IDs; failed rows are retried on resume. With injected
     components, supply a stable ``resume_tag`` identifying their configuration.
     Missing translations are errors: both search modes require VI/EN/ZH.
+    Dense vectors and encoder metadata come from the Colab Parquet; no model is loaded.
+    An explicitly supplied dense_encoder remains supported for text-only Python inputs.
     search_mode selects the existing four- or six-branch Qdrant method.
-    Defaults retrieve 100 per branch and retain all 200 fused candidates in RRF order
-    after source deduplication. Set rerank=True to enable Qwen scoring; max_chunks
-    optionally limits output. Document candidates are independent.
+    Defaults retrieve 100 per branch and retain the top 200 fused points in RRF
+    order for documents/chunks after source deduplication. Set rerank=True to enable
+    Qwen scoring; max_docs and max_chunks optionally limit their respective outputs.
     ``start``/``end`` are inclusive 1-based input row positions, not query IDs.
     Omitted bounds select the first/last row. Progress follows durable queries;
     stop_event pauses before the next batch without losing committed rows.
@@ -318,6 +377,9 @@ def run_pipeline(
     parquet = pq.ParquetFile(parquet_path)
     mapping = _columns(parquet.schema_arrow, columns)
     row_count = parquet.metadata.num_rows
+    vector_columns = _embedding_columns(parquet.schema_arrow, dense_encoder) if row_count else []
+    weight_columns = ["dense_weight"] if "dense_weight" in parquet.schema_arrow.names else []
+    dense_fields = (tuple(VECTOR_COLUMNS) if search_mode == "6-branch" else ("original_query",))
     if any(value is not None and value < 1 for value in (start, end)):
         raise ValueError("start and end must be positive 1-based row positions")
     first = (start or 1) - 1
@@ -351,6 +413,9 @@ def run_pipeline(
     settings = {
         "submission_format": SUBMISSION_FORMAT, "search_mode": search_mode,
         "input": sha_file(parquet_path), "columns": mapping, "top_k": top_k,
+        "embedding_source": "parquet-v1" if vector_columns else "injected-encoder",
+        "fusion": "adaptive-weighted-rrf-v1",
+        "document_candidates": "top-k-rrf-v1",
         "branch_limit": branch_limit, "max_docs": max_docs, "max_chunks": max_chunks,
         "limit": limit, "filter": query_filter, "manifest": manifest, "gte": GTE_CONFIG,
         "url": qdrant_url or os.getenv("QDRANT_URL", "http://127.0.0.1:6333"),
@@ -372,14 +437,19 @@ def run_pipeline(
     failures, seen_ids = [], set()
     thread_state, managers, manager_lock = local(), [], Lock()
     batch_vectors = {}
+    batch_weights = {}
     checked_qdrant = False
 
     def encoded(texts):
-        return [batch_vectors[text] for text in texts]
+        if texts != thread_state.dense_texts:
+            raise ValueError("Dense query text/vector alignment mismatch")
+        return thread_state.vectors
 
     def retrieve(item):
         row, identifier, query = item
         try:
+            thread_state.dense_texts = [query[field] for field in dense_fields]
+            thread_state.vectors = batch_vectors[row]
             if not hasattr(thread_state, "manager"):
                 if qdrant_factory:
                     manager = qdrant_factory(encoded)
@@ -394,7 +464,7 @@ def run_pipeline(
             search = getattr(thread_state.manager, SEARCH_METHODS[search_mode])
             hits = search(
                 query, query_filter=query_filter, with_payload=True,
-                top_k=top_k, branch_limit=branch_limit,
+                top_k=top_k, branch_limit=branch_limit, dense_weight=batch_weights[row],
             )
             if not isinstance(hits, list) or any(
                 not isinstance(hit, dict) or not isinstance(hit.get("payload"), dict)
@@ -422,7 +492,7 @@ def run_pipeline(
         journal = resources.enter_context(checkpoint.open("a", encoding="utf-8")) if checkpoint else None
         index = 0
         try:
-            for batch in parquet.iter_batches(batch_size=batch_size, columns=list(mapping.values())):
+            for batch in parquet.iter_batches(batch_size=batch_size, columns=[*mapping.values(), *vector_columns, *weight_columns]):
                 if index >= stop:
                     break
                 if stop_event is not None and stop_event.is_set():
@@ -433,6 +503,8 @@ def run_pipeline(
                     index += batch.num_rows
                     continue
                 active = []
+                batch_vectors = {}
+                batch_weights = {}
                 for record in batch.to_pylist():
                     if index >= stop:
                         break
@@ -448,6 +520,10 @@ def run_pipeline(
                         query = {field: record[name] for field, name in mapping.items() if field != "id"}
                         if any(not isinstance(text, str) or not text.strip() for text in query.values()):
                             raise ValueError("VI/EN/ZH query text must be nonempty")
+                        batch_weights[row] = parse_dense_weight(record.get("dense_weight"))
+                        if vector_columns:
+                            vectors = _query_vectors(record, query)
+                            batch_vectors[row] = [vectors[field] for field in dense_fields]
                         if row in completed:
                             if completed[row]["prediction"]["id"] != identifier:
                                 raise ValueError("Checkpoint query alignment mismatch")
@@ -457,35 +533,31 @@ def run_pipeline(
                         failed(row, identifier, "input", exc)
                 if active:
                     batch_started = monotonic()
-                    LOGGER.info("Encoding %d queries (rows %d–%d)", len(active), active[0][0] + 1, active[-1][0] + 1)
+                    LOGGER.info("Retrieving %d queries (rows %d–%d)", len(active), active[0][0] + 1, active[-1][0] + 1)
                     if not checked_qdrant and qdrant_factory is None:
                         _check_qdrant(url=qdrant_url, manifest_path=manifest_path, timeout=timeout)
                         checked_qdrant = True
-                    if dense_encoder is None:
-                        # Initialization failures affect the service, not every row
-                        # in every batch. Surface them once, before row processing.
-                        dense_encoder = load_dense_encoder(device=device, batch_size=encoder_batch_size,
-                                                           cache_dir=model_cache)
-                    dense_fields = (("original_query", "eng_query", "chinese_query")
-                                    if search_mode == "6-branch" else ("original_query",))
-                    texts = list(dict.fromkeys(query[field] for _, _, query in active for field in dense_fields))
-                    try:
-                        vectors = dense_encoder(texts)
-                        if len(vectors) != len(texts):
-                            raise ValueError("Encoder returned the wrong number of vectors")
-                        batch_vectors = dict(zip(texts, vectors, strict=True))
-                    except Exception as exc:
-                        for row, identifier, _ in active:
-                            failed(row, identifier, "encoding", exc)
-                        report_progress()
-                        continue
+                    if not vector_columns:
+                        texts = list(dict.fromkeys(query[field] for _, _, query in active for field in dense_fields))
+                        try:
+                            vectors = dense_encoder(texts)
+                            if len(vectors) != len(texts):
+                                raise ValueError("Encoder returned the wrong number of vectors")
+                            by_text = dict(zip(texts, vectors, strict=True))
+                            batch_vectors = {row: [by_text[query[field]] for field in dense_fields]
+                                             for row, _, query in active}
+                        except Exception as exc:
+                            for row, identifier, _ in active:
+                                failed(row, identifier, "encoding", exc)
+                            report_progress()
+                            continue
                     retrieved = list(retrieval_pool.map(retrieve, active))
-                    LOGGER.info("Encoding/retrieval finished in %.1fs; hydrating source fields", monotonic() - batch_started)
+                    LOGGER.info("Retrieval finished in %.1fs; hydrating source fields", monotonic() - batch_started)
                     needed = set()
                     for _, _, _, hits in retrieved:
                         if isinstance(hits, Exception):
                             continue
-                        for hit in hits:
+                        for hit in hits[:top_k]:
                             payload = hit.get("payload") or {}
                             if payload.get("doc_id") is None or payload.get("chunk_text") is None:
                                 chunk_id = payload.get("chunk_id")
@@ -600,9 +672,10 @@ def main(argv=None) -> int:
         parser.add_argument("--" + name, type=int, default=default)
     parser.add_argument("--max-chunks", type=int, default=DEFAULT_MAX_CHUNKS,
                         help="Maximum output chunks per query (default: all retrieved chunks)")
-    for name in ("max-docs", "limit", "start", "end"):
+    parser.add_argument("--max-docs", type=int, help="Maximum output document IDs per query (default: all within top-k)")
+    for name in ("limit", "start", "end"):
         parser.add_argument("--" + name, type=int)
-    parser.add_argument("--device", default="cpu")
+    parser.add_argument("--device", default="cpu", help="Default device for optional Qwen reranking")
     parser.add_argument("--model-cache", type=Path)
     parser.add_argument("--rerank", action="store_true", help="Enable local Qwen reranking (disabled by default)")
     parser.add_argument("--reranker-device", help="Defaults to --device")

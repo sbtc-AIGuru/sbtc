@@ -19,7 +19,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 from BackEnd.app.api.main import create_app
 from BackEnd.app.pipeline import PipelineSetupError, run_pipeline
 from BackEnd.app.Retrieval.utils import atomic_json
-from test_pipeline import Transport, arguments, reranker, point, write_queries
+from test_pipeline import Transport, arguments, reranker, point, write_queries, write_embedded_queries
 
 
 def wait_status(client, identifier, states):
@@ -241,7 +241,7 @@ def test_jobs_queue_serially_and_queued_job_can_pause_and_resume(tmp_path,rerank
 @pytest.mark.parametrize("stage,code", [("encoding", "ENCODER_MODEL_UNAVAILABLE"),
                                         ("reranking", "RERANKER_MODEL_UNAVAILABLE")])
 def test_setup_error_shown_actionably_without_marking_input_rows_bad(tmp_path, stage, code):
-    path = write_queries(tmp_path / "queries.parquet")
+    path = write_embedded_queries(tmp_path / "queries.parquet")
 
     def runner(*args,**kwargs):
         raise PipelineSetupError(stage,code,"Cần tải model đúng revision.")
