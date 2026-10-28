@@ -9,6 +9,7 @@ import argparse
 import hashlib
 import json
 import os
+import re
 import sys
 import unicodedata
 from collections.abc import Iterator
@@ -212,17 +213,45 @@ def bulk_index(client: Elasticsearch, path: str | Path, *, index: str = INDEX_NA
     return success, failed
 
 
+BM25_SEARCH_PROFILE = "en-personal-weight-0.05-v1"
+PERSONAL_TERMS = frozenset({"i", "me", "my", "mine", "myself", "we", "our", "ours", "ourselves"})
+_PERSONAL_PATTERN = re.compile(r"\b(?:" + "|".join(sorted(PERSONAL_TERMS)) + r")\b", re.IGNORECASE)
+
+
+def bm25_query(query: str, lang: str, *, filters: list[dict] | None = None,
+               tokens: list[str] | None = None, personal_boost: float = 0.05) -> dict[str, Any]:
+    """Keep OR recall while reducing English personal words' BM25 contribution.
+
+    Tokens must come from this index's medical_en analyzer. Replaying them with
+    whitespace avoids stemming, splitting decimals, or changing clinical tokens.
+    """
+    field = f"content_{lang}"
+    scoring = {"match": {field: prepare_text(query, lang)}}
+    if lang == "en" and tokens:
+        personal = [term for term in tokens if term in PERSONAL_TERMS]
+        other = [term for term in tokens if term not in PERSONAL_TERMS]
+        if personal and other:
+            scoring = {"bool": {"should": [
+                {"match": {field: {"query": " ".join(other), "analyzer": "whitespace"}}},
+                {"match": {field: {"query": " ".join(personal), "analyzer": "whitespace",
+                                    "boost": personal_boost}}},
+            ], "minimum_should_match": 1}}
+    return {"bool": {"must": [scoring], "filter": [{"term": {"lang": lang}}, *(filters or [])]}}
+
+
 def search_bm25(query: str, lang: str, top_k: int = 5, *,
-                client: Elasticsearch, index: str = INDEX_NAME) -> list[dict[str, Any]]:
-    """Search one language field using the same preprocessing as indexing."""
+                client: Elasticsearch, index: str = INDEX_NAME,
+                filters: list[dict] | None = None) -> list[dict[str, Any]]:
+    """Search one language field without changing documents or stored queries."""
     if not query.strip() or top_k < 1:
         raise ValueError("query must be nonempty and top_k must be positive")
-    response = client.search(index=index, size=top_k, query={
-        "bool": {
-            "must": [{"match": {f"content_{lang}": prepare_text(query, lang)}}],
-            "filter": [{"term": {"lang": lang}}],
-        },
-    }, source_excludes=[f"content_{value}" for value in LANGUAGES])
+    tokens = None
+    if lang == "en" and _PERSONAL_PATTERN.search(query):
+        analysis = client.indices.analyze(index=index, analyzer="medical_en", text=query)
+        tokens = [item["token"] for item in analysis["tokens"]]
+    response = client.search(index=index, size=top_k,
+        query=bm25_query(query, lang, filters=filters, tokens=tokens),
+        source_excludes=[f"content_{value}" for value in LANGUAGES])
     return response["hits"]["hits"]
 
 

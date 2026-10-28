@@ -58,13 +58,13 @@ class QdrantManager:
 
     @classmethod
     def from_manifest(cls, path: str | Path, *, url: str | None = None, **kwargs):
-        """Use the exact vector names and BM25 tokenizer exported by the notebook."""
+        """Use snapshot vector names; legacy hybrid manifests may also provide BM25 options."""
         manifest = json.loads(Path(path).read_text(encoding="utf-8"))
         if not manifest["complete"]:
             raise ValueError("Recovery snapshot is incomplete; resume the notebook before production queries")
         schema = manifest["vector_schema"]
         return cls(url, manifest["collection"], dense_vector_name=schema["dense"],
-                   sparse_vector_name=schema["sparse"], bm25_options=schema["bm25_options"], **kwargs)
+                   sparse_vector_name=schema.get("sparse"), bm25_options=schema.get("bm25_options"), **kwargs)
 
     def _request(self, method: str, path: str, body: dict | None = None):
         response = self.session.request(
@@ -97,6 +97,9 @@ class QdrantManager:
             elif "dense" in vectors:
                 self.dense_vector_name = "dense"
                 specification = vectors["dense"]
+            elif set(vectors) == {"qwen3_dense"}:
+                self.dense_vector_name = "qwen3_dense"
+                specification = vectors[self.dense_vector_name]
             else:
                 raise ValueError("Collection uses named vectors; set dense_vector_name")
         values = [float(value) for value in vector]
@@ -241,16 +244,21 @@ class QdrantManager:
     def search_dense(
         self, dense_vector: Sequence[float], top_k: int = 10, *,
         query_filter: dict | None = None, with_payload: bool | list[str] = True,
+        hnsw_ef: int | None = None,
     ) -> list[dict]:
         """Search the existing unnamed dense vector without requiring BM25."""
         if top_k < 1:
             raise ValueError("top_k must be positive")
+        if hnsw_ef is not None and hnsw_ef < 1:
+            raise ValueError("hnsw_ef must be positive")
         body = {
             **self._dense_query(dense_vector), "limit": top_k,
             "with_payload": with_payload, "with_vector": False,
         }
         if query_filter is not None:
             body["filter"] = query_filter
+        if hnsw_ef is not None:
+            body["params"] = {"hnsw_ef": hnsw_ef}
         return self._request("POST", self._path + "/points/query", body)["points"]
 
     def close(self) -> None:

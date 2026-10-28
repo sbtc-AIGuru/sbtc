@@ -37,6 +37,9 @@
             <small>.parquet · Tối đa 128 MB mặc định</small>
           </div>
           <p id="file-hint" class="field-hint">Dùng file Parquet đã có 3 vector từ notebook Colab, kèm ID và query Việt, Anh, Trung. Có thể thêm dense_weight từ 0 đến 1; để trống dùng 0.5.</p>
+          <label for="query-file" class="field-label">File query gốc <span>Tùy chọn</span></label>
+          <input id="query-file" name="query_file" type="file" accept=".parquet" aria-describedby="query-file-hint">
+          <p id="query-file-hint" class="field-hint">Chọn thêm file query gốc khi file Qwen3 đã thay các cột text bằng vector. BM25 dùng văn bản Việt, Anh, Trung từ file này.</p>
 
           <div class="form-section-heading"><h3>Phạm vi xử lý</h3><span>Tùy chọn</span></div>
           <div class="range-grid">
@@ -49,13 +52,14 @@
           <fieldset id="retrieval-settings" class="retrieval-settings" disabled>
             <legend>Truy hồi và xếp hạng</legend>
             <label for="search-mode" class="field-label">Chế độ search</label>
-            <select id="search-mode" name="search_mode" aria-describedby="search-hint"><option value="4-branch">4 nhánh · Dense VI + BM25 ba ngôn ngữ</option><option value="6-branch">6 nhánh · Dense và BM25 ba ngôn ngữ</option></select>
+            <select id="search-mode" name="search_mode" aria-describedby="search-hint"><option value="4-branch">4 nhánh · Dense VI + BM25 ba ngôn ngữ</option><option value="6-branch">6 nhánh · Dense và BM25 ba ngôn ngữ</option><option value="3-branch">3 nhánh · Dense VI/EN/ZH</option></select>
             <p id="search-hint" class="field-hint"></p>
             <label class="rerank-option" for="rerank"><input id="rerank" name="rerank" type="checkbox" aria-describedby="rerank-hint"><span>Bật Qwen3-Reranker-0.6B</span></label>
             <p id="rerank-hint" class="field-hint"></p>
             <details class="retrieval-advanced"><summary>Giới hạn ứng viên và kết quả</summary>
               <div class="retrieval-grid">
                 <div><label for="branch-limit" class="field-label">Ứng viên mỗi nhánh</label><input id="branch-limit" name="branch_limit" type="number" min="1" step="1" value="100" required></div>
+                <div><label for="hnsw-ef" class="field-label">Độ sâu tìm kiếm Qdrant (ef)</label><input id="hnsw-ef" name="hnsw_ef" type="number" min="1" step="1" value="512" required></div>
                 <div><label for="top-k" class="field-label">Top-k chunk sau RRF</label><input id="top-k" name="top_k" type="number" min="1" step="1" value="200" required></div>
               </div>
               <label for="max-chunks" class="field-label">Số chunk tối đa mỗi query</label><input id="max-chunks" name="max_chunks" type="number" min="0" step="1" placeholder="Không giới hạn" aria-describedby="chunk-limit-hint">

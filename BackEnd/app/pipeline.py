@@ -1,4 +1,4 @@
-"""Configurable hybrid Qdrant retrieval -> source hydration -> optional Qwen -> BTC JSON."""
+"""Qdrant dense + Elasticsearch BM25 -> adaptive RRF -> optional Qwen -> BTC JSON."""
 
 from __future__ import annotations
 
@@ -19,9 +19,14 @@ import zipfile
 import pyarrow as pa
 import pyarrow.parquet as pq
 import requests
+from elastic_transport import TransportError
+from elasticsearch import ApiError
 
 from .Database.postgre_db import PostgreManager
 from .Database.qdrant_db import QdrantManager, parse_dense_weight
+from .Database.elastic_search import connect_elasticsearch, index_definition, PIPELINE as ES_PIPELINE, BM25_SEARCH_PROFILE
+from .Retrieval.hybrid import HybridRetriever
+from .Retrieval.query_inputs import QWEN_CONFIG, combine_query_files
 from .Retrieval.qwen_reranker import QwenReranker, MODEL_NAME, MODEL_REVISION, INSTRUCTION
 from .Retrieval.export import btc_normalized
 from .Retrieval.utils import atomic_json, sha_file, source_id
@@ -29,8 +34,10 @@ from .Retrieval.utils import atomic_json, sha_file, source_id
 LOGGER = logging.getLogger(__name__)
 DEFAULT_TOP_K = 200
 DEFAULT_BRANCH_LIMIT = 100
+DEFAULT_HNSW_EF = 512
 DEFAULT_MAX_CHUNKS = None
-SEARCH_METHODS = {"4-branch": "query_original_dense", "6-branch": "query_multilingual_dense"}
+SEARCH_METHODS = {"4-branch": "query_original_dense", "6-branch": "query_multilingual_dense",
+                  "3-branch": "query_multilingual_dense"}
 SUBMISSION_FORMAT = "integer-doc-ids-v1"
 GTE_CONFIG = {
     "model": "Alibaba-NLP/gte-multilingual-base",
@@ -155,9 +162,9 @@ def load_dense_encoder(*, device: str = "cpu", batch_size: int = 8, cache_dir=No
     return encode
 
 
-def _check_qdrant(*, url, manifest_path, timeout):
+def _check_qdrant(*, url, manifest_path, timeout, collection=None, dimension=768):
     manager = (QdrantManager.from_manifest(manifest_path, url=url, timeout=timeout)
-               if manifest_path else QdrantManager(url, timeout=timeout))
+               if manifest_path else QdrantManager(url, collection, timeout=timeout))
     with manager:
         try:
             info = manager.refresh_collection()
@@ -168,13 +175,38 @@ def _check_qdrant(*, url, manifest_path, timeout):
                 ("Qdrant chưa có collection đã cấu hình. Kiểm tra QDRANT_URL và QDRANT_COLLECTION."
                  if missing else "Không kết nối được collection Qdrant. Kiểm tra URL, API key và dịch vụ."),
             ) from exc
-        sparse = info["config"]["params"].get("sparse_vectors") or {}
-        if manager.sparse_vector_name not in sparse:
+        vectors = info["config"]["params"]["vectors"]
+        specification = vectors if "size" in vectors else vectors.get(manager.dense_vector_name)
+        if specification is None and manager.dense_vector_name is None:
+            specification = vectors.get("dense")
+        if specification is None and len(vectors) == 1:
+            specification = next(iter(vectors.values()))
+        if specification is None or specification.get("size") != dimension:
             raise PipelineSetupError(
-                "retrieval", "QDRANT_HYBRID_REQUIRED",
-                "Collection hiện không có vector BM25. Pipeline cần collection hybrid GTE + BM25; "
-                "snapshot chỉ có dense chưa đủ để chạy.",
+                "retrieval", "QDRANT_DENSE_MISMATCH",
+                "Vector dense của Qdrant không khớp model/kích thước trong file query.",
             )
+
+
+def _check_elasticsearch(client, index):
+    try:
+        mappings = client.indices.get_mapping(index=index)
+        expected = index_definition()["mappings"]
+        for entry in mappings.values():
+            mapping = entry["mappings"]
+            if (mapping.get("_meta", {}).get("vibiomir_pipeline") != ES_PIPELINE or
+                    any(mapping.get("properties", {}).get(field) != specification
+                        for field, specification in expected["properties"].items())):
+                raise PipelineSetupError("retrieval", "ELASTICSEARCH_MAPPING_MISMATCH",
+                                         "Elasticsearch cần mapping BM25 VI/EN/ZH đúng pipeline hiện tại.")
+    except (ApiError, TransportError, RuntimeError) as exc:
+        if isinstance(exc, PipelineSetupError):
+            raise
+        missing = getattr(exc, "status_code", None) == 404
+        raise PipelineSetupError(
+            "retrieval", "ELASTICSEARCH_INDEX_MISSING" if missing else "ELASTICSEARCH_UNAVAILABLE",
+            "Kiểm tra dịch vụ Elasticsearch, ELASTICSEARCH_URL và ELASTICSEARCH_INDEX.",
+        ) from exc
 
 
 def _columns(schema: pa.Schema, overrides: dict | None) -> dict[str, str]:
@@ -214,31 +246,33 @@ def _embedding_columns(schema: pa.Schema, dense_encoder=None) -> list[str]:
     if not isinstance(provenance, dict) or provenance.get("format_version") != 1:
         raise ValueError("Unsupported query embedding format")
     encoder = provenance.get("encoder")
-    if not isinstance(encoder, dict) or any(encoder.get(k) != v for k, v in EMBEDDING_CONFIG.items()):
-        raise ValueError("Query embedding metadata differs from the pinned GTE index encoder")
+    expected = QWEN_CONFIG if isinstance(encoder, dict) and encoder.get("model") == QWEN_CONFIG["model"] else EMBEDDING_CONFIG
+    if not isinstance(encoder, dict) or any(encoder.get(k) != v for k, v in expected.items()):
+        raise ValueError("Query embedding metadata differs from the pinned index encoder")
     expected_mapping = {COLUMN_ALIASES[key][0]: value for key, value in VECTOR_COLUMNS.items()}
     if provenance.get("vector_columns") != expected_mapping:
         raise ValueError("Query embedding language/vector mapping differs from the notebook")
     for name in VECTOR_COLUMNS.values():
-        if schema.field(name).type != pa.list_(pa.float32(), GTE_CONFIG["dimension"]):
-            raise ValueError(f"{name} must contain {GTE_CONFIG['dimension']} float32 values")
+        dtype = pa.float16() if expected == QWEN_CONFIG else pa.float32()
+        if schema.field(name).type != pa.list_(dtype, expected["dimension"]):
+            raise ValueError(f"{name} must contain {expected['dimension']} {dtype} values")
     if not pa.types.is_string(schema.field("query_sha256").type):
         raise ValueError("query_sha256 must be a string column")
     return names
 
 
-def _query_vectors(record: dict, query: dict) -> dict:
+def _query_vectors(record: dict, query: dict, *, dimension=768, tolerance=2e-5) -> dict:
     content = json.dumps([query[key] for key in VECTOR_COLUMNS], ensure_ascii=False, separators=(",", ":"))
     if record["query_sha256"] != hashlib.sha256(content.encode("utf-8")).hexdigest():
         raise ValueError("Query text differs from the cached embedding hash")
     vectors = {}
     for key, column in VECTOR_COLUMNS.items():
         vector = record[column]
-        if vector is None or len(vector) != GTE_CONFIG["dimension"] or any(
+        if vector is None or len(vector) != dimension or any(
             value is None or not math.isfinite(value) for value in vector
         ):
             raise ValueError(f"Invalid cached vector: {column}")
-        if not math.isclose(math.fsum(value * value for value in vector), 1, rel_tol=0, abs_tol=2e-5):
+        if not math.isclose(math.fsum(value * value for value in vector), 1, rel_tol=0, abs_tol=tolerance):
             raise ValueError(f"Cached vector is not L2-normalized: {column}")
         vectors[key] = vector
     return vectors
@@ -323,6 +357,7 @@ def run_pipeline(
     zip_path: str | Path | None = None, columns: dict | None = None,
     batch_size: int = 16, workers: int = 4,
     top_k: int = DEFAULT_TOP_K, branch_limit: int = DEFAULT_BRANCH_LIMIT,
+    hnsw_ef: int | None = DEFAULT_HNSW_EF,
     search_mode: str = "4-branch",
     max_docs: int | None = None, max_chunks: int | None = DEFAULT_MAX_CHUNKS,
     limit: int | None = None, query_filter: dict | None = None,
@@ -335,6 +370,7 @@ def run_pipeline(
     reranker_device: str | None = None, reranker_batch_size: int = 4,
     reranker_max_length: int = 8192, reranker_token_budget: int = 8192,
     dense_encoder: Callable | None = None, qdrant_factory: Callable | None = None,
+    elasticsearch_factory: Callable | None = None,
     postgres_manager: PostgreManager | None = None, reranker=None,
     checkpoint_path: str | Path | None = None, resume: bool = False,
     resume_tag: str = "",
@@ -346,21 +382,24 @@ def run_pipeline(
     PostgreSQL/reranker instances remain caller-owned. A checkpoint stores successful rows
     and original chunk IDs; failed rows are retried on resume. With injected
     components, supply a stable ``resume_tag`` identifying their configuration.
-    Missing translations are errors: both search modes require VI/EN/ZH.
+    Missing translations are errors: all search modes require VI/EN/ZH.
     Dense vectors and encoder metadata come from the Colab Parquet; no model is loaded.
     An explicitly supplied dense_encoder remains supported for text-only Python inputs.
-    search_mode selects the existing four- or six-branch Qdrant method.
+    search_mode selects dense VI/EN/ZH only (3), dense VI + BM25 (4), or dense VI/EN/ZH + BM25 (6).
     Defaults retrieve 100 per branch and retain the top 200 fused points in RRF
     order for documents/chunks after source deduplication. Set rerank=True to enable
     Qwen scoring; max_docs and max_chunks optionally limit their respective outputs.
     ``start``/``end`` are inclusive 1-based input row positions, not query IDs.
     Omitted bounds select the first/last row. Progress follows durable queries;
     stop_event pauses before the next batch without losing committed rows.
+    Dense search uses hnsw_ef=512; None keeps the Qdrant snapshot's search default.
     """
     if min(batch_size, workers, top_k, branch_limit, encoder_batch_size) < 1:
         raise ValueError("Batch sizes, worker counts and retrieval limits must be positive")
+    if hnsw_ef is not None and hnsw_ef < 1:
+        raise ValueError("hnsw_ef must be positive")
     if search_mode not in SEARCH_METHODS:
-        raise ValueError("search_mode must be '4-branch' or '6-branch'")
+        raise ValueError("search_mode must be '3-branch', '4-branch' or '6-branch'")
     if timeout <= 0 or (limit is not None and limit < 1):
         raise ValueError("Timeouts and limit must be positive")
     if rerank:
@@ -370,7 +409,7 @@ def run_pipeline(
             raise ValueError("Require reranker_max_length <= 32768 and reranker_token_budget >= reranker_max_length")
     if any(value is not None and value < 0 for value in (max_docs, max_chunks)):
         raise ValueError("Output budgets must be nonnegative")
-    injected = any(value is not None for value in (dense_encoder, qdrant_factory, postgres_manager, reranker))
+    injected = any(value is not None for value in (dense_encoder, qdrant_factory, elasticsearch_factory, postgres_manager, reranker))
     if resume and injected and not resume_tag:
         raise ValueError("Set resume_tag to identify injected component configuration")
     parquet_path = Path(parquet_path)
@@ -378,8 +417,11 @@ def run_pipeline(
     mapping = _columns(parquet.schema_arrow, columns)
     row_count = parquet.metadata.num_rows
     vector_columns = _embedding_columns(parquet.schema_arrow, dense_encoder) if row_count else []
+    encoder_config = json.loads(parquet.schema_arrow.metadata[b"query_embedding"])["encoder"] if vector_columns else GTE_CONFIG
+    is_qwen = encoder_config.get("model") == QWEN_CONFIG["model"]
+    collection = os.getenv("QDRANT_COLLECTION", "vibiomir_qwen3_06b_1024_fp16_dense" if is_qwen else "sbtc_gte_multilingual")
     weight_columns = ["dense_weight"] if "dense_weight" in parquet.schema_arrow.names else []
-    dense_fields = (tuple(VECTOR_COLUMNS) if search_mode == "6-branch" else ("original_query",))
+    dense_fields = (tuple(VECTOR_COLUMNS) if search_mode != "4-branch" else ("original_query",))
     if any(value is not None and value < 1 for value in (start, end)):
         raise ValueError("start and end must be positive 1-based row positions")
     first = (start or 1) - 1
@@ -408,20 +450,27 @@ def run_pipeline(
     if len(paths) != len(set(paths)):
         raise ValueError("Input, output, archive, checkpoint and error paths must differ")
     manifest = json.loads(Path(manifest_path).read_text(encoding="utf-8")) if manifest_path else None
-    if manifest and any(manifest["signature"].get(k) != v for k, v in GTE_CONFIG.items()):
-        raise ValueError("Manifest embedding model differs from the pinned GTE encoder")
+    if manifest:
+        profile = manifest.get("embedding", {}) if is_qwen else manifest["signature"]
+        expected = {"model_id": QWEN_CONFIG["model"], "revision": QWEN_CONFIG["revision"],
+                    "dimension": 1024, "pooling": "last_token", "normalize": True,
+                    "document_prompt": "", "dtype": "float16", "padding_side": "left"} if is_qwen else GTE_CONFIG
+        if any(profile.get(k) != v for k, v in expected.items()):
+            raise ValueError("Manifest embedding model differs from the query encoder")
     settings = {
         "submission_format": SUBMISSION_FORMAT, "search_mode": search_mode,
         "input": sha_file(parquet_path), "columns": mapping, "top_k": top_k,
         "embedding_source": "parquet-v1" if vector_columns else "injected-encoder",
-        "fusion": "adaptive-weighted-rrf-v1",
+        "fusion": "qdrant-dense-elasticsearch-bm25-adaptive-rrf-v1",
         "document_candidates": "top-k-rrf-v1",
         "branch_limit": branch_limit, "max_docs": max_docs, "max_chunks": max_chunks,
-        "limit": limit, "filter": query_filter, "manifest": manifest, "gte": GTE_CONFIG,
+        "limit": limit, "filter": query_filter, "manifest": manifest, "encoder": encoder_config,
         "url": qdrant_url or os.getenv("QDRANT_URL", "http://127.0.0.1:6333"),
-        "collection": os.getenv("QDRANT_COLLECTION", "sbtc_gte_multilingual"),
+        "collection": collection,
         "dense_vector": os.getenv("QDRANT_DENSE_VECTOR_NAME"),
-        "sparse_vector": os.getenv("QDRANT_SPARSE_VECTOR_NAME", "bm25"),
+        "elasticsearch_url": os.getenv("ELASTICSEARCH_URL", "http://127.0.0.1:9200"),
+        "elasticsearch_index": os.getenv("ELASTICSEARCH_INDEX", "vibiomir_bm25"),
+        "bm25_search_profile": BM25_SEARCH_PROFILE,
         "database": os.getenv("DATABASE_URL"), "resume_tag": resume_tag,
         "reranker": {"model": MODEL_NAME, "revision": MODEL_REVISION,
                      "instruction": INSTRUCTION, "max_length": reranker_max_length,
@@ -429,6 +478,8 @@ def run_pipeline(
     }
     if start is not None or end is not None:
         settings["range"] = [start, end]
+    if hnsw_ef is not None:
+        settings["hnsw_ef"] = hnsw_ef
     # Store only the digest: settings can contain private connection configuration.
     signature = hashlib.sha256(json.dumps(settings, sort_keys=True).encode()).hexdigest()
     completed = _checkpoint(checkpoint, signature, resume) if checkpoint else {}
@@ -439,6 +490,8 @@ def run_pipeline(
     batch_vectors = {}
     batch_weights = {}
     checked_qdrant = False
+    checked_elasticsearch = False
+    elastic_client = None
 
     def encoded(texts):
         if texts != thread_state.dense_texts:
@@ -457,20 +510,20 @@ def run_pipeline(
                     manager = QdrantManager.from_manifest(manifest_path, url=qdrant_url,
                                                          dense_encoder=encoded, timeout=timeout)
                 else:
-                    manager = QdrantManager(qdrant_url, dense_encoder=encoded, timeout=timeout)
+                    manager = QdrantManager(qdrant_url, collection, dense_encoder=encoded, timeout=timeout)
                 thread_state.manager = manager
                 with manager_lock:
                     managers.append(manager)
-            search = getattr(thread_state.manager, SEARCH_METHODS[search_mode])
-            hits = search(
-                query, query_filter=query_filter, with_payload=True,
-                top_k=top_k, branch_limit=branch_limit, dense_weight=batch_weights[row],
+            hits = HybridRetriever(thread_state.manager, elastic_client, settings["elasticsearch_index"]).query(
+                query, query_filter=query_filter, multilingual_dense=search_mode != "4-branch",
+                include_bm25=search_mode != "3-branch",
+                top_k=top_k, branch_limit=branch_limit, dense_weight=batch_weights[row], hnsw_ef=hnsw_ef,
             )
             if not isinstance(hits, list) or any(
                 not isinstance(hit, dict) or not isinstance(hit.get("payload"), dict)
                 for hit in hits
             ):
-                raise ValueError("Invalid Qdrant point payloads")
+                raise ValueError("Invalid retrieval payloads")
             return row, identifier, query, hits
         except Exception as exc:
             return row, identifier, query, exc
@@ -520,9 +573,11 @@ def run_pipeline(
                         query = {field: record[name] for field, name in mapping.items() if field != "id"}
                         if any(not isinstance(text, str) or not text.strip() for text in query.values()):
                             raise ValueError("VI/EN/ZH query text must be nonempty")
-                        batch_weights[row] = parse_dense_weight(record.get("dense_weight"))
+                        batch_weights[row] = (1.0 if search_mode == "3-branch" else
+                                              parse_dense_weight(record.get("dense_weight")))
                         if vector_columns:
-                            vectors = _query_vectors(record, query)
+                            vectors = _query_vectors(record, query, dimension=encoder_config["dimension"],
+                                                     tolerance=0.002 if is_qwen else 2e-5)
                             batch_vectors[row] = [vectors[field] for field in dense_fields]
                         if row in completed:
                             if completed[row]["prediction"]["id"] != identifier:
@@ -534,9 +589,21 @@ def run_pipeline(
                 if active:
                     batch_started = monotonic()
                     LOGGER.info("Retrieving %d queries (rows %d–%d)", len(active), active[0][0] + 1, active[-1][0] + 1)
-                    if not checked_qdrant and qdrant_factory is None:
-                        _check_qdrant(url=qdrant_url, manifest_path=manifest_path, timeout=timeout)
+                    if not checked_qdrant and qdrant_factory is None and any(batch_weights[row] > 0 for row, _, _ in active):
+                        _check_qdrant(url=qdrant_url, manifest_path=manifest_path, timeout=timeout,
+                                      collection=collection, dimension=encoder_config["dimension"])
                         checked_qdrant = True
+                    if not checked_elasticsearch and any(batch_weights[row] < 1 for row, _, _ in active):
+                        try:
+                            elastic_client = (elasticsearch_factory() if elasticsearch_factory else connect_elasticsearch())
+                            resources.callback(elastic_client.close)
+                            _check_elasticsearch(elastic_client, settings["elasticsearch_index"])
+                        except (ApiError, TransportError, RuntimeError) as exc:
+                            if isinstance(exc, PipelineSetupError):
+                                raise
+                            raise PipelineSetupError("retrieval", "ELASTICSEARCH_UNAVAILABLE",
+                                                     "Không kết nối được Elasticsearch. Kiểm tra ELASTICSEARCH_URL và dịch vụ.") from exc
+                        checked_elasticsearch = True
                     if not vector_columns:
                         texts = list(dict.fromkeys(query[field] for _, _, query in active for field in dense_fields))
                         try:
@@ -664,9 +731,11 @@ def main(argv=None) -> int:
     parser.add_argument("--zip", dest="zip_path", type=Path)
     parser.add_argument("--manifest", dest="manifest_path", type=Path)
     parser.add_argument("--qdrant-url")
+    parser.add_argument("--query-text", type=Path, help="Original text Parquet for Qwen replacement-vector output")
     parser.add_argument("--search-mode", choices=SEARCH_METHODS, default="4-branch")
     for name, default in (("batch-size", 16), ("workers", 4),
                           ("top-k", DEFAULT_TOP_K), ("branch-limit", DEFAULT_BRANCH_LIMIT), ("encoder-batch-size", 8),
+                          ("hnsw-ef", DEFAULT_HNSW_EF),
                           ("reranker-batch-size", 4), ("reranker-max-length", 8192),
                           ("reranker-token-budget", 8192)):
         parser.add_argument("--" + name, type=int, default=default)
@@ -686,6 +755,18 @@ def main(argv=None) -> int:
         parser.add_argument("--" + field.replace("_", "-") + "-column")
     options = vars(parser.parse_args(argv))
     options["output_path"] = options.pop("output")
+    query_text = options.pop("query_text")
+    if query_text:
+        combined = options["output_path"].with_suffix(".input.parquet")
+        combined.parent.mkdir(parents=True, exist_ok=True)
+        if not options["resume"] or not combined.exists():
+            combine_query_files(options["parquet_path"], query_text, combined)
+        else:
+            info = json.loads(pq.read_schema(combined).metadata[b"query_embedding"])
+            if (info.get("source_sha256") != sha_file(query_text) or
+                    info.get("embedding_sha256") != sha_file(options["parquet_path"])):
+                raise ValueError("Query text/embedding source changed; choose a new output")
+        options["parquet_path"] = combined
     options["columns"] = {field: options.pop(field + "_column") for field in COLUMN_ALIASES}
     options["columns"] = {key: value for key, value in options["columns"].items() if value}
     logging.basicConfig(level=logging.INFO, format="%(message)s")

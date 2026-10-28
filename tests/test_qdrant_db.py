@@ -287,6 +287,26 @@ def test_dense_snapshot_works_and_hybrid_never_silently_falls_back():
     assert "prefetch" not in session.calls[-1][2]["json"]
 
 
+@pytest.mark.parametrize('ef', [None, 256, 512, 1024])
+def test_dense_search_ef_does_not_change_hit_limit_or_filters(ef):
+    session = Session(schema(sparse=False), Response({'points': []}))
+    query_filter = {'must': [{'key': 'doc_id', 'match': {'value': '7'}}]}
+    manager = QdrantManager(session=session)
+    manager.search_dense([1, 0, 0], top_k=100, query_filter=query_filter, hnsw_ef=ef)
+    body = session.calls[-1][2]['json']
+    assert body['limit'] == 100 and body['filter'] == query_filter
+    assert body.get('params') == (None if ef is None else {'hnsw_ef': ef})
+    assert body['with_vector'] is False
+
+
+@pytest.mark.parametrize('ef', [0, -1])
+def test_invalid_search_ef_fails_before_network(ef):
+    session = Session()
+    with pytest.raises(ValueError, match='hnsw_ef'):
+        QdrantManager(session=session).search_dense([1, 0, 0], hnsw_ef=ef)
+    assert not session.calls
+
+
 def test_refresh_detects_new_sparse_schema():
     session = Session(schema(sparse=False), schema(), Response({"points": []}))
     manager = QdrantManager(session=session)

@@ -5,7 +5,7 @@ import hashlib
 import json
 from pathlib import Path
 import sys
-from threading import Lock
+from threading import Lock, local
 from threading import Event
 import time
 from types import SimpleNamespace
@@ -23,6 +23,16 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 from BackEnd.app import pipeline
 from BackEnd.app.Database.postgre_db import PostgreManager
 from BackEnd.app.Database.qdrant_db import QdrantManager
+from BackEnd.app.Database.elastic_search import index_definition
+
+
+@pytest.fixture(autouse=True)
+def elastic_client(monkeypatch):
+    client = Mock()
+    client.indices.get_mapping.return_value = {"test": {"mappings": index_definition()["mappings"]}}
+    client.search.return_value = {"hits": {"hits": []}}
+    monkeypatch.setattr(pipeline, "connect_elasticsearch", lambda: client)
+    return client
 
 
 def write_queries(path, identifiers=(30, 10, 20), **changed):
@@ -77,6 +87,7 @@ class Transport:
         self.calls, self.completed = [], []
         self.closed = False
         self.lock = Lock()
+        self.state = local()
 
     def request(self, method, url, **options):
         if method == "GET":
@@ -84,9 +95,8 @@ class Transport:
                 "vectors": {"dense": {"size": 3}}, "sparse_vectors": {"bm25": {}},
             }}})
         body = deepcopy(options["json"])
-        original_bm25 = next(branch["query"]["text"] for branch in body["prefetch"]
-                             if isinstance(branch["query"], dict) and "text" in branch["query"])
-        identifier = int(original_bm25.split()[-1])
+        assert isinstance(body["query"], list) and "prefetch" not in body
+        identifier = self.state.identifier
         with self.lock:
             self.calls.append(body)
         if identifier in self.failures:
@@ -103,7 +113,10 @@ class Transport:
 
 def factory(transport, managers):
     def create(encoder):
-        manager = QdrantManager("http://fixture", dense_encoder=encoder, session=transport)
+        def encode(texts):
+            transport.state.identifier = int(texts[0].split()[-1])
+            return encoder(texts)
+        manager = QdrantManager("http://fixture", dense_encoder=encode, session=transport)
         managers.append(manager)
         return manager
     return create
@@ -136,7 +149,7 @@ def arguments(transport, reranker, **extra):
             "qdrant_factory": factory(transport, []), "rerank": True, "reranker": reranker, **extra}
 
 
-@pytest.mark.parametrize("search_mode,dense_count", [("4-branch", 1), ("6-branch", 3)])
+@pytest.mark.parametrize("search_mode,dense_count", [("4-branch", 1), ("6-branch", 3), ("3-branch", 3)])
 def test_end_to_end_search_hydration_order_rerank_json_zip(tmp_path, database, reranker, search_mode, dense_count):
     path = write_queries(tmp_path / "translated.parquet")
     missing = point("1:c:0")
@@ -170,12 +183,8 @@ def test_end_to_end_search_hydration_order_rerank_json_zip(tmp_path, database, r
     assert len(sql_calls) == 1
     assert reranker.score.call_count == 2
     for body in transport.calls:
-        assert len(body["prefetch"]) == dense_count + 3
-        assert body["prefetch"][0]["query"] == [1, 0, 0]
-        assert [p["query"]["text"].split()[0] for p in body["prefetch"][dense_count:]] == ["VI", "EN", "中文"]
-        assert body["query"] == {"rrf": {"k": 2, "weights": [0.5 / dense_count] * dense_count + [0.5 / 3] * 3}}
-        assert body["limit"] == 200
-        assert all(p["limit"] == 100 for p in body["prefetch"])
+        assert body["query"] == [1, 0, 0]
+        assert body["limit"] == 100 and "prefetch" not in body
     assert json.loads(output.read_text()) == result
     with zipfile.ZipFile(archive) as zipped:
         assert zipped.namelist() == ["submission.json"]
@@ -247,7 +256,7 @@ def test_dedup_limits_and_original_identifiers(tmp_path, reranker):
     assert result == [{"id": 1, "relevant_docs": [7],
                        "relevant_chunks": [{"doc_id": 8, "chunk_text": "Other"}]}]
     body = transport.calls[0]
-    assert body["limit"] == 250 and all(p["limit"] == 100 for p in body["prefetch"])
+    assert body["limit"] == 100 and "prefetch" not in body
     assert reranker.score.call_args.args == ("VI 1", ["A &amp; B", "Other"])
 
 
@@ -283,6 +292,19 @@ def test_search_and_submission_format_changes_reject_checkpoint(tmp_path, monkey
         pipeline.run_pipeline(path, output, resume=True, **options)
     assert len(transport.calls) == 1
 
+
+
+def test_bm25_profile_change_rejects_resume_before_search(tmp_path, monkeypatch, reranker):
+    path = write_queries(tmp_path / "queries.parquet", identifiers=(1,))
+    transport = Transport({}, failures=(1,))
+    options = arguments(transport, reranker, resume_tag="bm25-profile-v1")
+    output = tmp_path / "output.json"
+    with pytest.raises(pipeline.PipelineError):
+        pipeline.run_pipeline(path, output, **options)
+    monkeypatch.setattr(pipeline, "BM25_SEARCH_PROFILE", "another-bm25-profile")
+    with pytest.raises(ValueError, match="configuration changed"):
+        pipeline.run_pipeline(path, output, resume=True, **options)
+    assert len(transport.calls) == 1
 
 def test_invalid_search_mode_rejected_before_services_or_checkpoint(tmp_path, reranker):
     path = write_queries(tmp_path / "queries.parquet", identifiers=(1,))
@@ -328,6 +350,10 @@ def test_resume_rejects_changed_configuration_and_input(tmp_path, reranker):
         pipeline.run_pipeline(path, output, **options)
     with pytest.raises(ValueError, match="configuration changed"):
         pipeline.run_pipeline(path, output, resume=True, top_k=101, **options)
+    calls_before = len(transport.calls)
+    with pytest.raises(ValueError, match="configuration changed"):
+        pipeline.run_pipeline(path, output, resume=True, hnsw_ef=1024, **options)
+    assert len(transport.calls) == calls_before
     write_queries(path, identifiers=(2,))
     with pytest.raises(ValueError, match="configuration changed"):
         pipeline.run_pipeline(path, output, resume=True, **options)
@@ -361,17 +387,20 @@ def test_cli_entry_point_and_limit(tmp_path, monkeypatch):
     assert run.call_args.kwargs["rerank"] is False
     assert run.call_args.kwargs["top_k"] == 200
     assert run.call_args.kwargs["branch_limit"] == 100
+    assert run.call_args.kwargs["hnsw_ef"] == 512
     assert run.call_args.kwargs["search_mode"] == "4-branch"
 
 
-def test_cli_can_enable_reranking_and_chunk_limit(tmp_path, monkeypatch):
+@pytest.mark.parametrize("search_mode", ["3-branch", "6-branch"])
+def test_cli_can_enable_reranking_and_chunk_limit(tmp_path, monkeypatch, search_mode):
     run = Mock(return_value=[])
     monkeypatch.setattr(pipeline, "run_pipeline", run)
-    assert pipeline.main([str(tmp_path / "queries.parquet"), "--rerank", "--max-chunks", "50",
-                          "--search-mode", "6-branch"]) == 0
+    assert pipeline.main([str(tmp_path / "queries.parquet"), "--rerank", "--max-chunks", "50", "--hnsw-ef", "1024",
+                          "--search-mode", search_mode]) == 0
     assert run.call_args.kwargs["rerank"] is True
     assert run.call_args.kwargs["max_chunks"] == 50
-    assert run.call_args.kwargs["search_mode"] == "6-branch"
+    assert run.call_args.kwargs["search_mode"] == search_mode
+    assert run.call_args.kwargs["hnsw_ef"] == 1024
 
 
 @pytest.mark.parametrize("injected_reranker", [False, True])
@@ -389,7 +418,7 @@ def test_default_skips_qwen_and_retains_all_rrf_candidates_in_query_order(
         options.pop("reranker")
     output = tmp_path / "output.json"
     archive = tmp_path / "output.zip"
-    predictions = pipeline.run_pipeline(path, output, zip_path=archive, workers=2, **options)
+    predictions = pipeline.run_pipeline(path, output, zip_path=archive, workers=2, branch_limit=200, **options)
     loader.assert_not_called()
     reranker.score.assert_not_called()
     assert transport.completed == [10, 30]
@@ -397,7 +426,7 @@ def test_default_skips_qwen_and_retains_all_rrf_candidates_in_query_order(
     expected = [{"doc_id": i, "chunk_text": f"Source {i}"} for i in range(1, 201)]
     assert all(p["relevant_chunks"] == expected for p in predictions)
     assert all(p["relevant_docs"] == list(range(1, 201)) for p in predictions)
-    assert all(len(call["prefetch"]) == 4 and call["limit"] == 200 for call in transport.calls)
+    assert all("prefetch" not in call and call["limit"] == 200 for call in transport.calls)
     records = [json.loads(line) for line in output.with_suffix(".checkpoint.jsonl").read_text().splitlines()][1:]
     assert all(r["chunk_ids"] == [f"{i}:c:0" for i in range(1, 201)] for r in records)
     with zipfile.ZipFile(archive) as zipped:
@@ -440,8 +469,8 @@ def test_chunk_budget_is_applied_after_reranking_and_keeps_query_alignment(tmp_p
         assert prediction["relevant_chunks"] == expected_chunks
         assert prediction["relevant_docs"] == list(range(1, 101))
     assert all(len(call.args[1]) == 100 for call in reranker.score.call_args_list)
-    assert all(call["limit"] == 200 for call in transport.calls)
-    assert all(len(call["prefetch"]) == 4 for call in transport.calls)
+    assert all(call["limit"] == 100 for call in transport.calls)
+    assert all("prefetch" not in call for call in transport.calls)
     journal = [json.loads(line) for line in output.with_suffix(".checkpoint.jsonl").read_text().splitlines()][1:]
     assert all(record["chunk_ids"] == [f"{i}:c:0" for i in range(100, 100 - expected_count, -1)]
                for record in journal)
@@ -615,11 +644,11 @@ def test_missing_cached_encoder_has_actionable_safe_error(monkeypatch):
 
 @pytest.mark.parametrize("kind,code",[("missing","QDRANT_COLLECTION_MISSING"),
                                       ("timeout","QDRANT_UNAVAILABLE"),
-                                      ("dense_only","QDRANT_HYBRID_REQUIRED")])
+                                      ("wrong_dimension","QDRANT_DENSE_MISMATCH")])
 def test_qdrant_setup_checked_once_before_encoding_rows(tmp_path,monkeypatch,kind,code):
     path = write_embedded_queries(tmp_path / "queries.parquet")
     manager = QdrantManager("http://fixture",session=Mock())
-    manager.refresh_collection = Mock(return_value={"config":{"params":{"sparse_vectors":{}}}})
+    manager.refresh_collection = Mock(return_value={"config":{"params":{"vectors":{"dense":{"size":3}}}}})
     if kind == "missing":
         response = requests.Response()
         response.status_code = 404

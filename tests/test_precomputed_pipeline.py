@@ -11,7 +11,7 @@ import pytest
 
 from BackEnd.app import pipeline
 from BackEnd.app.api.main import Jobs, create_app
-from test_pipeline import Response, Transport, database, factory, point, write_embedded_queries, write_queries
+from test_pipeline import Response, Transport, database, elastic_client, factory, point, write_embedded_queries, write_queries
 
 
 class VectorTransport(Transport):
@@ -31,7 +31,7 @@ class CaptureTransport(VectorTransport):
         return Response({'points': []})
 
 
-@pytest.mark.parametrize('search_mode', ['4-branch', '6-branch'])
+@pytest.mark.parametrize('search_mode', ['4-branch', '6-branch', '3-branch'])
 @pytest.mark.parametrize('rerank', [False, True])
 @pytest.mark.parametrize('max_chunks', [None, 0, 1])
 def test_only_top_k_documents_are_saved_independently_of_chunk_output_limit(tmp_path, search_mode, rerank, max_chunks):
@@ -56,26 +56,27 @@ def test_only_top_k_documents_are_saved_independently_of_chunk_output_limit(tmp_
     else:
         reranker.score.assert_not_called()
     assert predictions[0]['relevant_chunks'] == expected[:max_chunks]
-    assert transport.calls[0]['limit'] == 2
+    assert transport.calls[0]['limit'] == 100
     with zipfile.ZipFile(archive) as zipped:
         assert json.loads(zipped.read('output.json')) == predictions
     checkpoint = [json.loads(line) for line in output.with_suffix('.checkpoint.jsonl').read_text().splitlines()]
     assert checkpoint[1]['prediction']['relevant_docs'] == [8, 7]
 
 
-def test_documents_after_duplicate_chunk_top_k_do_not_expand_chunk_pool(tmp_path):
+def test_duplicate_branch_hit_is_fused_once_before_top_k(tmp_path):
     path = write_embedded_queries(tmp_path / 'queries.parquet', identifiers=(1,))
     first = point('7:a', 7, 'First')
     transport = VectorTransport({1: [first, first, point('9:a', 9, 'Outside top-k')]})
     result = pipeline.run_pipeline(path, top_k=2, qdrant_factory=factory(transport, []))
-    assert result == [{'id': 1, 'relevant_docs': [7],
-                       'relevant_chunks': [{'doc_id': 7, 'chunk_text': 'First'}]}]
+    assert result == [{'id': 1, 'relevant_docs': [7, 9],
+                       'relevant_chunks': [{'doc_id': 7, 'chunk_text': 'First'},
+                                           {'doc_id': 9, 'chunk_text': 'Outside top-k'}]}]
 
 
 def test_outside_top_k_document_is_not_requested_or_hydrated(tmp_path):
     path = write_embedded_queries(tmp_path / 'queries.parquet', identifiers=(1,))
     transport = VectorTransport({1: [point('2:a', 2, 'Top result'),
-                                    {'id': 'document-only', 'payload': {'doc_id': '1'}}]})
+                                    {'id': 'document-only', 'payload': {'doc_id': '1', 'chunk_id': 'outside'}}]})
     database = Mock()
     database.get_submission_chunks.side_effect = AssertionError('Document IDs do not need PostgreSQL')
     result = pipeline.run_pipeline(path, top_k=1, qdrant_factory=factory(transport, []),
@@ -88,7 +89,7 @@ def test_outside_top_k_document_is_not_requested_or_hydrated(tmp_path):
 def test_only_top_k_missing_chunk_text_is_hydrated(tmp_path, database):
     path = write_embedded_queries(tmp_path / 'queries.parquet', identifiers=(1,))
     transport = VectorTransport({1: [point('1:c:0', 1, None), point('2:a', 2, None),
-                                    {'id': 'third', 'payload': {'doc_id': 3}}]})
+                                    {'id': 'third', 'payload': {'doc_id': 3, 'chunk_id': 'outside'}}]})
     source = Mock(wraps=database)
     result = pipeline.run_pipeline(path, top_k=1, qdrant_factory=factory(transport, []),
                                    postgres_manager=source)
@@ -106,7 +107,7 @@ def test_missing_doc_id_outside_top_k_does_not_fail_query(tmp_path):
     source.get_submission_chunks.assert_not_called()
 
 
-@pytest.mark.parametrize('search_mode,dense_count', [('4-branch', 1), ('6-branch', 3)])
+@pytest.mark.parametrize('search_mode,dense_count', [('4-branch', 1), ('6-branch', 3), ('3-branch', 3)])
 def test_precomputed_vectors_reach_qdrant_without_encoder(tmp_path, monkeypatch, search_mode, dense_count):
     # Repeated texts across rows/languages must still use that row's exact vectors.
     path = write_embedded_queries(tmp_path / 'queries.parquet', identifiers=(30, 10),
@@ -123,22 +124,19 @@ def test_precomputed_vectors_reach_qdrant_without_encoder(tmp_path, monkeypatch,
     assert [row['id'] for row in result] == [30, 10]
     loader.assert_not_called()
     encoder.assert_not_called()
-    for request in transport.calls:
-        identifier = int(request['prefetch'][dense_count]['query']['text'].split()[-1])
-        row = next(row for row in rows if row['id'] == identifier)
-        assert [branch['query'] for branch in request['prefetch'][:dense_count]] == [
-            row[name] for name in list(pipeline.VECTOR_COLUMNS.values())[:dense_count]
-        ]
-        assert [branch['query']['text'] for branch in request['prefetch'][dense_count:]] == [
-            row[name] for name in ('query', 'english', 'chinese')
-        ]
-        assert request['query']['rrf']['weights'] == pytest.approx([0.5 / dense_count] * dense_count + [0.5 / 3] * 3)
+    assert len(transport.calls) == len(rows) * dense_count
+    expected = [row[name] for row in rows for name in list(pipeline.VECTOR_COLUMNS.values())[:dense_count]]
+    actual = [request['query'] for request in transport.calls]
+    assert sorted(map(tuple, actual)) == sorted(map(tuple, expected))
+    assert all('prefetch' not in request and request['limit'] == 100 for request in transport.calls)
+    assert all(request['params'] == {'hnsw_ef': 512} for request in transport.calls)
     assert all(manager._config is not None for manager in managers)
+
 
 
 @pytest.mark.parametrize('search_mode,dense_count', [('4-branch', 1), ('6-branch', 3)])
 @pytest.mark.parametrize('values', [[None, float('nan'), 0, 1, 0.6, 0.2], ['', '  ', '0', '1', '0.6', '0.2']])
-def test_per_row_adaptive_weight_defaults_and_extremes(tmp_path, monkeypatch, search_mode, dense_count, values):
+def test_per_row_adaptive_weight_defaults_and_extremes(tmp_path, monkeypatch, elastic_client, search_mode, dense_count, values):
     path = write_embedded_queries(tmp_path / 'queries.parquet', identifiers=range(1, 7), dense_weight=values)
     rows = pq.read_table(path).to_pylist()
     transport = CaptureTransport({})
@@ -146,20 +144,16 @@ def test_per_row_adaptive_weight_defaults_and_extremes(tmp_path, monkeypatch, se
     result = pipeline.run_pipeline(path, search_mode=search_mode, batch_size=2, workers=2,
                                    qdrant_factory=factory(transport, []))
     assert [item['id'] for item in result] == list(range(1, 7))
-    assert len(transport.calls) == 6
-    for request in transport.calls:
-        dense = [branch for branch in request['prefetch'] if isinstance(branch['query'], list)]
-        lexical = [branch for branch in request['prefetch'] if isinstance(branch['query'], dict)]
-        row_index = dense[0]['query'].index(1.0) // 3 if dense else int(lexical[0]['query']['text'].split()[-1]) - 1
-        weight = [0.5, 0.5, 0, 1, 0.6, 0.2][row_index]
-        assert len(dense) == (dense_count if weight > 0 else 0)
-        assert len(lexical) == (3 if weight < 1 else 0)
-        assert request['query']['rrf']['weights'] == pytest.approx(
-            [weight / dense_count] * len(dense) + [(1 - weight) / 3] * len(lexical)
-        )
-        assert [branch['query'] for branch in dense] == [
-            rows[row_index][name] for name in list(pipeline.VECTOR_COLUMNS.values())[:len(dense)]
-        ]
+    assert len(transport.calls) == 5 * dense_count
+    expected = [row[name] for index, row in enumerate(rows) if index != 2
+                for name in list(pipeline.VECTOR_COLUMNS.values())[:dense_count]]
+    assert sorted(tuple(call['query']) for call in transport.calls) == sorted(map(tuple, expected))
+    assert elastic_client.search.call_count == 15
+    english = [call.kwargs['query']['bool']['must'][0]['match']['content_en']
+               for call in elastic_client.search.call_args_list
+               if 'content_en' in call.kwargs['query']['bool']['must'][0]['match']]
+    assert sorted(english) == sorted(row['english'] for index, row in enumerate(rows) if index != 3)
+
 
 
 @pytest.mark.parametrize('value', [-0.1, 1.1, float('inf'), 'bad', True])
@@ -170,6 +164,18 @@ def test_invalid_weight_fails_only_its_input_row(tmp_path, value):
         pipeline.run_pipeline(path, qdrant_factory=factory(transport, []))
     assert error.value.failures == [{'row': 0, 'id': 1, 'stage': 'input', 'error_type': 'ValueError'}]
     assert len(transport.calls) == 1
+
+
+def test_dense_only_ignores_hybrid_weight_and_never_connects_elasticsearch(tmp_path, monkeypatch):
+    path = write_embedded_queries(tmp_path / 'queries.parquet', identifiers=(1,2,3,4),
+                                  dense_weight=[0., .2, .85, 1.])
+    transport = CaptureTransport({})
+    connect = Mock(side_effect=AssertionError('Must not connect to Elasticsearch'))
+    monkeypatch.setattr(pipeline, 'connect_elasticsearch', connect)
+    result = pipeline.run_pipeline(path, search_mode='3-branch', qdrant_factory=factory(transport, []))
+    assert [item['id'] for item in result] == [1,2,3,4]
+    assert len(transport.calls) == 12
+    connect.assert_not_called()
 
 
 def test_resume_rejects_changed_dense_weights(tmp_path):

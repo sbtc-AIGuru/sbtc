@@ -19,19 +19,23 @@ let actionBusy = false;
 let configurationReady = false;
 
 function searchHints() {
-  $("search-hint").textContent = $("search-mode").value === "6-branch"
-    ? "Dense VI/EN/ZH + BM25 VI/EN/ZH. Dùng ba vector có sẵn trong file."
-    : "Dense VI + BM25 VI/EN/ZH. Dùng bản dịch có sẵn trong file.";
+  const hints = {
+    "3-branch": "Dense VI/EN/ZH trên Qdrant, RRF chia đều 1/3 mỗi nhánh. Không dùng BM25; bỏ qua dense_weight.",
+    "4-branch": "Dense VI + BM25 VI/EN/ZH. Dùng bản dịch có sẵn trong file.",
+    "6-branch": "Dense VI/EN/ZH + BM25 VI/EN/ZH. Dùng ba vector có sẵn trong file.",
+  };
+  $("search-hint").textContent = hints[$("search-mode").value];
   $("rerank-hint").textContent = $("rerank").checked
     ? "Chấm lại chunk bằng Qwen cục bộ; cần model trong cache và thêm thời gian xử lý."
-    : "Giữ thứ tự RRF từ Qdrant, không nạp hoặc chạy Qwen.";
+    : "Giữ thứ tự RRF sau khi hợp nhất các nhánh truy hồi, không nạp hoặc chạy Qwen.";
 }
 
 function configurationLabel(config) {
   if (!config) return "Tác vụ cũ · Chưa lưu lựa chọn search";
-  const mode = config.search_mode === "6-branch" ? "6 nhánh" : "4 nhánh";
+  const mode = {"3-branch": "3 nhánh Dense", "4-branch": "4 nhánh", "6-branch": "6 nhánh"}[config.search_mode];
   const chunks = config.max_chunks == null ? "Giữ hết chunk" : `Tối đa ${config.max_chunks} chunk`;
-  return `${mode} · RRK ${config.rerank ? "bật" : "tắt"} · ${config.branch_limit}/nhánh · Top ${config.top_k} chunk · ${chunks}`;
+  const ef = config.hnsw_ef ?? "mặc định";
+  return `${mode} · RRK ${config.rerank ? "bật" : "tắt"} · ef ${ef} · ${config.branch_limit}/nhánh · Top ${config.top_k} chunk · ${chunks}`;
 }
 
 function notice(message = "") {
@@ -135,6 +139,7 @@ async function refresh() {
       $("rerank").checked = defaults.rerank;
       $("top-k").value = defaults.top_k;
       $("branch-limit").value = defaults.branch_limit;
+      $("hnsw-ef").value = defaults.hnsw_ef ?? 512;
       $("max-chunks").value = defaults.max_chunks ?? "";
       configurationReady = true;
       $("retrieval-settings").disabled = uploading;
@@ -188,6 +193,7 @@ $("upload-form").addEventListener("submit", async (event) => {
   if (start && end && Number(start) > Number(end)) return notice("Dòng bắt đầu phải nhỏ hơn hoặc bằng dòng kết thúc.");
   const data = new FormData();
   data.append("file", selectedFile);
+  if ($("query-file").files[0]) data.append("query_file", $("query-file").files[0]);
   if (start) data.append("start", start);
   if (end) data.append("end", end);
   data.append("batch_size", $("batch-size").value);
@@ -195,10 +201,12 @@ $("upload-form").addEventListener("submit", async (event) => {
   data.append("rerank", String($("rerank").checked));
   data.append("top_k", $("top-k").value);
   data.append("branch_limit", $("branch-limit").value);
+  data.append("hnsw_ef", $("hnsw-ef").value);
   data.append("max_chunks", $("max-chunks").value || "all");
   uploading = true;
   $("submit-button").disabled = true;
   $("file").disabled = true;
+  $("query-file").disabled = true;
   $("retrieval-settings").disabled = true;
   $("upload-progress-wrap").hidden = false;
   $("upload-progress").value = 0;
@@ -234,6 +242,7 @@ $("upload-form").addEventListener("submit", async (event) => {
     uploading = false;
     $("submit-button").disabled = !selectedFile;
     $("file").disabled = false;
+    $("query-file").disabled = false;
     $("retrieval-settings").disabled = false;
     $("upload-progress-wrap").hidden = true;
   }
