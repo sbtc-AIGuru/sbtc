@@ -72,6 +72,9 @@ checkpoints/
 *.onnx
 *.faiss
 
+# Generated query embeddings are stored outside Git
+/query/*_qwen3_1024_fp16.parquet
+
 # Logs and temporary files
 logs/
 *.log
@@ -90,7 +93,9 @@ Desktop.ini
 .vscode/*
 !.vscode/settings.json
 .vscode/
-
+datav3/
+output/
+artifacts/*
 datav2/
 merge_report.json
 merged.jsonl
