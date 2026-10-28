@@ -20,10 +20,11 @@ from fastapi.staticfiles import StaticFiles
 import pyarrow.parquet as pq
 
 from ..pipeline import (
-    DEFAULT_BRANCH_LIMIT, DEFAULT_TOP_K, SEARCH_METHODS,
-    PipelineError, PipelinePaused, PipelineSetupError, _columns, run_pipeline,
+    DEFAULT_BRANCH_LIMIT, DEFAULT_HNSW_EF, DEFAULT_TOP_K, SEARCH_METHODS,
+    PipelineError, PipelinePaused, PipelineSetupError, _columns, _embedding_columns, run_pipeline,
 )
 from ..Retrieval.utils import atomic_json, job_lock
+from ..Retrieval.query_inputs import combine_query_files
 
 PROJECT_ROOT = Path(__file__).resolve().parents[3]
 FRONTEND = PROJECT_ROOT / "FrontEnd"
@@ -107,12 +108,17 @@ class Jobs:
                         target.write(output, arcname="output.json")
                     temporary.replace(archive)
             else:
+                saved_config = state.get("pipeline_config", {})
+                run_options = {**self.options, **saved_config}
+                # Legacy jobs used the snapshot default; preserve their checkpoint signature.
+                if "hnsw_ef" not in saved_config:
+                    run_options["hnsw_ef"] = None
                 self.runner(
                     directory / "input.parquet", output, zip_path=archive,
                     start=state["start"], end=state["end"], batch_size=state["batch_size"],
                     resume=(directory / "output.checkpoint.jsonl").exists(),
                     progress_callback=progress, stop_event=event,
-                    **{**self.options, **state.get("pipeline_config", {})},
+                    **run_options,
                 )
             if not output.is_file() or not archive.is_file():
                 raise RuntimeError("Pipeline did not produce its output artifacts")
@@ -149,6 +155,7 @@ def create_app(*, jobs_dir=None, runner=run_pipeline, pipeline_options=None, max
         "device": os.getenv("PIPELINE_DEVICE", "cpu"),
         "top_k": int(os.getenv("PIPELINE_TOP_K", str(DEFAULT_TOP_K))),
         "branch_limit": int(os.getenv("PIPELINE_BRANCH_LIMIT", str(DEFAULT_BRANCH_LIMIT))),
+        "hnsw_ef": int(os.getenv("PIPELINE_HNSW_EF", str(DEFAULT_HNSW_EF))),
         "search_mode": os.getenv("PIPELINE_SEARCH_MODE", "4-branch"),
         "max_chunks": int(os.environ["PIPELINE_MAX_CHUNKS"]) if os.getenv("PIPELINE_MAX_CHUNKS") else None,
         "rerank": os.getenv("PIPELINE_RERANK", "0").lower() in {"1", "true", "yes"},
@@ -164,10 +171,11 @@ def create_app(*, jobs_dir=None, runner=run_pipeline, pipeline_options=None, max
         "rerank": options.get("rerank", False),
         "top_k": options.get("top_k", DEFAULT_TOP_K),
         "branch_limit": options.get("branch_limit", DEFAULT_BRANCH_LIMIT),
+        "hnsw_ef": options.get("hnsw_ef", DEFAULT_HNSW_EF),
         "max_chunks": options.get("max_chunks"),
     }
     if job_defaults["search_mode"] not in SEARCH_METHODS:
-        raise ValueError("PIPELINE_SEARCH_MODE must be '4-branch' or '6-branch'")
+        raise ValueError("PIPELINE_SEARCH_MODE must be '3-branch', '4-branch' or '6-branch'")
     logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(name)s: %(message)s")
 
     @asynccontextmanager
@@ -195,11 +203,13 @@ def create_app(*, jobs_dir=None, runner=run_pipeline, pipeline_options=None, max
         start: Annotated[int | None, Form(ge=1)] = None,
         end: Annotated[int | None, Form(ge=1)] = None,
         batch_size: Annotated[int, Form(ge=1, le=256)] = 16,
-        search_mode: Annotated[Literal["4-branch", "6-branch"] | None, Form()] = None,
+        search_mode: Annotated[Literal["3-branch", "4-branch", "6-branch"] | None, Form()] = None,
         rerank: Annotated[bool | None, Form()] = None,
         top_k: Annotated[int | None, Form(ge=1)] = None,
         branch_limit: Annotated[int | None, Form(ge=1)] = None,
+        hnsw_ef: Annotated[int | None, Form(ge=1)] = None,
         max_chunks: Annotated[str | None, Form(pattern=r"^(all|[0-9]+)$")] = None,
+        query_file: UploadFile | None = None,
     ):
         filename = (file.filename or "").replace("\\", "/").rsplit("/", 1)[-1]
         if not filename.lower().endswith(".parquet"):
@@ -218,17 +228,34 @@ def create_app(*, jobs_dir=None, runner=run_pipeline, pipeline_options=None, max
                 stream.flush()
                 os.fsync(stream.fileno())
             try:
+                if query_file is not None:
+                    if not (query_file.filename or "").lower().endswith(".parquet"):
+                        raise HTTPException(400, "File query gốc phải là .parquet.")
+                    with (directory / "query-text.parquet").open("xb") as stream:
+                        while block := query_file.file.read(1024 * 1024):
+                            size += len(block)
+                            if size > upload_limit:
+                                raise HTTPException(413, "Tổng file vượt giới hạn dung lượng upload.")
+                            stream.write(block)
+                        stream.flush()
+                        os.fsync(stream.fileno())
+                    combine_query_files(directory / "input.parquet", directory / "query-text.parquet",
+                                        directory / "combined.parquet")
+                    (directory / "input.parquet").rename(directory / "embeddings.parquet")
+                    (directory / "combined.parquet").rename(directory / "input.parquet")
                 with pq.ParquetFile(directory / "input.parquet") as parquet:
                     mapping = _columns(parquet.schema_arrow, None)
+                    _embedding_columns(parquet.schema_arrow, options.get("dense_encoder"))
                     rows = parquet.metadata.num_rows
             except (ValueError, OSError) as exc:
-                raise HTTPException(400, "Parquet không hợp lệ hoặc thiếu cột id/query/english/chinese.") from exc
+                raise HTTPException(400, "Parquet cần text VI/EN/ZH, ba vector và metadata GTE/Qwen3 hợp lệ. "
+                                    "Với vector Qwen3 thay cột text, gửi thêm query_file là file query gốc đúng hash/ID.") from exc
             first, last = start or 1, end if end is not None else rows
             if not rows or first > last or last > rows:
                 raise HTTPException(422, "Khoảng start–end không hợp lệ hoặc vượt số dòng trong file.")
             config = dict(job_defaults)
             for key, value in {"search_mode": search_mode, "rerank": rerank,
-                               "top_k": top_k, "branch_limit": branch_limit}.items():
+                               "top_k": top_k, "branch_limit": branch_limit, "hnsw_ef": hnsw_ef}.items():
                 if value is not None:
                     config[key] = value
             if max_chunks is not None:

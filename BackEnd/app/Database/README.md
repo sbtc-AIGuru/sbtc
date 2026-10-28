@@ -162,6 +162,55 @@ không xóa schema hiện có. Không dùng database production để chạy tes
 `requests`. Constructor không kết nối mạng hoặc tải model. Các phương thức chỉ
 đọc dữ liệu; không tạo collection, sparse index hoặc sửa snapshot.
 
+Hai hàm query đa ngữ nhận dict có đủ ba chuỗi không rỗng:
+`original_query` (VI), `eng_query` (EN), `chinese_query` (ZH). Bản dịch do caller
+chuẩn bị; module không dịch query.
+
+| Hàm | Nhánh dense | Nhánh BM25 | Kết quả cuối |
+|---|---|---|---|
+| `query_original_dense(query)` | Query VI, top 50 | VI/EN/ZH, mỗi query top 50 | Top 100 sau RRF |
+| `query_multilingual_dense(query)` | VI/EN/ZH, mỗi query top 50 | VI/EN/ZH, mỗi query top 50 | Top 100 sau RRF |
+
+Weighted RRF chạy trong Qdrant (1.17+) trên hợp các ứng viên. Hai hàm nhận thêm
+`dense_weight` (mặc định `0.5`, giá trị từ 0 đến 1): cả nhóm dense nhận trọng số
+này, cả nhóm BM25 nhận `1 - dense_weight`, chia đều cho các nhánh trong nhóm.
+Giá trị `0` chỉ chạy BM25, `1` chỉ chạy dense. Pipeline lấy giá trị theo từng dòng
+từ cột `dense_weight` trong Parquet; thiếu/rỗng/NaN dùng `0.5`.
+Pipeline và caller gọi trực tiếp đều nhận tối đa `top_k` point sau fusion.
+Doc ID chỉ lấy từ các point trong top-k, không lấy thêm ứng viên ngoài top-k.
+Một point xuất hiện ở nhiều nhánh chỉ xuất hiện một lần trong kết quả cuối.
+Có thể trả ít hơn 100 nếu không đủ point khác nhau. Đây là top **chunk/point**,
+không phải top document; nhiều chunk cùng document vẫn có thể được trả về.
+Ngôn ngữ query không tự tạo filter ngôn ngữ tài liệu. `query_filter` nếu truyền
+vào sẽ áp dụng cho mọi nhánh; `with_payload` mặc định là `True`.
+
+Truyền `dense_encoder` là callable nhận `list[str]`, trả một dense vector cho
+mỗi chuỗi theo cùng thứ tự. Encoder phải dùng đúng model/revision, CLS pooling,
+L2 normalization và cách xử lý query dài của snapshot mô tả bên dưới. Có thể
+truyền `model.encode` nếu model đã cấu hình đúng; model được khởi tạo một lần
+ở ứng dụng, không tải lại trong mỗi query. Hàm thứ nhất encode một câu VI;
+hàm thứ hai encode cả ba câu trong một batch.
+
+```python
+from BackEnd.app.Database import QdrantManager
+
+query = {
+    "original_query": "Triệu chứng bệnh đái tháo đường là gì?",
+    "eng_query": "What are the symptoms of diabetes?",
+    "chinese_query": "糖尿病有哪些症状？",
+}
+
+# encode_texts là encoder GTE đã khởi tạo ở ứng dụng, đúng cấu hình snapshot.
+with QdrantManager.from_manifest("snapshot_manifest.json", dense_encoder=encode_texts) as database:
+    hits_original = database.query_original_dense(query)
+    hits_multilingual = database.query_multilingual_dense(query)
+```
+
+Thiếu query VI/EN/ZH, encoder chưa cấu hình hoặc collection chưa có sparse index
+sẽ báo lỗi. Output giữ dạng `[{"id": ..., "score": ..., "payload": ...}]`;
+score là điểm RRF. Các API cấp thấp `search()`, `search_text()` và
+`search_dense()` bên dưới vẫn dùng được với vector caller đã encode sẵn.
+
 Snapshot dense-only cũ trên VM dùng collection `sbtc_gte_multilingual`, vector
 dense **không có tên**, 768 chiều, Cosine. Notebook hybrid mới dùng hai tên
 `dense` và `bm25`; client nhận ra tên `dense` hoặc đọc chính xác từ manifest.

@@ -15,12 +15,20 @@ Các dependency FastAPI/Uvicorn/python-multipart được khai báo trong
 
 ## Cách sử dụng
 
-1. Chọn hoặc kéo thả một file `.parquet`, ví dụ `query_translated.parquet`.
+1. Chọn hoặc kéo thả file `query_rewritten_final_embeddings.parquet` tạo bằng
+   [notebook Colab](../Database/Notebook/Query_GTE_Embeddings_Colab.ipynb).
+   File cần ba cột `vector_original`, `vector_english`, `vector_chinese`,
+   `query_sha256` và metadata GTE, ngoài các cột text. Pipeline không chạy embedding.
+   Có thể thêm `dense_weight` từ 0 đến 1 cho từng dòng; thiếu/rỗng/NaN dùng `0.5`.
+   Trọng số áp dụng cho cả nhóm dense, phần còn lại cho nhóm BM25, chia đều theo
+   ngôn ngữ trong nhóm. Xem [adaptive weights](../PIPELINE.md#adaptive-denselexical-weights).
 2. Tùy chọn **Từ dòng** / **Đến dòng**. Đây là vị trí dòng **1-based**, gồm cả
    hai đầu, không phải query ID. Để trống cả hai để chạy hết file. Chỉ nhập start
    thì chạy tới cuối; chỉ nhập end thì chạy từ dòng đầu. ID gốc vẫn được giữ.
-3. Chọn search **4 nhánh** (dense VI + BM25 VI/EN/ZH) hoặc **6 nhánh** (dense và
-   BM25 VI/EN/ZH); tùy chọn bật **Qwen3-Reranker-0.6B**. Mặc định 4 nhánh, tắt Qwen.
+3. Chọn search **3 nhánh Dense** (dense VI/EN/ZH), **4 nhánh** (dense VI + BM25
+   VI/EN/ZH) hoặc **6 nhánh** (dense và BM25 VI/EN/ZH); tùy chọn bật
+   **Qwen3-Reranker-0.6B**. Mặc định 4 nhánh, tắt Qwen. Chế độ 3 nhánh không kết nối
+   Elasticsearch, bỏ qua `dense_weight`, dùng RRF với trọng số `1/3` mỗi nhánh.
    Phần **Giới hạn ứng viên và kết quả** cho phép đổi ứng viên/nhánh, top-k sau
    fusion và số chunk tối đa; để trống số chunk để giữ hết sau khử trùng lặp.
    Chọn số dòng mỗi batch (mặc định 16), rồi bấm **Bắt đầu xử lý**.
@@ -30,9 +38,15 @@ Các dependency FastAPI/Uvicorn/python-multipart được khai báo trong
    đúng schema `id`, `relevant_docs`, `relevant_chunks[{doc_id,chunk_text}]`.
    `id`, các phần tử `relevant_docs` và `doc_id` đều là số nguyên JSON.
 
+`relevant_docs` giữ các doc ID duy nhất trong top-k sau RRF, theo thứ tự RRF.
+Fusion chỉ giữ tối đa top-k chunk từ các nhánh Qdrant/Elasticsearch; không lấy thêm doc ID ngoài top-k.
+Giới hạn chunk áp dụng riêng cho `relevant_chunks`; giới hạn ứng viên/nhánh vẫn
+giữ nguyên. Tạo job mới sau cập nhật này; checkpoint của cơ chế lấy toàn bộ
+doc ID ngoài top-k không tương thích với kết quả mới.
+
 Chạy một khoảng dòng chỉ tạo kết quả của khoảng đó. Bài nộp toàn bộ cuộc thi
 cần xử lý tất cả các dòng. Pipeline không dịch file chỉ có truy vấn tiếng Việt:
-file phải có đủ ID, query VI, English và Chinese cho cả hai chế độ search.
+file phải có đủ ID, query VI, English và Chinese cho cả ba chế độ search.
 
 ## Lưu trữ và checkpoint
 
@@ -54,7 +68,7 @@ artifacts/api-jobs/<job-id>/
   journal được flush/fsync rồi cập nhật trạng thái đã lưu. Query đang dở có thể
   được chạy lại; dòng đã commit không cần truy hồi lại.
 - `state.json` lưu `pipeline_config` của từng job: `search_mode`, `rerank`, `top_k`,
-  `branch_limit`, `max_chunks`. Resume dùng lại các lựa chọn này, kể cả khi đổi
+  `branch_limit`, `hnsw_ef`, `max_chunks`. Resume dùng lại các lựa chọn này, kể cả khi đổi
   mặc định server sau restart; lựa chọn trên form chỉ áp dụng cho job mới.
 - Lịch sử, file upload và checkpoint ở trên đĩa, không phụ thuộc vào tab trình
   duyệt. Đóng trang không hủy tác vụ. Khởi động lại server đánh dấu tác vụ dang
@@ -77,8 +91,10 @@ Không dùng `--reload` khi đang chạy một batch dài.
 ## Cấu hình server
 
 Giữ nguyên cấu hình Qdrant và PostgreSQL đã dùng cho pipeline. API không tạo
-index, sửa database hoặc tải model. Qdrant cần hybrid GTE + BM25; GTE cần có sẵn
-trong cache. Chỉ cần Qwen3-Reranker-0.6B khi bật rerank; rerank không gọi endpoint LLM.
+index, sửa database hoặc tải model. Qdrant chỉ cần dense; Elasticsearch chạy BM25
+trên ba trường `content_vi/content_en/content_zh` với bộ lọc `lang`. Không cần
+model embedding trên máy chạy server. Chỉ cần Qwen3-Reranker-0.6B trong cache khi bật
+rerank; rerank không gọi endpoint LLM.
 Các biến tùy chọn bổ sung:
 
 | Biến | Mặc định | Ý nghĩa |
@@ -86,17 +102,18 @@ Các biến tùy chọn bổ sung:
 | `PIPELINE_JOBS_DIR` | `artifacts/api-jobs` trong dự án | Nơi lưu tác vụ |
 | `PIPELINE_MAX_UPLOAD_BYTES` | `134217728` | Giới hạn upload, mặc định 128 MiB |
 | `PIPELINE_BRANCH_LIMIT` | `100` | Số ứng viên mỗi nhánh dense/BM25 trước fusion |
+| `PIPELINE_HNSW_EF` | `512` | Độ rộng tìm kiếm HNSW cho Qdrant; độc lập với số ứng viên và Top-K |
 | `PIPELINE_TOP_K` | `200` | Số ứng viên sau fusion |
-| `PIPELINE_SEARCH_MODE` | `4-branch` | Mặc định của form, `4-branch` hoặc `6-branch` |
+| `PIPELINE_SEARCH_MODE` | `4-branch` | Mặc định của form, `3-branch`, `4-branch` hoặc `6-branch` |
 | `PIPELINE_RERANK` | `0` | Bỏ qua Qwen; đặt `1` để bật lại |
 | `PIPELINE_MAX_CHUNKS` | Để trống | Giữ mọi chunk sau khử trùng lặp; đặt `50` nếu muốn giới hạn, sau rerank nếu có |
-| `PIPELINE_DEVICE` | `cpu` | Thiết bị encoder, ví dụ `cuda:0` |
+| `PIPELINE_DEVICE` | `cpu` | Thiết bị mặc định cho Qwen reranker, ví dụ `cuda:0` |
 | `PIPELINE_RERANKER_DEVICE` | Theo `PIPELINE_DEVICE` | Thiết bị Qwen, ví dụ `cuda:0` |
 | `PIPELINE_RERANKER_BATCH_SIZE` | `4` | Số cặp query–chunk tối đa mỗi forward |
 | `PIPELINE_RERANKER_MAX_LENGTH` | `8192` | Context mỗi cửa sổ, tối đa 32768 token |
 | `PIPELINE_RERANKER_TOKEN_BUDGET` | `8192` | Tổng token sau padding mỗi forward, phải ≥ max length |
-| `PIPELINE_MODEL_CACHE` | Cache trong dự án nếu có, hoặc Hugging Face cache mặc định | Nơi đã tải GTE/code và Qwen đúng revision |
-| `PIPELINE_MANIFEST_PATH` | Không có | Manifest của hybrid snapshot |
+| `PIPELINE_MODEL_CACHE` | Cache trong dự án nếu có, hoặc Hugging Face cache mặc định | Nơi đã tải Qwen đúng revision nếu bật rerank |
+| `PIPELINE_MANIFEST_PATH` | Không có | Manifest của snapshot dense tương thích model query |
 | `PIPELINE_RESUME_TAG` | Chuỗi rỗng | Phiên bản dữ liệu/index khi không có manifest mới |
 
 Thư mục tác vụ mặc định được bỏ qua trong `.gitignore`. Lỗi dịch vụ chỉ lưu loại
@@ -106,9 +123,10 @@ Các biến môi trường đặt mặc định cho job mới; form có thể gh
 Sau cập nhật định dạng ID số nguyên, restart server và tạo job mới; checkpoint
 cũ dùng ID chuỗi không được trộn với định dạng mới.
 
-Trước khi encode, pipeline kiểm tra collection Qdrant có tồn tại và có sparse
-vector BM25. Các lỗi cấu hình như `QDRANT_COLLECTION_MISSING`,
-`QDRANT_HYBRID_REQUIRED`, `ENCODER_MODEL_UNAVAILABLE`, `RERANKER_MODEL_UNAVAILABLE` hiện thông báo cụ thể trên
+Trước khi truy xuất, pipeline kiểm tra collection Qdrant có vector dense đúng kích thước
+và mapping Elasticsearch khớp pipeline ba ngôn ngữ. Các lỗi cấu hình như
+`QDRANT_COLLECTION_MISSING`, `QDRANT_DENSE_MISMATCH`, `ELASTICSEARCH_INDEX_MISSING`,
+`ELASTICSEARCH_MAPPING_MISMATCH`, `ELASTICSEARCH_UNAVAILABLE`, `RERANKER_MODEL_UNAVAILABLE` hiện thông báo cụ thể trên
 giao diện và dừng tác vụ ngay; không đánh dấu hàng loạt truy vấn là dữ liệu lỗi.
 Sau khi sửa môi trường, tiếp tục tác vụ với cấu hình kết nối không đổi. Nếu đổi
 URL/tên collection hoặc giới hạn chunk, tạo tác vụ mới để tránh trộn checkpoint khác cấu hình.
@@ -128,17 +146,18 @@ URL/tên collection hoặc giới hạn chunk, tạo tác vụ mới để trán
 | GET | `/api/health` | API đang hoạt động; không kiểm tra dịch vụ model/database |
 
 ```bash
-curl -F 'file=@query_translated.parquet' -F start=1 -F end=20 \
+curl -F 'file=@query_rewritten_final_embeddings.parquet' -F start=1 -F end=20 \
   -F batch_size=8 http://127.0.0.1:8000/api/jobs
 ```
 
 Các trạng thái: `queued`, `running`, `pausing`, `paused`, `failed`, `completed`.
 Trình duyệt kiểm tra trạng thái mỗi hai giây (tám giây khi tab ẩn).
 
-Multipart hỗ trợ `search_mode=4-branch|6-branch`, `rerank=true|false`,
-`top_k`, `branch_limit` (số nguyên dương), `max_chunks` (số nguyên ≥ 0 hoặc `all`).
+Multipart hỗ trợ `search_mode=3-branch|4-branch|6-branch`, `rerank=true|false`,
+`top_k`, `branch_limit`, `hnsw_ef` (số nguyên dương), `max_chunks` (số nguyên ≥ 0 hoặc `all`).
 Bỏ qua tham số để dùng mặc định server; `max_chunks=all` ghi đè mọi giới hạn
 mặc định và giữ hết chunk. UI tự gửi `all` khi ô số chunk để trống.
+Job mới mặc định ef=512. Job cũ chưa lưu `hnsw_ef` tiếp tục dùng mặc định snapshot khi resume.
 
 ## Kiểm thử
 
@@ -150,3 +169,26 @@ node --check FrontEnd/app.js
 Tests HTTP sử dụng ASGI TestClient với pipeline thật trên Parquet nhỏ, Qdrant và điểm Qwen
 được mock. Bao phủ upload, range, ZIP, báo cáo lỗi, tiếp tục, khôi phục
 sau restart và tạm dừng đúng ranh giới batch; không chạy model hoặc truy hồi thật.
+
+## Upload Qwen3 1024 FP16 và query gốc
+
+Với file Qwen3 đã thay các cột text bằng vector, chọn file vector ở ô đầu và
+file query gốc ở ô **File query gốc**. API kiểm tra hash nguồn, số dòng và ID
+trước khi xếp hàng. Ví dụ chạy thử ba dòng, không bật rerank:
+
+```bash
+curl -F 'file=@query/query_rewritten_weighted_qwen3_1024_fp16.parquet' \
+  -F 'query_file=@/home/nhminh/Downloads/query_rewritten_weighted.parquet' \
+  -F start=1 -F end=3 -F search_mode=4-branch -F rerank=false \
+  http://127.0.0.1:8000/api/jobs
+```
+
+Các file upload lưu trong thư mục job. `input.parquet` là bản ghép dùng để chạy,
+`embeddings.parquet` và `query-text.parquet` giữ hai bản upload gốc. Giới hạn
+upload tính tổng hai file. Định dạng JSON/ZIP, range, pause/resume và lựa chọn
+rerank giữ nguyên. Luồng GTE cũ hoặc file Qwen đã ghép vẫn chỉ cần trường `file`.
+
+Cấu hình Elasticsearch dùng các biến trong
+[README.elasticsearch.md](../Database/README.elasticsearch.md). Model/collection
+Qwen3 được chọn từ metadata query; có thể ghi đè bằng `QDRANT_COLLECTION`.
+Tạo job mới sau thay đổi backend; checkpoint Qdrant BM25 cũ không tương thích.

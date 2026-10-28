@@ -36,4 +36,5 @@ dependencies = [
     "langchain-classic>=1.0.8",
     "langchain-openai>=1.7.2",
     "openai>=3.23.0",
+    "elasticsearch>=9.5.1",
 ]

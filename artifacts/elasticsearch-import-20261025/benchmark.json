@@ -1,0 +1,23 @@
+[
+  {
+    "workers": 1,
+    "rows": 4000,
+    "seconds": 5.3,
+    "docs_per_second": 755.1,
+    "sha256": "86c3d054415b65d2ac57dc2b27d5379d416489ea9764422387a1a7533d7afa59"
+  },
+  {
+    "workers": 4,
+    "rows": 4000,
+    "seconds": 2.76,
+    "docs_per_second": 1451.5,
+    "sha256": "86c3d054415b65d2ac57dc2b27d5379d416489ea9764422387a1a7533d7afa59"
+  },
+  {
+    "workers": 8,
+    "rows": 4000,
+    "seconds": 1.52,
+    "docs_per_second": 2624.3,
+    "sha256": "86c3d054415b65d2ac57dc2b27d5379d416489ea9764422387a1a7533d7afa59"
+  }
+]

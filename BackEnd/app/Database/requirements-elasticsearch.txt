@@ -1,0 +1,4 @@
+# Use the existing project environment, not a new virtualenv.
+elasticsearch==9.5.1
+pyvi==0.1.1
+opencc-python-reimplemented==0.1.7

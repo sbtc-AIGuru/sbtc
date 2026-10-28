@@ -94,7 +94,7 @@ def test_multilingual_query_routes_texts_and_keeps_50_per_branch(
     assert [call[0] for call in session.calls] == ["GET", "POST"]
     assert session.calls[-1][1].endswith("/points/query")
     body = session.calls[-1][2]["json"]
-    assert body["query"] == {"fusion": "rrf"}
+    assert body["query"] == {"rrf": {"k": 2, "weights": [0.5 / dense_count] * dense_count + [0.5 / 3] * 3}}
     assert body["limit"] == 100 and body["with_vector"] is False
     assert body["with_payload"] == with_payload
     branches = body["prefetch"]
@@ -136,6 +136,59 @@ def test_multilingual_query_requires_configured_encoder(multilingual_query):
     with pytest.raises(ValueError, match="Configure dense_encoder"):
         QdrantManager(session=session).query_original_dense(multilingual_query)
     assert session.calls == []
+
+
+@pytest.mark.parametrize('method,dense_count', [('query_original_dense', 1), ('query_multilingual_dense', 3)])
+@pytest.mark.parametrize('weight', [0, 0.2, 0.6, 1])
+def test_adaptive_rrf_weights_follow_group_and_prefetch_order(multilingual_query, method, dense_count, weight):
+    encoded = []
+
+    def encode(texts):
+        encoded.append(texts)
+        return [[1, 0, 0]] * len(texts)
+
+    session = Session(schema(named=True), Response({'points': []}))
+    manager = QdrantManager(session=session, dense_vector_name='gte', dense_encoder=encode)
+    getattr(manager, method)(multilingual_query, dense_weight=weight)
+    request = session.calls[-1][2]['json']
+    weights = request['query']['rrf']['weights']
+    dense = [branch for branch in request['prefetch'] if branch['using'] == 'gte']
+    lexical = [branch for branch in request['prefetch'] if branch['using'] == 'bm25']
+    assert len(dense) == (dense_count if weight > 0 else 0)
+    assert len(lexical) == (3 if weight < 1 else 0)
+    assert weights == pytest.approx([weight / dense_count] * len(dense) + [(1 - weight) / 3] * len(lexical))
+    assert sum(weights[:len(dense)]) == pytest.approx(weight)
+    assert sum(weights[len(dense):]) == pytest.approx(1 - weight)
+    assert len(encoded) == int(weight > 0)
+
+
+def test_pure_lexical_query_does_not_need_dense_lookup(multilingual_query):
+    session = Session(schema(), Response({'points': []}))
+    QdrantManager(session=session).query_original_dense(multilingual_query, dense_weight=0)
+    assert len(session.calls[-1][2]['json']['prefetch']) == 3
+
+
+@pytest.mark.parametrize('method,dense_count', [('query_original_dense', 1), ('query_multilingual_dense', 3)])
+@pytest.mark.parametrize('weight', [0, 0.6, 1])
+@pytest.mark.parametrize('top_k', [2, 100])
+def test_fusion_returns_top_k_independently_of_branch_budgets(multilingual_query, method, dense_count, weight, top_k):
+    points = [{'id': number, 'payload': {'doc_id': number}} for number in range(10)]
+    session = Session(schema(), Response({'points': points}))
+    manager = QdrantManager(session=session, dense_encoder=lambda texts: [[1, 0, 0]] * len(texts))
+    result = getattr(manager, method)(multilingual_query, top_k=top_k, branch_limit=7,
+                                     dense_weight=weight)
+    assert result == points
+    body = session.calls[-1][2]['json']
+    assert body['limit'] == top_k
+    assert all(branch['limit'] == 7 for branch in body['prefetch'])
+
+
+@pytest.mark.parametrize('weight', [-0.1, 1.1, float('inf'), float('-inf'), 'bad', True])
+def test_invalid_adaptive_weight_rejected_before_service_call(multilingual_query, weight):
+    session = Session()
+    with pytest.raises(ValueError, match='dense_weight'):
+        QdrantManager(session=session).query_original_dense(multilingual_query, dense_weight=weight)
+    assert not session.calls
 
 
 def test_multilingual_query_checks_sparse_index_before_encoding(multilingual_query):
@@ -232,6 +285,26 @@ def test_dense_snapshot_works_and_hybrid_never_silently_falls_back():
     assert manager.search_dense([1, 0, 0]) == []
     assert [call[0] for call in session.calls] == ["GET", "POST", "POST"]
     assert "prefetch" not in session.calls[-1][2]["json"]
+
+
+@pytest.mark.parametrize('ef', [None, 256, 512, 1024])
+def test_dense_search_ef_does_not_change_hit_limit_or_filters(ef):
+    session = Session(schema(sparse=False), Response({'points': []}))
+    query_filter = {'must': [{'key': 'doc_id', 'match': {'value': '7'}}]}
+    manager = QdrantManager(session=session)
+    manager.search_dense([1, 0, 0], top_k=100, query_filter=query_filter, hnsw_ef=ef)
+    body = session.calls[-1][2]['json']
+    assert body['limit'] == 100 and body['filter'] == query_filter
+    assert body.get('params') == (None if ef is None else {'hnsw_ef': ef})
+    assert body['with_vector'] is False
+
+
+@pytest.mark.parametrize('ef', [0, -1])
+def test_invalid_search_ef_fails_before_network(ef):
+    session = Session()
+    with pytest.raises(ValueError, match='hnsw_ef'):
+        QdrantManager(session=session).search_dense([1, 0, 0], hnsw_ef=ef)
+    assert not session.calls
 
 
 def test_refresh_detects_new_sparse_schema():
