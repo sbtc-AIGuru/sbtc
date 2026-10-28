@@ -1,11 +1,27 @@
 # Truy xuất CPU trên Kaggle
 
+## Pipeline Qwen3 + Elasticsearch mới
+
+[Notebook Kaggle riêng tư](https://www.kaggle.com/code/nhminh107/vibiomir-hybrid-retrieval-qwen3-es-20261026)
+được chia thành 18 module, mỗi module một code cell và có mô tả tiếng Việt.
+Hai file query gốc/vector đã gắn qua dataset riêng tư; corpus lấy từ Drive,
+snapshot lấy từ nguồn đã được notebook recheck xác minh.
+Xem [hướng dẫn đầy đủ](Hybrid_Retrieval_Kaggle.md).
+Mặc định upload chỉ kiểm tra nhẹ; đặt `RUN_PIPELINE=True` và Run All để tải,
+restore, dựng Elasticsearch và chạy pipeline thật. Các phần dưới mô tả notebook GTE cũ.
+
 Notebook: `BackEnd/app/Database/Notebook/Kaggle_Retrieval_CPU.ipynb`.
 Cell đầu chứa toàn bộ cấu hình: mặc định Qwen tắt, 4 nhánh, 100 ứng viên/nhánh,
 top-k 150, 2 workers, batch 8, timeout 300 giây. `LIMIT=None` chạy toàn bộ query.
 Chọn CPU, bật Internet, rồi **Run All** hoặc **Save Version → Save & Run All**.
 Query deadline phía Qdrant cũng được đặt theo timeout này, chừa 10 giây để client
 nhận phản hồi; chỉ tăng timeout client không kéo dài deadline của server.
+
+`EXACT_SEARCH=False` giữ tìm kiếm hiện tại. Đặt `EXACT_SEARCH=True` để thêm
+`params={"exact": true}` vào từng nhánh dense (cả chế độ 4 nhánh và 6 nhánh).
+BM25 vốn tìm kiếm chính xác; số ứng viên, weighted RRF và schema đầu ra giữ nguyên.
+Exact quét toàn bộ vector dense nên có thể chậm hơn trên CPU. Khi đổi chế độ,
+dùng `OUTPUT_NAME` mới để không dùng lại output/checkpoint của chế độ cũ.
 
 Notebook gói nguyên mã pipeline hiện tại, không clone repository hay đọc `.env`.
 Không tải encoder GTE: dùng vector và `dense_weight` từ Parquet. Chỉ adapter lưu trữ
@@ -33,7 +49,7 @@ checkpoint theo query, danh sách lỗi, `run_report.json`, và log. Giữ schem
 `integer-doc-ids-v1`: ID query/doc là số nguyên; mỗi chunk có `doc_id`, `chunk_text`.
 Thứ tự query theo Parquet, thứ tự tài liệu/chunk theo pipeline hiện tại.
 
-Notebook chạy 6 kiểm tra adapter nhỏ ngay trên Kaggle, rồi đối chiếu trên 3 query.
+Notebook chạy 7 kiểm tra adapter nhỏ ngay trên Kaggle, rồi đối chiếu trên 3 query.
 Hai lượt truy vấn live phải giữ nguyên điểm theo từng hạng và điểm của mọi ứng viên
 chung; chỉ cho phép đổi chỗ trong nhóm đồng điểm. Nếu khác ứng viên tại ngưỡng
 top-k, truy vấn đối chứng lấy toàn bộ hợp ứng viên của 4 nhánh phải chứng minh mọi
@@ -64,6 +80,8 @@ Chuẩn bị lại notebook sau khi sửa pipeline (chỉ đóng gói, không ki
 ```sh
 .venv/bin/python Scripts/Kaggle/prepare_retrieval_notebook.py
 ```
+
+Khi dataset query đã có trên Kaggle, thêm `--notebook-only` để chỉ đóng gói Notebook.
 
 Thư mục upload nằm trong `artifacts/kaggle-retrieval/{queries,kernel}`.
 Kaggle CLI phải upload Parquet với `--keep-tabular` để giữ metadata/vector kiểu gốc.

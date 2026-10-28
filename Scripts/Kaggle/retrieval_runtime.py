@@ -192,10 +192,17 @@ class JsonSourceStore:
 class SourceQdrant(QdrantManager):
     """Keep query/fusion intact, allow cold searches, optionally fetch only chunk IDs."""
 
-    def __init__(self, *args, ids_only=True, record_queries=None, replay_queries=None, **kwargs):
+    def __init__(self, *args, ids_only=True, exact_search=False, record_queries=None, replay_queries=None, **kwargs):
         super().__init__(*args, **kwargs)
         self.ids_only = ids_only
+        self.exact_search = exact_search
         self.record_queries, self.replay_queries = record_queries, replay_queries
+
+    def _dense_query(self, vector):
+        query = super()._dense_query(vector)
+        if self.exact_search:
+            query["params"] = {"exact": True}
+        return query
 
     def _request(self, method, path, body=None):
         is_query = method == "POST" and path.endswith("/points/query")

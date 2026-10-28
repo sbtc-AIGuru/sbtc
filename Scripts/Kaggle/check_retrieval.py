@@ -8,8 +8,9 @@ import tempfile
 import unittest
 import zipfile
 from copy import deepcopy
+from unittest.mock import Mock
 
-from Scripts.Kaggle.retrieval_runtime import build_source_index, JsonSourceStore, validate_submission, compare_query_traces
+from Scripts.Kaggle.retrieval_runtime import build_source_index, JsonSourceStore, SourceQdrant, validate_submission, compare_query_traces
 
 
 class SourceAdapterChecks(unittest.TestCase):
@@ -58,6 +59,28 @@ class SourceAdapterChecks(unittest.TestCase):
     def test_json_array_preserves_non_ascii_byte_offsets(self):
         _, _, _, store = self.make_store(array=True)
         self.assertEqual(store.get_submission_chunks(["17:c:0"])["17:c:0"]["doc_id"], 17)
+
+    def test_exact_search_applies_to_dense_prefetch_only(self):
+        query = {"original_query": "Việt", "eng_query": "English", "chinese_query": "中文"}
+        for exact in (False, True):
+            session = Mock()
+            session.request.return_value.json.return_value = {"result": {"points": []}}
+            manager = SourceQdrant(dense_vector_name="dense", sparse_vector_name="bm25",
+                                   dense_encoder=lambda texts: [[1.0, 0.0] for _ in texts],
+                                   exact_search=exact, session=session)
+            self.addCleanup(manager.close)
+            manager._config = {"vectors": {"dense": {"size": 2}}, "sparse_vectors": {"bm25": {}}}
+            for method, dense_count in ((manager.query_original_dense, 1), (manager.query_multilingual_dense, 3)):
+                method(query, top_k=150, branch_limit=100, dense_weight=0.75)
+                body = session.request.call_args.kwargs["json"]
+                self.assertEqual(len(body["prefetch"]), dense_count + 3)
+                self.assertEqual(body["limit"], 150)
+                self.assertEqual(body["query"]["rrf"]["weights"], [0.75 / dense_count] * dense_count + [0.25 / 3] * 3)
+                for branch in body["prefetch"]:
+                    self.assertEqual(branch["limit"], 100)
+                    self.assertEqual(branch.get("params"), {"exact": True} if exact and branch["using"] == "dense" else None)
+            manager.query_original_dense(query, dense_weight=0)
+            self.assertTrue(all("params" not in branch for branch in session.request.call_args.kwargs["json"]["prefetch"]))
 
     def test_source_checksum_mismatch_is_rejected(self):
         source, _, manifest, _ = self.make_store()

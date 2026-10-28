@@ -4,6 +4,7 @@ This only writes artifacts. It never imports or executes the retrieval pipeline.
 """
 
 import base64
+import argparse
 import hashlib
 import io
 import json
@@ -32,7 +33,7 @@ def cell(source, kind="code"):
     return result
 
 
-def main():
+def main(notebook_only=False):
     buffer = io.BytesIO()
     hashes = {}
     with zipfile.ZipFile(buffer, "w", compression=zipfile.ZIP_DEFLATED) as bundle:
@@ -47,6 +48,7 @@ def main():
     cells = [cell('''# Cấu hình: sửa tại đây, chọn CPU + Internet rồi Run All / Save Version (Run All).
 RERANK = False
 SEARCH_MODE = "4-branch"
+EXACT_SEARCH = False             # True: quét chính xác nhánh dense; False: giữ tìm kiếm hiện tại
 BRANCH_LIMIT = 100
 TOP_K = 150
 
@@ -151,7 +153,7 @@ logging.basicConfig(level=logging.INFO, format="%(asctime)s %(message)s", force=
 RUN_STARTED = time.monotonic()
 REPORT = {"success": False, "runtime": "Kaggle CPU", "source_hashes": SOURCE_HASHES,
           "bundle_sha256": BUNDLE_SHA256, "settings": {
-              "rerank": RERANK, "search_mode": SEARCH_MODE, "branch_limit": BRANCH_LIMIT,
+              "rerank": RERANK, "search_mode": SEARCH_MODE, "exact_search": EXACT_SEARCH, "branch_limit": BRANCH_LIMIT,
               "top_k": TOP_K, "workers": WORKERS, "batch_size": BATCH_SIZE,
               "timeout": REQUEST_TIMEOUT, "server_query_timeout": max(1, int(REQUEST_TIMEOUT) - 10),
               "query_retries": QUERY_RETRIES,
@@ -197,16 +199,16 @@ payload_trace, live_trace = [], []
 
 def source_factory(encoder):
     return SourceQdrant.from_manifest(manifest_path, url=os.environ["QDRANT_URL"],
-                                      dense_encoder=encoder, timeout=REQUEST_TIMEOUT)
+                                      dense_encoder=encoder, timeout=REQUEST_TIMEOUT, exact_search=EXACT_SEARCH)
 
 def payload_factory(encoder):
     return SourceQdrant.from_manifest(manifest_path, url=os.environ["QDRANT_URL"],
-                                      dense_encoder=encoder, timeout=REQUEST_TIMEOUT, ids_only=False,
+                                      dense_encoder=encoder, timeout=REQUEST_TIMEOUT, exact_search=EXACT_SEARCH, ids_only=False,
                                       record_queries=payload_trace)
 
 def live_check_factory(encoder):
     return SourceQdrant.from_manifest(manifest_path, url=os.environ["QDRANT_URL"],
-                                      dense_encoder=encoder, timeout=REQUEST_TIMEOUT,
+                                      dense_encoder=encoder, timeout=REQUEST_TIMEOUT, exact_search=EXACT_SEARCH,
                                       record_queries=live_trace)
 
 options = dict(
@@ -215,7 +217,7 @@ options = dict(
     batch_size=BATCH_SIZE, workers=WORKERS, timeout=REQUEST_TIMEOUT,
     max_docs=MAX_DOCS, max_chunks=MAX_CHUNKS, query_filter=QUERY_FILTER,
     start=START, end=END, postgres_manager=store, device="cpu",
-    resume_tag="kaggle-json-pointer-v1:" + BUNDLE_SHA256 + ":" + manifest["signature"]["source_sha256"],
+    resume_tag="kaggle-json-pointer-v1:" + BUNDLE_SHA256 + ":" + manifest["signature"]["source_sha256"] + ":exact=" + str(EXACT_SEARCH),
 )
 if PARITY_QUERIES < 1:
     raise ValueError("PARITY_QUERIES phải >= 1 để kiểm tra đối chiếu trước khi chạy")
@@ -262,7 +264,7 @@ replay_trace = deepcopy(payload_trace)
 
 def replay_factory(encoder):
     return SourceQdrant.from_manifest(manifest_path, url=os.environ["QDRANT_URL"],
-                                      dense_encoder=encoder, timeout=REQUEST_TIMEOUT,
+                                      dense_encoder=encoder, timeout=REQUEST_TIMEOUT, exact_search=EXACT_SEARCH,
                                       replay_queries=replay_trace)
 
 replayed = parity_run("json_replay", replay_factory)
@@ -365,19 +367,22 @@ stop_qdrant(process, qdrant_log)
         "competition_sources": [], "model_sources": [],
     }
     (kernel_dir / "kernel-metadata.json").write_text(json.dumps(kernel_metadata, indent=2) + "\n")
-    query = ROOT / "artifacts/query-embeddings/query_rewritten_final_embeddings_weighted.parquet"
-    shutil.copyfile(query, dataset_dir / query.name)
-    metadata = {
-        "title": "SBTC query embeddings weighted 20261021",
-        "id": "nhminh107/sbtc-query-embeddings-weighted-20261021",
-        "licenses": [{"name": "other"}],
-        "description": "Private input for the SBTC CPU retrieval notebook. Original weighted query Parquet, unchanged. Rights retained by the original authors; private use only.",
-    }
-    (dataset_dir / "dataset-metadata.json").write_text(json.dumps(metadata, indent=2) + "\n")
+    if not notebook_only:
+        query = ROOT / "artifacts/query-embeddings/query_rewritten_final_embeddings_weighted.parquet"
+        shutil.copyfile(query, dataset_dir / query.name)
+        metadata = {
+            "title": "SBTC query embeddings weighted 20261021",
+            "id": "nhminh107/sbtc-query-embeddings-weighted-20261021",
+            "licenses": [{"name": "other"}],
+            "description": "Private input for the SBTC CPU retrieval notebook. Original weighted query Parquet, unchanged. Rights retained by the original authors; private use only.",
+        }
+        (dataset_dir / "dataset-metadata.json").write_text(json.dumps(metadata, indent=2) + "\n")
     (UPLOAD / "source-hashes.json").write_text(json.dumps(hashes, indent=2) + "\n")
     print(f"Prepared {NOTEBOOK}; {len(SOURCES)} source files, bundle SHA-256 {bundle_hash}")
     print(f"Upload folders: {dataset_dir}; {kernel_dir}")
 
 
 if __name__ == "__main__":
-    main()
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--notebook-only", action="store_true", help="Reuse the query dataset already uploaded to Kaggle")
+    main(notebook_only=parser.parse_args().notebook_only)
